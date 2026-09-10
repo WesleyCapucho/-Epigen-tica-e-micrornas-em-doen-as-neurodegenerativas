@@ -28,13 +28,13 @@ Todos os valores são agregados a partir de estimativas publicadas, por efeitos 
 
 | Subgrupo | AUC agregada (IC 95%) | Estimativas | Estudos | I² |
 |---|---|---|---|---|
-| Global | 0,803 (0,735–0,856) | 24 | 15 | 93% |
+| Global | 0,802 (0,735–0,856) | 24 | 15 | 93% |
 | Doença de Alzheimer | 0,836 (0,778–0,882) | 12 | 9 | 76% |
-| Doença de Parkinson | 0,753 (0,621–0,850) | 12 | 6 | 95% |
+| Doença de Parkinson | 0,753 (0,621–0,850) | 12 | 6 | 94% |
 | **miRNA isolado** | **0,745 (0,699–0,785)** | 16 | 9 | 46% |
 | **Painel multi-miRNA** | **0,888 (0,829–0,928)** | 8 | 7 | 85% |
-| AD, miRNA isolado | 0,774 (0,732–0,810) | 6 | 5 | **0%** |
-| PD, miRNA isolado | 0,716 (0,641–0,781) | 10 | 4 | 55% |
+| AD, miRNA isolado | 0,773 (0,732–0,810) | 6 | 5 | **0%** |
+| PD, miRNA isolado | 0,716 (0,640–0,781) | 10 | 4 | 55% |
 
 Quatro resultados sustentam o argumento:
 
@@ -42,7 +42,7 @@ Quatro resultados sustentam o argumento:
 
 2. **Painéis vão substancialmente melhor, e a diferença não é ruído.** Os intervalos de confiança de miRNAs isolados (0,699–0,785) e de painéis (0,829–0,928) não se sobrepõem. O ganho está em combinar marcadores, e não em achar um marcador isolado melhor.
 
-3. **A atenção da literatura não acompanha o desempenho medido.** Entre os miRNAs com dados de acurácia extraíveis, a correlação entre quantos artigos do corpus mencionam um miRNA e a AUC reportada é nula no geral (ρ de Spearman = −0,11; p = 0,62) e *negativa* quando restrita às estimativas que passaram na elegibilidade (ρ = −0,41; p = 0,14). Os dois miRNAs mais discutidos no corpus, miR-125b (13 artigos) e miR-146a (11 artigos), retornaram AUCs de 0,75 e 0,68 — a parte baixa da distribuição. É exploratório e com baixo poder, mas aponta na direção contrária à ênfase da área.
+3. **A atenção da literatura não acompanha o desempenho medido.** Entre os miRNAs com dados de acurácia extraíveis, a correlação entre quantos artigos do corpus mencionam um miRNA e a AUC reportada é nula no geral (ρ de Spearman = −0,11; p = 0,61) e *negativa* quando restrita às estimativas que passaram na elegibilidade (ρ = −0,41; p = 0,14). Os dois miRNAs mais discutidos no corpus, miR-125b (13 artigos) e miR-146a (11 artigos), retornaram AUCs de 0,75 e 0,68 — a parte baixa da distribuição. É exploratório e com baixo poder, mas aponta na direção contrária à ênfase da área.
 
 4. **Nada chegou à clínica.** O ClinicalTrials.gov (10/09/2026) lista 16 ensaios registrados de terapias dirigidas a miRNA no mundo — em hepatite C, oncologia e dermatologia — e **zero** em Alzheimer ou Parkinson. Notavelmente, um mimético de miR-29 (MRG-201/remlarsen) chegou à Fase 2, para queloide, por injeção intradérmica. miR-29 é exatamente o eixo que a monografia de origem simulou como terapia cerebral: a classe molecular existe, a via até o cérebro não.
 
@@ -109,7 +109,7 @@ Os textos completos **não** são redistribuídos aqui — apenas os dados extra
 
 - A cobertura é apenas PubMed/MEDLINE. Buscas em Scopus e Web of Science exigem credenciais institucionais indisponíveis no ambiente em que esta análise rodou, então a revisão não é uma varredura multibase completa.
 - A extração de dados se restringe a textos completos de acesso aberto no PubMed Central (55 dos 95 estudos primários elegíveis), o que pode, por si só, selecionar um subconjunto não aleatório da literatura.
-- A heterogeneidade é alta (I² até 95%) e o teste de Egger é significativo em vários subgrupos; as estimativas agregadas são mais bem lidas como limites otimistas.
+- A heterogeneidade é alta (I² até 94%) e o teste de Egger é significativo em vários subgrupos; as estimativas agregadas são mais bem lidas como limites otimistas.
 - A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho é exploratória e não sustenta leitura causal.
 - Os modelos EDO do `scripts/02` usam parâmetros ilustrativos, não calibrados. São qualitativos e geradores de hipóteses; não são predições quantitativas e não devem ser reportados como tal.
 

@@ -18,9 +18,9 @@ A AUC agregada de um miRNA circulante isolado é **0,745 (IC 95% 0,699–0,785)*
 
 Esse número precisa ser lido contra o que ele teria de superar. Uma AUC em torno de 0,80 é o piso convencional para um teste diagnóstico autônomo; os ensaios plasmáticos consolidados de fosfo-tau para AD ficam bem acima de 0,90. Um valor agregado de 0,745, com limite superior de 0,785, não alcança o piso — o intervalo inteiro fica abaixo de 0,80.
 
-O subgrupo de miRNA isolado em AD é o resultado mais informativo da análise, porque é o que tem **I² = 0%**. Seis estimativas de cinco estudos diferentes, em biofluidos diferentes, em plataformas diferentes, convergem para 0,774 (0,732–0,810) sem heterogeneidade detectável entre estudos. Não se trata de uma literatura ruidosa que talvez contenha um sinal forte, se apenas fosse mais bem medida. Trata-se de um efeito consistente, bem replicado e *modesto*. Consistência em um valor mediano é um resultado mais desanimador do que inconsistência, porque retira a esperança de que melhor metodologia moveria a estimativa.
+O subgrupo de miRNA isolado em AD é o resultado mais informativo da análise, porque é o que tem **I² = 0%**. Seis estimativas de cinco estudos diferentes, em biofluidos diferentes, em plataformas diferentes, convergem para 0,773 (0,732–0,810) sem heterogeneidade detectável entre estudos. Não se trata de uma literatura ruidosa que talvez contenha um sinal forte, se apenas fosse mais bem medida. Trata-se de um efeito consistente, bem replicado e *modesto*. Consistência em um valor mediano é um resultado mais desanimador do que inconsistência, porque retira a esperança de que melhor metodologia moveria a estimativa.
 
-Os miRNAs isolados em PD agregam ainda mais baixo, em 0,716 (0,641–0,781), com heterogeneidade moderada (I² = 55%).
+Os miRNAs isolados em PD agregam ainda mais baixo, em 0,716 (0,640–0,781), com heterogeneidade moderada (I² = 55%).
 
 ## 3. O ganho está nos painéis, e a diferença não é ruído
 
@@ -39,7 +39,7 @@ Duas ressalvas acompanham a estimativa dos painéis. A heterogeneidade é alta (
 
 Contar quantos artigos do corpus mencionam cada miRNA e correlacionar isso com sua AUC medida resulta em:
 
-- em todas as estimativas de miRNA isolado: ρ de Spearman = −0,11 (p = 0,62)
+- em todas as estimativas de miRNA isolado: ρ de Spearman = −0,11 (p = 0,61)
 - restrito às estimativas elegíveis para o pool primário: **ρ = −0,41 (p = 0,14)**
 
 Nenhum é estatisticamente significativo e, com a maioria dos miRNAs contribuindo com um único estudo, o teste tem baixo poder — um resultado nulo aqui não é evidência de ausência de associação, e o coeficiente negativo é um sinal para investigar, não uma conclusão.
@@ -103,6 +103,6 @@ Isso reenquadra honestamente a "terapia com mimético de miRNA" simulada: a barr
 - Apenas PubMed/MEDLINE; Scopus e Web of Science não foram consultadas.
 - Extração limitada a textos completos de acesso aberto no PubMed Central (55 de 95 estudos primários elegíveis), uma fatia potencialmente não aleatória.
 - 24 estimativas ponderadas de 15 estudos é uma base de evidência modesta; as células de subgrupo são ainda menores (painéis em PD: k = 2).
-- Heterogeneidade de até I² = 95% em alguns subgrupos.
+- Heterogeneidade de até I² = 94% em alguns subgrupos.
 - A análise de atenção versus desempenho é exploratória e com baixo poder.
 - Acurácia reportada não é acurácia clínica prospectiva.

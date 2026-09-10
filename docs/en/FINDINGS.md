@@ -18,9 +18,9 @@ Pooled AUC for a single circulating miRNA is **0.745 (95% CI 0.699–0.785)** ac
 
 That number should be read against what it would have to beat. An AUC around 0.80 is the conventional floor for a standalone diagnostic test; established plasma phospho-tau assays for AD sit well above 0.90. A pooled 0.745, with an upper confidence bound of 0.785, does not reach the floor — the entire interval sits below 0.80.
 
-The AD single-miRNA subgroup is the most informative result in the analysis, because it is the one with **I² = 0%**. Six estimates from five different studies, in different biofluids, on different platforms, converge on 0.774 (0.732–0.810) with no detectable between-study heterogeneity. This is not a noisy literature that might contain a strong signal if only it were measured better. It is a consistent, well-replicated, *modest* effect. Consistency at a mediocre value is a more discouraging result than inconsistency, because it removes the hope that better methodology would move the estimate.
+The AD single-miRNA subgroup is the most informative result in the analysis, because it is the one with **I² = 0%**. Six estimates from five different studies, in different biofluids, on different platforms, converge on 0.773 (0.732–0.810) with no detectable between-study heterogeneity. This is not a noisy literature that might contain a strong signal if only it were measured better. It is a consistent, well-replicated, *modest* effect. Consistency at a mediocre value is a more discouraging result than inconsistency, because it removes the hope that better methodology would move the estimate.
 
-PD single miRNAs pool lower still, at 0.716 (0.641–0.781), with moderate heterogeneity (I² = 55%).
+PD single miRNAs pool lower still, at 0.716 (0.640–0.781), with moderate heterogeneity (I² = 55%).
 
 ## 3. Panels are where the gain is, and the gap is not noise
 
@@ -39,7 +39,7 @@ Two cautions attach to the panel estimate. Panel heterogeneity is high (I² = 85
 
 Counting how many corpus articles mention each miRNA and correlating that with its measured AUC gives:
 
-- across all single-miRNA estimates: Spearman ρ = −0.11 (p = 0.62)
+- across all single-miRNA estimates: Spearman ρ = −0.11 (p = 0.61)
 - restricted to estimates eligible for the primary pool: **ρ = −0.41 (p = 0.14)**
 
 Neither is statistically significant, and with most miRNAs contributing a single study the test is underpowered — a null result here is not evidence of no association, and the negative coefficient is a signal to investigate, not a conclusion.
@@ -103,6 +103,6 @@ That reframes the simulated "miRNA mimic therapy" honestly: the barrier is not w
 - PubMed/MEDLINE only; Scopus and Web of Science were not searched.
 - Extraction limited to PubMed Central open-access full texts (55 of 95 eligible primary studies), a potentially non-random slice.
 - 24 weighted estimates from 15 studies is a modest evidence base; subgroup cells are smaller still (PD panels: k = 2).
-- Heterogeneity up to I² = 95% in some subgroups.
+- Heterogeneity up to I² = 94% in some subgroups.
 - The attention-versus-performance analysis is exploratory and underpowered.
 - Reported accuracy is not prospective clinical accuracy.

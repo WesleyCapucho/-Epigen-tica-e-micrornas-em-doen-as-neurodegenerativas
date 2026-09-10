@@ -28,13 +28,13 @@ All values are pooled from published estimates using DerSimonian–Laird random 
 
 | Subgroup | Pooled AUC (95% CI) | Estimates | Studies | I² |
 |---|---|---|---|---|
-| Overall | 0.803 (0.735–0.856) | 24 | 15 | 93% |
+| Overall | 0.802 (0.735–0.856) | 24 | 15 | 93% |
 | Alzheimer's disease | 0.836 (0.778–0.882) | 12 | 9 | 76% |
-| Parkinson's disease | 0.753 (0.621–0.850) | 12 | 6 | 95% |
+| Parkinson's disease | 0.753 (0.621–0.850) | 12 | 6 | 94% |
 | **Single miRNA** | **0.745 (0.699–0.785)** | 16 | 9 | 46% |
 | **Multi-miRNA panel** | **0.888 (0.829–0.928)** | 8 | 7 | 85% |
-| AD, single miRNA | 0.774 (0.732–0.810) | 6 | 5 | **0%** |
-| PD, single miRNA | 0.716 (0.641–0.781) | 10 | 4 | 55% |
+| AD, single miRNA | 0.773 (0.732–0.810) | 6 | 5 | **0%** |
+| PD, single miRNA | 0.716 (0.640–0.781) | 10 | 4 | 55% |
 
 Four results carry the argument:
 
@@ -42,7 +42,7 @@ Four results carry the argument:
 
 2. **Panels do substantially better, and the difference is not noise.** The confidence intervals of single miRNAs (0.699–0.785) and panels (0.829–0.928) do not overlap. Combining markers, not finding a better single marker, is where the gain is.
 
-3. **Literature attention does not track measured performance.** Across miRNAs with extractable accuracy data, the correlation between how many corpus articles mention a miRNA and its reported AUC is null overall (Spearman ρ = −0.11, p = 0.62) and *negative* when restricted to the estimates that passed eligibility (ρ = −0.41, p = 0.14). The two most-discussed miRNAs in the corpus, miR-125b (13 articles) and miR-146a (11 articles), returned AUCs of 0.75 and 0.68 — the lower end of the distribution. This is exploratory and underpowered, but it points the opposite way from the field's emphasis.
+3. **Literature attention does not track measured performance.** Across miRNAs with extractable accuracy data, the correlation between how many corpus articles mention a miRNA and its reported AUC is null overall (Spearman ρ = −0.11, p = 0.61) and *negative* when restricted to the estimates that passed eligibility (ρ = −0.41, p = 0.14). The two most-discussed miRNAs in the corpus, miR-125b (13 articles) and miR-146a (11 articles), returned AUCs of 0.75 and 0.68 — the lower end of the distribution. This is exploratory and underpowered, but it points the opposite way from the field's emphasis.
 
 4. **Nothing has reached the clinic.** ClinicalTrials.gov (10 Sep 2026) lists 16 registered trials of miRNA-directed therapeutics worldwide — in hepatitis C, oncology and dermatology — and **zero** in Alzheimer's or Parkinson's disease. Notably, a miR-29 mimic (MRG-201/remlarsen) did reach Phase 2, for keloid scarring by intradermal injection. miR-29 is exactly the axis the source monograph simulated as a brain therapy: the molecule class exists, the route to the brain does not.
 
