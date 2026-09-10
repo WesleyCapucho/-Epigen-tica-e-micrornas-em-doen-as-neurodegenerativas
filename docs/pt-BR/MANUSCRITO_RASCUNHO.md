@@ -11,13 +11,13 @@
 
 ## Resumo
 
-**Contexto.** Há mais de uma década os microRNAs circulantes vêm sendo propostos como biomarcadores minimamente invasivos para a doença de Alzheimer (AD) e a doença de Parkinson (PD). A literatura é vasta e entusiasmada, mas suas estimativas individuais raramente foram agregadas, e os miRNAs que dominam essa literatura nunca foram confrontados com o quanto de fato discriminam pacientes.
+**Contexto.** Há mais de uma década os microRNAs circulantes vêm sendo propostos como biomarcadores minimamente invasivos para a doença de Alzheimer (AD) e a doença de Parkinson (PD). Diversas meta-análises já agregaram sua acurácia diagnóstica, reportando áreas ROC-resumo de 0,87 a 0,90. O que não foi perguntado é se os miRNAs que dominam essa literatura são os que de fato discriminam pacientes, e até onde as ambições terapêuticas da área chegaram na clínica.
 
-**Métodos.** Buscamos no PubMed/MEDLINE (2015 a 10 de setembro de 2026) estudos que reportassem acurácia diagnóstica de miRNAs dosados em biofluido na AD ou na PD. A triagem seguiu o PRISMA 2020. Os valores de acurácia foram extraídos de textos completos de acesso aberto, cada um registrado junto da frase verbatim que o sustenta. As áreas sob a curva ROC foram agregadas na escala logito por efeitos aleatórios de DerSimonian–Laird, com erros-padrão vindos dos intervalos de confiança publicados ou de Hanley–McNeil quando havia tamanhos de grupo. Em seguida, testamos se a frequência com que um miRNA é mencionado no corpus prediz sua acurácia medida, e consultamos o ClinicalTrials.gov quanto a terapias dirigidas a miRNA.
+**Métodos.** Buscamos no PubMed/MEDLINE e no Scopus (2015 a 10 de setembro de 2026) estudos que reportassem acurácia diagnóstica de miRNAs dosados em biofluido na AD ou na PD. A triagem seguiu o PRISMA 2020. Os valores de acurácia foram extraídos de textos completos de acesso aberto, cada um registrado junto da frase verbatim que o sustenta. As áreas sob a curva ROC foram agregadas na escala logito por efeitos aleatórios de DerSimonian–Laird, com erros-padrão vindos dos intervalos de confiança publicados ou de Hanley–McNeil quando havia tamanhos de grupo. Em seguida, testamos se a frequência com que um miRNA é mencionado no corpus prediz sua acurácia medida, e consultamos o ClinicalTrials.gov quanto a terapias dirigidas a miRNA.
 
-**Resultados.** Dos 234 registros únicos triados, 189 eram estudos primários e 95 reportaram AUC ou par sensibilidade–especificidade; 26 estudos renderam 42 estimativas extraíveis, das quais 24 (15 estudos independentes) puderam ser ponderadas. miRNAs circulantes isolados agregaram em AUC de 0,745 (IC 95% 0,699–0,785). Painéis multi-miRNA agregaram em 0,888 (0,829–0,928), com intervalos de confiança que não se sobrepõem aos dos marcadores isolados. O subgrupo de miRNA isolado em AD não mostrou heterogeneidade detectável (I² = 0%; agregado 0,773; 0,732–0,810). A atenção da literatura não predisse a acurácia medida (ρ de Spearman = −0,11; p = 0,61 no geral; ρ = −0,41; p = 0,14 entre as estimativas elegíveis): os dois miRNAs mais discutidos no corpus, miR-125b e miR-146a, devolveram AUCs de 0,75 e 0,68. O teste de Egger indicou efeitos de estudos pequenos em vários subgrupos. Nenhum mimético de miRNA ou antagomiR entrou em ensaio clínico registrado para AD ou PD.
+**Resultados.** Dos 482 registros únicos triados, 34 estudos renderam 50 estimativas extraíveis, das quais 25 (16 estudos independentes) puderam ser ponderadas. miRNAs circulantes isolados agregaram em AUC de 0,758 (IC 95% 0,706–0,804). Painéis multi-miRNA agregaram em 0,888 (0,829–0,928), com intervalos de confiança que não se sobrepõem aos dos marcadores isolados — distância coerente com meta-análises anteriores que também acharam combinações superiores a marcadores isolados. A atenção da literatura mostrou relação inversa com a acurácia medida (ρ de Spearman = −0,61; p = 0,012 entre as estimativas elegíveis): os dois miRNAs mais discutidos no corpus, miR-125b e miR-146a, devolveram AUCs de 0,75 e 0,68. O teste de Egger indicou efeitos de estudos pequenos em vários subgrupos. Nenhum mimético de miRNA ou antagomiR entrou em ensaio clínico registrado para AD ou PD.
 
-**Conclusões.** Agregado ao longo da literatura publicada, um miRNA circulante isolado não alcança a acurácia esperada de um teste diagnóstico autônomo, e a consistência desse achado na AD (I² = 0%) sugere que a limitação é real, e não metodológica. Painéis têm desempenho materialmente melhor e é para eles que o esforço da área deveria convergir. A proeminência de miRNAs individuais nessa literatura reflete atenção de pesquisa, e não desempenho diagnóstico.
+**Conclusões.** Agregado ao longo da literatura publicada, um miRNA circulante isolado desempenha no limiar ou abaixo do que se espera de um teste diagnóstico autônomo. Painéis têm desempenho materialmente melhor e é para eles que o esforço da área deveria convergir. A proeminência de miRNAs individuais nessa literatura reflete atenção de pesquisa, e não desempenho diagnóstico — se alguma coisa, de forma inversa. Um achado metodológico acompanha o clínico: acrescentar uma segunda base a uma revisão de base única já concluída derrubou duas de suas conclusões.
 
 **Palavras-chave:** microRNA; doença de Alzheimer; doença de Parkinson; acurácia diagnóstica; meta-análise; biomarcadores; viés de publicação.
 
@@ -29,11 +29,13 @@ O argumento a favor dos microRNAs circulantes como biomarcadores de neurodegener
 
 Mais de uma década de trabalho decorreu dessa premissa. Estudos individuais reportam que membros da família miR-29 acompanham a expressão de BACE1 e o processamento amiloide na AD, que miR-7 e miR-153 reprimem SNCA e modulam o acúmulo de α-sinucleína na PD, e que o miR-146a ocupa o centro da resposta neuroinflamatória via IRAK1 e TRAF6. Revisões dessa literatura listaram miRNAs desregulados, mapearam-nos sobre vias e concluíram que são promissores.
 
-O que se fez muito menos foi a pergunta aritmética. Se reunirmos as áreas sob a curva ROC reportadas e as agregarmos, que acurácia um miRNA circulante de fato alcança? E uma segunda pergunta vem logo atrás, uma que revisões desse campo são estruturalmente incapazes de responder: os miRNAs que dominam a literatura são os que melhor funcionam?
+A pergunta aritmética já foi feita. Ao menos seis meta-análises agregaram acurácia diagnóstica de miRNAs nessas doenças, reportando áreas ROC-resumo entre 0,87 e 0,90, e três delas reportam que combinações de miRNAs superam marcadores isolados. Não reivindicamos primazia aqui e, onde nossos resultados concordam com os delas, dizemos isso.
+
+Uma segunda pergunta, porém, não foi feita, e revisões desse campo são estruturalmente incapazes de respondê-la: os miRNAs que dominam a literatura são os que melhor funcionam?
 
 Essa segunda pergunta importa mais do que parece. O modo habitual de estabelecer que um miRNA é importante é mostrar que ele é frequentemente reportado e que suas interações-alvo estão experimentalmente catalogadas. Mas esses dois critérios não são independentes. Um miRNA que atraiu atenção cedo acumula tanto citações quanto interações validadas, e a proeminência acumulada atrai mais estudos. Frequência bibliométrica e validação catalogada compartilham uma causa comum, de modo que a concordância entre elas é evidência fraca de importância biológica ou clínica. A acurácia diagnóstica agregada, medida em pacientes, é externa a esse laço.
 
-Fizemos, portanto, três coisas. Conduzimos uma revisão sistemática e meta-análise de efeitos aleatórios da acurácia diagnóstica de miRNAs circulantes na AD e na PD. Testamos se a atenção nessa literatura se associa ao desempenho medido. E, porque as ambições da área vão além do diagnóstico e alcançam a terapia de reposição de miRNA, perguntamos ao registro de ensaios clínicos até onde essa ambição de fato chegou.
+Fizemos, portanto, três coisas. Conduzimos uma revisão sistemática e meta-análise de efeitos aleatórios da acurácia diagnóstica de miRNAs circulantes na AD e na PD, agregando as AUCs que os estudos reportaram em vez de ajustar uma curva ROC-resumo, o que responde à pergunta mais estreita do que um estudo típico observa. Testamos se a atenção nessa literatura se associa ao desempenho medido. E, porque as ambições da área vão além do diagnóstico e alcançam a terapia de reposição de miRNA, perguntamos ao registro de ensaios clínicos até onde essa ambição de fato chegou.
 
 ## 2. Métodos
 
@@ -41,9 +43,9 @@ O detalhamento completo, incluindo cada string de busca, está no documento de m
 
 ### 2.1 Busca
 
-O PubMed/MEDLINE foi consultado pela API E-utilities do NCBI em 10 de setembro de 2026, restrito a publicações a partir de 1º de janeiro de 2015, sem restrição de idioma. Foram executados dois braços, idênticos exceto pelo termo da doença, cada um combinando um bloco de microRNA, um bloco de biofluido (plasma, soro, líquor, sangue, exossomo, vesícula extracelular) e um bloco de acurácia diagnóstica (ROC, AUC, sensibilidade, especificidade, acurácia diagnóstica, valor diagnóstico), todos em Título/Resumo.
+O PubMed/MEDLINE foi consultado pela API E-utilities do NCBI em 10 de setembro de 2026, restrito a publicações a partir de 1º de janeiro de 2015, sem restrição de idioma. Foram executados dois braços, idênticos exceto pelo termo da doença, cada um combinando um bloco de microRNA, um bloco de biofluido (plasma, soro, líquor, sangue, exossomo, vesícula extracelular) e um bloco de acurácia diagnóstica (ROC, AUC, sensibilidade, especificidade, acurácia diagnóstica, valor diagnóstico), todos em Título/Resumo. Os braços retornaram 168 (AD) e 97 (PD) registros, 234 únicos após deduplicação.
 
-Scopus e Web of Science não foram consultadas, porque o ambiente de análise não tinha acesso institucional a elas. Declaramos isso, em vez de estimar o que essas bases teriam retornado.
+O Scopus foi então consultado com a expressão `TITLE-ABS-KEY` equivalente para o braço AD, exportado e fundido. Retornou 408 registros, dos quais 159 já constavam do PubMed e um era duplicata interna, restando **248 registros novos** — mais do que todo o braço AD do PubMed havia recuperado. A deduplicação foi por DOI, PubMed ID e título normalizado. O braço PD do Scopus e a Web of Science seguem não consultados; a cobertura é, portanto, assimétrica entre as duas doenças, e dizemos isso em vez de sugerir uma busca uniforme.
 
 ### 2.2 Triagem e elegibilidade
 
@@ -69,37 +71,37 @@ Por fim, contagens de artigos distintos que mencionam cada miRNA foram calculada
 
 ### 3.1 Fluxo dos estudos
 
-Os dois braços retornaram 168 (AD) e 97 (PD) registros, 234 únicos após deduplicação, com 30 recuperados por ambos. A triagem separou 45 registros como literatura secundária, restando 189 estudos primários, dos quais 95 reportaram AUC ou par sensibilidade–especificidade e 55 destes tinham texto completo de acesso aberto. Foram lidos 45 textos completos, gerando 42 estimativas extraíveis de 26 estudos. Vinte e oito atenderam à elegibilidade e 24 — de 15 estudos independentes — tinham erro-padrão estimável e puderam ser ponderadas.
+O PubMed retornou 234 registros únicos; o braço AD do Scopus acrescentou outros 248, totalizando 482 registros únicos. A triagem separou 46 registros do PubMed e 147 do Scopus como literatura secundária, restando 188 e 101 estudos primários respectivamente; 95 e 20 destes reportaram AUC ou par sensibilidade–especificidade. Foram lidos 45 textos completos. No total, **34 estudos** renderam **50 estimativas extraíveis**; 31 atenderam à elegibilidade e **25 — de 16 estudos independentes** — tinham erro-padrão estimável e puderam ser ponderadas.
 
-A perda merece comentário. Menos de um registro triado em cada dez contribuiu com uma estimativa ponderada, e a maior causa isolada foram estudos que publicaram AUC sem os tamanhos de grupo ou o intervalo de confiança necessários para ponderá-la.
+A perda merece comentário. Cerca de um registro triado em cada vinte contribuiu com uma estimativa ponderada, e a maior causa isolada foram estudos que publicaram AUC sem os tamanhos de grupo ou o intervalo de confiança necessários para ponderá-la. Das oito estimativas que a busca no Scopus acrescentou, apenas uma pôde ser ponderada exatamente por esse motivo.
 
 ### 3.2 Acurácia diagnóstica agregada
 
 | Subgrupo | k | Estudos | AUC agregada (IC 95%) | I² |
 |---|---|---|---|---|
-| Global | 24 | 15 | 0,802 (0,735–0,856) | 93% |
-| Doença de Alzheimer | 12 | 9 | 0,836 (0,778–0,882) | 76% |
+| Global | 25 | 16 | 0,807 (0,745–0,857) | 93% |
+| Doença de Alzheimer | 13 | 10 | 0,842 (0,788–0,884) | 77% |
 | Doença de Parkinson | 12 | 6 | 0,753 (0,621–0,850) | 94% |
-| miRNA isolado | 16 | 9 | 0,745 (0,699–0,785) | 46% |
+| miRNA isolado | 17 | 10 | 0,758 (0,706–0,804) | 66% |
 | Painel multi-miRNA | 8 | 7 | 0,888 (0,829–0,928) | 85% |
-| AD, miRNA isolado | 6 | 5 | 0,773 (0,732–0,810) | 0% |
+| AD, miRNA isolado | 7 | 6 | 0,802 (0,741–0,851) | 63% |
 | PD, miRNA isolado | 10 | 4 | 0,716 (0,640–0,781) | 55% |
 | Plasma | 5 | 4 | 0,762 (0,642–0,851) | 76% |
-| Soro | 10 | 3 | 0,798 (0,693–0,874) | 82% |
+| Soro | 11 | 4 | 0,810 (0,721–0,876) | 82% |
 
-Um miRNA circulante isolado agrega em 0,745, com todo o intervalo de confiança abaixo de 0,80. Painéis agregam em 0,888, e os dois intervalos não se sobrepõem.
+Um miRNA circulante isolado agrega em 0,758, com a estimativa pontual abaixo do piso convencional de 0,80 para um teste autônomo e o limite superior do intervalo apenas o alcançando. Painéis agregam em 0,888, e os dois intervalos não se sobrepõem.
 
-O subgrupo de miRNA isolado em AD é a célula mais informativa da tabela porque sua heterogeneidade é zero. Seis estimativas de cinco estudos, em soro, exossomos séricos, sangue total e vesículas extracelulares de origem neuronal, e em plataformas de qPCR e sequenciamento, convergem para 0,773 sem variância detectável entre estudos. Um valor modesto e consistente é um resultado mais difícil de contestar do que um inconsistente, porque retira a esperança de que métodos melhores elevariam a estimativa.
+Uma versão anterior desta análise, restrita ao PubMed, não encontrou heterogeneidade detectável no subgrupo de miRNA isolado em AD (I² = 0%; agregado 0,773) e tiramos uma conclusão dessa consistência. A busca no Scopus a dissolveu: um único estudo adicional — miR-202, AUC 0,892 em 121 casos e 86 controles — elevou o subgrupo a 0,802 com I² = 63%. Reportamos isso em vez de apresentar silenciosamente a cifra revisada, porque é a evidência mais clara neste artigo de que uma revisão de base única pode fabricar um consenso aparente.
 
 ### 3.3 Atenção não prediz desempenho
 
-As contagens de menção no corpus de 234 registros correlacionaram-se com a AUC média reportada em ρ = −0,11 (p = 0,61) considerando todas as estimativas de miRNA isolado, e em ρ = −0,41 (p = 0,14) quando restritas às elegíveis. Nenhum alcança significância e, com a maioria dos miRNAs contribuindo com um único estudo, a análise tem baixo poder; reportamo-la como exploratória.
+As contagens de menção no corpus triado correlacionaram-se com a AUC média reportada em ρ = −0,27 (p = 0,16) considerando todas as estimativas de miRNA isolado, e em **ρ = −0,61 (p = 0,012)** quando restritas às elegíveis. Só com o PubMed, o coeficiente restrito era ρ = −0,41 (p = 0,14); a busca ampliada o levou além da significância convencional. Dezesseis miRNAs contribuem, a maioria com um único estudo cada, então a análise segue exploratória e não sustenta leitura causal.
 
 O padrão por trás do coeficiente, ainda assim, merece ser dito. O miR-125b foi mencionado em 13 artigos do corpus e devolveu AUC de 0,753; o miR-146a foi mencionado em 11 e devolveu 0,680, o menor valor entre as estimativas elegíveis. Enquanto isso, let-7i, miR-501-3p e miR-128 — mencionados em um, um e dois artigos, respectivamente — devolveram 0,835, 0,820 e 0,831.
 
 ### 3.4 Efeitos de estudos pequenos
 
-A regressão de Egger foi significativa no pool global, no subgrupo de PD e no subgrupo de painéis. Somado a duas características estruturais desta literatura — pontos de corte derivados na mesma amostra em que são avaliados e coortes frequentemente com menos de 50 por braço —, isso aponta em uma única direção. Todo valor agregado aqui deve ser lido como a ponta otimista de sua faixa plausível.
+A regressão de Egger foi significativa no pool global, no subgrupo de PD, no pool de miRNAs isolados, no subgrupo de painéis e no subgrupo de soro. Somado a duas características estruturais desta literatura — pontos de corte derivados na mesma amostra em que são avaliados e coortes frequentemente com menos de 50 por braço —, isso aponta em uma única direção. Todo valor agregado aqui deve ser lido como a ponta otimista de sua faixa plausível.
 
 ### 3.5 Translação clínica
 
@@ -109,15 +111,31 @@ Nenhum é em doença de Alzheimer ou de Parkinson. Treze ensaios registrados men
 
 ## 4. Discussão
 
-O número central desta análise é 0,745. É o que um miRNA circulante isolado alcança quando as estimativas publicadas são ponderadas e combinadas, e fica abaixo do limiar usualmente tratado como mínimo para um teste diagnóstico autônomo. Para comparação, os ensaios plasmáticos de fosfo-tau hoje em uso clínico para AD operam bem acima de 0,90. Um exame de sangue cujo intervalo de confiança inteiro fica sob 0,80 não está competindo na mesma categoria.
+O número central desta análise é 0,758. É o que um miRNA circulante isolado alcança quando as estimativas publicadas são ponderadas e combinadas: abaixo do limiar usualmente tratado como mínimo para um teste diagnóstico autônomo, com o limite superior do intervalo apenas o alcançando. Para comparação, os ensaios plasmáticos de fosfo-tau hoje em uso clínico para AD operam bem acima de 0,90. Um exame de sangue nesse patamar não está competindo na mesma categoria.
+
+### Relação com meta-análises anteriores
+
+Seis meta-análises anteriores agregaram acurácia diagnóstica de miRNAs nessas doenças e reportaram áreas ROC-resumo de 0,87 a 0,90 — visivelmente acima da cifra daqui. A diferença é sobretudo de estimando, e não de evidência, e não deve ser lida como contradição.
+
+Aquelas análises ajustam um modelo bivariado ou HSROC aos pares sensibilidade–especificidade de cada estudo e reportam a área sob a curva-resumo resultante. Nós fizemos a média das AUCs que os próprios estudos reportaram. A primeira descreve uma curva-resumo ajustada ao conjunto da literatura; a segunda descreve o que um estudo típico observou. Sobre dados idênticos as duas podem divergir bastante, e cada uma responde a uma pergunta legítima. Quem pergunta quão bem funciona a curva ROC-resumo da literatura deve usar os valores SROC publicados; quem pergunta o que um miRNA isolado alcança numa coorte típica está mais perto do nosso.
+
+Outras duas diferenças empurram na mesma direção. Com a exceção de Guévremont e colegas, as cifras principais anteriores agregam marcadores isolados e combinações juntos — o que coloca o ~0,87 delas entre nossas estimativas de marcador isolado (0,758) e de painel (0,888), aproximadamente onde uma mistura das duas cairia. E nossa extração se restringiu a textos completos de acesso aberto e a resumos, fatia mais estreita do que a usada por aquelas revisões.
+
+Também não reivindicamos como novo o resultado de isolado versus painel. Três meta-análises anteriores reportam que combinações superam marcadores isolados; nossa contribuição é quantificar a distância numa escala de AUC comum, com intervalos que não se sobrepõem. Onde nossos achados concordam com o trabalho existente, devem ser lidos como replicação convergente.
 
 Queremos ser cuidadosos com o que isso mostra e o que não mostra. Não mostra que miRNAs sejam irrelevantes na biologia da neurodegeneração; importância regulatória e discriminação diagnóstica são afirmações distintas, e evidência para a primeira não é evidência para a segunda. O que mostra é mais estreito e mais prático: como medidas individuais em biofluidos acessíveis, essas moléculas não separam pacientes de controles bem o bastante para funcionarem sozinhas.
 
-A heterogeneidade zero no subgrupo de miRNA isolado em AD é, para nós, o detalhe mais instrutivo. Literaturas heterogêneas alimentam a esperança de que um sinal mais forte esteja soterrado sob ruído metodológico. Aqui, cinco estudos independentes, usando fluidos e plataformas diferentes, concordam estreitamente em um valor modesto. A limitação parece ser propriedade da medida, e não do modo como ela vem sendo feita.
+### Um achado sobre método
+
+Uma primeira versão desta análise consultou apenas o PubMed. Nela, o subgrupo de miRNA isolado em AD mostrava I² = 0% — seis estimativas de cinco estudos, biofluidos e plataformas diferentes, convergindo para 0,773 — e interpretamos essa consistência como evidência de que o teto era propriedade da medida, e não do modo como vinha sendo feita. Era um argumento atraente, e estava errado.
+
+Acrescentar o braço do Scopus trouxe 248 registros que a busca no PubMed não retornara, e um deles (miR-202, AUC 0,892 em 121 casos e 86 controles) levou o subgrupo a 0,802 com I² = 63%. A homogeneidade era artefato de uma busca incompleta, e não propriedade da biologia.
+
+Reportamos isso porque a alternativa — apresentar os números revisados como se sempre tivessem sido os números — ocultaria o resultado mais transferível deste artigo. Uma revisão sistemática de base única pode render uma estimativa limpa, de baixa heterogeneidade e confiantemente interpretável que uma segunda base dissolve. Revisões desta literatura apoiadas em um só índice merecem ser lidas com essa possibilidade em mente, inclusive revisões que chegam a conclusões que gostaríamos que fossem verdadeiras.
 
 Os painéis são o achado construtivo. Em 0,888, com intervalos que não se sobrepõem aos dos marcadores isolados, combinar miRNAs produz ganho real e quantificável. Isso se alinha ao que a biologia prevê — miRNAs atuam como moduladores de rede, com alavancagem individual modesta —, mas aqui chega como efeito medido, e não como inferência. Duas ressalvas se aplicam: a heterogeneidade dos painéis é alta e painéis são o tipo de marcador mais vulnerável a sobreajuste, já que muitos derivam pesos e ponto de corte na mesma amostra em que reportam desempenho. O número dos painéis é o mais provável de cair sob validação externa.
 
-A análise de atenção é exploratória e não queremos superdimensioná-la. Mas é difícil olhar para o miR-146a — mencionado em onze artigos do corpus, central no relato neuroinflamatório da AD e devolvendo a menor AUC entre as estimativas elegíveis — sem concluir que a proeminência nesta literatura é conquistada por interesse mecanístico e conveniência de dosagem, e não por desempenho discriminativo. Revisões que ranqueiam candidatos a miRNA pela frequência com que aparecem estão ranqueando por atenção. Se um leitor quer saber qual miRNA medir, esse ranqueamento é quase não informativo.
+A análise de atenção só cruzou a significância convencional depois da busca ampliada (ρ = −0,61; p = 0,012, vindo de ρ = −0,41), e com dezesseis miRNAs segue exploratória; não queremos superdimensioná-la. Mas é difícil olhar para o miR-146a — mencionado em onze artigos do corpus, central no relato neuroinflamatório da AD e devolvendo a menor AUC entre as estimativas elegíveis — sem concluir que a proeminência nesta literatura é conquistada por interesse mecanístico e conveniência de dosagem, e não por desempenho discriminativo. Revisões que ranqueiam candidatos a miRNA pela frequência com que aparecem estão ranqueando por atenção. Se um leitor quer saber qual miRNA medir, esse ranqueamento é quase não informativo.
 
 Os achados do registro completam o quadro. Após mais de uma década de trabalho pré-clínico com miméticos e antagomiRs em neurodegeneração, nenhum entrou em ensaio registrado em AD ou PD. A lacuna não é que a classe molecular seja não testada em humanos: o miravirsen chegou à Fase 2 em hepatite C, e o MRG-201/remlarsen — um mimético de miR-29, exatamente o eixo mais frequentemente modelado como terapia para AD — chegou à Fase 2 para queloide, por injeção intradérmica. As moléculas podem ser feitas e administradas. O que falta é uma via até o cérebro. Qualquer modelo computacional que simule um mimético de miRNA como terapia para AD ou PD deveria declarar essa restrição explicitamente, ao lado da janela terapêutica estreita que esses próprios modelos geram quando a supersupressão leva os alvos abaixo do nível fisiológico basal.
 
@@ -125,11 +143,13 @@ Duas recomendações decorrem para a prática. Primeiro, reporte o número de ca
 
 ## 5. Limitações
 
-A cobertura restringe-se ao PubMed/MEDLINE. A extração restringe-se a textos completos de acesso aberto no PubMed Central, 55 dos 95 estudos primários elegíveis, o que pode selecionar uma fatia não aleatória do campo. Vinte e quatro estimativas ponderadas de 15 estudos é uma base de evidência modesta, e algumas células de subgrupo são muito pequenas (painéis em PD, k = 2). A heterogeneidade chega a I² = 94%. A análise de atenção tem baixo poder e não sustenta interpretação causal. Não havia dados individuais de participantes, então não foi feita modelagem bivariada de sensibilidade–especificidade. Por fim, acurácia reportada não é acurácia clínica prospectiva, e a direção dessa diferença não é neutra.
+A cobertura é assimétrica: o braço AD do Scopus foi consultado, mas o braço PD não, e a Web of Science não foi consultada, então as estimativas de PD repousam apenas no PubMed. Dado que só o braço AD do Scopus dobrou a contagem de registros e mudou duas conclusões, as cifras de PD aqui devem ser tratadas como provisórias. A extração restringe-se a textos completos de acesso aberto e a resumos, e 20 dos 25 erros-padrão ponderados são reconstruídos a partir de tamanhos de grupo, e não retirados de intervalo publicado. Vinte e cinco estimativas ponderadas de 16 estudos é base de evidência modesta, e algumas células de subgrupo são muito pequenas (painéis em PD, k = 2). A heterogeneidade chega a I² = 94%. A análise de atenção tem baixo poder e não sustenta interpretação causal. Não havia dados individuais de participantes, então não foi feita modelagem bivariada de sensibilidade–especificidade. Por fim, acurácia reportada não é acurácia clínica prospectiva, e a direção dessa diferença não é neutra.
 
 ## 6. Conclusão
 
-Agregados ao longo dos estudos publicados, microRNAs circulantes isolados discriminam pacientes com AD e PD de controles com acurácia em torno de 0,75 — de forma consistente, no caso da AD, e abaixo do que um teste diagnóstico autônomo requer. Painéis multi-miRNA alcançam cerca de 0,89 e é neles que a evidência sustenta investir. Os miRNAs individuais que dominam esta literatura devem sua proeminência à atenção de pesquisa, e não ao desempenho medido, e nenhuma terapia dirigida a miRNA entrou até hoje em ensaio clínico para qualquer uma das duas doenças. As moléculas seguem biologicamente interessantes; o argumento diagnóstico em favor delas, como vem sendo feito, é mais fraco do que o volume de publicação sugere.
+Agregados ao longo dos estudos publicados, microRNAs circulantes isolados discriminam pacientes com AD e PD de controles com acurácia em torno de 0,76, no limiar ou abaixo do que um teste diagnóstico autônomo requer. Painéis multi-miRNA alcançam cerca de 0,89 e é neles que a evidência sustenta investir — conclusão que este trabalho compartilha com várias meta-análises anteriores, em vez de estabelecer sozinho. Os miRNAs individuais que dominam esta literatura devem sua proeminência à atenção de pesquisa, e não ao desempenho medido, e a associação corre de forma inversa. Nenhuma terapia dirigida a miRNA entrou até hoje em ensaio clínico para qualquer uma das duas doenças.
+
+As moléculas seguem biologicamente interessantes; o argumento diagnóstico em favor delas, como vem sendo feito, é mais fraco do que o volume de publicação sugere. E um dos resultados aqui é sobre como esses argumentos são construídos: nossa própria alegação mais confiante, a de que as estimativas de miRNA isolado em AD eram homogêneas, não sobreviveu ao acréscimo de uma segunda base à busca.
 
 ## Disponibilidade dos dados
 

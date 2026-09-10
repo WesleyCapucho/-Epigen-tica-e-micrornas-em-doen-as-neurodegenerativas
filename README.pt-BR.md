@@ -28,25 +28,27 @@ Todos os valores são agregados a partir de estimativas publicadas, por efeitos 
 
 | Subgrupo | AUC agregada (IC 95%) | Estimativas | Estudos | I² |
 |---|---|---|---|---|
-| Global | 0,802 (0,735–0,856) | 24 | 15 | 93% |
-| Doença de Alzheimer | 0,836 (0,778–0,882) | 12 | 9 | 76% |
+| Global | 0,807 (0,745–0,857) | 25 | 16 | 93% |
+| Doença de Alzheimer | 0,842 (0,788–0,884) | 13 | 10 | 77% |
 | Doença de Parkinson | 0,753 (0,621–0,850) | 12 | 6 | 94% |
-| **miRNA isolado** | **0,745 (0,699–0,785)** | 16 | 9 | 46% |
+| **miRNA isolado** | **0,758 (0,706–0,804)** | 17 | 10 | 66% |
 | **Painel multi-miRNA** | **0,888 (0,829–0,928)** | 8 | 7 | 85% |
-| AD, miRNA isolado | 0,773 (0,732–0,810) | 6 | 5 | **0%** |
+| AD, miRNA isolado | 0,802 (0,741–0,851) | 7 | 6 | 63% |
 | PD, miRNA isolado | 0,716 (0,640–0,781) | 10 | 4 | 55% |
 
-Quatro resultados sustentam o argumento:
+Cinco resultados sustentam o argumento:
 
-1. **miRNAs circulantes isolados ficam abaixo do limiar de utilidade clínica.** Com AUC de 0,745 (IC 0,699–0,785), nenhum miRNA isolado alcança o patamar de ~0,80 usualmente tratado como mínimo para um teste diagnóstico autônomo — e nenhum se aproxima do desempenho dos ensaios plasmáticos consolidados de p-tau.
+1. **miRNAs circulantes isolados ficam na fronteira da utilidade clínica.** Com AUC de 0,758 (IC 0,706–0,804), a estimativa agregada fica abaixo do patamar de ~0,80 usualmente tratado como mínimo para um teste diagnóstico autônomo, com o limite superior apenas o alcançando — e em nada próxima dos ensaios plasmáticos consolidados de p-tau.
 
-2. **Painéis vão substancialmente melhor, e a diferença não é ruído.** Os intervalos de confiança de miRNAs isolados (0,699–0,785) e de painéis (0,829–0,928) não se sobrepõem. O ganho está em combinar marcadores, e não em achar um marcador isolado melhor.
+2. **Painéis vão substancialmente melhor, e a diferença não é ruído.** Os intervalos de confiança de miRNAs isolados (0,706–0,804) e de painéis (0,829–0,928) não se sobrepõem. O ganho está em combinar marcadores, e não em achar um marcador isolado melhor. Isso concorda com ao menos três meta-análises anteriores — evidência convergente, e não descoberta nova.
 
-3. **A atenção da literatura não acompanha o desempenho medido.** Entre os miRNAs com dados de acurácia extraíveis, a correlação entre quantos artigos do corpus mencionam um miRNA e a AUC reportada é nula no geral (ρ de Spearman = −0,11; p = 0,61) e *negativa* quando restrita às estimativas que passaram na elegibilidade (ρ = −0,41; p = 0,14). Os dois miRNAs mais discutidos no corpus, miR-125b (13 artigos) e miR-146a (11 artigos), retornaram AUCs de 0,75 e 0,68 — a parte baixa da distribuição. É exploratório e com baixo poder, mas aponta na direção contrária à ênfase da área.
+3. **A atenção da literatura corre em sentido inverso ao desempenho medido.** Entre os miRNAs com dados de acurácia extraíveis, a correlação entre quantos artigos do corpus mencionam um miRNA e a AUC reportada é **ρ = −0,61 (p = 0,012)** entre as estimativas elegíveis (ρ = −0,27; p = 0,16 no conjunto). Os dois miRNAs mais discutidos no corpus, miR-125b (13 artigos) e miR-146a (11 artigos), retornaram AUCs de 0,75 e 0,68 — a parte baixa da distribuição. Dezesseis miRNAs contribuem, então segue exploratório, mas aponta na direção contrária à ênfase da área. É o único achado aqui sem precedente claro.
 
 4. **Nada chegou à clínica.** O ClinicalTrials.gov (10/09/2026) lista 16 ensaios registrados de terapias dirigidas a miRNA no mundo — em hepatite C, oncologia e dermatologia — e **zero** em Alzheimer ou Parkinson. Notavelmente, um mimético de miR-29 (MRG-201/remlarsen) chegou à Fase 2, para queloide, por injeção intradérmica. miR-29 é exatamente o eixo que a monografia de origem simulou como terapia cerebral: a classe molecular existe, a via até o cérebro não.
 
-O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então esses valores agregados devem ser lidos como **limites superiores**, não como estimativas neutras.
+5. **Acrescentar uma base derrubou duas conclusões.** Uma primeira versão desta revisão consultou apenas o PubMed e encontrou o subgrupo de miRNA isolado em AD homogêneo (I² = 0%), o que lemos como evidência de que o teto era real, e não metodológico. O braço AD do Scopus então acrescentou 248 registros que o PubMed não retornara; um deles levou esse subgrupo a I² = 63%. A homogeneidade era artefato de uma busca incompleta. A Seção 8 de `docs/pt-BR/ACHADOS.md` registra o que mudou e por quê.
+
+O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então esses valores agregados devem ser lidos como **limites superiores**, não como estimativas neutras. Seis meta-análises anteriores reportam áreas SROC de 0,87–0,90 para a mesma pergunta; esse é um estimando diferente da média das AUCs reportadas usada aqui, e a Seção 7 de `docs/pt-BR/ACHADOS.md` explica a comparação.
 
 ## Estrutura do repositório
 
@@ -109,7 +111,7 @@ Os textos completos **não** são redistribuídos aqui — apenas os dados extra
 
 ## Limitações conhecidas
 
-- A cobertura é apenas PubMed/MEDLINE. Scopus e Web of Science exigem credenciais institucionais que o ambiente desta análise não alcança, então a revisão ainda não é uma varredura multibase completa. O documento `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md` traz as queries prontas e os passos de exportação; o `scripts/09_ingest_scopus_wos.py` funde as exportações e as deduplica contra o corpus do PubMed.
+- A cobertura é assimétrica: PubMed para as duas doenças, mais um braço AD do Scopus. O braço PD do Scopus e a Web of Science não foram consultados, então as estimativas de PD repousam apenas no PubMed e devem ser tratadas como provisórias. O `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md` traz as queries prontas; o `scripts/09_ingest_scopus_wos.py` funde novas exportações e as deduplica.
 - A extração de dados se restringe a textos completos de acesso aberto no PubMed Central (55 dos 95 estudos primários elegíveis), o que pode, por si só, selecionar um subconjunto não aleatório da literatura.
 - A heterogeneidade é alta (I² até 94%) e o teste de Egger é significativo em vários subgrupos; as estimativas agregadas são mais bem lidas como limites otimistas.
 - A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho é exploratória e não sustenta leitura causal.

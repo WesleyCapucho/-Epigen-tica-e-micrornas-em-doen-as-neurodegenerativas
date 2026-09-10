@@ -1,29 +1,52 @@
 {
  "generated_on": "2026-09-10",
- "source": "PubMed/MEDLINE via NCBI E-utilities",
+ "source": "PubMed/MEDLINE via NCBI E-utilities; Scopus via authenticated export",
  "identification": {
-  "records_AD_arm": 168,
-  "records_PD_arm": 97,
-  "records_after_deduplication": 234,
-  "records_in_both_arms": 30
+  "pubmed_records_AD_arm": 168,
+  "pubmed_records_PD_arm": 97,
+  "pubmed_records_after_deduplication": 234,
+  "pubmed_records_in_both_arms": 30,
+  "scopus_records_AD_arm": 408,
+  "scopus_records_already_in_pubmed_corpus": 159,
+  "scopus_duplicates_within_export": 1,
+  "scopus_records_new": 248,
+  "total_unique_records": 482,
+  "note_en": "The Scopus PD arm has not been run yet; the AD arm alone added 248 records PubMed did not return, a 106% increase over the PubMed AD arm.",
+  "note_pt": "O braco PD do Scopus ainda nao foi executado; so o braco AD acrescentou 248 registros que o PubMed nao retornou, aumento de 106% sobre o braco AD do PubMed."
  },
  "screening": {
-  "records_screened_title_abstract": 234,
-  "excluded_review_or_secondary": 45,
-  "primary_studies": 189,
-  "primary_reporting_auc_or_sens_spec": 95,
-  "of_which_pmc_open_access_fulltext": 55
+  "pubmed_records_screened": 234,
+  "pubmed_excluded_review_or_secondary": 46,
+  "pubmed_primary_studies": 188,
+  "pubmed_primary_reporting_auc_or_sens_spec": 95,
+  "pubmed_of_which_pmc_open_access_fulltext": 55,
+  "scopus_new_records_screened": 248,
+  "scopus_excluded_review_or_secondary": 147,
+  "scopus_primary_studies": 101,
+  "scopus_primary_reporting_auc_or_sens_spec": 20,
+  "note_en": "PubMed secondary count corrected from 45 to 46 after a regular-expression defect was fixed (see below); primary count therefore 188, not 189.",
+  "note_pt": "Contagem de secundarios do PubMed corrigida de 45 para 46 apos correcao de um defeito de expressao regular (ver abaixo); primarios passam a 188, e nao 189."
  },
  "eligibility_fulltext": {
   "fulltext_retrieved": 45,
-  "studies_contributing_extracted_estimates": 26,
-  "extracted_estimates_total": 42,
-  "estimates_eligible_for_primary_pool": 28
+  "studies_contributing_extracted_estimates": 34,
+  "extracted_estimates_total": 50,
+  "estimates_added_from_scopus": 8,
+  "estimates_eligible_for_primary_pool": 31
  },
  "included_in_meta_analysis": {
-  "estimates_with_estimable_standard_error": 24,
-  "independent_studies": 15
+  "estimates_with_estimable_standard_error": 25,
+  "independent_studies": 16,
+  "note_en": "Only one Scopus-derived estimate could be weighted (miR-202, 121 cases vs 86 controls); the others report an AUC without group sizes or a confidence interval.",
+  "note_pt": "Apenas uma estimativa vinda do Scopus pode ser ponderada (miR-202, 121 casos vs 86 controles); as demais reportam AUC sem tamanhos de grupo nem intervalo de confianca."
  },
  "note_en": "Counts are computed from the screening table in this repository, not transcribed by hand.",
- "note_pt": "As contagens sao calculadas a partir da tabela de triagem deste repositorio, nao transcritas manualmente."
+ "note_pt": "As contagens sao calculadas a partir da tabela de triagem deste repositorio, nao transcritas manualmente.",
+ "screening_defect_corrected": {
+  "what_en": "The rule that flags self-declared secondary literature ended with a word boundary after 'meta-analys', so it never matched 'meta-analysis'.",
+  "what_pt": "A regra que sinaliza literatura secundaria autodeclarada terminava com fronteira de palavra apos 'meta-analys', logo nunca casava com 'meta-analysis'.",
+  "impact_en": "One PubMed record reclassified (PMID 32133447). No study in the extraction table was affected. In the Scopus set the defect would have let prior meta-analyses through, which is how they were noticed.",
+  "impact_pt": "Um registro do PubMed reclassificado (PMID 32133447). Nenhum estudo da tabela de extracao foi afetado. No conjunto Scopus o defeito teria deixado passar meta-analises previas, e foi assim que elas foram notadas.",
+  "fixed_in": "scripts/04_screening.py"
+ }
 }

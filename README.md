@@ -28,25 +28,27 @@ All values are pooled from published estimates using DerSimonian–Laird random 
 
 | Subgroup | Pooled AUC (95% CI) | Estimates | Studies | I² |
 |---|---|---|---|---|
-| Overall | 0.802 (0.735–0.856) | 24 | 15 | 93% |
-| Alzheimer's disease | 0.836 (0.778–0.882) | 12 | 9 | 76% |
+| Overall | 0.807 (0.745–0.857) | 25 | 16 | 93% |
+| Alzheimer's disease | 0.842 (0.788–0.884) | 13 | 10 | 77% |
 | Parkinson's disease | 0.753 (0.621–0.850) | 12 | 6 | 94% |
-| **Single miRNA** | **0.745 (0.699–0.785)** | 16 | 9 | 46% |
+| **Single miRNA** | **0.758 (0.706–0.804)** | 17 | 10 | 66% |
 | **Multi-miRNA panel** | **0.888 (0.829–0.928)** | 8 | 7 | 85% |
-| AD, single miRNA | 0.773 (0.732–0.810) | 6 | 5 | **0%** |
+| AD, single miRNA | 0.802 (0.741–0.851) | 7 | 6 | 63% |
 | PD, single miRNA | 0.716 (0.640–0.781) | 10 | 4 | 55% |
 
-Four results carry the argument:
+Five results carry the argument:
 
-1. **Single circulating miRNAs pool below the threshold of clinical usefulness.** At AUC 0.745 (CI 0.699–0.785), no single miRNA reaches the ~0.80 commonly treated as a minimum for a standalone diagnostic test — and none approaches the performance of established plasma p-tau assays.
+1. **Single circulating miRNAs sit at the boundary of clinical usefulness.** At AUC 0.758 (CI 0.706–0.804), the pooled estimate falls below the ~0.80 commonly treated as a minimum for a standalone diagnostic test, with the interval's upper bound just reaching it — and nowhere near established plasma p-tau assays.
 
-2. **Panels do substantially better, and the difference is not noise.** The confidence intervals of single miRNAs (0.699–0.785) and panels (0.829–0.928) do not overlap. Combining markers, not finding a better single marker, is where the gain is.
+2. **Panels do substantially better, and the difference is not noise.** The confidence intervals of single miRNAs (0.706–0.804) and panels (0.829–0.928) do not overlap. Combining markers, not finding a better single marker, is where the gain is. This agrees with at least three prior meta-analyses — convergent evidence rather than a new discovery.
 
-3. **Literature attention does not track measured performance.** Across miRNAs with extractable accuracy data, the correlation between how many corpus articles mention a miRNA and its reported AUC is null overall (Spearman ρ = −0.11, p = 0.61) and *negative* when restricted to the estimates that passed eligibility (ρ = −0.41, p = 0.14). The two most-discussed miRNAs in the corpus, miR-125b (13 articles) and miR-146a (11 articles), returned AUCs of 0.75 and 0.68 — the lower end of the distribution. This is exploratory and underpowered, but it points the opposite way from the field's emphasis.
+3. **Literature attention runs inversely to measured performance.** Across miRNAs with extractable accuracy data, the correlation between how many corpus articles mention a miRNA and its reported AUC is **ρ = −0.61 (p = 0.012)** among estimates that passed eligibility (ρ = −0.27, p = 0.16 across all). The two most-discussed miRNAs in the corpus, miR-125b (13 articles) and miR-146a (11 articles), returned AUCs of 0.75 and 0.68 — the lower end of the distribution. Sixteen miRNAs contribute, so this stays exploratory, but it points the opposite way from the field's emphasis. It is the one finding here with no clear precedent.
 
 4. **Nothing has reached the clinic.** ClinicalTrials.gov (10 Sep 2026) lists 16 registered trials of miRNA-directed therapeutics worldwide — in hepatitis C, oncology and dermatology — and **zero** in Alzheimer's or Parkinson's disease. Notably, a miR-29 mimic (MRG-201/remlarsen) did reach Phase 2, for keloid scarring by intradermal injection. miR-29 is exactly the axis the source monograph simulated as a brain therapy: the molecule class exists, the route to the brain does not.
 
-Egger's test indicates small-study effects in several subgroups, so these pooled values should be read as **upper bounds**, not neutral estimates.
+5. **Adding one database overturned two conclusions.** A first version of this review searched PubMed alone and found the AD single-miRNA subgroup homogeneous (I² = 0%), which we read as evidence that the ceiling was real rather than methodological. The Scopus AD arm then added 248 records PubMed had not returned; one of them took that subgroup to I² = 63%. The homogeneity was an artefact of an incomplete search. `docs/en/FINDINGS.md` §8 records what changed and why.
+
+Egger's test indicates small-study effects in several subgroups, so these pooled values should be read as **upper bounds**, not neutral estimates. Six prior meta-analyses report SROC areas of 0.87–0.90 for the same question; that is a different estimand from the average of reported AUCs used here, and `docs/en/FINDINGS.md` §7 explains the comparison.
 
 ## Repository layout
 
@@ -109,7 +111,7 @@ Full texts themselves are **not** redistributed here — only the extracted data
 
 ## Known limitations
 
-- Coverage is PubMed/MEDLINE only. Scopus and Web of Science require institutional credentials that the environment running this analysis cannot reach, so the review is not yet a complete multi-database sweep. `docs/en/HOW_TO_EXPORT_SCOPUS_WOS.md` gives the ready-to-paste queries and export steps; `scripts/09_ingest_scopus_wos.py` merges the exports and deduplicates them against the PubMed corpus.
+- Coverage is asymmetric: PubMed for both diseases, plus a Scopus AD arm. The Scopus PD arm and Web of Science have not been searched, so PD estimates rest on PubMed alone and should be treated as provisional. `docs/en/HOW_TO_EXPORT_SCOPUS_WOS.md` gives the ready-to-paste queries; `scripts/09_ingest_scopus_wos.py` merges new exports and deduplicates them.
 - Data extraction is restricted to PubMed Central open-access full texts (55 of the 95 eligible primary studies), which may itself select for a non-random subset of the literature.
 - Heterogeneity is high (I² up to 95%) and Egger's test is significant in several subgroups; pooled estimates are best read as optimistic bounds.
 - Most miRNAs contribute a single study, so the attention-vs-performance analysis is exploratory and cannot support a causal reading.

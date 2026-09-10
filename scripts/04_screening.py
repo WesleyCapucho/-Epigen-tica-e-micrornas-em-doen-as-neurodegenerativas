@@ -40,8 +40,17 @@ SPEC_RE = re.compile(r'\bspecificit(?:y|ies)\b[^.]{0,60}?(\d{1,3}(?:\.\d+)?\s*%|
 SECONDARY_TYPES = {"Review", "Systematic Review", "Meta-Analysis", "Editorial",
                    "Comment", "Published Erratum", "Letter",
                    "Retracted Publication", "Retraction of Publication"}
+# EN | No trailing \b here, on purpose. An earlier version ended the group with
+#      \b, which made the 'meta-analys' alternative never fire: 'meta-analysis'
+#      continues with 'is', so there is no boundary at that point. Two prior
+#      meta-analyses reached the eligible pool because of it.
+# PT | Sem \b no fim, de proposito. Uma versao anterior fechava o grupo com \b,
+#      o que impedia a alternativa 'meta-analys' de disparar: 'meta-analysis'
+#      segue com 'is', logo nao ha fronteira ali. Duas meta-analises previas
+#      chegaram ao conjunto elegivel por causa disso.
 SECONDARY_TEXT = re.compile(
-    r'\b(systematic review|meta-analys|narrative review|this review|we review)\b', re.I)
+    r'(systematic review|meta[-\s]?analy[sz]|narrative review|scoping review|'
+    r'umbrella review|pooled analysis|\bthis review\b|\bwe review\b)', re.I)
 
 
 def screen(record):

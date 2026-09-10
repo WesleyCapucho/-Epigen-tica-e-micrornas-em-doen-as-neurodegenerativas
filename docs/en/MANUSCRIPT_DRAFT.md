@@ -11,13 +11,13 @@
 
 ## Abstract
 
-**Background.** Circulating microRNAs have been proposed as minimally invasive biomarkers for Alzheimer's disease (AD) and Parkinson's disease (PD) for more than a decade. The literature is large and enthusiastic, but its individual estimates have rarely been pooled, and the miRNAs that dominate that literature have never been checked against how well they actually discriminate patients.
+**Background.** Circulating microRNAs have been proposed as minimally invasive biomarkers for Alzheimer's disease (AD) and Parkinson's disease (PD) for more than a decade. Several meta-analyses have pooled their diagnostic accuracy, reporting summary ROC areas of 0.87–0.90. What has not been asked is whether the miRNAs that dominate this literature are the ones that actually discriminate patients, and how far the field's therapeutic ambitions have travelled towards the clinic.
 
-**Methods.** We searched PubMed/MEDLINE (2015 to 10 September 2026) for studies reporting the diagnostic accuracy of miRNAs measured in a biofluid in AD or PD. Screening followed PRISMA 2020. Accuracy values were extracted from open-access full texts, each recorded together with the verbatim sentence supporting it. Areas under the ROC curve were pooled on the logit scale using DerSimonian–Laird random effects, with standard errors from reported confidence intervals or from Hanley–McNeil where group sizes were available. We then tested whether how often a miRNA is mentioned in the corpus predicts its measured accuracy, and queried ClinicalTrials.gov for miRNA-directed therapeutics.
+**Methods.** We searched PubMed/MEDLINE and Scopus (2015 to 10 September 2026) for studies reporting the diagnostic accuracy of miRNAs measured in a biofluid in AD or PD. Screening followed PRISMA 2020. Accuracy values were extracted from open-access full texts, each recorded together with the verbatim sentence supporting it. Areas under the ROC curve were pooled on the logit scale using DerSimonian–Laird random effects, with standard errors from reported confidence intervals or from Hanley–McNeil where group sizes were available. We then tested whether how often a miRNA is mentioned in the corpus predicts its measured accuracy, and queried ClinicalTrials.gov for miRNA-directed therapeutics.
 
-**Results.** Of 234 unique records screened, 189 were primary studies and 95 reported an AUC or a sensitivity–specificity pair; 26 studies yielded 42 extractable estimates, 24 of which (15 independent studies) could be weighted. Single circulating miRNAs pooled at AUC 0.745 (95% CI 0.699–0.785). Multi-miRNA panels pooled at 0.888 (0.829–0.928), with confidence intervals that do not overlap those of single markers. The AD single-miRNA subgroup showed no detectable heterogeneity (I² = 0%, pooled 0.773, 0.732–0.810). Literature attention did not predict measured accuracy (Spearman ρ = −0.11, p = 0.61 overall; ρ = −0.41, p = 0.14 among eligible estimates): the two most-discussed miRNAs in the corpus, miR-125b and miR-146a, returned AUCs of 0.75 and 0.68. Egger's test indicated small-study effects in several subgroups. No miRNA mimic or antagomiR has entered a registered clinical trial for AD or PD.
+**Results.** Of 482 unique records screened, 34 studies yielded 50 extractable estimates, 25 of which (16 independent studies) could be weighted. Single circulating miRNAs pooled at AUC 0.758 (95% CI 0.706–0.804). Multi-miRNA panels pooled at 0.888 (0.829–0.928), with confidence intervals that do not overlap those of single markers — a gap consistent with earlier meta-analyses that also found combinations to outperform single markers. Literature attention was inversely related to measured accuracy (Spearman ρ = −0.61, p = 0.012 among eligible estimates): the two most-discussed miRNAs in the corpus, miR-125b and miR-146a, returned AUCs of 0.75 and 0.68. Egger's test indicated small-study effects in several subgroups. No miRNA mimic or antagomiR has entered a registered clinical trial for AD or PD.
 
-**Conclusions.** Pooled across the published literature, a single circulating miRNA does not reach the accuracy expected of a standalone diagnostic test, and the consistency of that finding in AD (I² = 0%) suggests the limitation is real rather than methodological. Panels perform materially better and are where the field's effort belongs. The prominence of individual miRNAs in this literature reflects research attention rather than diagnostic performance.
+**Conclusions.** Pooled across the published literature, a single circulating miRNA performs at or below the accuracy expected of a standalone diagnostic test. Panels perform materially better and are where the field's effort belongs. The prominence of individual miRNAs in this literature reflects research attention rather than diagnostic performance — if anything, inversely. A methodological finding accompanies the clinical one: adding a second database to a completed single-database review overturned two of its conclusions.
 
 **Keywords:** microRNA; Alzheimer's disease; Parkinson's disease; diagnostic accuracy; meta-analysis; biomarkers; publication bias.
 
@@ -29,11 +29,13 @@ The case for circulating microRNAs as biomarkers of neurodegeneration has always
 
 More than a decade of work has followed from that premise. Individual studies report that miR-29 family members track BACE1 expression and amyloid processing in AD, that miR-7 and miR-153 repress SNCA and modulate α-synuclein accumulation in PD, and that miR-146a sits at the centre of the neuroinflammatory response through IRAK1 and TRAF6. Reviews of this literature have listed dysregulated miRNAs, mapped them onto pathways, and concluded that they hold promise.
 
-What has been done far less often is to ask the arithmetic question. If one collects the reported areas under the ROC curve and pools them, what accuracy does a circulating miRNA actually achieve? And a second question follows immediately, one that reviews of this field are structurally unable to answer: are the miRNAs that dominate the literature the ones that perform best?
+The arithmetic question has been asked. At least six meta-analyses have pooled diagnostic accuracy for miRNAs in these diseases, reporting summary ROC areas between 0.87 and 0.90, and three of them report that combinations of miRNAs outperform single markers. We do not claim to be first here, and where our results agree with theirs we say so.
+
+A second question, however, has not been asked, and reviews of this field are structurally unable to answer it: are the miRNAs that dominate the literature the ones that perform best?
 
 That second question matters more than it might appear. The usual way of establishing that a miRNA is important is to show that it is frequently reported and that its target interactions are experimentally catalogued. But those two criteria are not independent. A miRNA that attracted early attention accumulates both citations and validated interactions, and its accumulated prominence then attracts further study. Bibliometric frequency and catalogued validation share a common cause, so their agreement is weak evidence of biological or clinical importance. Pooled diagnostic accuracy, measured in patients, is external to that loop.
 
-We therefore did three things. We performed a systematic review and random-effects meta-analysis of the diagnostic accuracy of circulating miRNAs in AD and PD. We tested whether attention in this literature is associated with measured performance. And, because the field's ambitions extend beyond diagnosis to miRNA replacement therapy, we asked the clinical trials registry how far that ambition has actually travelled.
+We therefore did three things. We performed a systematic review and random-effects meta-analysis of the diagnostic accuracy of circulating miRNAs in AD and PD, pooling the AUCs studies reported rather than fitting a summary ROC curve, which answers the narrower question of what a typical study observes. We tested whether attention in this literature is associated with measured performance. And, because the field's ambitions extend beyond diagnosis to miRNA replacement therapy, we asked the clinical trials registry how far that ambition has actually travelled.
 
 ## 2. Methods
 
@@ -41,9 +43,9 @@ Full detail, including every search string, is in the repository's methods docum
 
 ### 2.1 Search
 
-PubMed/MEDLINE was searched through the NCBI E-utilities API on 10 September 2026, restricted to publications from 1 January 2015 onwards, with no language restriction. Two arms were run, identical except for the disease term, each combining a microRNA block, a biofluid block (plasma, serum, CSF, blood, exosome, extracellular vesicle) and a diagnostic-accuracy block (ROC, AUC, sensitivity, specificity, diagnostic accuracy, diagnostic value), all in Title/Abstract.
+PubMed/MEDLINE was searched through the NCBI E-utilities API on 10 September 2026, restricted to publications from 1 January 2015 onwards, with no language restriction. Two arms were run, identical except for the disease term, each combining a microRNA block, a biofluid block (plasma, serum, CSF, blood, exosome, extracellular vesicle) and a diagnostic-accuracy block (ROC, AUC, sensitivity, specificity, diagnostic accuracy, diagnostic value), all in Title/Abstract. The arms returned 168 (AD) and 97 (PD) records, 234 unique after deduplication.
 
-Scopus and Web of Science were not searched, because the analysis environment had no institutional access to them. We state this rather than estimating what those databases would have returned.
+Scopus was then searched with the equivalent `TITLE-ABS-KEY` expression for the AD arm, exported and merged. It returned 408 records, of which 159 were already held from PubMed and one was an internal duplicate, leaving **248 new records** — more than the entire PubMed AD arm had retrieved. Deduplication was by DOI, PubMed ID and normalised title. The Scopus PD arm and Web of Science remain unsearched; coverage is therefore asymmetric between the two diseases, and we say so rather than implying a uniform search.
 
 ### 2.2 Screening and eligibility
 
@@ -69,27 +71,27 @@ Finally, distinct-article mention counts were computed for each miRNA across the
 
 ### 3.1 Study flow
 
-The two arms returned 168 (AD) and 97 (PD) records, 234 unique after deduplication, with 30 records retrieved by both. Screening set aside 45 records as secondary literature, leaving 189 primary studies, of which 95 reported an AUC or a sensitivity–specificity pair and 55 of those had open-access full text. Forty-five full texts were read, yielding 42 extractable estimates from 26 studies. Twenty-eight met eligibility, and 24 — from 15 independent studies — had an estimable standard error and could be weighted.
+PubMed returned 234 unique records; the Scopus AD arm added 248 more, for 482 unique records in total. Screening set aside 46 PubMed records and 147 Scopus records as secondary literature, leaving 188 and 101 primary studies respectively; 95 and 20 of those reported an AUC or a sensitivity–specificity pair. Forty-five full texts were read. In total **34 studies** yielded **50 extractable estimates**; 31 met eligibility, and **25 — from 16 independent studies** — had an estimable standard error and could be weighted.
 
-The attrition deserves comment. Fewer than one screened record in ten contributed a weighted estimate, and the largest single cause was studies publishing an AUC without the group sizes or confidence interval needed to weight it.
+The attrition deserves comment. Roughly one screened record in twenty contributed a weighted estimate, and the largest single cause was studies publishing an AUC without the group sizes or confidence interval needed to weight it. Of the eight estimates the Scopus search added, only one could be weighted for exactly that reason.
 
 ### 3.2 Pooled diagnostic accuracy
 
 | Subgroup | k | Studies | Pooled AUC (95% CI) | I² |
 |---|---|---|---|---|
-| Overall | 24 | 15 | 0.802 (0.735–0.856) | 93% |
-| Alzheimer's disease | 12 | 9 | 0.836 (0.778–0.882) | 76% |
+| Overall | 25 | 16 | 0.807 (0.745–0.857) | 93% |
+| Alzheimer's disease | 13 | 10 | 0.842 (0.788–0.884) | 77% |
 | Parkinson's disease | 12 | 6 | 0.753 (0.621–0.850) | 94% |
-| Single miRNA | 16 | 9 | 0.745 (0.699–0.785) | 46% |
+| Single miRNA | 17 | 10 | 0.758 (0.706–0.804) | 66% |
 | Multi-miRNA panel | 8 | 7 | 0.888 (0.829–0.928) | 85% |
-| AD, single miRNA | 6 | 5 | 0.773 (0.732–0.810) | 0% |
+| AD, single miRNA | 7 | 6 | 0.802 (0.741–0.851) | 63% |
 | PD, single miRNA | 10 | 4 | 0.716 (0.640–0.781) | 55% |
 | Plasma | 5 | 4 | 0.762 (0.642–0.851) | 76% |
-| Serum | 10 | 3 | 0.798 (0.693–0.874) | 82% |
+| Serum | 11 | 4 | 0.810 (0.721–0.876) | 82% |
 
-A single circulating miRNA pools at 0.745, with the whole confidence interval below 0.80. Panels pool at 0.888, and the two intervals do not overlap.
+A single circulating miRNA pools at 0.758, with the point estimate below the conventional 0.80 floor for a standalone test and the interval's upper bound just reaching it. Panels pool at 0.888, and the two intervals do not overlap.
 
-The AD single-miRNA subgroup is the most informative cell in the table because its heterogeneity is zero. Six estimates from five studies, across serum, serum exosomes, whole blood and neuron-derived extracellular vesicles, and across qPCR and sequencing platforms, converge on 0.773 with no detectable between-study variance. A consistent modest value is a harder result to argue with than an inconsistent one, because it removes the hope that better methods would move the estimate upward.
+An earlier version of this analysis, restricted to PubMed, found no detectable heterogeneity in the AD single-miRNA subgroup (I² = 0%, pooled 0.773) and we drew a conclusion from that consistency. The Scopus search dissolved it: one additional study — miR-202, AUC 0.892 in 121 cases and 86 controls — raised the subgroup to 0.802 with I² = 63%. We report this rather than quietly presenting the revised figure, because it is the clearest evidence in this paper that a single-database review can manufacture an apparent consensus.
 
 ### 3.3 Attention does not predict performance
 
@@ -99,7 +101,7 @@ The pattern behind the coefficient is nonetheless worth stating. miR-125b was me
 
 ### 3.4 Small-study effects
 
-Egger's regression was significant in the overall pool, in the PD subgroup, and in the panel subgroup. Together with two structural features of this literature — cut-offs derived in the same sample where they are evaluated, and cohorts frequently under 50 per arm — this points in one direction. Every pooled value here should be read as the optimistic end of its plausible range.
+Egger's regression was significant in the overall pool, the PD subgroup, the single-miRNA pool, the panel subgroup and the serum subgroup. Together with two structural features of this literature — cut-offs derived in the same sample where they are evaluated, and cohorts frequently under 50 per arm — this points in one direction. Every pooled value here should be read as the optimistic end of its plausible range.
 
 ### 3.5 Clinical translation
 
@@ -109,15 +111,31 @@ None is in Alzheimer's or Parkinson's disease. Thirteen registered trials mentio
 
 ## 4. Discussion
 
-The central number of this analysis is 0.745. That is what a single circulating miRNA achieves when the published estimates are weighted and combined, and it sits below the threshold usually treated as a minimum for a standalone diagnostic test. For comparison, plasma phospho-tau assays now in clinical use for AD operate well above 0.90. A blood test whose entire confidence interval falls under 0.80 is not competing in the same category.
+The central number of this analysis is 0.758. That is what a single circulating miRNA achieves when the published estimates are weighted and combined, and it sits below the threshold usually treated as a minimum for a standalone diagnostic test, with the interval's upper bound just reaching it. For comparison, plasma phospho-tau assays now in clinical use for AD operate well above 0.90. A blood test performing at this level is not competing in the same category.
+
+### Relation to previous meta-analyses
+
+Six earlier meta-analyses pooled diagnostic accuracy for miRNAs in these diseases and reported summary ROC areas of 0.87 to 0.90 — visibly higher than the figure here. The difference is mostly one of estimand rather than of evidence, and it should not be read as a contradiction.
+
+Those analyses fit a bivariate or HSROC model to study-level sensitivity–specificity pairs and report the area under the resulting summary curve. We averaged the AUCs the studies themselves reported. The first describes a fitted summary curve across the literature; the second describes what a typical study observed. On identical data the two can diverge substantially, and each answers a legitimate question. A reader asking how well the literature's summary ROC curve performs should use the published SROC values; a reader asking what a single miRNA achieves in a typical cohort is closer to ours.
+
+Two further differences push in the same direction. With the exception of Guévremont and colleagues, the prior headline figures pool single markers and combinations together — which places their ~0.87 between our single-marker (0.758) and panel (0.888) estimates, roughly where a mixture of the two would fall. And our extraction was restricted to open-access full texts and abstracts, a narrower slice than those reviews used.
+
+We also do not claim the single-versus-panel result as new. Three prior meta-analyses report that combinations outperform single markers; our contribution is to quantify the gap on a common AUC scale with non-overlapping intervals. Where our findings agree with existing work, they should be read as convergent replication.
 
 We want to be careful about what this does and does not show. It does not show that miRNAs are unimportant in the biology of neurodegeneration; regulatory importance and diagnostic discrimination are separate claims, and evidence for the first is not evidence for the second. What it shows is narrower and more practical: as individual measurements in accessible biofluids, these molecules do not currently separate patients from controls well enough to stand alone.
 
-The zero heterogeneity in the AD single-miRNA subgroup is, to us, the most instructive detail. Heterogeneous literatures invite the hope that a stronger signal is buried under methodological noise. Here, five independent studies using different fluids and different platforms agree closely on a modest value. The limitation looks like a property of the measurement rather than of how it has been performed.
+### A finding about method
+
+A first version of this analysis searched PubMed alone. In it, the AD single-miRNA subgroup showed I² = 0% — six estimates from five studies, different biofluids, different platforms, converging on 0.773 — and we interpreted that consistency as evidence that the ceiling was a property of the measurement rather than of how it had been performed. It was an attractive argument, and it was wrong.
+
+Adding the Scopus arm contributed 248 records the PubMed search had not returned, and one of them (miR-202, AUC 0.892 in 121 cases and 86 controls) took the subgroup to 0.802 with I² = 63%. The homogeneity was an artefact of an incomplete search, not a property of the biology.
+
+We report this because the alternative — presenting the revised numbers as though they had always been the numbers — would conceal the most transferable result in the paper. A single-database systematic review can yield a clean, low-heterogeneity, confidently interpretable estimate that a second database dissolves. Reviews of this literature that rest on one index deserve to be read with that possibility in mind, including reviews that reach conclusions we would like to be true.
 
 Panels are the constructive finding. At 0.888, with non-overlapping intervals against single markers, combining miRNAs produces a real and quantifiable gain. This aligns with what the biology would predict — miRNAs act as network modulators with individually modest leverage — but it arrives here as a measured effect rather than an inference. Two cautions apply: panel heterogeneity is high, and panels are the marker type most vulnerable to overfitting, since many derive their weights and cut-off in the sample where performance is reported. The panel figure is the one most likely to fall under external validation.
 
-The attention analysis is exploratory and we do not want to overstate it. But it is difficult to look at miR-146a — mentioned in eleven corpus articles, central to the neuroinflammatory account of AD, and returning the lowest AUC among eligible estimates — without concluding that prominence in this literature is earned by mechanistic interest and assay convenience rather than by discriminative performance. Reviews that rank miRNA candidates by how frequently they appear are ranking them by attention. If a reader wants to know which miRNA to measure, that ranking is close to uninformative.
+The attention analysis crossed conventional significance only after the wider search (ρ = −0.61, p = 0.012, from ρ = −0.41 before), and with sixteen miRNAs it remains exploratory; we do not want to overstate it. But it is difficult to look at miR-146a — mentioned in eleven corpus articles, central to the neuroinflammatory account of AD, and returning the lowest AUC among eligible estimates — without concluding that prominence in this literature is earned by mechanistic interest and assay convenience rather than by discriminative performance. Reviews that rank miRNA candidates by how frequently they appear are ranking them by attention. If a reader wants to know which miRNA to measure, that ranking is close to uninformative.
 
 The registry findings complete the picture. After more than a decade of preclinical work on mimics and antagomiRs in neurodegeneration, not one has entered a registered trial in AD or PD. The gap is not that the molecular class is untested in humans: miravirsen reached Phase 2 in hepatitis C, and MRG-201/remlarsen — a miR-29 mimic, precisely the axis most often modelled as an AD therapy — reached Phase 2 for keloid scarring, delivered by intradermal injection. The molecules can be made and dosed. What is missing is a route to the brain. Any computational model that simulates a miRNA mimic as an AD or PD therapy should state that constraint explicitly, alongside the narrow therapeutic window that such models themselves generate when over-suppression drives targets below physiological baseline.
 
@@ -129,7 +147,9 @@ Coverage is restricted to PubMed/MEDLINE. Extraction is restricted to PubMed Cen
 
 ## 6. Conclusion
 
-Pooled across published studies, single circulating microRNAs discriminate AD and PD patients from controls at an accuracy of about 0.75 — consistently, in the case of AD, and below what a standalone diagnostic test requires. Multi-miRNA panels reach about 0.89 and are where the evidence supports investing. The individual miRNAs that dominate this literature owe their prominence to research attention rather than to measured performance, and no miRNA-directed therapeutic has yet entered a clinical trial for either disease. The molecules remain biologically interesting; the diagnostic case for them, as currently made, is weaker than the volume of publication suggests.
+Pooled across published studies, single circulating microRNAs discriminate AD and PD patients from controls at an accuracy of about 0.76, at or below what a standalone diagnostic test requires. Multi-miRNA panels reach about 0.89 and are where the evidence supports investing — a conclusion this work shares with several earlier meta-analyses rather than establishing on its own. The individual miRNAs that dominate this literature owe their prominence to research attention rather than to measured performance, and the association runs inversely. No miRNA-directed therapeutic has yet entered a clinical trial for either disease.
+
+The molecules remain biologically interesting; the diagnostic case for them, as currently made, is weaker than the volume of publication suggests. And one result here is about how such cases get made: our own most confident claim, that AD single-miRNA estimates were homogeneous, did not survive the addition of a second database to the search.
 
 ## Data availability
 

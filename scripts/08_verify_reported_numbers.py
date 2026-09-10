@@ -91,15 +91,34 @@ def main():
                            f"{float(r['auc_ci_low']):.{dec}f}",
                            f"{float(r['auc_ci_high']):.{dec}f}"))
 
+    # EN | A superseded estimate may legitimately appear when the text is
+    #      explicitly retracting or comparing against an earlier version. Those
+    #      lines are recognised and exempted; silently deleting them would hide
+    #      the correction, which is the opposite of what this script is for.
+    # PT | Uma estimativa superada pode aparecer legitimamente quando o texto
+    #      retrata ou compara com uma versao anterior. Essas linhas sao
+    #      reconhecidas e isentas; apaga-las em silencio esconderia a correcao,
+    #      que e o oposto do proposito deste script.
+    HISTORICAL = re.compile(
+        r'(earlier version|first version|PubMed only|retract|withdrawn|superseded|'
+        r'vers[aã]o anterior|primeira vers[aã]o|S[oó] PubMed|retirad|superad)', re.I)
+
     TRIPLE = re.compile(r'(\d[.,]\d{2,4})\s*\((?:95%\s*(?:CI|IC)\s*)?(\d[.,]\d{2,4})\s*[–—-]\s*(\d[.,]\d{2,4})\)')
     for path, text in docs.items():
+        lines = text.split("\n")
         for m in TRIPLE.finditer(text):
             triple = tuple(v.replace(",", ".") for v in m.groups())
             checked += 1
-            if triple not in known:
-                line = text[:m.start()].count("\n") + 1
-                failures.append(f"{path}:{line}: reported estimate {m.group(0)} "
-                                f"is not in the result tables")
+            if triple in known:
+                continue
+            line_no = text[:m.start()].count("\n")
+            context = lines[line_no]
+            # also allow the surrounding block heading to mark the history
+            block = "\n".join(lines[max(0, line_no - 6):line_no + 1])
+            if HISTORICAL.search(context) or HISTORICAL.search(block):
+                continue
+            failures.append(f"{path}:{line_no + 1}: reported estimate {m.group(0)} "
+                            f"is not in the result tables")
 
     # --- 1b. Headline estimates must actually appear in the manuscripts ------
     for key in ("All - single miRNA | miRNA isolado",
@@ -114,11 +133,10 @@ def main():
     # --- 2. PRISMA counts ---------------------------------------------------
     ident, screen = flow["identification"], flow["screening"]
     elig, incl = flow["eligibility_fulltext"], flow["included_in_meta_analysis"]
+    # EN/PT: only counts that the manuscripts are expected to quote verbatim
     counts = {
-        "records_after_deduplication": ident["records_after_deduplication"],
-        "primary_studies": screen["primary_studies"],
-        "primary_reporting_auc_or_sens_spec": screen["primary_reporting_auc_or_sens_spec"],
-        "of_which_pmc_open_access_fulltext": screen["of_which_pmc_open_access_fulltext"],
+        "total_unique_records": ident["total_unique_records"],
+        "scopus_records_new": ident["scopus_records_new"],
         "extracted_estimates_total": elig["extracted_estimates_total"],
         "studies_contributing_extracted_estimates": elig["studies_contributing_extracted_estimates"],
         "estimates_eligible_for_primary_pool": elig["estimates_eligible_for_primary_pool"],
@@ -184,7 +202,15 @@ def main():
             failures.append(f"{path}: therapeutic trial count {n_ther} not found")
 
     # --- 7. Superseded values that must no longer appear anywhere -----------
-    stale = ["0.803", "0,803", "0.774", "0,774", "p = 0.62", "p = 0,62"]
+    # EN | Values retired by later revisions. Figures the documents deliberately
+    #      quote as superseded history (0.773 / 0.745 with I2 = 0%) are named in
+    #      HISTORICAL and skipped, because removing them would hide the retraction.
+    # PT | Valores aposentados por revisoes posteriores. Cifras que os documentos
+    #      citam de proposito como historia superada sao listadas em HISTORICAL e
+    #      ignoradas, porque remove-las esconderia a retratacao.
+    HISTORICAL = ("earlier version", "first version", "versao anterior", "primeira versao",
+                  "Só PubMed", "PubMed only", "retract", "retirada", "withdrawn")
+    stale = ["0.803", "0,803", "p = 0.62", "p = 0,62"]
     for path, text in docs.items():
         for bad in stale:
             checked += 1

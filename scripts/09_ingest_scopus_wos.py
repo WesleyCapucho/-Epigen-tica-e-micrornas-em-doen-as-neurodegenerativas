@@ -39,7 +39,11 @@ import os
 import re
 import sys
 
+# EN/PT: Scopus abstracts routinely exceed the default CSV field limit
+csv.field_size_limit(10 ** 7)
+
 CORPUS = "data/raw/systematic_review_2026/screening_corpus.json"
+DECISIONS = "data/raw/systematic_review_2026/screening_decisions.csv"
 OUT_DIR = "data/raw/systematic_review_2026"
 
 
@@ -81,9 +85,13 @@ def parse_scopus_csv(path):
         c_kw = pick("author keywords", "index keywords")
 
         for row in reader:
+            abstract = (row.get(c_abs) or "").strip() if c_abs else ""
+            # EN/PT: Scopus writes this placeholder when it holds no abstract
+            if abstract.lower().startswith("[no abstract available"):
+                abstract = ""
             out.append({
                 "Title": (row.get(c_title) or "").strip() if c_title else "",
-                "Abstract": (row.get(c_abs) or "").strip() if c_abs else "",
+                "Abstract": abstract,
                 "DOI": norm_doi(row.get(c_doi)) if c_doi else "",
                 "PMID": (row.get(c_pmid) or "").strip() if c_pmid else "",
                 "Year": (row.get(c_year) or "").strip() if c_year else "",
@@ -172,7 +180,14 @@ def main():
         ap.error("EN: give at least one export | PT: informe ao menos uma exportacao")
 
     # --- existing PubMed corpus, for deduplication -------------------------
+    # EN | Prefer the full corpus when present; otherwise fall back to the
+    #      committed screening decisions, which carry pmid, doi and title -
+    #      everything deduplication needs.
+    # PT | Usa o corpus completo quando existe; caso contrario, recorre as
+    #      decisoes de triagem versionadas, que trazem pmid, doi e titulo -
+    #      tudo de que a deduplicacao precisa.
     pm_dois, pm_pmids, pm_titles = set(), set(), set()
+    n_loaded, source = 0, None
     if os.path.exists(CORPUS):
         corpus = json.load(open(CORPUS))
         for pmid, art in corpus.items():
@@ -180,12 +195,23 @@ def main():
             pm_pmids.add(str(pmid))
             pm_dois.add(norm_doi(art.get("DOI") or ids.get("doi")))
             pm_titles.add(norm_title(art.get("Title") or art.get("title")))
-        pm_dois.discard("")
-        pm_titles.discard("")
-        print(f"EN | PubMed corpus loaded: {len(corpus)} records")
-        print(f"PT | Corpus PubMed carregado: {len(corpus)} registros")
+        n_loaded, source = len(corpus), CORPUS
+    elif os.path.exists(DECISIONS):
+        with open(DECISIONS, encoding="utf-8", newline="") as f:
+            for row in csv.DictReader(f):
+                pm_pmids.add(str(row.get("pmid", "")).strip())
+                pm_dois.add(norm_doi(row.get("doi")))
+                pm_titles.add(norm_title(row.get("title")))
+                n_loaded += 1
+        source = DECISIONS
+    pm_dois.discard("")
+    pm_titles.discard("")
+    pm_pmids.discard("")
+    if source:
+        print(f"EN | PubMed corpus loaded from {source}: {n_loaded} records")
+        print(f"PT | Corpus PubMed carregado de {source}: {n_loaded} registros")
     else:
-        print(f"WARNING: {CORPUS} not found - nothing to deduplicate against.")
+        print("WARNING: no PubMed corpus found - nothing to deduplicate against.")
 
     incoming = []
     if args.scopus:

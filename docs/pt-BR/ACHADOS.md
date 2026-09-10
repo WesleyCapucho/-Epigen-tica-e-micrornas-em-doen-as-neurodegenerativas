@@ -4,47 +4,51 @@
 
 🇬🇧 English version: [../en/FINDINGS.md](../en/FINDINGS.md)
 
+> **Revisado em 10/09/2026, após a inclusão do Scopus.** Duas conclusões da versão anterior não sobreviveram à busca ampliada, e uma ficou mais forte. A Seção 8 registra exatamente o que mudou e por quê, porque o leitor merece ver isso, e não um documento silenciosamente atualizado.
+
 ---
 
 ## 1. O que foi sintetizado
 
-Foram triados 234 registros únicos; 189 eram estudos primários; 95 reportaram AUC ou par sensibilidade–especificidade; 45 textos completos foram lidos; 26 estudos renderam 42 estimativas extraíveis, das quais 28 atenderam às regras de elegibilidade e 24 (de 15 estudos independentes) tinham erro-padrão estimável e puderam ser ponderadas.
+Buscas: o PubMed/MEDLINE retornou 234 registros únicos nos braços AD e PD; o braço AD do Scopus retornou 408, dos quais 248 eram novos — **mais registros do que todo o braço AD do PubMed havia encontrado**. Total de registros únicos: 482. O braço PD do Scopus ainda não foi executado.
 
-Vale dizer a perda com todas as letras: **menos de um em cada dez registros triados terminou contribuindo com uma estimativa ponderada.** A maior parte dessa perda não é obra do revisor. Vem de estudos que reportam AUC sem os tamanhos de grupo ou o intervalo de confiança necessários para ponderá-la, de textos completos trancados atrás de assinaturas, e de comparações que soam como "AD versus controles" mas, na leitura, são outra coisa.
+A triagem deixou 188 estudos primários do PubMed e 101 dos acréscimos do Scopus. Destes, 95 e 20 respectivamente reportaram AUC ou par sensibilidade–especificidade. Foram lidos 45 textos completos. **34 estudos** renderam **50 estimativas extraíveis**, das quais 31 atenderam à elegibilidade e **25 (de 16 estudos independentes)** tinham erro-padrão estimável e puderam ser ponderadas.
 
-## 2. miRNAs isolados não alcançam utilidade clínica
+Apenas uma estimativa vinda do Scopus pôde ser ponderada. As demais reportam AUC sem tamanhos de grupo e sem intervalo de confiança — a mesma lacuna de reporte que domina a perda ao longo de toda esta revisão.
 
-A AUC agregada de um miRNA circulante isolado é **0,745 (IC 95% 0,699–0,785)**, em 16 estimativas de 9 estudos.
+## 2. miRNAs isolados ficam na fronteira da utilidade clínica
 
-Esse número precisa ser lido contra o que ele teria de superar. Uma AUC em torno de 0,80 é o piso convencional para um teste diagnóstico autônomo; os ensaios plasmáticos consolidados de fosfo-tau para AD ficam bem acima de 0,90. Um valor agregado de 0,745, com limite superior de 0,785, não alcança o piso — o intervalo inteiro fica abaixo de 0,80.
+AUC agregada de um miRNA circulante isolado: **0,758 (IC 95% 0,706–0,804)**, 17 estimativas de 10 estudos, I² = 66%.
 
-O subgrupo de miRNA isolado em AD é o resultado mais informativo da análise, porque é o que tem **I² = 0%**. Seis estimativas de cinco estudos diferentes, em biofluidos diferentes, em plataformas diferentes, convergem para 0,773 (0,732–0,810) sem heterogeneidade detectável entre estudos. Não se trata de uma literatura ruidosa que talvez contenha um sinal forte, se apenas fosse mais bem medida. Trata-se de um efeito consistente, bem replicado e *modesto*. Consistência em um valor mediano é um resultado mais desanimador do que inconsistência, porque retira a esperança de que melhor metodologia moveria a estimativa.
+Uma AUC próxima de 0,80 é o piso convencional para um teste diagnóstico autônomo; os ensaios plasmáticos de fosfo-tau para AD operam bem acima de 0,90. A estimativa pontual agregada fica abaixo desse piso e o limite superior do intervalo apenas o alcança. A leitura honesta é que miRNAs circulantes isolados desempenham no limiar ou abaixo dele, e não confortavelmente acima — e em nada próximos dos ensaios proteicos consolidados que teriam de deslocar.
 
-Os miRNAs isolados em PD agregam ainda mais baixo, em 0,716 (0,640–0,781), com heterogeneidade moderada (I² = 55%).
+Por doença: miRNAs isolados agregam em 0,802 (0,741–0,851) na AD e em 0,716 (0,640–0,781) na PD.
 
-## 3. O ganho está nos painéis, e a diferença não é ruído
-
-Painéis multi-miRNA agregam em **0,888 (0,829–0,928)** — e os intervalos de confiança dos dois tipos de marcador não se sobrepõem:
+## 3. Painéis superam marcadores isolados, e os intervalos seguem sem se sobrepor
 
 | | AUC agregada | IC 95% |
 |---|---|---|
-| miRNA isolado | 0,745 | 0,699 – 0,785 |
+| miRNA isolado | 0,758 | 0,706 – 0,804 |
 | Painel multi-miRNA | 0,888 | 0,829 – 0,928 |
 
-Intervalos que não se sobrepõem constituem um teste conservador, e esta comparação passa nele. A leitura prática é direcional: o movimento produtivo é combinar marcadores, e não seguir procurando um marcador individual melhor. Isso é coerente com a biologia que a monografia de origem defendeu — miRNAs atuam como moduladores de rede, cada um com alavancagem individual modesta sobre muitos alvos — mas aqui o argumento chega como efeito medido, e não como inferência a partir do mecanismo.
+Os intervalos permanecem disjuntos após os acréscimos do Scopus. Este é o resultado quantitativo mais robusto aqui, e sobreviveu a uma busca que derrubou outras conclusões.
 
-Duas ressalvas acompanham a estimativa dos painéis. A heterogeneidade é alta (I² = 85%), e painéis são justamente o tipo de marcador mais exposto a sobreajuste: muitos derivam seus pesos e seu ponto de corte na mesma amostra em que reportam desempenho. O número dos painéis é, portanto, o que tem maior probabilidade de encolher sob validação externa.
+Ele também **não é inédito**. Ao menos três meta-análises prévias chegaram à mesma conclusão: a meta-análise de AD da *Neurologia* achou que "clusters de microRNA do tipo plasma tiveram melhor acurácia diagnóstica"; a de PD da mesma revista achou que "o cluster de miRNA mostrou melhor acurácia diagnóstica que o miRNA simples"; e Guévremont et al. agregaram combinações e marcadores isolados separadamente exatamente por isso. O que esta análise acrescenta é a distância quantificada numa escala de AUC comum, com intervalos que não se sobrepõem — evidência convergente, e não descoberta.
 
-## 4. A atenção da área aponta para longe do desempenho
+Duas ressalvas permanecem. A heterogeneidade dos painéis é alta (I² = 85%), e painéis são o tipo de marcador mais exposto a sobreajuste, já que muitos derivam pesos e ponto de corte na mesma amostra em que reportam desempenho. O número dos painéis é o mais provável de encolher sob validação externa.
 
-Contar quantos artigos do corpus mencionam cada miRNA e correlacionar isso com sua AUC medida resulta em:
+## 4. A atenção da literatura é inversamente relacionada ao desempenho medido
 
-- em todas as estimativas de miRNA isolado: ρ de Spearman = −0,11 (p = 0,61)
-- restrito às estimativas elegíveis para o pool primário: **ρ = −0,41 (p = 0,14)**
+Este é o achado que a busca ampliada **fortaleceu**, e é o que não tem precedente claro nesta literatura.
 
-Nenhum é estatisticamente significativo e, com a maioria dos miRNAs contribuindo com um único estudo, o teste tem baixo poder — um resultado nulo aqui não é evidência de ausência de associação, e o coeficiente negativo é um sinal para investigar, não uma conclusão.
+Correlacionando quantos artigos do corpus mencionam cada miRNA com sua AUC média reportada:
 
-Mas o padrão nos valores individuais é difícil de ignorar:
+- em todas as estimativas de miRNA isolado: ρ de Spearman = −0,27 (p = 0,16)
+- restrito às estimativas elegíveis para o pool primário: **ρ = −0,61 (p = 0,012)**
+
+Com os registros do Scopus, a análise restrita cruza a significância convencional (era ρ = −0,41; p = 0,14 só com PubMed). Dezesseis miRNAs contribuem, a maioria com um único estudo cada, então isto segue exploratório e não sustenta leitura causal. Mas a direção agora é difícil de descartar como ruído.
+
+Os valores individuais mostram por quê:
 
 | miRNA | Artigos que o mencionam | AUC reportada |
 |---|---|---|
@@ -56,53 +60,65 @@ Mas o padrão nos valores individuais é difícil de ignorar:
 | let-7i | 1 | 0,835 |
 | miR-501 | 1 | 0,820 |
 
-Os dois miRNAs mais discutidos do corpus ficam na *base* da distribuição de desempenho, e três dos melhores desempenhos são quase não discutidos. O miR-146a em particular — uma das moléculas-âncora da narrativa amiloide-inflamatória, e um dos dois eixos modelados na monografia de origem — devolve a menor AUC do conjunto elegível.
+Os dois miRNAs mais discutidos do corpus ficam na base da distribuição de desempenho. O miR-146a — âncora do relato neuroinflamatório da AD e um dos dois eixos modelados na monografia de origem — devolve a menor AUC entre as estimativas elegíveis.
 
-Esta é a resposta quantitativa ao problema de circularidade que a monografia levantou sobre si mesma. Frequência bibliométrica e validação experimental catalogada seguem ambas a atenção prévia da pesquisa, então a concordância entre elas prova pouco. A acurácia diagnóstica agregada é um critério externo e, por esse critério, a correlação com a atenção é ausente ou inversa. Um miRNA se torna proeminente por ser mecanisticamente interessante e fácil de dosar, não por discriminar bem os pacientes.
+Esta é a resposta quantitativa à circularidade que a monografia levantou sobre si mesma. Frequência bibliométrica e validação experimental catalogada seguem ambas a atenção prévia da pesquisa, então a concordância entre elas prova pouco. A acurácia agregada é externa a esse laço e, por esse critério, atenção e desempenho se movem em direções opostas.
 
-## 5. Os valores agregados são limites superiores, não estimativas neutras
+## 5. Os valores agregados são limites superiores
 
-O teste de Egger é significativo em vários subgrupos, incluindo o pool global e o subgrupo de PD. Somado a duas características estruturais desta literatura — pontos de corte derivados na mesma amostra em que são avaliados, e coortes pequenas (muitas com menos de 50 por braço) —, a direção do viés é previsível e de mão única.
-
-Toda cifra agregada nesta análise deve, portanto, ser lida como **a ponta otimista** da faixa plausível. Isso importa sobretudo para o resultado principal: se 0,745 já é a estimativa otimista para um miRNA isolado, a cifra realista é menor.
+O teste de Egger é significativo no pool global, no subgrupo de PD, no pool de miRNAs isolados e no subgrupo de soro. Somado a pontos de corte derivados na mesma amostra em que são avaliados, e a coortes frequentemente com menos de 50 por braço, o viés corre numa direção só. Toda cifra agregada aqui é a ponta otimista de sua faixa plausível.
 
 ## 6. Nada chegou à clínica
 
-A literatura pré-clínica sobre miméticos de miRNA e antagomiRs em neurodegeneração é substancial, e a própria monografia de origem simulou uma terapia com mimético de miR-29c/miR-107. O ClinicalTrials.gov, consultado em 10 de setembro de 2026, mostra o estado real dos testes em humanos (`scripts/07_clinical_translation_landscape.py`).
+O ClinicalTrials.gov (10 de setembro de 2026) lista 16 ensaios registrados de agentes dirigidos a miRNA no mundo, de cinco moléculas: miravirsen (anti-miR-122, hepatite C, Fase 2), cobomarsen (anti-miR-155, oncologia, Fase 2, encerrado), MRX34 (mimético de miR-34a, encerrado), TargomiRs (mimético de miR-16, Fase 1) e MRG-201/remlarsen (mimético de miR-29, dermatologia, Fase 2).
 
-**Em todas as indicações, 16 ensaios registrados de agentes dirigidos a miRNA, de 5 moléculas distintas:**
+**Na doença de Alzheimer ou de Parkinson: zero.** Treze ensaios registrados mencionam miRNAs em AD ou PD; oito são observacionais, dois medem miRNAs como desfecho de exercício ou reabilitação, e os três ensaios intervencionais com fármaco administram genfibrozila, um oligonucleotídeo antissenso contra tau e um adjuvante agonista de TLR9 — nenhum dirigido a miRNA.
 
-| Agente | Alvo | Área | Fase máxima | Ensaios |
-|---|---|---|---|---|
-| Miravirsen (SPC3649) | anti-miR-122 | Hepatite C | Fase 2 | 8 |
-| Cobomarsen (MRG-106) | anti-miR-155 | Oncologia | Fase 2 (encerrado) | 3 |
-| MRG-201 / remlarsen | mimético de miR-29 | Dermatologia / fibrose | Fase 2 | 2 |
-| MRX34 | mimético de miR-34a | Oncologia | Fase 1/2 (encerrado) | 2 |
-| TargomiRs | mimético de miR-16 | Oncologia | Fase 1 | 1 |
+O MRG-201/remlarsen é um **mimético de miR-29 que chegou à Fase 2** — exatamente o eixo que a monografia de origem simulou como terapia cerebral — desenvolvido para queloide e administrado por injeção intradérmica. A classe molecular existe clinicamente; a via até o cérebro não.
 
-**Na doença de Alzheimer ou de Parkinson: zero.** Treze ensaios registrados mencionam miRNAs em AD ou PD; oito são estudos observacionais de biomarcador, dois medem miRNAs como desfecho de exercício ou reabilitação, e os três ensaios intervencionais com fármaco estão testando outra coisa — genfibrozila (um fibrato), NIO752 (um oligonucleotídeo antissenso contra o mRNA da tau) e CpG1018 (um adjuvante agonista de TLR9). Nenhum administra mimético de miRNA ou anti-miR.
+*Ressalva:* buscas em registro casam por nomes e texto livre, então um agente sob nomenclatura pouco usual passaria despercebido. Um falso positivo foi encontrado e excluído (ensaio que casou com "Parkinson" pela síndrome de Wolff–Parkinson–White).
 
-Dois detalhes afiam esse quadro. Primeiro, o histórico da modalidade onde ela *foi* testada é irregular: o MRX34 foi encerrado, a Fase 2 do cobomarsen e sua extensão foram ambas encerradas, e o miravirsen não avançou além da Fase 2. Segundo — e este é o detalhe que mais importa para a monografia de origem — **o MRG-201/remlarsen é um mimético de miR-29 que chegou à Fase 2**, exatamente o eixo que a monografia modelou como terapia (miR-29c/miR-107 → BACE1 → Aβ). Foi desenvolvido para queloide e administrado por injeção intradérmica. A classe molecular existe clinicamente. O que não existe é uma via até o cérebro.
+## 7. Esta pergunta já foi feita antes
 
-Isso reenquadra honestamente a "terapia com mimético de miRNA" simulada: a barreira não é se tal molécula pode ser feita, mas a entrega através da barreira hematoencefálica e uma janela terapêutica estreita o bastante para que as próprias simulações da monografia produzissem supressão abaixo do nível fisiológico basal.
+Seis meta-análises prévias agregaram acurácia diagnóstica de miRNAs em AD ou PD, reportando **AUCs SROC de 0,87–0,90** (`data/raw/systematic_review_2026/prior_meta_analyses.json`).
 
-*Ressalva, declarada e não escondida:* buscas no registro casam por nomes de intervenção e texto livre, então um agente descrito sob nomenclatura que nenhum termo da query cobre passaria despercebido. As queries exatas estão em `data/raw/clinical_trials_2026/mirna_therapeutics_trials.json`, para que a busca possa ser criticada e repetida. Um falso positivo foi encontrado e excluído: um ensaio que casou com "Parkinson" pela síndrome de Wolff–Parkinson–White, distúrbio de condução cardíaca.
+Esses números não são diretamente comparáveis ao 0,758 daqui, e a diferença é sobretudo de estimando, não de evidência:
 
-## 7. O que decorre disso
+- **Elas reportam uma área ROC-resumo (SROC)**, ajustada aos pares sensibilidade–especificidade de cada estudo num modelo bivariado/HSROC. Isso descreve uma curva-resumo ajustada.
+- **Esta análise faz a média das AUCs que os próprios estudos reportaram.** Isso descreve o que um estudo típico observou.
 
-**Para o desenvolvimento de biomarcadores.** Artigos de miRNA isolado reportando AUC perto de 0,75 estão reportando o valor central da área, não uma descoberta. A evidência sustenta investir em painéis, em comparação direta com p-tau217 em vez de comparação contra nenhum comparador, e em coortes de validação externa nas quais o ponto de corte seja fixado de antemão.
+As duas podem diferir bastante sobre dados idênticos. Nenhuma está errada; respondem a perguntas diferentes. Quem quer saber "quão boa é a curva ROC-resumo desta literatura" deve usar as estimativas SROC publicadas. Quem quer saber "que AUC um miRNA isolado típico alcança num estudo típico" está mais perto do número daqui.
 
-**Para como esta literatura é lida.** Frequência de menção não é evidência de desempenho e, neste corpus, pode estar levemente anticorrelacionada com ele. Revisões que ranqueiam candidatos a miRNA pela frequência com que aparecem estão ranqueando por atenção.
+Outras duas diferenças importam. As meta-análises prévias agregaram marcadores isolados e combinações juntos na cifra principal (Guévremont et al. sendo a exceção), o que coloca o ~0,87 delas entre as estimativas de marcador isolado e de painel encontradas aqui. E elas não se restringiram a textos completos de acesso aberto, como esta extração se restringiu.
 
-**Para as práticas de reporte.** A maior causa isolada de perda de dados aqui foram estudos que publicaram uma AUC sem os tamanhos de grupo ou o intervalo de confiança necessários para ponderá-la. Essa omissão remove o estudo de toda meta-análise futura. Reportar o n por braço junto de cada resultado de ROC não custa nada e melhoraria materialmente a evidência cumulativa da área.
+**O que permanece genuinamente novo neste trabalho:** o teste de atenção versus desempenho, a checagem no registro de ensaios clínicos, e uma tabela de extração em que cada valor carrega a frase verbatim de sua fonte.
 
-**Para a camada de modelagem da monografia de origem.** Os modelos por EDO construídos sobre os eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína seguem úteis como estruturas qualitativas e geradoras de hipóteses. O que esta análise acrescenta é uma condição de contorno: os miRNAs no centro desses modelos não são, pela evidência atual, discriminadores individuais fortes da doença. Isso não os invalida como reguladores mecanísticos — importância regulatória e discriminação diagnóstica são afirmações distintas — mas significa que o argumento diagnóstico em favor deles precisa ser feito com painéis, e não com marcadores isolados.
+## 8. O que a busca no Scopus mudou
 
-## 8. Limitações honestas
+Acrescentar uma base a uma revisão concluída alterou duas de quatro conclusões principais. Vale dizer isso com todas as letras, porque é um resultado sobre método tanto quanto sobre miRNAs.
 
-- Apenas PubMed/MEDLINE; Scopus e Web of Science não foram consultadas.
-- Extração limitada a textos completos de acesso aberto no PubMed Central (55 de 95 estudos primários elegíveis), uma fatia potencialmente não aleatória.
-- 24 estimativas ponderadas de 15 estudos é uma base de evidência modesta; as células de subgrupo são ainda menores (painéis em PD: k = 2).
-- Heterogeneidade de até I² = 94% em alguns subgrupos.
-- A análise de atenção versus desempenho é exploratória e com baixo poder.
-- Acurácia reportada não é acurácia clínica prospectiva.
+| Subgrupo | Só PubMed | + Scopus | Veredito |
+|---|---|---|---|
+| miRNA isolado | 0,745 (0,699–0,785), I² 46% | 0,758 (0,706–0,804), I² 66% | intervalo agora alcança 0,80 |
+| **AD, miRNA isolado** | 0,773 (0,732–0,810), **I² 0%** | 0,802 (0,741–0,851), **I² 63%** | **alegação de homogeneidade retirada** |
+| Painel | 0,888 (0,829–0,928) | inalterado | se mantém |
+| Atenção vs AUC (elegíveis) | ρ = −0,41; p = 0,14 | **ρ = −0,61; p = 0,012** | **fortalecido** |
+
+Duas alegações da versão anterior estão **retiradas**:
+
+1. *"O subgrupo de miRNA isolado em AD mostra I² = 0%, logo a limitação é propriedade da medida, e não do modo como vem sendo feita."* Um único estudo adicional (miR-202, AUC 0,892, 121 casos vs 86 controles) elevou a heterogeneidade a 63%. A homogeneidade era artefato de uma busca incompleta.
+2. *"O intervalo de confiança inteiro fica abaixo de 0,80."* Não fica mais.
+
+Uma terceira correção independe do Scopus: um defeito na regra de triagem — uma fronteira de palavra após `meta-analys` que impedia que ela casasse com "meta-analysis" — deixava passar meta-análises autodeclaradas. Reclassificou um registro do PubMed e não afetou nenhum estudo extraído, mas é a razão de as meta-análises prévias da Seção 7 terem passado despercebidas até a triagem dos registros do Scopus.
+
+A lição geral é incômoda e merece ir para o manuscrito: uma revisão sistemática de base única pode produzir um resultado limpo, confiante e homogêneo que uma segunda base dissolve.
+
+## 9. Limitações honestas
+
+- O braço PD do Scopus não foi executado. A cobertura é assimétrica entre as doenças, e as estimativas de PD repousam apenas no PubMed.
+- A Web of Science não foi consultada.
+- A extração se restringe a textos completos de acesso aberto e a resumos; 20 dos 25 erros-padrão ponderados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
+- Vinte e cinco estimativas ponderadas de 16 estudos é base modesta, e algumas células de subgrupo são muito pequenas (painéis em PD, k = 2).
+- A heterogeneidade chega a I² = 94%.
+- A análise de atenção versus desempenho é exploratória; significância com n = 16 e miRNAs majoritariamente de estudo único é frágil.
+- Acurácia reportada não é acurácia clínica prospectiva, e a diferença não é neutra.

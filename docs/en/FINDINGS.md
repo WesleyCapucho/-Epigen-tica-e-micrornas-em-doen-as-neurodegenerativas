@@ -4,47 +4,51 @@
 
 🇧🇷 Versão em português: [../pt-BR/ACHADOS.md](../pt-BR/ACHADOS.md)
 
+> **Revised 2026-09-10 after adding Scopus.** Two conclusions in the previous version did not survive the wider search, and one became stronger. Section 8 records exactly what changed and why, because a reader deserves to see that rather than a silently updated document.
+
 ---
 
 ## 1. What was synthesised
 
-234 unique records were screened; 189 were primary studies; 95 reported an AUC or a sensitivity–specificity pair; 45 full texts were read; 26 studies yielded 42 extractable estimates, of which 28 met the eligibility rules and 24 (from 15 independent studies) had an estimable standard error and could be weighted.
+Searches: PubMed/MEDLINE returned 234 unique records across the AD and PD arms; the Scopus AD arm returned 408, of which 248 were new — **more records than the entire PubMed AD arm had found**. Total unique records: 482. The Scopus PD arm has not been run yet.
 
-The attrition is worth stating plainly: **fewer than one in ten screened records ended up contributing a weighted estimate.** Most of that loss is not the reviewer's doing. It comes from studies that report an AUC without the group sizes or confidence interval needed to weight it, from full texts locked behind subscriptions, and from comparisons that sound like "AD versus controls" but are actually something else on reading.
+Screening left 188 primary studies from PubMed and 101 from the Scopus additions. Of those, 95 and 20 respectively reported an AUC or a sensitivity–specificity pair. Forty-five full texts were read. **34 studies** yielded **50 extractable estimates**, of which 31 met eligibility and **25 (from 16 independent studies)** had an estimable standard error and could be weighted.
 
-## 2. Single miRNAs do not reach clinical usefulness
+Only one Scopus-derived estimate could be weighted. The rest report an AUC with no group sizes and no confidence interval — the same reporting gap that dominates the attrition throughout this review.
 
-Pooled AUC for a single circulating miRNA is **0.745 (95% CI 0.699–0.785)** across 16 estimates from 9 studies.
+## 2. Single miRNAs sit at the boundary of clinical usefulness
 
-That number should be read against what it would have to beat. An AUC around 0.80 is the conventional floor for a standalone diagnostic test; established plasma phospho-tau assays for AD sit well above 0.90. A pooled 0.745, with an upper confidence bound of 0.785, does not reach the floor — the entire interval sits below 0.80.
+Pooled AUC for a single circulating miRNA: **0.758 (95% CI 0.706–0.804)**, 17 estimates from 10 studies, I² = 66%.
 
-The AD single-miRNA subgroup is the most informative result in the analysis, because it is the one with **I² = 0%**. Six estimates from five different studies, in different biofluids, on different platforms, converge on 0.773 (0.732–0.810) with no detectable between-study heterogeneity. This is not a noisy literature that might contain a strong signal if only it were measured better. It is a consistent, well-replicated, *modest* effect. Consistency at a mediocre value is a more discouraging result than inconsistency, because it removes the hope that better methodology would move the estimate.
+An AUC near 0.80 is the conventional floor for a standalone diagnostic test; plasma phospho-tau assays for AD operate well above 0.90. The pooled point estimate falls below that floor and the interval's upper bound just reaches it. The honest reading is that single circulating miRNAs perform at or under the threshold, not comfortably above it — and nowhere near the established protein assays they would have to displace.
 
-PD single miRNAs pool lower still, at 0.716 (0.640–0.781), with moderate heterogeneity (I² = 55%).
+By disease: AD single miRNAs pool at 0.802 (0.741–0.851), PD at 0.716 (0.640–0.781).
 
-## 3. Panels are where the gain is, and the gap is not noise
-
-Multi-miRNA panels pool at **0.888 (0.829–0.928)** — and the confidence intervals of the two marker types do not overlap:
+## 3. Panels outperform single markers, and the intervals still do not overlap
 
 | | Pooled AUC | 95% CI |
 |---|---|---|
-| Single miRNA | 0.745 | 0.699 – 0.785 |
+| Single miRNA | 0.758 | 0.706 – 0.804 |
 | Multi-miRNA panel | 0.888 | 0.829 – 0.928 |
 
-Non-overlapping intervals are a conservative test, and this comparison passes it. The practical reading is directional: the productive move is combining markers, not continuing to search for a better individual one. This is consistent with the biology the source monograph argued for — miRNAs act as network modulators, each with modest individual leverage over many targets — but here it arrives as a measured effect rather than an inference from mechanism.
+The intervals remain disjoint after the Scopus additions. This is the most robust quantitative result here, and it survived a search that overturned other conclusions.
 
-Two cautions attach to the panel estimate. Panel heterogeneity is high (I² = 85%), and panels are precisely the marker type most exposed to overfitting: many derive their weights and their cut-off in the same sample where they report performance. The panel figure is therefore the one most likely to shrink under external validation.
+It is also **not novel**. At least three prior meta-analyses reached the same conclusion: the Neurologia AD meta-analysis found "microRNA clusters of plasma type performed a better diagnostic accuracy"; the Neurologia PD meta-analysis found "miRNA cluster showed a better diagnostic accuracy than miRNA simple"; and Guévremont et al. pooled combinations and single markers separately for exactly this reason. What this analysis adds is the gap quantified on a common AUC scale with non-overlapping intervals — convergent evidence, not a discovery.
 
-## 4. The field's attention points away from performance
+Two cautions stand. Panel heterogeneity is high (I² = 85%), and panels are the marker type most exposed to overfitting, since many derive their weights and cut-off in the sample where performance is reported. The panel figure is the one most likely to shrink under external validation.
 
-Counting how many corpus articles mention each miRNA and correlating that with its measured AUC gives:
+## 4. Literature attention is inversely related to measured performance
 
-- across all single-miRNA estimates: Spearman ρ = −0.11 (p = 0.61)
-- restricted to estimates eligible for the primary pool: **ρ = −0.41 (p = 0.14)**
+This is the finding the wider search **strengthened**, and it is the one with no clear precedent in this literature.
 
-Neither is statistically significant, and with most miRNAs contributing a single study the test is underpowered — a null result here is not evidence of no association, and the negative coefficient is a signal to investigate, not a conclusion.
+Correlating how many corpus articles mention each miRNA with its mean reported AUC:
 
-But the pattern in the individual values is hard to ignore:
+- across all single-miRNA estimates: Spearman ρ = −0.27 (p = 0.16)
+- restricted to estimates eligible for the primary pool: **ρ = −0.61 (p = 0.012)**
+
+With the Scopus records added, the restricted analysis crosses conventional significance (it was ρ = −0.41, p = 0.14 on PubMed alone). Sixteen miRNAs contribute, most from a single study each, so this remains exploratory and cannot support a causal reading. But the direction is now hard to dismiss as noise.
+
+The individual values show why:
 
 | miRNA | Articles mentioning it | Reported AUC |
 |---|---|---|
@@ -56,53 +60,65 @@ But the pattern in the individual values is hard to ignore:
 | let-7i | 1 | 0.835 |
 | miR-501 | 1 | 0.820 |
 
-The two most-discussed miRNAs in the corpus sit at the *bottom* of the performance distribution, and three of the best performers are barely discussed at all. miR-146a in particular — one of the anchor molecules of the amyloid-inflammation narrative, and one of the two axes modelled in the source monograph — returns the lowest AUC in the eligible set.
+The two most-discussed miRNAs in the corpus sit at the bottom of the performance distribution. miR-146a — an anchor of the neuroinflammatory account of AD, and one of the two axes modelled in the source monograph — returns the lowest AUC among eligible estimates.
 
-This is the quantitative answer to the circularity problem the monograph raised about itself. Bibliometric frequency and catalogued experimental validation both track prior research attention, so their agreement proves little. Pooled diagnostic accuracy is an external criterion, and by that criterion the correlation with attention is absent or inverse. A miRNA becomes prominent by being mechanistically interesting and easy to assay, not by discriminating patients well.
+This is the quantitative answer to the circularity the monograph raised about itself. Bibliometric frequency and catalogued experimental validation both track prior research attention, so their agreement proves little. Pooled accuracy is external to that loop, and by that criterion attention and performance move in opposite directions.
 
-## 5. The pooled values are upper bounds, not neutral estimates
+## 5. The pooled values are upper bounds
 
-Egger's test is significant in several subgroups, including the overall pool and the PD subgroup. Combined with two structural features of this literature — cut-offs derived in the same sample where they are evaluated, and small cohorts (many under 50 per arm) — the direction of bias is predictable and one-way.
-
-Every pooled figure in this analysis should therefore be read as **the optimistic end** of the plausible range. That matters most for the headline: if 0.745 is already the optimistic estimate for a single miRNA, the realistic figure is lower.
+Egger's test is significant in the overall pool, the PD subgroup, the single-miRNA pool and the serum subgroup. Combined with cut-offs derived in the same sample where they are evaluated, and cohorts frequently under 50 per arm, the bias runs one way. Every pooled figure here is the optimistic end of its plausible range.
 
 ## 6. Nothing has reached the clinic
 
-The preclinical literature on miRNA mimics and antagomiRs in neurodegeneration is substantial, and the source monograph itself simulated a miR-29c/miR-107 mimic therapy. ClinicalTrials.gov, queried on 10 September 2026, gives the state of actual human testing (`scripts/07_clinical_translation_landscape.py`).
+ClinicalTrials.gov (10 September 2026) lists 16 registered trials of miRNA-directed agents worldwide, from five molecules: miravirsen (anti-miR-122, hepatitis C, Phase 2), cobomarsen (anti-miR-155, oncology, Phase 2, terminated), MRX34 (miR-34a mimic, terminated), TargomiRs (miR-16 mimic, Phase 1) and MRG-201/remlarsen (miR-29 mimic, dermatology, Phase 2).
 
-**Across all indications, 16 registered trials of miRNA-directed agents, from 5 distinct molecules:**
+**In Alzheimer's or Parkinson's disease: zero.** Thirteen registered trials mention miRNAs in AD or PD; eight are observational, two measure miRNAs as an exercise or rehabilitation outcome, and the three interventional drug trials administer gemfibrozil, a tau antisense oligonucleotide and a TLR9-agonist adjuvant — none of them miRNA-directed.
 
-| Agent | Target | Area | Furthest phase | Trials |
-|---|---|---|---|---|
-| Miravirsen (SPC3649) | anti-miR-122 | Hepatitis C | Phase 2 | 8 |
-| Cobomarsen (MRG-106) | anti-miR-155 | Oncology | Phase 2 (terminated) | 3 |
-| MRG-201 / remlarsen | miR-29 mimic | Dermatology / fibrosis | Phase 2 | 2 |
-| MRX34 | miR-34a mimic | Oncology | Phase 1/2 (terminated) | 2 |
-| TargomiRs | miR-16 mimic | Oncology | Phase 1 | 1 |
+MRG-201/remlarsen is a **miR-29 mimic that reached Phase 2** — precisely the axis the source monograph simulated as a brain therapy — developed for keloid scarring and given by intradermal injection. The molecule class exists clinically; the route to the brain does not.
 
-**In Alzheimer's or Parkinson's disease: zero.** Thirteen registered trials mention miRNAs in AD or PD; eight are observational biomarker studies, two measure miRNAs as an outcome of exercise or rehabilitation, and the three interventional trials with a drug are testing something else — gemfibrozil (a fibrate), NIO752 (an antisense oligonucleotide against tau mRNA) and CpG1018 (a TLR9-agonist adjuvant). None administers a miRNA mimic or an anti-miR.
+*Caveat:* registry searches match on names and free text, so an agent under unfamiliar nomenclature would be missed. One false positive was found and excluded (a trial matching "Parkinson" through Wolff–Parkinson–White syndrome).
 
-Two details sharpen this. First, the modality's track record where it *has* been tried is uneven: MRX34 was terminated, cobomarsen's Phase 2 and its extension were both terminated, and miravirsen did not advance past Phase 2. Second — and this is the detail that matters most for the source monograph — **MRG-201/remlarsen is a miR-29 mimic that reached Phase 2**, which is precisely the axis the monograph modelled as a therapy (miR-29c/miR-107 → BACE1 → Aβ). It was developed for keloid scarring and delivered by intradermal injection. The molecule class exists clinically. What does not exist is a route to the brain.
+## 7. This question has been asked before
 
-That reframes the simulated "miRNA mimic therapy" honestly: the barrier is not whether such a molecule can be made, but delivery across the blood–brain barrier and a therapeutic window narrow enough that the monograph's own simulations produced over-suppression below physiological baseline.
+Six prior meta-analyses pooled diagnostic accuracy for miRNAs in AD or PD, reporting **SROC AUCs of 0.87–0.90** (`data/raw/systematic_review_2026/prior_meta_analyses.json`).
 
-*Caveat, stated rather than hidden:* registry searches match on intervention names and free text, so an agent described under nomenclature none of the query terms covers would be missed. The exact queries are stored in `data/raw/clinical_trials_2026/mirna_therapeutics_trials.json` so the search can be criticised and repeated. One false positive was found and excluded: a trial matching "Parkinson" through Wolff–Parkinson–White syndrome, a cardiac conduction disorder.
+Those numbers are not directly comparable to the 0.758 here, and the difference is mostly a difference of estimand rather than of evidence:
 
-## 7. What follows from this
+- **They report a summary ROC area**, fitted through study-level sensitivity–specificity pairs in a bivariate/HSROC model. That describes a fitted summary curve.
+- **This analysis averages the AUCs the studies themselves reported.** That describes what a typical study observed.
 
-**For biomarker development.** Single-miRNA papers reporting an AUC near 0.75 are reporting the field's central value, not a discovery. The evidence supports investing in panels, in head-to-head comparison against p-tau217 rather than against no comparator, and in external validation cohorts where the cut-off is fixed in advance.
+The two can differ substantially on identical data. Neither is wrong; they answer different questions. A reader who wants "how good is the summary ROC curve of this literature" should use the published SROC estimates. A reader who wants "what AUC does a typical single miRNA achieve in a typical study" is closer to the number here.
 
-**For how this literature is read.** Frequency of mention is not evidence of performance, and in this corpus may be mildly anti-correlated with it. Reviews that rank miRNA candidates by how often they appear are ranking by attention.
+Two further differences matter. Prior meta-analyses pooled single markers and combinations together in their headline figure (Guévremont et al. being the exception), which places their ~0.87 between the single-marker and panel estimates found here. And they were not restricted to open-access full texts, as this extraction was.
 
-**For reporting practice.** The single largest cause of data loss here was studies publishing an AUC without the group sizes or confidence interval needed to weight it. That omission removes a study from every future meta-analysis. Reporting n per arm alongside every ROC result costs nothing and would materially improve the field's cumulative evidence.
+**What remains genuinely new in this work:** the attention-versus-performance test, the clinical-trial registry check, and an extraction table in which every value carries the verbatim sentence of its source.
 
-**For the modelling layer of the source monograph.** The ODE models built on the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes remain useful as qualitative, hypothesis-generating structures. What this analysis adds is a boundary condition: the miRNAs at the centre of those models are not, on current evidence, strong individual discriminators of disease. That does not invalidate them as mechanistic regulators — regulatory importance and diagnostic discrimination are different claims — but it does mean the diagnostic case for them has to be made on panels, not on single markers.
+## 8. What the Scopus search changed
 
-## 8. Honest limitations
+Adding one database to a completed review altered two of four headline conclusions. That is worth stating plainly, because it is a result about method as much as about miRNAs.
 
-- PubMed/MEDLINE only; Scopus and Web of Science were not searched.
-- Extraction limited to PubMed Central open-access full texts (55 of 95 eligible primary studies), a potentially non-random slice.
-- 24 weighted estimates from 15 studies is a modest evidence base; subgroup cells are smaller still (PD panels: k = 2).
-- Heterogeneity up to I² = 94% in some subgroups.
-- The attention-versus-performance analysis is exploratory and underpowered.
-- Reported accuracy is not prospective clinical accuracy.
+| Subgroup | PubMed only | + Scopus | Verdict |
+|---|---|---|---|
+| Single miRNA | 0.745 (0.699–0.785), I² 46% | 0.758 (0.706–0.804), I² 66% | interval now reaches 0.80 |
+| **AD single miRNA** | 0.773 (0.732–0.810), **I² 0%** | 0.802 (0.741–0.851), **I² 63%** | **homogeneity claim retracted** |
+| Panel | 0.888 (0.829–0.928) | unchanged | holds |
+| Attention vs AUC (eligible) | ρ = −0.41, p = 0.14 | **ρ = −0.61, p = 0.012** | **strengthened** |
+
+Two claims from the earlier version are **withdrawn**:
+
+1. *"The AD single-miRNA subgroup shows I² = 0%, so the limitation is a property of the measurement rather than of how it has been performed."* One additional study (miR-202, AUC 0.892, 121 cases vs 86 controls) raised heterogeneity to 63%. The homogeneity was an artefact of an incomplete search.
+2. *"The entire confidence interval sits below 0.80."* It no longer does.
+
+A third correction is independent of Scopus: a defect in the screening rule — a word boundary after `meta-analys` that stopped it ever matching "meta-analysis" — let self-declared meta-analyses through. It reclassified one PubMed record and affected no extracted study, but it is why the prior meta-analyses in Section 7 went unnoticed until the Scopus records were screened.
+
+The general lesson is uncomfortable and worth carrying into the manuscript: a single-database systematic review can produce a clean, confident, homogeneous result that a second database dissolves.
+
+## 9. Honest limitations
+
+- The Scopus PD arm has not been run. Coverage is asymmetric between diseases, and the PD estimates rest on PubMed alone.
+- Web of Science has not been searched.
+- Extraction is restricted to open-access full texts and abstracts; 20 of the 25 weighted standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval.
+- Twenty-five weighted estimates from 16 studies is a modest base, and some subgroup cells are very small (PD panels, k = 2).
+- Heterogeneity reaches I² = 94%.
+- The attention-versus-performance analysis is exploratory; significance at n = 16 with mostly single-study miRNAs is fragile.
+- Reported accuracy is not prospective clinical accuracy, and the difference is not neutral.
