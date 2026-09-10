@@ -1,0 +1,67 @@
+{
+  "source": "ClinicalTrials.gov (U.S. National Library of Medicine), queried via the ClinicalTrials.gov API v2",
+  "access_date": "2026-09-10",
+  "no_fabrication_statement_en": "Every NCT identifier, title, sponsor, phase, status and enrolment figure below was returned by the ClinicalTrials.gov API on the access date. Nothing was invented, estimated or completed from memory. Classification fields (therapeutic_area, agent, mirna_target) were assigned by reading the returned trial records.",
+  "no_fabrication_statement_pt": "Cada identificador NCT, titulo, patrocinador, fase, situacao e numero de participantes abaixo foi retornado pela API do ClinicalTrials.gov na data de acesso. Nada foi inventado, estimado ou completado de memoria. Os campos de classificacao (therapeutic_area, agent, mirna_target) foram atribuidos lendo os registros retornados.",
+
+  "queries_submitted": {
+    "therapeutics_all_indications": {
+      "intervention": "\"miRNA mimic\" OR \"microRNA mimic\" OR antagomir OR \"anti-miR\" OR miravirsen OR cobomarsen OR remlarsen OR MRG-201 OR MRX34",
+      "condition": null,
+      "total_returned": 16
+    },
+    "mirna_in_AD_or_PD": {
+      "condition": "Alzheimer Disease OR Parkinson Disease",
+      "intervention": "microRNA OR miRNA OR \"miRNA mimic\" OR antagomiR OR \"antisense oligonucleotide\"",
+      "total_returned": 13
+    },
+    "oligonucleotides_in_AD": {
+      "condition": "Alzheimer Disease",
+      "intervention": "oligonucleotide OR \"anti-miR\" OR antagomir OR \"miRNA mimic\" OR \"microRNA mimic\" OR \"RNA therapeutic\"",
+      "total_returned": 2
+    },
+    "oligonucleotides_in_PD": {
+      "condition": "Parkinson Disease",
+      "intervention": "oligonucleotide OR \"anti-miR\" OR antagomir OR \"miRNA mimic\" OR \"microRNA mimic\" OR \"RNA therapeutic\"",
+      "total_returned": 1,
+      "note_en": "The single hit (NCT07738107, ATR 1072) is a false positive: it matched 'Parkinson' through Wolff-Parkinson-White syndrome, a cardiac conduction disorder unrelated to Parkinson's disease. It is excluded.",
+      "note_pt": "O unico resultado (NCT07738107, ATR 1072) e falso positivo: casou com 'Parkinson' pela sindrome de Wolff-Parkinson-White, disturbio de conducao cardiaca sem relacao com a doenca de Parkinson. Foi excluido."
+    }
+  },
+
+  "therapeutic_trials_all_indications": [
+    {"nct_id": "NCT00688012", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "PHASE1", "status": "COMPLETED", "sponsor": "Santaris Pharma A/S", "enrollment": 64, "start_date": "2008-05"},
+    {"nct_id": "NCT00979927", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "PHASE1", "status": "COMPLETED", "sponsor": "Santaris Pharma A/S", "enrollment": 30, "start_date": "2009-09"},
+    {"nct_id": "NCT01200420", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "PHASE2", "status": "COMPLETED", "sponsor": "Santaris Pharma A/S", "enrollment": 38, "start_date": "2010-09"},
+    {"nct_id": "NCT01646489", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "PHASE1", "status": "COMPLETED", "sponsor": "Santaris Pharma A/S", "enrollment": 5, "start_date": "2012-06"},
+    {"nct_id": "NCT01727934", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "PHASE2", "status": "UNKNOWN", "sponsor": "Santaris Pharma A/S", "enrollment": 10, "start_date": "2012-11"},
+    {"nct_id": "NCT01872936", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "PHASE2", "status": "UNKNOWN", "sponsor": "Santaris Pharma A/S", "enrollment": 20, "start_date": "2013-06"},
+    {"nct_id": "NCT02452814", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "NA", "status": "COMPLETED", "sponsor": "Hoffmann-La Roche", "enrollment": 8, "start_date": "2014-05-07"},
+    {"nct_id": "NCT02508090", "agent": "Miravirsen (SPC3649)", "mirna_target": "anti-miR-122", "therapeutic_area": "Hepatitis C", "phase": "NA", "status": "COMPLETED", "sponsor": "Hoffmann-La Roche", "enrollment": 10, "start_date": "2013-08-02"},
+    {"nct_id": "NCT01829971", "agent": "MRX34", "mirna_target": "miR-34a mimic", "therapeutic_area": "Oncology", "phase": "PHASE1", "status": "TERMINATED", "sponsor": "Mirna Therapeutics, Inc.", "enrollment": 155, "start_date": "2013-04"},
+    {"nct_id": "NCT02862145", "agent": "MRX34", "mirna_target": "miR-34a mimic", "therapeutic_area": "Oncology", "phase": "PHASE1/PHASE2", "status": "WITHDRAWN", "sponsor": "Mirna Therapeutics, Inc.", "enrollment": 0, "start_date": "2016-08"},
+    {"nct_id": "NCT02580552", "agent": "Cobomarsen (MRG-106)", "mirna_target": "anti-miR-155", "therapeutic_area": "Oncology", "phase": "PHASE1", "status": "COMPLETED", "sponsor": "miRagen Therapeutics, Inc.", "enrollment": 66, "start_date": "2016-02-09"},
+    {"nct_id": "NCT03713320", "agent": "Cobomarsen (MRG-106)", "mirna_target": "anti-miR-155", "therapeutic_area": "Oncology", "phase": "PHASE2", "status": "TERMINATED", "sponsor": "miRagen Therapeutics, Inc.", "enrollment": 37, "start_date": "2019-04-02"},
+    {"nct_id": "NCT03837457", "agent": "Cobomarsen (MRG-106)", "mirna_target": "anti-miR-155", "therapeutic_area": "Oncology", "phase": "PHASE2", "status": "TERMINATED", "sponsor": "miRagen Therapeutics, Inc.", "enrollment": 8, "start_date": "2019-10-01"},
+    {"nct_id": "NCT02369198", "agent": "TargomiRs", "mirna_target": "miR-16 mimic", "therapeutic_area": "Oncology", "phase": "PHASE1", "status": "COMPLETED", "sponsor": "Asbestos Diseases Research Foundation", "enrollment": 27, "start_date": "2014-09"},
+    {"nct_id": "NCT02603224", "agent": "MRG-201 / Remlarsen", "mirna_target": "miR-29 mimic", "therapeutic_area": "Dermatology / fibrosis", "phase": "PHASE1", "status": "COMPLETED", "sponsor": "miRagen Therapeutics, Inc.", "enrollment": 54, "start_date": "2015-11"},
+    {"nct_id": "NCT03601052", "agent": "MRG-201 / Remlarsen", "mirna_target": "miR-29 mimic", "therapeutic_area": "Dermatology / fibrosis", "phase": "PHASE2", "status": "COMPLETED", "sponsor": "miRagen Therapeutics, Inc.", "enrollment": 14, "start_date": "2018-06-11"}
+  ],
+
+  "neurodegeneration_specific": {
+    "trials_mentioning_mirna_in_AD_or_PD": 13,
+    "of_which_observational_or_biomarker": 8,
+    "mirna_directed_therapeutic_trials": 0,
+    "interventional_non_mirna_agents": [
+      "NCT02045056 - Gemfibrozil, EARLY_PHASE1, COMPLETED (n=72): a fibrate given to modulate miRNA pathways in predementia AD. The drug is a small molecule, not a miRNA-directed agent.",
+      "NCT06372821 - NIO752, PHASE1, RECRUITING (n=10): an antisense oligonucleotide lowering tau synthesis in AD. Targets tau mRNA, not a microRNA.",
+      "NCT05606341 - CpG1018, PHASE1, RECRUITING (n=18): a TLR9-agonist oligonucleotide adjuvant in early AD. Immunostimulant, not miRNA-directed.",
+      "NCT02253732 - exercise programme, NA, COMPLETED (n=30): miRNAs measured as outcome, not targeted.",
+      "NCT02672943 - rehabilitation, NA, UNKNOWN (n=60): miRNAs measured as outcome, not targeted."
+    ],
+    "conclusion_en": "As of 2026-09-10, no miRNA mimic and no antagomiR has entered a registered clinical trial for Alzheimer's or Parkinson's disease. Every miRNA-directed agent that reached human testing did so in hepatitis C, oncology or dermatology.",
+    "conclusion_pt": "Ate 10/09/2026, nenhum mimetico de miRNA e nenhum antagomiR entrou em ensaio clinico registrado para a doenca de Alzheimer ou de Parkinson. Todo agente dirigido a miRNA que chegou a teste em humanos o fez em hepatite C, oncologia ou dermatologia.",
+    "note_on_mir29_en": "MRG-201 / remlarsen is a miR-29 mimic that reached Phase 2 - for keloid scarring, by intradermal injection. miR-29 is precisely the axis simulated as a therapy in the source monograph (miR-29c/miR-107 to BACE1 to amyloid-beta). The molecule class exists clinically; what does not exist is a route to the brain.",
+    "note_on_mir29_pt": "MRG-201 / remlarsen e um mimetico de miR-29 que chegou a Fase 2 - para queloide, por injecao intradermica. miR-29 e exatamente o eixo simulado como terapia na monografia de origem (miR-29c/miR-107 para BACE1 para beta-amiloide). A classe molecular existe clinicamente; o que nao existe e uma via ate o cerebro."
+  }
+}

@@ -66,7 +66,29 @@ Egger's test is significant in several subgroups, including the overall pool and
 
 Every pooled figure in this analysis should therefore be read as **the optimistic end** of the plausible range. That matters most for the headline: if 0.745 is already the optimistic estimate for a single miRNA, the realistic figure is lower.
 
-## 6. What follows from this
+## 6. Nothing has reached the clinic
+
+The preclinical literature on miRNA mimics and antagomiRs in neurodegeneration is substantial, and the source monograph itself simulated a miR-29c/miR-107 mimic therapy. ClinicalTrials.gov, queried on 10 September 2026, gives the state of actual human testing (`scripts/07_clinical_translation_landscape.py`).
+
+**Across all indications, 16 registered trials of miRNA-directed agents, from 5 distinct molecules:**
+
+| Agent | Target | Area | Furthest phase | Trials |
+|---|---|---|---|---|
+| Miravirsen (SPC3649) | anti-miR-122 | Hepatitis C | Phase 2 | 8 |
+| Cobomarsen (MRG-106) | anti-miR-155 | Oncology | Phase 2 (terminated) | 3 |
+| MRG-201 / remlarsen | miR-29 mimic | Dermatology / fibrosis | Phase 2 | 2 |
+| MRX34 | miR-34a mimic | Oncology | Phase 1/2 (terminated) | 2 |
+| TargomiRs | miR-16 mimic | Oncology | Phase 1 | 1 |
+
+**In Alzheimer's or Parkinson's disease: zero.** Thirteen registered trials mention miRNAs in AD or PD; eight are observational biomarker studies, two measure miRNAs as an outcome of exercise or rehabilitation, and the three interventional trials with a drug are testing something else — gemfibrozil (a fibrate), NIO752 (an antisense oligonucleotide against tau mRNA) and CpG1018 (a TLR9-agonist adjuvant). None administers a miRNA mimic or an anti-miR.
+
+Two details sharpen this. First, the modality's track record where it *has* been tried is uneven: MRX34 was terminated, cobomarsen's Phase 2 and its extension were both terminated, and miravirsen did not advance past Phase 2. Second — and this is the detail that matters most for the source monograph — **MRG-201/remlarsen is a miR-29 mimic that reached Phase 2**, which is precisely the axis the monograph modelled as a therapy (miR-29c/miR-107 → BACE1 → Aβ). It was developed for keloid scarring and delivered by intradermal injection. The molecule class exists clinically. What does not exist is a route to the brain.
+
+That reframes the simulated "miRNA mimic therapy" honestly: the barrier is not whether such a molecule can be made, but delivery across the blood–brain barrier and a therapeutic window narrow enough that the monograph's own simulations produced over-suppression below physiological baseline.
+
+*Caveat, stated rather than hidden:* registry searches match on intervention names and free text, so an agent described under nomenclature none of the query terms covers would be missed. The exact queries are stored in `data/raw/clinical_trials_2026/mirna_therapeutics_trials.json` so the search can be criticised and repeated. One false positive was found and excluded: a trial matching "Parkinson" through Wolff–Parkinson–White syndrome, a cardiac conduction disorder.
+
+## 7. What follows from this
 
 **For biomarker development.** Single-miRNA papers reporting an AUC near 0.75 are reporting the field's central value, not a discovery. The evidence supports investing in panels, in head-to-head comparison against p-tau217 rather than against no comparator, and in external validation cohorts where the cut-off is fixed in advance.
 
@@ -76,7 +98,7 @@ Every pooled figure in this analysis should therefore be read as **the optimisti
 
 **For the modelling layer of the source monograph.** The ODE models built on the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes remain useful as qualitative, hypothesis-generating structures. What this analysis adds is a boundary condition: the miRNAs at the centre of those models are not, on current evidence, strong individual discriminators of disease. That does not invalidate them as mechanistic regulators — regulatory importance and diagnostic discrimination are different claims — but it does mean the diagnostic case for them has to be made on panels, not on single markers.
 
-## 7. Honest limitations
+## 8. Honest limitations
 
 - PubMed/MEDLINE only; Scopus and Web of Science were not searched.
 - Extraction limited to PubMed Central open-access full texts (55 of 95 eligible primary studies), a potentially non-random slice.

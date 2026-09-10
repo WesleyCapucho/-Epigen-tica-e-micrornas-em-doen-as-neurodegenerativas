@@ -18,7 +18,7 @@ Este repositório nasceu como apêndice computacional de uma monografia que comb
 | Camada | O que é | Situação |
 |---|---|---|
 | **Camada bibliométrica** | Mineração de corpus do PubMed, extração de miRNAs, PCA, agrupamento, rede miRNA–doença, modelos exploratórios por EDO dos eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína | Da monografia original (`scripts/01`, `scripts/02`) |
-| **Camada meta-analítica** | Busca sistemática orientada por PICO, triagem PRISMA, extração de dados de texto completo, meta-análise de efeitos aleatórios da AUC | Nova (`scripts/03`–`scripts/06`) |
+| **Camada meta-analítica** | Busca sistemática orientada por PICO, triagem PRISMA, extração de dados de texto completo, meta-análise de efeitos aleatórios da AUC, panorama de translação clínica | Nova (`scripts/03`–`scripts/07`) |
 
 A camada meta-analítica existe para responder a uma questão que a própria monografia levantou sobre si mesma: frequência bibliométrica e validação experimental não são fontes de evidência independentes, porque os miRNAs mais estudados acumulam as duas coisas. Medir a acurácia diagnóstica agregada rompe essa circularidade.
 
@@ -36,13 +36,15 @@ Todos os valores são agregados a partir de estimativas publicadas, por efeitos 
 | AD, miRNA isolado | 0,774 (0,732–0,810) | 6 | 5 | **0%** |
 | PD, miRNA isolado | 0,716 (0,641–0,781) | 10 | 4 | 55% |
 
-Três resultados sustentam o argumento:
+Quatro resultados sustentam o argumento:
 
 1. **miRNAs circulantes isolados ficam abaixo do limiar de utilidade clínica.** Com AUC de 0,745 (IC 0,699–0,785), nenhum miRNA isolado alcança o patamar de ~0,80 usualmente tratado como mínimo para um teste diagnóstico autônomo — e nenhum se aproxima do desempenho dos ensaios plasmáticos consolidados de p-tau.
 
 2. **Painéis vão substancialmente melhor, e a diferença não é ruído.** Os intervalos de confiança de miRNAs isolados (0,699–0,785) e de painéis (0,829–0,928) não se sobrepõem. O ganho está em combinar marcadores, e não em achar um marcador isolado melhor.
 
 3. **A atenção da literatura não acompanha o desempenho medido.** Entre os miRNAs com dados de acurácia extraíveis, a correlação entre quantos artigos do corpus mencionam um miRNA e a AUC reportada é nula no geral (ρ de Spearman = −0,11; p = 0,62) e *negativa* quando restrita às estimativas que passaram na elegibilidade (ρ = −0,41; p = 0,14). Os dois miRNAs mais discutidos no corpus, miR-125b (13 artigos) e miR-146a (11 artigos), retornaram AUCs de 0,75 e 0,68 — a parte baixa da distribuição. É exploratório e com baixo poder, mas aponta na direção contrária à ênfase da área.
+
+4. **Nada chegou à clínica.** O ClinicalTrials.gov (10/09/2026) lista 16 ensaios registrados de terapias dirigidas a miRNA no mundo — em hepatite C, oncologia e dermatologia — e **zero** em Alzheimer ou Parkinson. Notavelmente, um mimético de miR-29 (MRG-201/remlarsen) chegou à Fase 2, para queloide, por injeção intradérmica. miR-29 é exatamente o eixo que a monografia de origem simulou como terapia cerebral: a classe molecular existe, a via até o cérebro não.
 
 O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então esses valores agregados devem ser lidos como **limites superiores**, não como estimativas neutras.
 
@@ -53,7 +55,8 @@ O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então
 ├── data/
 │   ├── raw/
 │   │   ├── pubmed/                    # Amostra bibliométrica, obtida ao vivo do NCBI (procedência em manifest.json)
-│   │   └── systematic_review_2026/    # Estratégia de busca, decisões de triagem, contagens de menção a miRNAs
+│   │   ├── systematic_review_2026/    # Estratégia de busca, decisões de triagem, contagens de menção a miRNAs
+│   │   └── clinical_trials_2026/      # Panorama do ClinicalTrials.gov de terapias dirigidas a miRNA
 │   ├── extracted/                     # Tabela de extração de acurácia + citações verbatim das fontes
 │   └── processed/                     # Saídas do pipeline (fluxo PRISMA; regeneráveis)
 ├── scripts/
@@ -62,7 +65,8 @@ O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então
 │   ├── 03_systematic_search.py                    # Busca sistemática PICO via NCBI E-utilities
 │   ├── 04_screening.py                            # Triagem PRISMA baseada em regras
 │   ├── 05_meta_analysis.py                        # Meta-análise de efeitos aleatórios da AUC
-│   └── 06_citation_vs_performance.py              # Atenção da literatura vs acurácia medida
+│   ├── 06_citation_vs_performance.py              # Atenção da literatura vs acurácia medida
+│   └── 07_clinical_translation_landscape.py       # O que de fato chegou a ensaios clínicos
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, findings (inglês)
 │   └── pt-BR/                         # Métodos, dicionário de dados, achados (português)
@@ -83,6 +87,7 @@ python scripts/03_systematic_search.py --email voce@exemplo.org   # exige acesso
 python scripts/04_screening.py
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
+python scripts/07_clinical_translation_landscape.py
 ```
 
 Os scripts `05` e `06` rodam offline, a partir dos arquivos de dados versionados. O `03` chama a API do PubMed ao vivo e retornará, legitimamente, mais registros do que as contagens congeladas de 10/09/2026, porque a literatura continua crescendo; o arquivo `data/raw/systematic_review_2026/search_strategy.json` preserva as contagens por trás dos números aqui reportados.

@@ -66,7 +66,29 @@ O teste de Egger é significativo em vários subgrupos, incluindo o pool global 
 
 Toda cifra agregada nesta análise deve, portanto, ser lida como **a ponta otimista** da faixa plausível. Isso importa sobretudo para o resultado principal: se 0,745 já é a estimativa otimista para um miRNA isolado, a cifra realista é menor.
 
-## 6. O que decorre disso
+## 6. Nada chegou à clínica
+
+A literatura pré-clínica sobre miméticos de miRNA e antagomiRs em neurodegeneração é substancial, e a própria monografia de origem simulou uma terapia com mimético de miR-29c/miR-107. O ClinicalTrials.gov, consultado em 10 de setembro de 2026, mostra o estado real dos testes em humanos (`scripts/07_clinical_translation_landscape.py`).
+
+**Em todas as indicações, 16 ensaios registrados de agentes dirigidos a miRNA, de 5 moléculas distintas:**
+
+| Agente | Alvo | Área | Fase máxima | Ensaios |
+|---|---|---|---|---|
+| Miravirsen (SPC3649) | anti-miR-122 | Hepatite C | Fase 2 | 8 |
+| Cobomarsen (MRG-106) | anti-miR-155 | Oncologia | Fase 2 (encerrado) | 3 |
+| MRG-201 / remlarsen | mimético de miR-29 | Dermatologia / fibrose | Fase 2 | 2 |
+| MRX34 | mimético de miR-34a | Oncologia | Fase 1/2 (encerrado) | 2 |
+| TargomiRs | mimético de miR-16 | Oncologia | Fase 1 | 1 |
+
+**Na doença de Alzheimer ou de Parkinson: zero.** Treze ensaios registrados mencionam miRNAs em AD ou PD; oito são estudos observacionais de biomarcador, dois medem miRNAs como desfecho de exercício ou reabilitação, e os três ensaios intervencionais com fármaco estão testando outra coisa — genfibrozila (um fibrato), NIO752 (um oligonucleotídeo antissenso contra o mRNA da tau) e CpG1018 (um adjuvante agonista de TLR9). Nenhum administra mimético de miRNA ou anti-miR.
+
+Dois detalhes afiam esse quadro. Primeiro, o histórico da modalidade onde ela *foi* testada é irregular: o MRX34 foi encerrado, a Fase 2 do cobomarsen e sua extensão foram ambas encerradas, e o miravirsen não avançou além da Fase 2. Segundo — e este é o detalhe que mais importa para a monografia de origem — **o MRG-201/remlarsen é um mimético de miR-29 que chegou à Fase 2**, exatamente o eixo que a monografia modelou como terapia (miR-29c/miR-107 → BACE1 → Aβ). Foi desenvolvido para queloide e administrado por injeção intradérmica. A classe molecular existe clinicamente. O que não existe é uma via até o cérebro.
+
+Isso reenquadra honestamente a "terapia com mimético de miRNA" simulada: a barreira não é se tal molécula pode ser feita, mas a entrega através da barreira hematoencefálica e uma janela terapêutica estreita o bastante para que as próprias simulações da monografia produzissem supressão abaixo do nível fisiológico basal.
+
+*Ressalva, declarada e não escondida:* buscas no registro casam por nomes de intervenção e texto livre, então um agente descrito sob nomenclatura que nenhum termo da query cobre passaria despercebido. As queries exatas estão em `data/raw/clinical_trials_2026/mirna_therapeutics_trials.json`, para que a busca possa ser criticada e repetida. Um falso positivo foi encontrado e excluído: um ensaio que casou com "Parkinson" pela síndrome de Wolff–Parkinson–White, distúrbio de condução cardíaca.
+
+## 7. O que decorre disso
 
 **Para o desenvolvimento de biomarcadores.** Artigos de miRNA isolado reportando AUC perto de 0,75 estão reportando o valor central da área, não uma descoberta. A evidência sustenta investir em painéis, em comparação direta com p-tau217 em vez de comparação contra nenhum comparador, e em coortes de validação externa nas quais o ponto de corte seja fixado de antemão.
 
@@ -76,7 +98,7 @@ Toda cifra agregada nesta análise deve, portanto, ser lida como **a ponta otimi
 
 **Para a camada de modelagem da monografia de origem.** Os modelos por EDO construídos sobre os eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína seguem úteis como estruturas qualitativas e geradoras de hipóteses. O que esta análise acrescenta é uma condição de contorno: os miRNAs no centro desses modelos não são, pela evidência atual, discriminadores individuais fortes da doença. Isso não os invalida como reguladores mecanísticos — importância regulatória e discriminação diagnóstica são afirmações distintas — mas significa que o argumento diagnóstico em favor deles precisa ser feito com painéis, e não com marcadores isolados.
 
-## 7. Limitações honestas
+## 8. Limitações honestas
 
 - Apenas PubMed/MEDLINE; Scopus e Web of Science não foram consultadas.
 - Extração limitada a textos completos de acesso aberto no PubMed Central (55 de 95 estudos primários elegíveis), uma fatia potencialmente não aleatória.

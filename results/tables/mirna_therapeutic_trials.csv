@@ -1,0 +1,17 @@
+nct_id,agent,mirna_target,therapeutic_area,phase,status,sponsor,enrollment,start_date
+NCT00688012,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,PHASE1,COMPLETED,Santaris Pharma A/S,64,2008-05
+NCT00979927,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,PHASE1,COMPLETED,Santaris Pharma A/S,30,2009-09
+NCT01200420,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,PHASE2,COMPLETED,Santaris Pharma A/S,38,2010-09
+NCT01646489,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,PHASE1,COMPLETED,Santaris Pharma A/S,5,2012-06
+NCT01727934,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,PHASE2,UNKNOWN,Santaris Pharma A/S,10,2012-11
+NCT01872936,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,PHASE2,UNKNOWN,Santaris Pharma A/S,20,2013-06
+NCT02452814,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,NA,COMPLETED,Hoffmann-La Roche,8,2014-05-07
+NCT02508090,Miravirsen (SPC3649),anti-miR-122,Hepatitis C,NA,COMPLETED,Hoffmann-La Roche,10,2013-08-02
+NCT01829971,MRX34,miR-34a mimic,Oncology,PHASE1,TERMINATED,"Mirna Therapeutics, Inc.",155,2013-04
+NCT02862145,MRX34,miR-34a mimic,Oncology,PHASE1/PHASE2,WITHDRAWN,"Mirna Therapeutics, Inc.",0,2016-08
+NCT02580552,Cobomarsen (MRG-106),anti-miR-155,Oncology,PHASE1,COMPLETED,"miRagen Therapeutics, Inc.",66,2016-02-09
+NCT03713320,Cobomarsen (MRG-106),anti-miR-155,Oncology,PHASE2,TERMINATED,"miRagen Therapeutics, Inc.",37,2019-04-02
+NCT03837457,Cobomarsen (MRG-106),anti-miR-155,Oncology,PHASE2,TERMINATED,"miRagen Therapeutics, Inc.",8,2019-10-01
+NCT02369198,TargomiRs,miR-16 mimic,Oncology,PHASE1,COMPLETED,Asbestos Diseases Research Foundation,27,2014-09
+NCT02603224,MRG-201 / Remlarsen,miR-29 mimic,Dermatology / fibrosis,PHASE1,COMPLETED,"miRagen Therapeutics, Inc.",54,2015-11
+NCT03601052,MRG-201 / Remlarsen,miR-29 mimic,Dermatology / fibrosis,PHASE2,COMPLETED,"miRagen Therapeutics, Inc.",14,2018-06-11

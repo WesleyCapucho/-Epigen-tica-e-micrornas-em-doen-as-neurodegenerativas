@@ -18,7 +18,7 @@ This repository began as the computational appendix of a monograph combining an 
 | Layer | What it is | Status |
 |---|---|---|
 | **Bibliometric layer** | PubMed corpus mining, miRNA extraction, PCA, clustering, miRNA–disease network, exploratory ODE models of the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes | From the original monograph (`scripts/01`, `scripts/02`) |
-| **Meta-analytic layer** | PICO-driven systematic search, PRISMA screening, full-text data extraction, random-effects meta-analysis of AUC | New (`scripts/03`–`scripts/06`) |
+| **Meta-analytic layer** | PICO-driven systematic search, PRISMA screening, full-text data extraction, random-effects meta-analysis of AUC, clinical-translation landscape | New (`scripts/03`–`scripts/07`) |
 
 The meta-analytic layer exists to answer a question the monograph raised about itself: bibliometric frequency and experimental validation are not independent sources of evidence, because the most-studied miRNAs accumulate both. Measuring pooled diagnostic accuracy breaks that circularity.
 
@@ -36,13 +36,15 @@ All values are pooled from published estimates using DerSimonian–Laird random 
 | AD, single miRNA | 0.774 (0.732–0.810) | 6 | 5 | **0%** |
 | PD, single miRNA | 0.716 (0.641–0.781) | 10 | 4 | 55% |
 
-Three results carry the argument:
+Four results carry the argument:
 
 1. **Single circulating miRNAs pool below the threshold of clinical usefulness.** At AUC 0.745 (CI 0.699–0.785), no single miRNA reaches the ~0.80 commonly treated as a minimum for a standalone diagnostic test — and none approaches the performance of established plasma p-tau assays.
 
 2. **Panels do substantially better, and the difference is not noise.** The confidence intervals of single miRNAs (0.699–0.785) and panels (0.829–0.928) do not overlap. Combining markers, not finding a better single marker, is where the gain is.
 
 3. **Literature attention does not track measured performance.** Across miRNAs with extractable accuracy data, the correlation between how many corpus articles mention a miRNA and its reported AUC is null overall (Spearman ρ = −0.11, p = 0.62) and *negative* when restricted to the estimates that passed eligibility (ρ = −0.41, p = 0.14). The two most-discussed miRNAs in the corpus, miR-125b (13 articles) and miR-146a (11 articles), returned AUCs of 0.75 and 0.68 — the lower end of the distribution. This is exploratory and underpowered, but it points the opposite way from the field's emphasis.
+
+4. **Nothing has reached the clinic.** ClinicalTrials.gov (10 Sep 2026) lists 16 registered trials of miRNA-directed therapeutics worldwide — in hepatitis C, oncology and dermatology — and **zero** in Alzheimer's or Parkinson's disease. Notably, a miR-29 mimic (MRG-201/remlarsen) did reach Phase 2, for keloid scarring by intradermal injection. miR-29 is exactly the axis the source monograph simulated as a brain therapy: the molecule class exists, the route to the brain does not.
 
 Egger's test indicates small-study effects in several subgroups, so these pooled values should be read as **upper bounds**, not neutral estimates.
 
@@ -53,7 +55,8 @@ Egger's test indicates small-study effects in several subgroups, so these pooled
 ├── data/
 │   ├── raw/
 │   │   ├── pubmed/                    # Bibliometric sample, live from NCBI (provenance in manifest.json)
-│   │   └── systematic_review_2026/    # Search strategy, screening decisions, miRNA mention counts
+│   │   ├── systematic_review_2026/    # Search strategy, screening decisions, miRNA mention counts
+│   │   └── clinical_trials_2026/      # ClinicalTrials.gov landscape of miRNA-directed therapeutics
 │   ├── extracted/                     # Diagnostic-accuracy extraction table + verbatim source quotes
 │   └── processed/                     # Pipeline outputs (PRISMA flow; regenerable)
 ├── scripts/
@@ -62,7 +65,8 @@ Egger's test indicates small-study effects in several subgroups, so these pooled
 │   ├── 03_systematic_search.py                    # PICO systematic search via NCBI E-utilities
 │   ├── 04_screening.py                            # Rule-based PRISMA screening
 │   ├── 05_meta_analysis.py                        # Random-effects meta-analysis of AUC
-│   └── 06_citation_vs_performance.py              # Literature attention vs measured accuracy
+│   ├── 06_citation_vs_performance.py              # Literature attention vs measured accuracy
+│   └── 07_clinical_translation_landscape.py       # What actually reached clinical trials
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, findings (English)
 │   └── pt-BR/                         # Métodos, dicionário de dados, achados (Portuguese)
@@ -83,6 +87,7 @@ python scripts/03_systematic_search.py --email you@example.org   # needs NCBI ac
 python scripts/04_screening.py
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
+python scripts/07_clinical_translation_landscape.py
 ```
 
 `scripts/05` and `scripts/06` run offline from the committed data files. `scripts/03` calls the live PubMed API and will legitimately return more records than the frozen 2026-09-10 counts, because the literature keeps growing; `data/raw/systematic_review_2026/search_strategy.json` preserves the counts behind the numbers reported here.
