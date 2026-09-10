@@ -1,8 +1,6 @@
 # Epigenética e microRNAs em doenças neurodegenerativas
 
-**Os microRNAs de que a área mais fala funcionam mesmo como biomarcadores diagnósticos?**
-
-Revisão sistemática e meta-análise de efeitos aleatórios da acurácia diagnóstica de microRNAs circulantes na doença de Alzheimer (AD) e na doença de Parkinson (PD), com pipeline totalmente reprodutível da busca na literatura até a estimativa agregada.
+**Pacote de reprodutibilidade de uma revisão sistemática e meta-análise de efeitos aleatórios da acurácia diagnóstica de microRNAs circulantes na doença de Alzheimer (AD) e na de Parkinson (PD).**
 
 > 🇬🇧 **English version: [README.md](README.md)**
 
@@ -11,44 +9,37 @@ Universidade Federal de São Paulo (UNIFESP) — Especialização em Fisiologia 
 
 ---
 
-## O que há neste repositório
+## O que é este repositório
 
-Este repositório nasceu como apêndice computacional de uma monografia que combinava revisão integrativa, análise bibliométrica e modelagem por equações diferenciais de vias de miRNA em AD e PD. Ele está sendo estendido para um manuscrito com síntese quantitativa primária. Dois corpos de trabalho distintos convivem aqui:
+Este repositório guarda **dados brutos, scripts, tabelas e figuras**, e nada além disso. Sua finalidade é que todo número do manuscrito associado possa ser regerado a partir dos arquivos daqui, rodando o pipeline. O manuscrito em si é escrito e mantido fora deste repositório.
 
-| Camada | O que é | Situação |
+Dois corpos de trabalho convivem aqui:
+
+| Camada | O que é | Scripts |
 |---|---|---|
-| **Camada bibliométrica** | Mineração de corpus do PubMed, extração de miRNAs, PCA, agrupamento, rede miRNA–doença, modelos exploratórios por EDO dos eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína | Da monografia original (`scripts/01`, `scripts/02`) |
-| **Camada meta-analítica** | Busca sistemática orientada por PICO, triagem PRISMA, extração de dados de texto completo, meta-análise de efeitos aleatórios da AUC, panorama de translação clínica | Nova (`scripts/03`–`scripts/07`) |
+| **Bibliométrica** | Mineração do corpus PubMed, extração de miRNAs, PCA, clusterização, rede miRNA–doença, modelos EDO exploratórios dos eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína | `01`, `02` |
+| **Meta-analítica** | Busca sistemática PICO, triagem PRISMA, extração de texto completo, meta-análise de efeitos aleatórios de AUC, panorama de translação clínica | `03`–`11` |
 
-A camada meta-analítica existe para responder a uma questão que a própria monografia levantou sobre si mesma: frequência bibliométrica e validação experimental não são fontes de evidência independentes, porque os miRNAs mais estudados acumulam as duas coisas. Medir a acurácia diagnóstica agregada rompe essa circularidade.
+A camada meta-analítica existe para responder a uma pergunta que a monografia de origem levantou sobre si mesma: frequência bibliométrica e validação experimental não são fontes independentes de evidência, porque os miRNAs mais estudados acumulam as duas. A acurácia diagnóstica agregada é externa a esse laço.
 
-## Principais achados
+## Estado atual da base de evidência
 
-Todos os valores são agregados a partir de estimativas publicadas, por efeitos aleatórios de DerSimonian–Laird na escala logito(AUC). Cada valor de entrada é rastreável até uma frase verbatim do artigo-fonte (`data/extracted/diagnostic_accuracy_extraction.csv`).
+| | |
+|---|---|
+| Bases consultadas | PubMed/MEDLINE, Scopus (os dois braços de doença) |
+| Registros únicos | 560 |
+| Textos completos lidos | 47 |
+| Estudos que contribuem com estimativas | 42 |
+| Estimativas extraídas | 76 (51 elegíveis, 41 agregáveis) |
+| Estudos independentes agregados | 20 |
+| Data da busca | 10 de setembro de 2026 |
 
-| Subgrupo | AUC agregada (IC 95%) | Estimativas | Estudos | I² |
-|---|---|---|---|---|
-| Global | 0,807 (0,745–0,857) | 25 | 16 | 93% |
-| Doença de Alzheimer | 0,842 (0,788–0,884) | 13 | 10 | 77% |
-| Doença de Parkinson | 0,753 (0,621–0,850) | 12 | 6 | 94% |
-| **miRNA isolado** | **0,758 (0,706–0,804)** | 17 | 10 | 66% |
-| **Painel multi-miRNA** | **0,888 (0,829–0,928)** | 8 | 7 | 85% |
-| AD, miRNA isolado | 0,802 (0,741–0,851) | 7 | 6 | 63% |
-| PD, miRNA isolado | 0,716 (0,640–0,781) | 10 | 4 | 55% |
+As estimativas agregadas estão em `results/tables/meta_analysis_pooled_auc.csv`, as entradas por estimativa em `results/tables/meta_analysis_input_estimates.csv`, e as análises de sensibilidade a agrupamento em `results/tables/sensitivity_single_mirna.csv`. Todo valor extraído é rastreável até a frase verbatim de sua fonte em `data/extracted/diagnostic_accuracy_extraction.csv`.
 
-Cinco resultados sustentam o argumento:
+A interpretação pertence ao manuscrito, não a este repositório. Duas coisas, porém, pertencem aqui, porque são propriedades dos dados e não do argumento:
 
-1. **miRNAs circulantes isolados ficam na fronteira da utilidade clínica.** Com AUC de 0,758 (IC 0,706–0,804), a estimativa agregada fica abaixo do patamar de ~0,80 usualmente tratado como mínimo para um teste diagnóstico autônomo, com o limite superior apenas o alcançando — e em nada próxima dos ensaios plasmáticos consolidados de p-tau.
-
-2. **Painéis vão substancialmente melhor, e a diferença não é ruído.** Os intervalos de confiança de miRNAs isolados (0,706–0,804) e de painéis (0,829–0,928) não se sobrepõem. O ganho está em combinar marcadores, e não em achar um marcador isolado melhor. Isso concorda com ao menos três meta-análises anteriores — evidência convergente, e não descoberta nova.
-
-3. **A atenção da literatura corre em sentido inverso ao desempenho medido.** Entre os miRNAs com dados de acurácia extraíveis, a correlação entre quantos artigos do corpus mencionam um miRNA e a AUC reportada é **ρ = −0,61 (p = 0,012)** entre as estimativas elegíveis (ρ = −0,27; p = 0,16 no conjunto). Os dois miRNAs mais discutidos no corpus, miR-125b (13 artigos) e miR-146a (11 artigos), retornaram AUCs de 0,75 e 0,68 — a parte baixa da distribuição. Dezesseis miRNAs contribuem, então segue exploratório, mas aponta na direção contrária à ênfase da área. É o único achado aqui sem precedente claro.
-
-4. **Nada chegou à clínica.** O ClinicalTrials.gov (10/09/2026) lista 16 ensaios registrados de terapias dirigidas a miRNA no mundo — em hepatite C, oncologia e dermatologia — e **zero** em Alzheimer ou Parkinson. Notavelmente, um mimético de miR-29 (MRG-201/remlarsen) chegou à Fase 2, para queloide, por injeção intradérmica. miR-29 é exatamente o eixo que a monografia de origem simulou como terapia cerebral: a classe molecular existe, a via até o cérebro não.
-
-5. **Acrescentar uma base derrubou duas conclusões.** Uma primeira versão desta revisão consultou apenas o PubMed e encontrou o subgrupo de miRNA isolado em AD homogêneo (I² = 0%), o que lemos como evidência de que o teto era real, e não metodológico. O braço AD do Scopus então acrescentou 248 registros que o PubMed não retornara; um deles levou esse subgrupo a I² = 63%. A homogeneidade era artefato de uma busca incompleta. A Seção 8 de `docs/pt-BR/ACHADOS.md` registra o que mudou e por quê.
-
-O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então esses valores agregados devem ser lidos como **limites superiores**, não como estimativas neutras. Seis meta-análises anteriores reportam áreas SROC de 0,87–0,90 para a mesma pergunta; esse é um estimando diferente da média das AUCs reportadas usada aqui, e a Seção 7 de `docs/pt-BR/ACHADOS.md` explica a comparação.
+- **Estimativas de um mesmo estudo são correlacionadas.** Um estudo contribui com oito estimativas e outro com seis, e o modelo de efeitos aleatórios trata cada uma como independente. Por isso o `scripts/05` também reagrega uma-estimativa-por-estudo e deixando-um-estudo-de-fora, e a distância entre elas faz parte do resultado.
+- **Três defeitos foram encontrados e corrigidos neste pipeline, e cada um mudou um número.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
 
 ## Estrutura do repositório
 
@@ -56,73 +47,100 @@ O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então
 .
 ├── data/
 │   ├── raw/
-│   │   ├── pubmed/                    # Amostra bibliométrica, obtida ao vivo do NCBI (procedência em manifest.json)
-│   │   ├── systematic_review_2026/    # Estratégia de busca, decisões de triagem, contagens de menção a miRNAs
-│   │   └── clinical_trials_2026/      # Panorama do ClinicalTrials.gov de terapias dirigidas a miRNA
+│   │   ├── pubmed/                    # Amostra bibliométrica, direto do NCBI (proveniência em manifest.json)
+│   │   ├── systematic_review_2026/    # Estratégia de busca, corpus e decisões de triagem,
+│   │   │                              #   exportações do Scopus, contagens de menção, meta-análises prévias
+│   │   └── clinical_trials_2026/      # Panorama do ClinicalTrials.gov de terapêuticos dirigidos a miRNA
 │   ├── extracted/                     # Tabela de extração de acurácia + citações verbatim das fontes
-│   └── processed/                     # Saídas do pipeline (fluxo PRISMA; regeneráveis)
+│   └── processed/                     # Contagens do fluxo PRISMA (regeráveis)
 ├── scripts/
-│   ├── 01_busca_ranqueamento_pubmed.py            # Busca bibliométrica + ranqueamento (monografia original)
+│   ├── 01_busca_ranqueamento_pubmed.py            # Busca e ranqueamento bibliométrico (monografia original)
 │   ├── 02_estatistica_bioinformatica_modelagem.py # Estatística, PCA, redes, modelos EDO (original)
 │   ├── 03_systematic_search.py                    # Busca sistemática PICO via NCBI E-utilities
 │   ├── 04_screening.py                            # Triagem PRISMA baseada em regras
-│   ├── 05_meta_analysis.py                        # Meta-análise de efeitos aleatórios da AUC
+│   ├── 05_meta_analysis.py                        # Meta-análise de efeitos aleatórios + sensibilidade
 │   ├── 06_citation_vs_performance.py              # Atenção da literatura vs acurácia medida
 │   ├── 07_clinical_translation_landscape.py       # O que de fato chegou a ensaios clínicos
-│   ├── 08_verify_reported_numbers.py              # Confere cada número do texto contra as tabelas
-│   └── 09_ingest_scopus_wos.py                    # Funde exportações do Scopus / Web of Science
+│   ├── 08_verify_consistency.py                   # Cruza dados, contagens PRISMA e tabelas de resultado
+│   ├── 09_ingest_scopus_wos.py                    # Funde e deduplica exportações Scopus / WoS
+│   ├── 10_build_screening_corpus.py               # Monta o corpus, reconstrói as contagens de menção
+│   └── 11_attention_finding_audit.py              # Decompõe o que deslocou a correlação de atenção
 ├── docs/
-│   ├── en/                            # Methods, data dictionary, findings (inglês)
-│   └── pt-BR/                         # Métodos, dicionário de dados, achados (português)
+│   ├── en/                            # Methods, data dictionary, how to export Scopus/WoS
+│   └── pt-BR/                         # Métodos, dicionário de dados, como exportar Scopus/WoS
 ├── results/
-│   ├── figures/                       # Forest plot, gráfico de funil, atenção vs acurácia
-│   └── tables/                        # Estimativas agregadas, entradas por estimativa, correlações
+│   ├── figures/                       # Forest plot, funnel plot, gráfico atenção-vs-acurácia
+│   └── tables/                        # Estimativas agregadas, entradas, sensibilidade, correlações, auditoria
 └── requirements.txt
 ```
 
-## Como reproduzir a análise
+## Reproduzindo a análise
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Camada 2 — revisão sistemática e meta-análise
-python scripts/03_systematic_search.py --email voce@exemplo.org   # exige acesso ao NCBI
+export NCBI_EMAIL=voce@exemplo.org    # exigido pelos scripts que chamam o NCBI
+
+# Camada meta-analítica, na ordem
+python scripts/03_systematic_search.py            # busca ao vivo no PubMed
 python scripts/04_screening.py
+python scripts/09_ingest_scopus_wos.py --scopus <exportacao.csv> --arm AD
+python scripts/10_build_screening_corpus.py       # corpus + contagens de menção
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
 python scripts/07_clinical_translation_landscape.py
+python scripts/11_attention_finding_audit.py
+python scripts/08_verify_consistency.py           # precisa passar antes de versionar
 ```
 
-Os scripts `05` e `06` rodam offline, a partir dos arquivos de dados versionados. O `03` chama a API do PubMed ao vivo e retornará, legitimamente, mais registros do que as contagens congeladas de 10/09/2026, porque a literatura continua crescendo; o arquivo `data/raw/systematic_review_2026/search_strategy.json` preserva as contagens por trás dos números aqui reportados.
+Os `scripts/05`, `06`, `08`, `10` e `11` rodam inteiramente offline a partir dos dados versionados. O `scripts/03` chama a API ao vivo do PubMed e vai legitimamente retornar mais registros do que as contagens congeladas de 10/09/2026, porque a literatura continua crescendo; o `data/raw/systematic_review_2026/search_strategy.json` preserva as contagens por trás dos números reportados.
 
-Para a camada bibliométrica original, veja `scripts/01` e `scripts/02` (rode o `01` primeiro — ele produz a entrada do `02`).
+O Scopus não pode ser consultado por API a partir de um script — exige autenticação institucional. Rode a busca na interface web do Scopus, exporte o conjunto de resultados e entregue o arquivo ao `scripts/09`. As queries prontas para colar estão em `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md`.
 
-## Procedência dos dados e integridade
+Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada do `scripts/02`.
 
-- **Todo número veio de uma fonte real.** Os registros do PubMed foram obtidos pela API E-utilities do NCBI; os valores de acurácia foram lidos em textos completos de acesso aberto no PubMed Central. Nada foi simulado, estimado para preencher lacuna, nem herdado de citação secundária.
-- **Todo valor extraído guarda a frase que o sustenta.** O arquivo `diagnostic_accuracy_extraction.csv` tem a coluna `verbatim_quote` com o trecho exato que embasa cada AUC, sensibilidade e especificidade, além de PMID e DOI.
-- **Valores que não puderam ser resolvidos sem ambiguidade foram mantidos e sinalizados, não descartados em silêncio.** 14 das 42 linhas extraídas estão marcadas com `eligible_primary_pool = no` e um `exclusion_reason` explícito (comparador composto, contraste intradoença, população prodrômica, separação perfeita instável, coorte não atribuível).
-- **A mineração automatizada serviu para *encontrar* candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à tona; os valores foram então lidos e transcritos manualmente, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
-- **Publicação duplicada foi verificada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de periódico); contam uma vez só.
-- **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta, de forma independente, EP = 0,08.
+## Proveniência e integridade dos dados
 
-Os textos completos **não** são redistribuídos aqui — apenas os dados extraídos e suas citações. Acesse as fontes pelos DOIs.
+- **Todo número veio de uma fonte real.** Os registros do PubMed foram puxados da API E-utilities do NCBI; os valores de acurácia foram lidos em textos completos de acesso aberto no PubMed Central ou no resumo quando nenhum texto completo estava acessível. Nada foi simulado, estimado para preencher lacuna ou herdado de citação secundária.
+- **Todo valor extraído guarda a frase que o sustenta.** O `diagnostic_accuracy_extraction.csv` traz a coluna `verbatim_quote` com a redação exata que sustenta cada AUC, sensibilidade e especificidade, além de PMID e DOI.
+- **Valores que não puderam ser resolvidos sem ambiguidade foram mantidos e sinalizados, não descartados em silêncio.** 25 das 76 linhas extraídas estão marcadas com `eligible_primary_pool = no` e um `exclusion_reason` explícito.
+- **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
+- **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
+- **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 429 verificações passam.
+
+Os textos completos **não** são redistribuídos aqui — apenas os pontos de dado extraídos e suas citações. Busque as fontes pelos DOIs.
+
+## Correções
+
+Três defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
+
+| Defeito | Efeito | Corrigido em |
+|---|---|---|
+| Regex de triagem fechava com `\b` após `meta-analys`, e assim nunca casava com "meta-analysis" | Meta-análises autodeclaradas passavam como estudos primários; um registro reclassificado; é a razão de meta-análises prévias passarem despercebidas | `scripts/04` |
+| Contagens de menção calculadas sobre 234 registros do PubMed enquanto as AUCs vinham do corpus de 560 | Marcadores que entraram pelo Scopus recebiam zero menções por construção, inflando a correlação atenção–desempenho | `scripts/10` |
+| Estudos identificados só por PMID | Os quatro estudos publicados fora do MEDLINE colapsavam num único grupo de PMID vazio; duas coortes independentes de miR-124 contadas como uma; totais de estudo subestimados | `scripts/05`, `scripts/06` |
+| Subgrupos de biofluido exigiam três *estimativas*, e não três *estudos* | Produziam um subgrupo de oito estimativas vindas de uma só coorte — dispersão intraestudo reportada como evidência entre estudos | `scripts/05` |
+| O `scripts/09` deduplicava apenas contra o PubMed | O braço PD do Scopus parecia acrescentar 157 registros novos em vez de 78 | `scripts/09` |
+
+O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula a correlação atenção–desempenho sob cada combinação de entradas e separa a contribuição do defeito da contribuição dos dados novos.
 
 ## Limitações conhecidas
 
-- A cobertura é assimétrica: PubMed para as duas doenças, mais um braço AD do Scopus. O braço PD do Scopus e a Web of Science não foram consultados, então as estimativas de PD repousam apenas no PubMed e devem ser tratadas como provisórias. O `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md` traz as queries prontas; o `scripts/09_ingest_scopus_wos.py` funde novas exportações e as deduplica.
-- A extração de dados se restringe a textos completos de acesso aberto no PubMed Central (55 dos 95 estudos primários elegíveis), o que pode, por si só, selecionar um subconjunto não aleatório da literatura.
-- A heterogeneidade é alta (I² até 94%) e o teste de Egger é significativo em vários subgrupos; as estimativas agregadas são mais bem lidas como limites otimistas.
-- A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho é exploratória e não sustenta leitura causal.
-- Os modelos EDO do `scripts/02` usam parâmetros ilustrativos, não calibrados. São qualitativos e geradores de hipóteses; não são predições quantitativas e não devem ser reportados como tal.
+- A Web of Science não foi consultada. A cobertura é simétrica entre as doenças, mas tem profundidade de duas bases.
+- A extração se restringe a textos completos de acesso aberto e a resumos, o que pode selecionar um subconjunto não aleatório da literatura; quatro estudos do braço PD estavam com acesso restrito de modo que só uma AUC de modelo combinado pôde ser lida.
+- 34 dos 41 erros-padrão ponderados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
+- A heterogeneidade é alta (I² até 97%) e as estimativas dentro dos estudos são correlacionadas, o que também torna o teste de Egger pouco confiável aqui.
+- A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho tem pouco poder nos dois sentidos.
+- Os modelos EDO do `scripts/02` usam parâmetros ilustrativos e não calibrados. São qualitativos e geradores de hipótese; não são predições quantitativas e não devem ser reportados como tal.
 
 ## Integridade científica e uso de IA
 
-Este trabalho segue os princípios de transparência e reprodutibilidade do Guia de Boas Práticas Científicas da USP (2025). Ferramentas de IA auxiliaram na organização, no código, na recuperação de literatura e na redação; não substituíram a curadoria dos dados, a conferência contra as fontes, nem o julgamento científico do autor. Nenhum dado foi fabricado. Quando um valor não pôde ser verificado contra sua fonte, foi excluído e a exclusão foi registrada.
+Este trabalho segue os princípios de transparência e reprodutibilidade do Guia de Boas Práticas Científicas da USP (2025). Ferramentas de IA auxiliaram na organização, no código, na recuperação de informação e na redação; não substituíram a curadoria dos dados, a verificação contra as fontes nem o julgamento científico do autor. Nenhum dado foi fabricado. Onde um valor não pôde ser verificado contra sua fonte, ele foi excluído e a exclusão registrada.
 
-## Como citar
+## Citação
 
 Capucho, W. *Epigenética e microRNAs em doenças neurodegenerativas: revisão sistemática e meta-análise da acurácia diagnóstica de miRNAs circulantes.* GitHub, 2026. https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas
 
-Os dados de literatura vêm do PubMed/PubMed Central (National Library of Medicine, NCBI). Os estudos individuais estão citados por DOI em `data/extracted/diagnostic_accuracy_extraction.csv`.
+Os dados de literatura vêm do PubMed/PubMed Central (National Library of Medicine, NCBI) e do Scopus (Elsevier). Os estudos individuais são citados por DOI em `data/extracted/diagnostic_accuracy_extraction.csv`.

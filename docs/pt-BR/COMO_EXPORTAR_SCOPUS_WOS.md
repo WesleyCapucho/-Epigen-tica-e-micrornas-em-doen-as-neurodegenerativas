@@ -90,19 +90,20 @@ Envie os arquivos exportados. O pipeline então roda:
 python scripts/09_ingest_scopus_wos.py --scopus scopus_AD.csv --arm AD
 python scripts/09_ingest_scopus_wos.py --scopus scopus_PD.csv --arm PD
 python scripts/04_screening.py
+python scripts/10_build_screening_corpus.py
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
-python scripts/08_verify_reported_numbers.py
+python scripts/08_verify_consistency.py
 ```
 
 O script `09` deduplica os novos registros contra o corpus do PubMed por DOI, PubMed ID e título normalizado, e reporta quantos registros cada base acrescentou de fato.
 
-## O que muda no manuscrito depois disso
+## O que muda daí para a frente
 
 Três coisas, todas para melhor:
 
 1. A frase "Scopus e Web of Science não foram consultadas" sai da seção de Métodos e da lista de limitações, substituída pelas contagens reais.
 2. O fluxograma PRISMA passa a ter as três bases, com números rastreáveis.
-3. Qualquer estudo novo que reporte AUC e tamanhos de grupo entra na meta-análise, e as estimativas agregadas são recalculadas — inclusive, possivelmente, mudando os valores que hoje estão no manuscrito. O script `08` garante que o texto não fique defasado em relação às novas tabelas.
+3. Qualquer estudo novo que reporte AUC e tamanhos de grupo entra na meta-análise, e as estimativas agregadas são recalculadas — inclusive, possivelmente, mudando os valores já publicados. O script `08` garante que a tabela de extração, as contagens PRISMA e as tabelas de resultado não fiquem defasadas entre si.
 
 Vale dizer com franqueza: se os novos registros trouxerem estimativas com desempenho sistematicamente diferente, as conclusões podem se deslocar. É esse o ponto de completar a busca — e não haveria sentido em fazê-la se o resultado já estivesse decidido.

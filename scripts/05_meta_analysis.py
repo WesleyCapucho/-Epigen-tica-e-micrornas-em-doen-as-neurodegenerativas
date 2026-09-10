@@ -133,7 +133,7 @@ def summarise(label, sub):
     return {
         "subgroup": label,
         "k_estimates": r["k"],
-        "n_studies": sub["pmid"].nunique(),
+        "n_studies": sub["study_id"].nunique(),
         "pooled_auc": round(inv_logit(r["estimate"]), 4),
         "ci_low": round(inv_logit(r["ci_low"]), 4),
         "ci_high": round(inv_logit(r["ci_high"]), 4),
@@ -164,6 +164,21 @@ def main():
     df["se_source"] = np.where(se_ci.notna(), "reported_95CI",
                                np.where(se_hm.notna(), "Hanley-McNeil", "not_estimable"))
 
+    # EN | A study is identified by its PMID when it has one and by its DOI
+    #      otherwise. Counting on PMID alone silently dropped every study
+    #      published outside MEDLINE - four of them arrived with the Scopus
+    #      arms - and understated how many independent studies contribute.
+    # PT | Um estudo e identificado pelo PMID quando existe e pelo DOI caso
+    #      contrario. Contar so pelo PMID descartava em silencio todo estudo
+    #      publicado fora do MEDLINE - quatro deles vieram com os bracos do
+    #      Scopus - e subestimava quantos estudos independentes contribuem.
+    # EN/PT: pandas reads a numeric PMID column as float, so 28137310 would
+    #        become "28137310.0"; strip the decimal tail before using it as an id.
+    pmid_txt = (df["pmid"].astype(str).str.strip()
+                .str.replace(r"\.0$", "", regex=True)
+                .replace({"": np.nan, "nan": np.nan, "None": np.nan}))
+    df["study_id"] = pmid_txt.fillna(df["doi"].astype(str).str.strip().str.lower())
+
     pool = df[(df["eligible_primary_pool"] == "yes") & df["se_auc"].notna()].copy()
 
     print("=" * 78)
@@ -172,7 +187,7 @@ def main():
     print(f"Extracted rows / linhas extraidas          : {len(df)}")
     print(f"Eligible rows / linhas elegiveis           : {(df['eligible_primary_pool']=='yes').sum()}")
     print(f"Poolable (SE estimable) / com EP estimavel : {len(pool)}")
-    print(f"Independent studies / estudos independentes: {pool['pmid'].nunique()}")
+    print(f"Independent studies / estudos independentes: {pool['study_id'].nunique()}")
     print(f"SE source / origem do EP                   : "
           f"{dict(pool['se_source'].value_counts())}")
 
@@ -187,9 +202,18 @@ def main():
         for d in ["AD", "PD"]:
             rows.append(summarise(f"{d} - {lab}",
                                   pool[(pool["disease"] == d) & (pool["marker_type"] == mt)]))
-    # EN/PT: biofluid subgroups with at least 3 estimates
+    # EN | Biofluid subgroups need at least 3 estimates AND at least 3
+    #      independent studies. The estimate-only rule produced a
+    #      "serum_neuronal_EV" subgroup of 8 estimates that all came from one
+    #      cohort: a within-study spread reported as if it were between-study
+    #      evidence, with a meaningless heterogeneity and Egger statistic.
+    # PT | Subgrupos de biofluido exigem ao menos 3 estimativas E ao menos 3
+    #      estudos independentes. A regra so por estimativas produzia um
+    #      subgrupo "serum_neuronal_EV" de 8 estimativas vindas de uma unica
+    #      coorte: dispersao intraestudo reportada como se fosse evidencia
+    #      entre estudos, com heterogeneidade e Egger sem sentido.
     for bf, sub in pool.groupby("biofluid"):
-        if len(sub) >= 3:
+        if len(sub) >= 3 and sub["study_id"].nunique() >= 3:
             rows.append(summarise(f"Biofluid | Biofluido - {bf}", sub))
 
     res = pd.DataFrame([r for r in rows if r])
@@ -206,10 +230,70 @@ def main():
                      "se_source"]].copy()
     pool_out.to_csv(f"{TAB_DIR}/meta_analysis_input_estimates.csv", index=False)
 
+    sensitivity_analyses(pool)
+
     forest_plot(pool)
     funnel_plot(pool)
     print(f"\nEN: tables -> {TAB_DIR} | figures -> {FIG_DIR}")
     print(f"PT: tabelas -> {TAB_DIR} | figuras -> {FIG_DIR}")
+
+
+def sensitivity_analyses(pool):
+    """
+    EN | Test whether the headline single-miRNA estimate depends on any one
+         study, and on the fact that several studies contribute many estimates.
+    PT | Testa se a estimativa principal de miRNA isolado depende de um unico
+         estudo e do fato de varios estudos contribuirem com muitas estimativas.
+
+    EN | The primary pool treats every estimate as one observation, but eight
+         of them come from a single cohort. That is a real dependence, and the
+         honest response is to measure how much it moves the answer rather than
+         to assert that it does not. Two checks are run: one estimate per study
+         (the study median AUC), and leave-one-study-out.
+    PT | O pool primario trata cada estimativa como uma observacao, mas oito
+         vem de uma unica coorte. Isso e uma dependencia real, e a resposta
+         honesta e medir quanto ela desloca o resultado, e nao afirmar que nao
+         desloca. Duas checagens: uma estimativa por estudo (mediana da AUC do
+         estudo) e deixar-um-estudo-de-fora.
+    """
+    single = pool[pool["marker_type"] == "single_miRNA"].dropna(subset=["auc", "se_auc"])
+    if single["study_id"].nunique() < 3:
+        return
+
+    out = []
+    base = _pooled_auc(single)
+    out.append(dict(analysis="primary (every estimate) | primaria (toda estimativa)",
+                    k_estimates=base[3], n_studies=int(single["study_id"].nunique()),
+                    pooled_auc=round(base[0], 4), ci_low=round(base[1], 4),
+                    ci_high=round(base[2], 4), I2_percent=round(base[4], 1)))
+
+    # EN/PT: one row per study, at the study's median AUC and median SE
+    agg = (single.groupby("study_id")
+                 .agg(auc=("auc", "median"), se_auc=("se_auc", "median"))
+                 .reset_index())
+    one = _pooled_auc(agg)
+    out.append(dict(analysis="one estimate per study | uma estimativa por estudo",
+                    k_estimates=one[3], n_studies=len(agg),
+                    pooled_auc=round(one[0], 4), ci_low=round(one[1], 4),
+                    ci_high=round(one[2], 4), I2_percent=round(one[4], 1)))
+
+    for sid in sorted(single["study_id"].unique()):
+        sub = single[single["study_id"] != sid]
+        r = _pooled_auc(sub)
+        if not r:
+            continue
+        who = single[single["study_id"] == sid].iloc[0]
+        out.append(dict(analysis=f"leave out | sem {who['first_author']} {who['year']} ({sid})",
+                        k_estimates=r[3], n_studies=int(sub["study_id"].nunique()),
+                        pooled_auc=round(r[0], 4), ci_low=round(r[1], 4),
+                        ci_high=round(r[2], 4), I2_percent=round(r[4], 1)))
+
+    sens = pd.DataFrame(out)
+    sens.to_csv(f"{TAB_DIR}/sensitivity_single_mirna.csv", index=False)
+    print("\n" + "=" * 78)
+    print("EN | Sensitivity of the single-miRNA pool | PT | Sensibilidade do pool de miRNA isolado")
+    print("=" * 78)
+    print(sens.to_string(index=False))
 
 
 def _pooled_auc(sub):

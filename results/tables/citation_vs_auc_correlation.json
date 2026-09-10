@@ -1,18 +1,18 @@
 [
  {
   "analysis": "all single-miRNA estimates | todas as estimativas",
-  "n_mirnas": 28,
-  "spearman_rho": -0.27383041115667106,
-  "spearman_p": 0.15853047875130463,
-  "pearson_r": -0.16583780083181637,
-  "pearson_p": 0.39901300626824393
+  "n_mirnas": 43,
+  "spearman_rho": -0.042664823017141196,
+  "spearman_p": 0.7858899549247728,
+  "pearson_r": -0.052090287502066505,
+  "pearson_p": 0.740086452374622
  },
  {
   "analysis": "eligible estimates only | apenas elegiveis",
-  "n_mirnas": 16,
-  "spearman_rho": -0.6088112977420178,
-  "spearman_p": 0.012317431934900439,
-  "pearson_r": -0.511609264804363,
-  "pearson_p": 0.04279720159526621
+  "n_mirnas": 30,
+  "spearman_rho": -0.11341140480153736,
+  "spearman_p": 0.5506974261890663,
+  "pearson_r": -0.13796097385887213,
+  "pearson_p": 0.46721216081331357
  }
 ]

@@ -90,19 +90,20 @@ Send the exported files. The pipeline then runs:
 python scripts/09_ingest_scopus_wos.py --scopus scopus_AD.csv --arm AD
 python scripts/09_ingest_scopus_wos.py --scopus scopus_PD.csv --arm PD
 python scripts/04_screening.py
+python scripts/10_build_screening_corpus.py
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
-python scripts/08_verify_reported_numbers.py
+python scripts/08_verify_consistency.py
 ```
 
 Script `09` deduplicates the incoming records against the PubMed corpus by DOI, PubMed ID and normalised title, and reports how many records each database actually added.
 
-## What changes in the manuscript afterwards
+## What changes downstream
 
 Three things, all of them improvements:
 
 1. The sentence "Scopus and Web of Science were not searched" leaves the Methods section and the limitations list, replaced by real counts.
 2. The PRISMA flow diagram covers three databases, with traceable numbers.
-3. Any new study reporting an AUC with group sizes enters the meta-analysis, and the pooled estimates are recomputed — possibly changing the values currently in the manuscript. Script `08` makes sure the prose does not fall out of step with the new tables.
+3. Any new study reporting an AUC with group sizes enters the meta-analysis, and the pooled estimates are recomputed — possibly changing the published values. Script `08` makes sure the extraction table, the PRISMA counts and the result tables do not fall out of step with one another.
 
 Worth saying plainly: if the new records bring estimates that perform systematically differently, the conclusions may shift. That is the point of completing the search — there would be no reason to run it if the answer were already settled.

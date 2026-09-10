@@ -1,0 +1,5 @@
+scenario,n_mirnas_all,rho_all,p_all,n_mirnas_eligible,rho_eligible,p_eligible
+A. as published | como publicado: PubMed-only counts + pre-PD extraction,28,-0.274,0.159,16,-0.609,0.012
+B. mention-count denominator fixed | denominador corrigido,28,-0.111,0.575,16,-0.512,0.042
+C. Scopus PD arm added only | so o braco PD do Scopus,43,-0.197,0.205,30,-0.263,0.16
+D. current | atual: both corrections | ambas as correcoes,43,-0.043,0.786,30,-0.113,0.551

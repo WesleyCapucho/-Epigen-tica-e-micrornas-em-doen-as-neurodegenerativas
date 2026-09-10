@@ -1,0 +1,17 @@
+analysis,k_estimates,n_studies,pooled_auc,ci_low,ci_high,I2_percent
+primary (every estimate) | primaria (toda estimativa),31,14,0.73,0.6907,0.766,74.8
+one estimate per study | uma estimativa por estudo,14,14,0.7657,0.7093,0.8139,74.5
+leave out | sem Li J 2021 (10.3760/cma.j.cn371468-20200828-01692),29,13,0.7228,0.6817,0.7605,73.3
+leave out | sem Chen T 2024 (10.3760/cma.j.issn.0254-9026.2024.01.005),29,13,0.7232,0.682,0.761,75.0
+leave out | sem Hara N 2017 (28137310),30,13,0.7273,0.6872,0.7641,75.3
+leave out | sem Oliveira SR 2020 (32585840),25,13,0.7383,0.6944,0.778,79.3
+leave out | sem Hojati Z 2020 (33129241),30,13,0.7295,0.6893,0.7663,75.6
+leave out | sem Grossi I 2020 (33416118),30,13,0.7298,0.6897,0.7665,75.7
+leave out | sem Dong LH 2021 (34042273),30,13,0.7208,0.6841,0.7547,68.5
+leave out | sem Wu L 2022 (35655754),29,13,0.7275,0.6874,0.7641,72.8
+leave out | sem Aguilar MA 2023 (37483339),23,13,0.7541,0.7075,0.7955,76.1
+leave out | sem Liang J 2024 (38172670),29,13,0.74,0.7012,0.7753,70.6
+leave out | sem Duan X 2024 (38618193),29,13,0.7287,0.6859,0.7677,76.2
+leave out | sem Omura T 2025 (41373032),30,13,0.7292,0.6893,0.7657,75.6
+leave out | sem Yang SJ 2026 (41836608),30,13,0.7291,0.6887,0.766,75.6
+leave out | sem Qin Q 2026 (42389429),30,13,0.7254,0.6855,0.762,74.1

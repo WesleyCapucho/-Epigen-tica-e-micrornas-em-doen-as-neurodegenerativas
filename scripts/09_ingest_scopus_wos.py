@@ -34,6 +34,7 @@ PT | Formatos aceitos: exportacao CSV do Scopus, RIS do Scopus/generico,
 
 import argparse
 import csv
+import glob
 import json
 import os
 import re
@@ -179,6 +180,18 @@ def main():
     if not args.scopus and not args.wos:
         ap.error("EN: give at least one export | PT: informe ao menos uma exportacao")
 
+    # EN | Resolve the output path before anything else. This file is rewritten
+    #      on every run, so it must never be read back as a "previously ingested
+    #      arm" - a re-run would then deduplicate the arm against its own output
+    #      and report zero new records while silently emptying the file.
+    # PT | Resolve o caminho de saida antes de tudo. Este arquivo e reescrito a
+    #      cada execucao, entao nunca pode ser relido como "braco ja ingerido" -
+    #      uma reexecucao deduplicaria o braco contra a propria saida e reportaria
+    #      zero registros novos, esvaziando o arquivo em silencio.
+    os.makedirs(OUT_DIR, exist_ok=True)
+    suffix = f"_{args.arm}" if args.arm else ""
+    out_json = f"{OUT_DIR}/additional_records{suffix}.json"
+
     # --- existing PubMed corpus, for deduplication -------------------------
     # EN | Prefer the full corpus when present; otherwise fall back to the
     #      committed screening decisions, which carry pmid, doi and title -
@@ -204,6 +217,33 @@ def main():
                 pm_titles.add(norm_title(row.get("title")))
                 n_loaded += 1
         source = DECISIONS
+    # EN | Also deduplicate against previously ingested arms. A record that
+    #      mentions both diseases is returned by both the AD and the PD search,
+    #      and counting it twice would inflate the corpus. Missing this once
+    #      turned 78 genuinely new PD records into an apparent 157.
+    # PT | Deduplicar tambem contra bracos ja ingeridos. Um registro que menciona
+    #      as duas doencas volta nas buscas de AD e de PD, e conta-lo duas vezes
+    #      inflaria o corpus. Deixar isso passar uma vez transformou 78 registros
+    #      novos de PD em aparentes 157.
+    prior_files = [f for f in sorted(glob.glob(os.path.join(OUT_DIR, "additional_records_*.json")))
+                   if os.path.abspath(f) != os.path.abspath(out_json)]
+    n_prior = 0
+    for fp in prior_files:
+        try:
+            for r in json.load(open(fp)):
+                pm_dois.add(norm_doi(r.get("DOI")))
+                pm_titles.add(norm_title(r.get("Title")))
+                if r.get("PMID"):
+                    pm_pmids.add(str(r["PMID"]).strip())
+                n_prior += 1
+        except Exception:
+            continue
+    if n_prior:
+        print(f"EN | Also deduplicating against {n_prior} records from previously "
+              f"ingested arms ({len(prior_files)} file(s))")
+        print(f"PT | Deduplicando tambem contra {n_prior} registros de bracos ja "
+              f"ingeridos ({len(prior_files)} arquivo(s))")
+
     pm_dois.discard("")
     pm_titles.discard("")
     pm_pmids.discard("")
@@ -239,9 +279,6 @@ def main():
             no_abstract += 1
         new_records.append(r)
 
-    os.makedirs(OUT_DIR, exist_ok=True)
-    suffix = f"_{args.arm}" if args.arm else ""
-    out_json = f"{OUT_DIR}/additional_records{suffix}.json"
     json.dump(new_records, open(out_json, "w"), ensure_ascii=False, indent=1)
 
     by_db = {}

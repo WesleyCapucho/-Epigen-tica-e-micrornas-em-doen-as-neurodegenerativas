@@ -109,14 +109,27 @@ def main():
     ext = ext.dropna(subset=["auc"])
     ext["family"] = ext["marker"].map(family)
 
+    # EN | Identify a study by its PMID when it has one and by its DOI
+    #      otherwise. Grouping on PMID alone merged every study published
+    #      outside MEDLINE into one blank-PMID bucket, so two independent
+    #      cohorts reporting miR-124 collapsed into a single observation.
+    # PT | Identifica o estudo pelo PMID quando existe e pelo DOI caso
+    #      contrario. Agrupar so pelo PMID fundia todo estudo publicado fora do
+    #      MEDLINE num unico balde de PMID vazio, e duas coortes independentes
+    #      que reportam miR-124 viravam uma observacao so.
+    pmid_txt = (ext["pmid"].astype(str).str.strip()
+                .str.replace(r"\.0$", "", regex=True)
+                .replace({"": np.nan, "nan": np.nan, "None": np.nan}))
+    ext["study_id"] = pmid_txt.fillna(ext["doi"].astype(str).str.strip().str.lower())
+
     # EN: one estimate per miRNA per study (mean if a study reports several stages)
     # PT: uma estimativa por miRNA por estudo (media se o estudo reporta varias etapas)
-    per_study = (ext.groupby(["family", "pmid"], as_index=False)
+    per_study = (ext.groupby(["family", "study_id"], as_index=False)
                     .agg(auc=("auc", "mean"),
                          eligible=("eligible_primary_pool", "first")))
     per_mirna = (per_study.groupby("family", as_index=False)
                           .agg(mean_auc=("auc", "mean"),
-                               n_studies=("pmid", "nunique"),
+                               n_studies=("study_id", "nunique"),
                                max_auc=("auc", "max"),
                                min_auc=("auc", "min")))
 

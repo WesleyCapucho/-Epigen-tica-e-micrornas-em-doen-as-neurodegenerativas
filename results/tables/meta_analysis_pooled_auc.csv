@@ -1,12 +1,12 @@
 subgroup,k_estimates,n_studies,pooled_auc,ci_low,ci_high,tau2_logit,I2_percent,Q,df,p_heterogeneity,egger_intercept,egger_p
-Overall (all eligible) | Global,25,16,0.8073,0.7454,0.857,0.6902,92.7,329.9,24,0.0,-3.185,0.0
+Overall (all eligible) | Global,41,20,0.7809,0.7224,0.8299,0.9408,95.7,929.34,40,0.0,-4.322,0.0
 AD - all markers | todos marcadores,13,10,0.8423,0.7884,0.8844,0.3114,77.1,52.37,12,0.0,2.538,0.1357
-PD - all markers | todos marcadores,12,6,0.7528,0.6205,0.8501,1.0555,94.5,198.91,11,0.0,-4.062,0.0
-All - single miRNA | miRNA isolado,17,10,0.7584,0.7063,0.8038,0.1873,65.5,46.4,16,0.0001,-0.792,0.0028
+PD - all markers | todos marcadores,28,10,0.7439,0.6581,0.8143,1.1355,96.8,832.93,27,0.0,-5.395,0.0
+All - single miRNA | miRNA isolado,31,14,0.73,0.6907,0.766,0.2046,74.8,119.15,30,0.0,1.391,0.0599
 AD - single miRNA | miRNA isolado,7,6,0.8016,0.7412,0.8508,0.1291,63.0,16.2,6,0.0127,-0.394,0.088
-PD - single miRNA | miRNA isolado,10,4,0.7162,0.6405,0.7814,0.1586,54.6,19.8,9,0.0192,0.134,0.1219
-All - multi-miRNA panel | painel multi-miRNA,8,7,0.8876,0.829,0.9278,0.3568,85.3,47.77,7,0.0,-1.245,0.0
+PD - single miRNA | miRNA isolado,24,8,0.7059,0.6628,0.7455,0.1599,70.2,77.21,23,0.0,1.455,0.1405
+All - multi-miRNA panel | painel multi-miRNA,10,9,0.8901,0.8472,0.9221,0.2522,81.4,48.43,9,0.0,-1.091,0.0
 AD - multi-miRNA panel | painel multi-miRNA,6,5,0.8947,0.805,0.946,0.6182,82.4,28.35,5,0.0,3.498,0.4822
-PD - multi-miRNA panel | painel multi-miRNA,2,2,0.8826,0.7608,0.9468,0.3402,86.7,7.52,1,0.0061,,
+PD - multi-miRNA panel | painel multi-miRNA,4,4,0.8977,0.8584,0.927,0.0845,63.7,8.26,3,0.0409,-1.364,0.0003
 Biofluid | Biofluido - plasma,5,4,0.7618,0.6422,0.8507,0.2995,75.7,16.49,4,0.0024,1.536,0.4607
-Biofluid | Biofluido - serum,11,4,0.8104,0.7206,0.8763,0.582,82.3,56.49,10,0.0,-4.0,0.0092
+Biofluid | Biofluido - serum,19,7,0.8046,0.7412,0.8555,0.5422,87.6,145.71,18,0.0,2.828,0.2918

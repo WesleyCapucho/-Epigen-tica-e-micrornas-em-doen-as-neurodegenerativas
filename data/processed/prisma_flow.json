@@ -9,10 +9,14 @@
   "scopus_records_AD_arm": 408,
   "scopus_records_already_in_pubmed_corpus": 159,
   "scopus_duplicates_within_export": 1,
-  "scopus_records_new": 248,
-  "total_unique_records": 482,
-  "note_en": "The Scopus PD arm has not been run yet; the AD arm alone added 248 records PubMed did not return, a 106% increase over the PubMed AD arm.",
-  "note_pt": "O braco PD do Scopus ainda nao foi executado; so o braco AD acrescentou 248 registros que o PubMed nao retornou, aumento de 106% sobre o braco AD do PubMed."
+  "scopus_records_new": 326,
+  "total_unique_records": 560,
+  "note_en": "Both Scopus arms have now been run. The AD arm added 248 records and the PD arm 78 more; 79 PD-arm records had already arrived with the AD arm, because a paper naming both diseases is returned by both searches and must be counted once.",
+  "note_pt": "Os dois bracos do Scopus foram executados. O braco AD acrescentou 248 registros e o braco PD outros 78; 79 registros do braco PD ja haviam chegado com o braco AD, porque um artigo que cita as duas doencas volta nas duas buscas e deve ser contado uma vez so.",
+  "scopus_records_PD_arm": 255,
+  "scopus_PD_already_in_pubmed_corpus": 98,
+  "scopus_PD_overlapping_scopus_AD_arm": 79,
+  "scopus_PD_records_new": 78
  },
  "screening": {
   "pubmed_records_screened": 234,
@@ -20,25 +24,31 @@
   "pubmed_primary_studies": 188,
   "pubmed_primary_reporting_auc_or_sens_spec": 95,
   "pubmed_of_which_pmc_open_access_fulltext": 55,
-  "scopus_new_records_screened": 248,
-  "scopus_excluded_review_or_secondary": 147,
-  "scopus_primary_studies": 101,
-  "scopus_primary_reporting_auc_or_sens_spec": 20,
   "note_en": "PubMed secondary count corrected from 45 to 46 after a regular-expression defect was fixed (see below); primary count therefore 188, not 189.",
-  "note_pt": "Contagem de secundarios do PubMed corrigida de 45 para 46 apos correcao de um defeito de expressao regular (ver abaixo); primarios passam a 188, e nao 189."
+  "note_pt": "Contagem de secundarios do PubMed corrigida de 45 para 46 apos correcao de um defeito de expressao regular (ver abaixo); primarios passam a 188, e nao 189.",
+  "scopus_AD_new_records_screened": 248,
+  "scopus_AD_excluded_review_or_secondary": 147,
+  "scopus_AD_primary_studies": 101,
+  "scopus_AD_primary_reporting_auc_or_sens_spec": 20,
+  "scopus_PD_new_records_screened": 78,
+  "scopus_PD_excluded_review_or_secondary": 30,
+  "scopus_PD_primary_studies": 48,
+  "scopus_PD_primary_reporting_auc_or_sens_spec": 12
  },
  "eligibility_fulltext": {
-  "fulltext_retrieved": 45,
-  "studies_contributing_extracted_estimates": 34,
-  "extracted_estimates_total": 50,
-  "estimates_added_from_scopus": 8,
-  "estimates_eligible_for_primary_pool": 31
+  "fulltext_retrieved": 47,
+  "studies_contributing_extracted_estimates": 42,
+  "extracted_estimates_total": 76,
+  "estimates_added_from_scopus": 34,
+  "estimates_eligible_for_primary_pool": 51,
+  "note_en": "Two further full texts were read for the PD arm (PMC10765853 and PMC10357515). Four PD-arm candidates were access-restricted and could only be extracted from their abstracts; four more were screened out at full text because the index test was not a circulating miRNA (a lncRNA, a circRNA, a brain-tissue gene signature and a faecal microbiome genus) and one because the population was immune thrombocytopenia.",
+  "note_pt": "Mais dois textos completos foram lidos para o braco PD (PMC10765853 e PMC10357515). Quatro candidatos do braco PD estavam com acesso restrito e so puderam ser extraidos do resumo; outros quatro sairam na leitura do texto completo porque o teste indice nao era um miRNA circulante (um lncRNA, um circRNA, uma assinatura genica de tecido cerebral e um genero do microbioma fecal) e um porque a populacao era trombocitopenia imune."
  },
  "included_in_meta_analysis": {
-  "estimates_with_estimable_standard_error": 25,
-  "independent_studies": 16,
-  "note_en": "Only one Scopus-derived estimate could be weighted (miR-202, 121 cases vs 86 controls); the others report an AUC without group sizes or a confidence interval.",
-  "note_pt": "Apenas uma estimativa vinda do Scopus pode ser ponderada (miR-202, 121 casos vs 86 controles); as demais reportam AUC sem tamanhos de grupo nem intervalo de confianca."
+  "estimates_with_estimable_standard_error": 41,
+  "independent_studies": 20,
+  "note_en": "The study count is now keyed on PMID when a study has one and on DOI otherwise. Keying on PMID alone had silently merged the studies published outside MEDLINE, four of which arrived with the Scopus arms, and understated the study total.",
+  "note_pt": "A contagem de estudos passa a usar o PMID quando existe e o DOI caso contrario. Usar so o PMID fundia em silencio os estudos publicados fora do MEDLINE, quatro deles vindos dos bracos do Scopus, e subestimava o total."
  },
  "note_en": "Counts are computed from the screening table in this repository, not transcribed by hand.",
  "note_pt": "As contagens sao calculadas a partir da tabela de triagem deste repositorio, nao transcritas manualmente.",
@@ -48,5 +58,12 @@
   "impact_en": "One PubMed record reclassified (PMID 32133447). No study in the extraction table was affected. In the Scopus set the defect would have let prior meta-analyses through, which is how they were noticed.",
   "impact_pt": "Um registro do PubMed reclassificado (PMID 32133447). Nenhum estudo da tabela de extracao foi afetado. No conjunto Scopus o defeito teria deixado passar meta-analises previas, e foi assim que elas foram notadas.",
   "fixed_in": "scripts/04_screening.py"
+ },
+ "mention_count_defect_corrected": {
+  "what_en": "miRNA mention counts were computed over the 234 PubMed records while the accuracy estimates already came from the PubMed-plus-Scopus corpus, so every marker that entered through Scopus was credited with zero mentions by construction.",
+  "what_pt": "As contagens de mencao de miRNA eram calculadas sobre os 234 registros do PubMed enquanto as estimativas de acuracia ja vinham do corpus PubMed-mais-Scopus, entao todo marcador que entrou pelo Scopus recebia zero mencoes por construcao.",
+  "impact_en": "Material. It inflated the attention-versus-performance correlation. See results/tables/attention_correlation_audit.csv for the decomposition.",
+  "impact_pt": "Material. Inflava a correlacao atencao-versus-desempenho. Ver results/tables/attention_correlation_audit.csv para a decomposicao.",
+  "fixed_in": "scripts/10_build_screening_corpus.py"
  }
 }
