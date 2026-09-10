@@ -66,7 +66,9 @@ Egger's test indicates small-study effects in several subgroups, so these pooled
 │   ├── 04_screening.py                            # Rule-based PRISMA screening
 │   ├── 05_meta_analysis.py                        # Random-effects meta-analysis of AUC
 │   ├── 06_citation_vs_performance.py              # Literature attention vs measured accuracy
-│   └── 07_clinical_translation_landscape.py       # What actually reached clinical trials
+│   ├── 07_clinical_translation_landscape.py       # What actually reached clinical trials
+│   ├── 08_verify_reported_numbers.py              # Checks every figure in the prose against the tables
+│   └── 09_ingest_scopus_wos.py                    # Merges Scopus / Web of Science exports
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, findings (English)
 │   └── pt-BR/                         # Métodos, dicionário de dados, achados (Portuguese)
@@ -107,7 +109,7 @@ Full texts themselves are **not** redistributed here — only the extracted data
 
 ## Known limitations
 
-- Coverage is PubMed/MEDLINE only. Scopus and Web of Science searches require institutional credentials that were not available to the environment running this analysis, so the review is not a complete multi-database sweep.
+- Coverage is PubMed/MEDLINE only. Scopus and Web of Science require institutional credentials that the environment running this analysis cannot reach, so the review is not yet a complete multi-database sweep. `docs/en/HOW_TO_EXPORT_SCOPUS_WOS.md` gives the ready-to-paste queries and export steps; `scripts/09_ingest_scopus_wos.py` merges the exports and deduplicates them against the PubMed corpus.
 - Data extraction is restricted to PubMed Central open-access full texts (55 of the 95 eligible primary studies), which may itself select for a non-random subset of the literature.
 - Heterogeneity is high (I² up to 95%) and Egger's test is significant in several subgroups; pooled estimates are best read as optimistic bounds.
 - Most miRNAs contribute a single study, so the attention-vs-performance analysis is exploratory and cannot support a causal reading.

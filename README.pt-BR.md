@@ -66,7 +66,9 @@ O teste de Egger indica efeitos de estudos pequenos em vários subgrupos, então
 │   ├── 04_screening.py                            # Triagem PRISMA baseada em regras
 │   ├── 05_meta_analysis.py                        # Meta-análise de efeitos aleatórios da AUC
 │   ├── 06_citation_vs_performance.py              # Atenção da literatura vs acurácia medida
-│   └── 07_clinical_translation_landscape.py       # O que de fato chegou a ensaios clínicos
+│   ├── 07_clinical_translation_landscape.py       # O que de fato chegou a ensaios clínicos
+│   ├── 08_verify_reported_numbers.py              # Confere cada número do texto contra as tabelas
+│   └── 09_ingest_scopus_wos.py                    # Funde exportações do Scopus / Web of Science
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, findings (inglês)
 │   └── pt-BR/                         # Métodos, dicionário de dados, achados (português)
@@ -107,7 +109,7 @@ Os textos completos **não** são redistribuídos aqui — apenas os dados extra
 
 ## Limitações conhecidas
 
-- A cobertura é apenas PubMed/MEDLINE. Buscas em Scopus e Web of Science exigem credenciais institucionais indisponíveis no ambiente em que esta análise rodou, então a revisão não é uma varredura multibase completa.
+- A cobertura é apenas PubMed/MEDLINE. Scopus e Web of Science exigem credenciais institucionais que o ambiente desta análise não alcança, então a revisão ainda não é uma varredura multibase completa. O documento `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md` traz as queries prontas e os passos de exportação; o `scripts/09_ingest_scopus_wos.py` funde as exportações e as deduplica contra o corpus do PubMed.
 - A extração de dados se restringe a textos completos de acesso aberto no PubMed Central (55 dos 95 estudos primários elegíveis), o que pode, por si só, selecionar um subconjunto não aleatório da literatura.
 - A heterogeneidade é alta (I² até 94%) e o teste de Egger é significativo em vários subgrupos; as estimativas agregadas são mais bem lidas como limites otimistas.
 - A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho é exploratória e não sustenta leitura causal.
