@@ -1,0 +1,16 @@
+# Ambientes Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Saídas geradas localmente pelos scripts (reprodutíveis a partir de data/raw/)
+data/processed/*
+!data/processed/.gitkeep
+results/figures/*
+!results/figures/.gitkeep
+results/tables/*
+!results/tables/.gitkeep
+
+# Arquivos de sistema
+.DS_Store

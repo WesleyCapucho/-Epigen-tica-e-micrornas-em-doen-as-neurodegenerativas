@@ -1,0 +1,21 @@
+{
+  "dataset_name": "pubmed_sample_2026-09-10",
+  "description": "Amostra real de validação da coleta bibliométrica PubMed/MEDLINE descrita no TCC, obtida via API oficial do NCBI (E-utilities/Entrez) atraves da ferramenta MCP PubMed. Não contém nenhum dado sintético, estimado ou fabricado: todos os registros correspondem a artigos indexados reais, com PMID, DOI, título, resumo e metadados originais do PubMed.",
+  "source": "PubMed/MEDLINE (National Library of Medicine, NCBI E-utilities)",
+  "access_method": "MCP PubMed server (search_articles + get_article_metadata), backed by NCBI Entrez API",
+  "access_date": "2026-09-10",
+  "query_title_abstract": "(microRNA[Title/Abstract] OR miRNA[Title/Abstract] OR \"micro-RNA\"[Title/Abstract]) AND (Alzheimer[Title/Abstract] OR Parkinson[Title/Abstract] OR neurodegenerat*[Title/Abstract]) AND (expression[Title/Abstract] OR biomarker[Title/Abstract] OR epigenetic[Title/Abstract] OR methylation[Title/Abstract] OR \"expression profiling\"[Title/Abstract] OR \"RNA-seq\"[Title/Abstract] OR microarray[Title/Abstract])",
+  "date_filter": "2015/01/01 to 2026/09/10 (Date - Publication)",
+  "query_translation_returned_by_pubmed": "(\"microRNA\"[Title/Abstract] OR \"miRNA\"[Title/Abstract] OR \"micro-RNA\"[Title/Abstract]) AND (\"Alzheimer\"[Title/Abstract] OR \"Parkinson\"[Title/Abstract] OR \"neurodegenerat*\"[Title/Abstract]) AND (\"expression\"[Title/Abstract] OR \"biomarker\"[Title/Abstract] OR \"epigenetic\"[Title/Abstract] OR \"methylation\"[Title/Abstract] OR \"expression profiling\"[Title/Abstract] OR \"RNA-seq\"[Title/Abstract] OR \"microarray\"[Title/Abstract]) AND 2015/01/01:2026/09/10[Date - Publication]",
+  "total_matching_records_in_pubmed_on_access_date": 2777,
+  "records_retrieved_in_this_sample": 100,
+  "sort_order": "pub_date (mais recentes primeiro)",
+  "important_note_on_corpus_size": "O TCC original (Capucho, 2026) reportou 1.000 registros para a mesma string de busca, valor definido pelo parâmetro MAX_RESULTS=1000 do script original (código_da_busca_de_artigos.py), e não pelo total real então disponível no PubMed. Em 2026-09-10, a mesma query retorna 2.777 registros totais no PubMed, refletindo o crescimento natural da literatura entre a coleta original e esta verificação, e não uma discrepância metodológica. Esta amostra de 100 artigos (os mais recentes por data de publicação) foi extraída como PROVA DE REPRODUTIBILIDADE do pipeline de busca, não como substituta da coleta completa. Para reproduzir o corpus completo (2.777+ registros, sujeito a atualização diária do PubMed), execute scripts/01_busca_ranqueamento_pubmed.py com Entrez.email configurado e MAX_RESULTS ajustado.",
+  "files_in_this_directory": {
+    "pubmed_sample_articles_raw.json": "Registros completos (todos os campos retornados pela API: identifiers, title, abstract, doi, journal, authors, publication_date, keywords, mesh_terms, article_types, language, citation) para os 100 PMIDs amostrados.",
+    "pubmed_results_sample_2026-09-10.csv": "Mesmos 100 registros, tabulados no schema (PMID, DOI, Title, Abstract, Journal, Year, Authors, MeSH, Keywords) compatível com a etapa de ranqueamento do pipeline original.",
+    "pmids_sample.json": "Lista dos 100 PMIDs amostrados e resposta bruta da chamada search_articles (contagem total, tradução da query pelo PubMed)."
+  },
+  "attribution": "Dados obtidos do PubMed (National Library of Medicine / NCBI). Consulte os DOIs individuais em cada registro para citação dos artigos originais. Uso sujeito aos termos de uso do NCBI E-utilities (https://www.ncbi.nlm.nih.gov/home/about/policies/).",
+  "no_fabrication_statement": "Nenhum valor numérico, texto de resumo, autor, DOI ou metadado neste arquivo foi gerado, estimado ou alterado por inteligência artificial. Todos os dados foram obtidos diretamente da API pública do NCBI/PubMed nesta data de acesso."
+}
