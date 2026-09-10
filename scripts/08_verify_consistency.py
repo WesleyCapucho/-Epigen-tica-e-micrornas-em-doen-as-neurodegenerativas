@@ -31,6 +31,7 @@ import math
 import sys
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
+KINETICS = "data/extracted/kinetic_parameters.csv"
 EXTRACTION_JSON = "data/extracted/diagnostic_accuracy_extraction.json"
 FLOW = "data/processed/prisma_flow.json"
 POOLED = "results/tables/meta_analysis_pooled_auc.csv"
@@ -224,7 +225,43 @@ def main():
         check(0.0 <= entry["spearman_p"] <= 1.0, "correlation: p out of range")
         check(entry["n_mirnas"] > 2, "correlation: fewer than three points")
 
-    # --- 8. Clinical trial landscape --------------------------------------
+    # --- 8. Kinetic parameters carry their own provenance ------------------
+    # EN | Same discipline as the accuracy table: a parameter is only usable if
+    #      the sentence that supports it is stored with it, and if the number
+    #      recorded is the number that sentence actually states. The second
+    #      condition is the one that catches a transcription slip, so it is
+    #      checked mechanically rather than trusted.
+    # PT | Mesma disciplina da tabela de acuracia: um parametro so serve se a
+    #      frase que o sustenta estiver guardada junto, e se o numero registrado
+    #      for o numero que essa frase de fato declara. A segunda condicao e a
+    #      que pega erro de transcricao, entao e checada mecanicamente e nao
+    #      confiada.
+    try:
+        kin = list(csv.DictReader(open(KINETICS, encoding="utf-8")))
+    except FileNotFoundError:
+        kin = []
+    if kin:
+        kids = [r["param_id"] for r in kin]
+        check(len(set(kids)) == len(kids), "kinetics: duplicate param_id")
+        for r in kin:
+            pid = r["param_id"]
+            check(bool(r["verbatim_quote"].strip()), f"kinetics {pid}: no verbatim quote")
+            check(bool(r["pmid"].strip() or r["doi"].strip()), f"kinetics {pid}: no PMID or DOI")
+            check(bool(r["unit"].strip()), f"kinetics {pid}: no unit")
+            check(bool(r["species"].strip()), f"kinetics {pid}: species not recorded")
+            try:
+                float(r["value"])
+            except ValueError:
+                check(False, f"kinetics {pid}: value {r['value']!r} is not numeric")
+                continue
+            # EN/PT: the recorded number must appear verbatim in its own quote
+            quote = r["verbatim_quote"]
+            val = r["value"].strip()
+            trimmed = val.rstrip("0").rstrip(".") if "." in val else val
+            check(val in quote or trimmed in quote,
+                  f"kinetics {pid}: value {val} does not appear in its verbatim quote")
+
+    # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
     check(nd["mirna_directed_therapeutic_trials"] == 0,
           "trials: the zero-in-AD/PD claim no longer matches the data")
