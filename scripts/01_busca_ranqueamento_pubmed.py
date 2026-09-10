@@ -20,9 +20,19 @@ import os
 os.makedirs("data/processed", exist_ok=True)
 os.makedirs("results/figures", exist_ok=True)
 
-# --- CONFIGURAÇÃO (edite seu e-mail) ---
-Entrez.email = "wesleyfeliipe.fc@gmail.com"   # <--- substitua pelo seu e-mail
-# Entrez.api_key = "YOUR_NCBI_API_KEY"   # opcional para aumentar limite de taxa
+# --- CONFIGURAÇÃO / CONFIGURATION ---
+# PT | O NCBI exige um e-mail de contato. Defina-o no ambiente para nao publicar
+#      um endereco pessoal no repositorio:   export NCBI_EMAIL="voce@exemplo.org"
+# EN | NCBI requires a contact e-mail. Set it in the environment so no personal
+#      address is published in the repository:  export NCBI_EMAIL="you@example.org"
+Entrez.email = os.environ.get("NCBI_EMAIL")
+if not Entrez.email:
+    raise SystemExit(
+        "PT: defina a variavel de ambiente NCBI_EMAIL antes de executar.\n"
+        "EN: set the NCBI_EMAIL environment variable before running.")
+# PT/EN | Opcional: aumenta o limite de requisicoes | optional: raises rate limit
+if os.environ.get("NCBI_API_KEY"):
+    Entrez.api_key = os.environ["NCBI_API_KEY"]
 
 # --- PARÂMETROS DA BUSCA ---
 query_core = ('(microRNA[Title/Abstract] OR miRNA[Title/Abstract] OR "micro-RNA"[Title/Abstract]) '

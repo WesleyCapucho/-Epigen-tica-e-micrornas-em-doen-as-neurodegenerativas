@@ -1,16 +1,21 @@
-# Ambientes Python
+# EN | Python environments | PT | Ambientes Python
 __pycache__/
 *.pyc
 .venv/
 venv/
 
-# Saídas geradas localmente pelos scripts (reprodutíveis a partir de data/raw/)
+# EN | Intermediate pipeline outputs of the bibliometric layer, regenerable by
+#      scripts/01 and scripts/02 from the committed raw data.
+# PT | Saidas intermediarias da camada bibliometrica, regeneraveis pelos
+#      scripts/01 e scripts/02 a partir dos dados brutos versionados.
 data/processed/*
 !data/processed/.gitkeep
-results/figures/*
-!results/figures/.gitkeep
-results/tables/*
-!results/tables/.gitkeep
+!data/processed/prisma_flow.json
 
-# Arquivos de sistema
+# EN | results/ IS versioned: figures and tables are outputs a reviewer needs to
+#      see without re-running the pipeline.
+# PT | results/ E versionado: figuras e tabelas sao saidas que um revisor precisa
+#      ver sem reexecutar o pipeline.
+
+# EN | System files | PT | Arquivos de sistema
 .DS_Store

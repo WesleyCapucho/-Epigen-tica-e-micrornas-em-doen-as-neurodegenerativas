@@ -1,0 +1,25 @@
+record_id,pmid,doi,first_author,year,disease,biofluid,marker_type,marker,cohort_stage,n_cases,n_controls,auc,auc_ci_low,auc_ci_high,se_auc,se_source
+E001,42389429,10.1515/jtim-2026-0038,Qin Q,2026,AD,serum,single_miRNA,let-7i-5p,training,73.0,53.0,0.835,,,0.03523276561542086,Hanley-McNeil
+E004,38618193,10.2147/DNND.S444567,Duan X,2024,AD,serum_exosome,single_miRNA,miR-125b-1-3p,validation,71.0,71.0,0.765,,,0.03990842572910158,Hanley-McNeil
+E005,38618193,10.2147/DNND.S444567,Duan X,2024,AD,serum_exosome,single_miRNA,miR-451a,validation,71.0,71.0,0.728,,,0.04225743550009323,Hanley-McNeil
+E007,28137310,10.1186/s40478-017-0414-z,Hara N,2017,AD,serum,single_miRNA,miR-501-3p,single,27.0,18.0,0.82,,,0.06192248060183902,Hanley-McNeil
+E008,33129241,10.29252/ibj.25.1.62,Hojati Z,2020,AD,whole_blood,single_miRNA,miR-661,single,18.0,18.0,0.75,,,0.08223482314425039,Hanley-McNeil
+E014,32585840,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-146a-5p,discovery,20.0,20.0,0.74,,,0.07907924219572851,Hanley-McNeil
+E015,32585840,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-335-3p,discovery,20.0,20.0,0.74,,,0.07907924219572851,Hanley-McNeil
+E016,32585840,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-335-5p,discovery,20.0,20.0,0.71,,,0.08230562804735003,Hanley-McNeil
+E017,32585840,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-146a-5p,validation,17.0,14.0,0.62,,,0.10137269022849874,Hanley-McNeil
+E018,32585840,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-335-3p,validation,17.0,14.0,0.67,,,0.09727403574976218,Hanley-McNeil
+E019,32585840,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-335-5p,validation,17.0,14.0,0.59,,,0.10318940566049067,Hanley-McNeil
+E020,35655754,10.3389/fnins.2022.865139,Wu L,2022,PD,plasma,single_miRNA,miR-153,single,75.0,73.0,0.631,,,0.04555659658017884,Hanley-McNeil
+E021,35655754,10.3389/fnins.2022.865139,Wu L,2022,PD,plasma,single_miRNA,miR-223,single,75.0,73.0,0.862,,,0.030674171349785694,Hanley-McNeil
+E023,41373032,10.1186/s13104-025-07604-6,Omura T,2025,PD,plasma,single_miRNA,miR-101,single,,,0.781,0.547,1.0,0.11556334708188516,reported_95CI
+E024,33416118,10.3892/ijmm.2020.4806,Grossi I,2020,PD,plasma,single_miRNA,miR-34a-5p,single,,,0.738,0.557,0.919,0.09234863497492811,reported_95CI
+E030,41836608,10.1038/s44328-026-00086-x,Yang SJ,2026,AD,plasma_neuronal_EV,single_miRNA,miR-132-3p,single,31.0,27.0,0.76,,,0.06268915290584713,Hanley-McNeil
+E031,42389429,10.1515/jtim-2026-0038,Qin Q,2026,AD,serum,multi_miRNA_panel,7-miRNA panel,training,73.0,53.0,0.97,,,0.014692536081894664,Hanley-McNeil
+E032,42389429,10.1515/jtim-2026-0038,Qin Q,2026,AD,serum,multi_miRNA_panel,7-miRNA panel,validation,99.0,99.0,0.928,0.892,0.965,0.018622791030855658,reported_95CI
+E033,32962113,10.3390/jcm9093016,Karaglani M,2020,AD,blood,multi_miRNA_panel,3-miRNA biosignature,single,48.0,22.0,0.975,0.908,1.0,0.023469818833407135,reported_95CI
+E034,31591382,10.1038/s41398-019-0579-2,Jain G,2019,AD,blood,multi_miRNA_panel,3 miRNA + 3 piRNA signature,discovery,23.0,38.0,0.83,,,0.0581955599679263,Hanley-McNeil
+E036,27814298,10.3233/JAD-160835,Lusardi TA,2017,AD,CSF,multi_miRNA_panel,3-miRNA combination,single,50.0,49.0,0.8,,,0.044629998148038016,Hanley-McNeil
+E037,32955460,10.3233/JAD-200396,Sandau US,2020,AD,plasma,multi_miRNA_panel,5 trending miRNAs,single,37.0,65.0,0.77,,,0.05118175003911423,Hanley-McNeil
+E039,29707120,10.18632/oncotarget.24736,Dos Santos MCT,2018,PD,CSF,multi_miRNA_panel,miRNA panel (Model A),single,40.0,40.0,0.82,,,0.0475607359882938,Hanley-McNeil
+E041,38200052,10.1038/s41531-023-00628-4,Li Y,2024,PD,plasma_EV,multi_miRNA_panel,EV-miRNA SVM classifier,training,32.0,35.0,0.917,0.913,0.92,0.001785747085150545,reported_95CI

@@ -1,0 +1,29 @@
+{
+ "generated_on": "2026-09-10",
+ "source": "PubMed/MEDLINE via NCBI E-utilities",
+ "identification": {
+  "records_AD_arm": 168,
+  "records_PD_arm": 97,
+  "records_after_deduplication": 234,
+  "records_in_both_arms": 30
+ },
+ "screening": {
+  "records_screened_title_abstract": 234,
+  "excluded_review_or_secondary": 45,
+  "primary_studies": 189,
+  "primary_reporting_auc_or_sens_spec": 95,
+  "of_which_pmc_open_access_fulltext": 55
+ },
+ "eligibility_fulltext": {
+  "fulltext_retrieved": 45,
+  "studies_contributing_extracted_estimates": 26,
+  "extracted_estimates_total": 42,
+  "estimates_eligible_for_primary_pool": 28
+ },
+ "included_in_meta_analysis": {
+  "estimates_with_estimable_standard_error": 24,
+  "independent_studies": 15
+ },
+ "note_en": "Counts are computed from the screening table in this repository, not transcribed by hand.",
+ "note_pt": "As contagens sao calculadas a partir da tabela de triagem deste repositorio, nao transcritas manualmente."
+}

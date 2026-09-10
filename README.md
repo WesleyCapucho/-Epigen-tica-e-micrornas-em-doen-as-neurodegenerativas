@@ -1,74 +1,119 @@
-# Epigenética e microRNAs em doenças neurodegenerativas
+# Epigenetics and microRNAs in neurodegenerative disease
 
-Revisão integrativa, análise bioinformática e modelagem computacional de vias associadas à Doença de Alzheimer e à Doença de Parkinson.
+**Do the microRNAs the field talks about most actually work as diagnostic biomarkers?**
 
-Trabalho de Conclusão de Curso — Universidade Federal de São Paulo (UNIFESP), Especialização em Fisiologia e Fisiopatologia Humana aplicada às Ciências da Saúde. Autor: Wesley Felipe Capucho. Orientadora: Profa. Dra. Roberta Sessa Stilhano Yamaguchi.
+A systematic review and random-effects meta-analysis of the diagnostic accuracy of circulating microRNAs in Alzheimer's disease (AD) and Parkinson's disease (PD), with a fully reproducible pipeline from literature search to pooled estimate.
 
-Este repositório está em processo de expansão para elevar o trabalho a um manuscrito de maior rigor e impacto científico. Esta reorganização separa dados brutos, scripts e resultados para garantir reprodutibilidade total do pipeline.
+> 🇧🇷 **Versão em português: [README.pt-BR.md](README.pt-BR.md)**
 
-## Estrutura do repositório
+**Author:** Wesley Felipe Capucho · **Supervisor:** Prof. Dr. Roberta Sessa Stilhano Yamaguchi
+Universidade Federal de São Paulo (UNIFESP) — Specialisation in Human Physiology and Pathophysiology applied to Health Sciences.
+
+---
+
+## What this repository contains
+
+This repository began as the computational appendix of a monograph combining an integrative review, bibliometric analysis and ODE modelling of miRNA pathways in AD and PD. It is being extended into a manuscript with primary quantitative synthesis. Two distinct bodies of work live here:
+
+| Layer | What it is | Status |
+|---|---|---|
+| **Bibliometric layer** | PubMed corpus mining, miRNA extraction, PCA, clustering, miRNA–disease network, exploratory ODE models of the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes | From the original monograph (`scripts/01`, `scripts/02`) |
+| **Meta-analytic layer** | PICO-driven systematic search, PRISMA screening, full-text data extraction, random-effects meta-analysis of AUC | New (`scripts/03`–`scripts/06`) |
+
+The meta-analytic layer exists to answer a question the monograph raised about itself: bibliometric frequency and experimental validation are not independent sources of evidence, because the most-studied miRNAs accumulate both. Measuring pooled diagnostic accuracy breaks that circularity.
+
+## Headline findings
+
+All values are pooled from published estimates using DerSimonian–Laird random effects on the logit(AUC) scale. Every input value is traceable to a verbatim sentence in its source article (`data/extracted/diagnostic_accuracy_extraction.csv`).
+
+| Subgroup | Pooled AUC (95% CI) | Estimates | Studies | I² |
+|---|---|---|---|---|
+| Overall | 0.803 (0.735–0.856) | 24 | 15 | 93% |
+| Alzheimer's disease | 0.836 (0.778–0.882) | 12 | 9 | 76% |
+| Parkinson's disease | 0.753 (0.621–0.850) | 12 | 6 | 95% |
+| **Single miRNA** | **0.745 (0.699–0.785)** | 16 | 9 | 46% |
+| **Multi-miRNA panel** | **0.888 (0.829–0.928)** | 8 | 7 | 85% |
+| AD, single miRNA | 0.774 (0.732–0.810) | 6 | 5 | **0%** |
+| PD, single miRNA | 0.716 (0.641–0.781) | 10 | 4 | 55% |
+
+Three results carry the argument:
+
+1. **Single circulating miRNAs pool below the threshold of clinical usefulness.** At AUC 0.745 (CI 0.699–0.785), no single miRNA reaches the ~0.80 commonly treated as a minimum for a standalone diagnostic test — and none approaches the performance of established plasma p-tau assays.
+
+2. **Panels do substantially better, and the difference is not noise.** The confidence intervals of single miRNAs (0.699–0.785) and panels (0.829–0.928) do not overlap. Combining markers, not finding a better single marker, is where the gain is.
+
+3. **Literature attention does not track measured performance.** Across miRNAs with extractable accuracy data, the correlation between how many corpus articles mention a miRNA and its reported AUC is null overall (Spearman ρ = −0.11, p = 0.62) and *negative* when restricted to the estimates that passed eligibility (ρ = −0.41, p = 0.14). The two most-discussed miRNAs in the corpus, miR-125b (13 articles) and miR-146a (11 articles), returned AUCs of 0.75 and 0.68 — the lower end of the distribution. This is exploratory and underpowered, but it points the opposite way from the field's emphasis.
+
+Egger's test indicates small-study effects in several subgroups, so these pooled values should be read as **upper bounds**, not neutral estimates.
+
+## Repository layout
 
 ```
 .
 ├── data/
-│   ├── raw/              # Dados brutos, tal como obtidos das fontes originais (não editar)
-│   │   └── pubmed/        # Metadados reais de artigos PubMed (API NCBI E-utilities)
-│   └── processed/         # Saídas geradas pelos scripts (ranqueamento, anotações) — não versionadas, reprodutíveis via scripts/
+│   ├── raw/
+│   │   ├── pubmed/                    # Bibliometric sample, live from NCBI (provenance in manifest.json)
+│   │   └── systematic_review_2026/    # Search strategy, screening decisions, miRNA mention counts
+│   ├── extracted/                     # Diagnostic-accuracy extraction table + verbatim source quotes
+│   └── processed/                     # Pipeline outputs (PRISMA flow; regenerable)
 ├── scripts/
-│   ├── 01_busca_ranqueamento_pubmed.py       # Busca PubMed, ranqueamento e anotação automática
-│   └── 02_estatistica_bioinformatica_modelagem.py  # Estatística, PCA, clustering, redes, EDOs, heatmaps
+│   ├── 01_busca_ranqueamento_pubmed.py            # Bibliometric search + ranking (original monograph)
+│   ├── 02_estatistica_bioinformatica_modelagem.py # Statistics, PCA, networks, ODE models (original)
+│   ├── 03_systematic_search.py                    # PICO systematic search via NCBI E-utilities
+│   ├── 04_screening.py                            # Rule-based PRISMA screening
+│   ├── 05_meta_analysis.py                        # Random-effects meta-analysis of AUC
+│   └── 06_citation_vs_performance.py              # Literature attention vs measured accuracy
 ├── docs/
-│   └── PLANO_DE_ACAO_ARTIGO_ALTO_IMPACTO.md  # Diagnóstico de lacunas e plano faseado de elevação do TCC a artigo
+│   ├── en/                            # Methods, data dictionary, findings (English)
+│   └── pt-BR/                         # Métodos, dicionário de dados, achados (Portuguese)
 ├── results/
-│   ├── figures/           # Figuras geradas pelos scripts (não versionadas)
-│   └── tables/            # Tabelas geradas pelos scripts (não versionadas)
-├── requirements.txt
-└── README.md
+│   ├── figures/                       # Forest plot, funnel plot, attention-vs-accuracy plot
+│   └── tables/                        # Pooled estimates, per-estimate inputs, correlations
+└── requirements.txt
 ```
 
-## Reprodutibilidade
-
-### 1. Ambiente
+## Reproducing the analysis
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+
+# Layer 2 — systematic review and meta-analysis
+python scripts/03_systematic_search.py --email you@example.org   # needs NCBI access
+python scripts/04_screening.py
+python scripts/05_meta_analysis.py
+python scripts/06_citation_vs_performance.py
 ```
 
-### 2. Coleta de dados reais (PubMed/MEDLINE)
+`scripts/05` and `scripts/06` run offline from the committed data files. `scripts/03` calls the live PubMed API and will legitimately return more records than the frozen 2026-09-10 counts, because the literature keeps growing; `data/raw/systematic_review_2026/search_strategy.json` preserves the counts behind the numbers reported here.
 
-Edite `Entrez.email` no início de `scripts/01_busca_ranqueamento_pubmed.py` para o seu e-mail (exigência da NCBI para uso da API) e execute a partir da raiz do repositório:
+For the original bibliometric layer, see `scripts/01` and `scripts/02` (run `01` first — it produces the input of `02`).
 
-```bash
-python scripts/01_busca_ranqueamento_pubmed.py
-```
+## Data provenance and integrity
 
-Isso reproduz a busca descrita no TCC (mesma string de busca, campos Title/Abstract, filtro 2015–presente) diretamente na API pública do NCBI, gera `data/processed/pubmed_results_2015_2025.csv`, aplica o algoritmo de ranqueamento e anotação automática, e produz `data/processed/top100_miRNA_AD_PD_annotated.csv` mais os gráficos descritivos em `results/figures/`.
+- **Every number came from a real source.** PubMed records were pulled from the NCBI E-utilities API; accuracy values were read from open-access full texts in PubMed Central. Nothing was simulated, estimated to fill a gap, or carried over from a secondary citation.
+- **Every extracted value stores its source sentence.** `diagnostic_accuracy_extraction.csv` has a `verbatim_quote` column holding the exact wording that supports each AUC, sensitivity and specificity, plus the PMID and DOI.
+- **Values that could not be resolved unambiguously were kept and flagged, not quietly dropped.** 14 of 42 extracted rows are marked `eligible_primary_pool = no` with an explicit `exclusion_reason` (composite comparator, within-disease contrast, prodromal population, unstable perfect separation, cohort not attributable).
+- **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; the values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
+- **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
+- **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
 
-**Nota sobre o tamanho do corpus:** o parâmetro `MAX_RESULTS` do script (originalmente 1.000) define quantos registros são efetivamente baixados nesta execução; o número total de registros existentes no PubMed para essa query cresce continuamente (era de 2.777 registros em 2026-09-10, ver `data/raw/pubmed/manifest.json`). Isso é esperado — literatura nova é publicada todos os meses — e não representa inconsistência dos dados.
+Full texts themselves are **not** redistributed here — only the extracted data points and their citations. Fetch the sources through their DOIs.
 
-### 3. Estatística, bioinformática e modelagem
+## Known limitations
 
-Após a etapa anterior:
+- Coverage is PubMed/MEDLINE only. Scopus and Web of Science searches require institutional credentials that were not available to the environment running this analysis, so the review is not a complete multi-database sweep.
+- Data extraction is restricted to PubMed Central open-access full texts (55 of the 95 eligible primary studies), which may itself select for a non-random subset of the literature.
+- Heterogeneity is high (I² up to 95%) and Egger's test is significant in several subgroups; pooled estimates are best read as optimistic bounds.
+- Most miRNAs contribute a single study, so the attention-vs-performance analysis is exploratory and cannot support a causal reading.
+- The ODE models in `scripts/02` use illustrative, non-calibrated parameters. They are qualitative and generate hypotheses; they are not quantitative predictions and should not be reported as such.
 
-```bash
-python scripts/02_estatistica_bioinformatica_modelagem.py
-```
+## Scientific integrity and use of AI
 
-Gera o teste qui-quadrado, extração/ranking de miRNAs, matrizes miRNA×doença e artigo×miRNA, PCA, clustering K-means, rede miRNA–doença, as simulações por equações diferenciais ordinárias (vias AD, PD e modelo integrado) e os três heatmaps quantitativos, salvando as figuras em `results/figures/`.
+This work follows the transparency and reproducibility principles of the USP Guide to Good Scientific Practice (2025). AI tools assisted with organisation, code, retrieval and drafting; they did not replace data curation, verification against sources, or the author's scientific judgement. No data were fabricated. Where a value could not be verified against its source, it was excluded and the exclusion recorded.
 
-### 4. Dados brutos incluídos no repositório
+## Citation
 
-`data/raw/pubmed/` contém uma **amostra real de validação** (100 artigos, obtidos diretamente da API do NCBI/PubMed em 2026-09-10, sem nenhuma edição, estimativa ou geração sintética) que comprova a reprodutibilidade da etapa de coleta sem exigir nova chamada à API. Ver `data/raw/pubmed/manifest.json` para a proveniência completa (query exata, data de acesso, contagem total real na fonte, ferramenta usada). Para o corpus completo utilizado nas análises do TCC, execute o Script 01.
+Capucho, W. *Epigenetics and microRNAs in neurodegenerative disease: systematic review and meta-analysis of circulating miRNA diagnostic accuracy.* GitHub, 2026. https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas
 
-## Limitações conhecidas e próximos passos
-
-Consulte `docs/PLANO_DE_ACAO_ARTIGO_ALTO_IMPACTO.md` para o diagnóstico completo de lacunas metodológicas e o plano faseado de elevação deste trabalho a um manuscrito submetido a periódico de alto impacto, incluindo: ampliação real da cobertura Scopus/Web of Science, meta-análise quantitativa de acurácia diagnóstica, reanálise de dados públicos de expressão gênica/miRNA (GEO), validação cruzada de alvos (TargetScan/miRDB/DIANA-TarBase) e enriquecimento funcional de vias (KEGG/Reactome).
-
-## Boas práticas científicas e uso de IA
-
-Este projeto segue os princípios de integridade, transparência e reprodutibilidade do Guia de Boas Práticas Científicas da USP (2025). Ferramentas de inteligência artificial foram utilizadas como apoio à organização, análise e redação, nunca como substituto da curadoria de dados e da interpretação científica do autor. Nenhum dado experimental, bibliográfico ou numérico apresentado neste repositório foi fabricado, estimado sem indicação explícita, ou apresentado como resultado real sem procedência rastreável.
-
-## Citação
-
-CAPUCHO, W. Epigenética e microRNAs em doenças neurodegenerativas. GitHub, 2026. Disponível em: <https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas>.
+Literature data are from PubMed/PubMed Central (National Library of Medicine, NCBI). Individual studies are cited by DOI in `data/extracted/diagnostic_accuracy_extraction.csv`.
