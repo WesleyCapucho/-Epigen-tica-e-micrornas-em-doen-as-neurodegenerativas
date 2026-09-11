@@ -247,19 +247,45 @@ def main():
             pid = r["param_id"]
             check(bool(r["verbatim_quote"].strip()), f"kinetics {pid}: no verbatim quote")
             check(bool(r["pmid"].strip() or r["doi"].strip()), f"kinetics {pid}: no PMID or DOI")
-            check(bool(r["unit"].strip()), f"kinetics {pid}: no unit")
+            check(r["kind"] in ("numeric", "qualitative_constraint"),
+                  f"kinetics {pid}: unknown kind {r['kind']!r}")
             check(bool(r["species"].strip()), f"kinetics {pid}: species not recorded")
-            try:
-                float(r["value"])
-            except ValueError:
-                check(False, f"kinetics {pid}: value {r['value']!r} is not numeric")
+            if r["kind"] != "numeric":
+                # EN | A measured absence ("undetectable") is a real constraint on the
+                #      model but is not a number, and must not be stored as a fitted
+                #      zero. Only the wording is checked against the source.
+                # PT | Uma ausencia medida ("undetectable") e uma restricao real ao
+                #      modelo, mas nao e um numero, e nao pode ser guardada como zero
+                #      ajustado. So a redacao e conferida contra a fonte.
+                check(r["value_as_written"].strip() in r["verbatim_quote"],
+                      f"kinetics {pid}: qualitative value does not appear in its quote")
+                check(not r["value_si"].strip(),
+                      f"kinetics {pid}: a qualitative constraint must not carry an SI value")
                 continue
-            # EN/PT: the recorded number must appear verbatim in its own quote
+            check(bool(r["unit_si"].strip()), f"kinetics {pid}: no SI unit")
+            check(bool(r["condition"].strip()),
+                  f"kinetics {pid}: no experimental condition - a rate constant without "
+                  "its pH, temperature and buffer is not a usable parameter")
+            try:
+                float(r["value_si"])
+            except ValueError:
+                check(False, f"kinetics {pid}: value_si {r['value_si']!r} is not numeric")
+                continue
+            # EN | The number as printed in the source must appear in the source's own
+            #      sentence. value_si may differ from it (unit conversion, percent to
+            #      rate constant, scientific notation), so the two are checked apart:
+            #      value_as_written is the audit trail, value_si is what the model runs.
+            # PT | O numero como impresso na fonte precisa aparecer na frase da propria
+            #      fonte. value_si pode diferir dele (conversao de unidade, porcentagem
+            #      para constante, notacao cientifica), entao os dois sao checados em
+            #      separado: value_as_written e a trilha de auditoria, value_si e o que
+            #      o modelo roda.
             quote = r["verbatim_quote"]
-            val = r["value"].strip()
-            trimmed = val.rstrip("0").rstrip(".") if "." in val else val
-            check(val in quote or trimmed in quote,
-                  f"kinetics {pid}: value {val} does not appear in its verbatim quote")
+            written = r["value_as_written"].strip()
+            trimmed = written.rstrip("0").rstrip(".") if "." in written else written
+            check(written in quote or trimmed in quote,
+                  f"kinetics {pid}: value_as_written {written!r} does not appear in its "
+                  "verbatim quote")
 
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
