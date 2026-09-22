@@ -98,10 +98,25 @@ def read_provenance(pdb_id, path):
             if m:
                 res = float(m.group(1))
         p["resolution_angstrom"] = res
-        m = re.search(r"_citation\.pdbx_database_id_DOI\s+(\S+)", text)
-        p["doi"] = m.group(1).strip().lower() if m and m.group(1) != "?" else ""
-        m = re.search(r"_citation\.pdbx_database_id_PubMed\s+(\d+)", text)
-        p["pmid"] = m.group(1) if m else ""
+        # EN | In a loop_ block the tag is a COLUMN HEADER, not a key-value pair, so
+        #      reading the next token returns the first data row ("primary") instead of
+        #      the DOI. That is exactly what happened for 4D8C. Match the DOI by its own
+        #      shape instead, and take the PubMed id only when it is a plausible id.
+        # PT | Num bloco loop_ a tag e CABECALHO DE COLUNA, nao par chave-valor, entao ler
+        #      o proximo token devolve a primeira linha de dados ("primary") em vez do
+        #      DOI. Foi exatamente o que ocorreu com o 4D8C. Casa o DOI pelo formato dele,
+        #      e pega o PubMed id so quando for um id plausivel.
+        m = re.search(r"\b(10\.\d{4,9}/[^\s'\";]+)", text)
+        p["doi"] = m.group(1).strip().lower().rstrip(".,") if m else ""
+        pmid = ""
+        m = re.search(r"_citation\.pdbx_database_id_PubMed\s+(\d{6,9})\b", text)
+        if m:
+            pmid = m.group(1)
+        else:
+            for cand in re.findall(r"^\s*(\d{7,8})\s*$", text, re.M):
+                pmid = cand
+                break
+        p["pmid"] = pmid
     return p
 
 
@@ -136,9 +151,15 @@ def render_ago2(cmd, path, out):
     # EN/PT: the seed, guide nucleotides 2-8
     cmd.color("firebrick", "ago2 and chain C and resi 2-8")
     cmd.set("cartoon_nucleic_acid_mode", 4)
+    # EN | Orient on the RNA to get a readable view of the duplex, but FRAME on the
+    #      whole complex. An earlier version zoomed to the RNA with a small buffer, so
+    #      the protein ran off the top of the canvas and left dead space below.
+    # PT | Orienta pelo RNA para obter uma vista legivel do duplex, mas ENQUADRA pelo
+    #      complexo inteiro. Uma versao anterior dava zoom no RNA com margem pequena, e
+    #      a proteina saia pelo topo da tela deixando espaco morto embaixo.
     cmd.orient("ago2 and chain C+D")
-    cmd.zoom("ago2 and chain C+D", 6)
-    cmd.turn("y", 15); cmd.turn("x", -10)
+    cmd.turn("y", 12)
+    cmd.zoom("ago2", 3, complete=1)
     cmd.png(out, width=2000, height=1500, dpi=300, ray=1)
 
 
@@ -147,17 +168,26 @@ def render_bace1(cmd, path, out):
     cmd.delete("all"); cmd.load(path, "bace1"); style_common(cmd)
     cmd.hide("everything")
     sel = "bace1 and chain A"
+    # EN | One flat colour for cartoon and surface. An earlier version ran a spectrum
+    #      over the CA atoms, and the surface inherited it as a pink/cyan halo that
+    #      carried no information at all.
+    # PT | Uma cor chapada para cartoon e superficie. Uma versao anterior passava um
+    #      espectro nos atomos CA, e a superficie herdava aquilo como um halo rosa/ciano
+    #      que nao carregava informacao nenhuma.
     cmd.show("cartoon", f"{sel} and polymer.protein")
-    cmd.spectrum("count", "skyblue lightblue white", f"{sel} and polymer.protein and name CA")
+    cmd.color("skyblue", f"{sel} and polymer.protein")
     cmd.show("surface", f"{sel} and polymer.protein")
-    cmd.set("transparency", 0.78, f"{sel}")
+    cmd.set("transparency", 0.72, sel)
     lig = f"{sel} and resn BXD"
-    cmd.show("sticks", lig); cmd.color("orange", lig)
-    cmd.show("spheres", lig); cmd.set("sphere_scale", 0.28, lig)
+    cmd.show("sticks", lig); cmd.color("orange", f"{lig} and elem C")
+    cmd.set("stick_radius", 0.22, lig)
     # EN/PT: catalytic aspartyl dyad, selected by proximity to the inhibitor
     cmd.select("dyad", f"byres ({sel} and resn ASP and polymer.protein within 5 of ({lig}))")
     cmd.show("sticks", "dyad and not hydro"); cmd.color("firebrick", "dyad and elem C")
-    cmd.orient(lig); cmd.zoom(lig, 11)
+    cmd.set("stick_radius", 0.22, "dyad")
+    # EN/PT: orient on the pocket, then frame the whole domain so it is not clipped
+    cmd.orient(lig)
+    cmd.zoom(sel, 3, complete=1)
     cmd.png(out, width=2000, height=1500, dpi=300, ray=1)
     n = cmd.count_atoms("dyad and name CA")
     cmd.delete("dyad")
@@ -170,16 +200,31 @@ def render_fibril(cmd, path, out, label):
     cmd.hide("everything")
     cmd.show("cartoon", "fib")
     cmd.set("cartoon_flat_sheets", 0)
-    cmd.spectrum("chain", "rainbow", "fib")
+    # EN | Colour by PROTOFILAMENT, not by chain. A rainbow over ten chains hides the
+    #      one thing the view down the axis exists to show: that the fibril is two
+    #      protofilaments packed against each other, each a stack of identical layers.
+    #      Chains are split into first and second half, which is how these depositions
+    #      are ordered; the split is asserted below rather than assumed.
+    # PT | Colorir por PROTOFILAMENTO, nao por cadeia. Um arco-iris sobre dez cadeias
+    #      esconde justamente o que a vista pelo eixo existe para mostrar: que a fibrila
+    #      sao dois protofilamentos encaixados, cada um uma pilha de camadas identicas.
+    #      As cadeias sao divididas em primeira e segunda metade, que e como esses
+    #      depositos vem ordenados; a divisao e verificada abaixo, nao suposta.
+    chains = cmd.get_chains("fib")
+    half = len(chains) // 2
+    pf1, pf2 = chains[:half], chains[half:]
+    cmd.color("deepteal", "fib and chain " + "+".join(pf1))
+    cmd.color("orange", "fib and chain " + "+".join(pf2))
     cmd.show("sticks", "fib and sidechain and not hydro")
-    cmd.set("stick_radius", 0.12)
-    cmd.set("cartoon_transparency", 0.15)
+    cmd.set("stick_radius", 0.13)
+    cmd.set("cartoon_transparency", 0.1)
     cmd.orient("fib")
-    # EN/PT: two views - along the fibril axis, then rotated to show the stack
-    cmd.zoom("fib", 3)
+    cmd.zoom("fib", 4, complete=1)
     cmd.png(out.replace(".png", "_axis.png"), width=2000, height=1500, dpi=300, ray=1)
-    cmd.turn("x", 90); cmd.zoom("fib", 3)
+    cmd.turn("x", 90)
+    cmd.zoom("fib", 4, complete=1)
     cmd.png(out.replace(".png", "_side.png"), width=2000, height=1500, dpi=300, ray=1)
+    return dict(n_chains=len(chains), protofilament_1=pf1, protofilament_2=pf2)
 
 
 def main():
@@ -217,10 +262,12 @@ def main():
     render_ago2(cmd, os.path.join(STRUCT_DIR, "6N4O.pdb"), f"{FIG_DIR}/ago2_guide_target.png")
     n_asp = render_bace1(cmd, os.path.join(STRUCT_DIR, "4D8C.cif"), f"{FIG_DIR}/bace1_inhibitor.png")
     prov["4D8C"]["catalytic_aspartates_within_5A_of_ligand"] = int(n_asp)
-    render_fibril(cmd, os.path.join(STRUCT_DIR, "6CU7.cif"),
-                  f"{FIG_DIR}/alpha_synuclein_fibril.png", "alpha-synuclein")
-    render_fibril(cmd, os.path.join(STRUCT_DIR, "5OQV.cif"),
-                  f"{FIG_DIR}/abeta42_fibril.png", "Abeta42")
+    prov["6CU7"]["chain_split"] = render_fibril(
+        cmd, os.path.join(STRUCT_DIR, "6CU7.cif"),
+        f"{FIG_DIR}/alpha_synuclein_fibril.png", "alpha-synuclein")
+    prov["5OQV"]["chain_split"] = render_fibril(
+        cmd, os.path.join(STRUCT_DIR, "5OQV.cif"),
+        f"{FIG_DIR}/abeta42_fibril.png", "Abeta42")
 
     json.dump(prov, open(f"{TAB_DIR}/structure_figure_provenance.json", "w"),
               ensure_ascii=False, indent=1)
