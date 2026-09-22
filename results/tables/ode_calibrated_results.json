@@ -1,0 +1,80 @@
+{
+ "generated_on": "2026-09-22",
+ "measured_parameter_source": "data/extracted/kinetic_parameters.csv",
+ "free_parameters": {
+  "d_mRNA": {
+   "low": 0.03465735902799726,
+   "high": 0.34657359027997264,
+   "why_en": "BACE1 and SNCA mRNA half-life: declared gap K030. Range spans 2-20 h, which brackets every mammalian mRNA median reported.",
+   "why_pt": "Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. A faixa cobre 2-20 h, que contem toda mediana de mRNA de mamifero reportada."
+  },
+  "k_repress": {
+   "low": 0.1,
+   "high": 3.0,
+   "why_en": "Strength of miRNA repression per unit miRNA. Not measured as a rate anywhere in the table.",
+   "why_pt": "Forca da repressao por unidade de miRNA. Nao medida como taxa em nenhum ponto da tabela."
+  },
+  "k_translate": {
+   "low": 0.2,
+   "high": 5.0,
+   "why_en": "Protein output per unit mRNA per hour.",
+   "why_pt": "Producao de proteina por unidade de mRNA por hora."
+  }
+ },
+ "ad_clearance_vs_production": {
+  "abeta_control": 13.523982942445567,
+  "abeta_AD": 19.103435212420983,
+  "abeta_ratio_AD_over_control": 1.412559842297943,
+  "clearance_deficit_percent": 30.263157894736846,
+  "production_difference_percent": 1.4925373134328401,
+  "mimic_fold_needed": 1.493723849372385,
+  "mimic_scan_max": 60.0
+ },
+ "mimic_washout": {
+  "miR-7 (1.7 h, K020)": {
+   "decay_constant_per_hour": 0.407734,
+   "half_life_hours": 1.6999984807740962,
+   "hours_to_return_to_baseline": 5.388867686619756,
+   "days_to_return_to_baseline": 0.2245361536091565
+  },
+  "miR-7 upper bound (5 h, K021)": {
+   "decay_constant_per_hour": 0.138629,
+   "half_life_hours": 5.00001572946458,
+   "hours_to_return_to_baseline": 15.849674868434596,
+   "days_to_return_to_baseline": 0.6604031195181082
+  },
+  "miR-29b (7 h, K017)": {
+   "decay_constant_per_hour": 0.099021,
+   "half_life_hours": 7.000001823451039,
+   "hours_to_return_to_baseline": 22.189480790299225,
+   "days_to_return_to_baseline": 0.924561699595801
+  },
+  "miR-29c (10.6 h, K018)": {
+   "decay_constant_per_hour": 0.0653912,
+   "half_life_hours": 10.6000070431487,
+   "hours_to_return_to_baseline": 33.60122734154167,
+   "days_to_return_to_baseline": 1.400051139230903
+  },
+  "median miRNA (34 h, K016)": {
+   "decay_constant_per_hour": 0.0203867,
+   "half_life_hours": 33.99996961548192,
+   "hours_to_return_to_baseline": 107.77735373239511,
+   "days_to_return_to_baseline": 4.49072307218313
+  }
+ },
+ "alpha_synuclein_ph_gate": {
+  "fibril_number_neutral_pH": 0.001,
+  "fibril_number_acidic_pH": 2.877484075227437,
+  "fold_difference": 2877.484075227437,
+  "fibril_mass_neutral_pH": 16.010581737083797,
+  "fibril_mass_acidic_pH": 1434.343403162081
+ },
+ "free_parameter_sensitivity_scans": 27,
+ "free_parameter_sensitivity_ad_above_control": 26,
+ "free_parameter_sensitivity_flips": 0,
+ "free_parameter_sensitivity_not_evaluable": 1,
+ "abeta_ratio_min": 1.4125598422469827,
+ "abeta_ratio_max": 1.4125598428326753,
+ "abeta_ratio_note_en": "The AD/control monomer ratio is analytically (k_prod_AD/k_clear_AD)/(k_prod_ctrl/k_clear_ctrl) and is therefore independent of every free parameter. The scan confirms this numerically rather than discovering it.",
+ "abeta_ratio_note_pt": "O ratio de monomero AD/controle e analiticamente (k_prod_AD/k_clear_AD)/(k_prod_ctrl/k_clear_ctrl) e, portanto, independente de todo parametro livre. A varredura confirma isso numericamente, em vez de descobrir."
+}
