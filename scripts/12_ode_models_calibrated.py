@@ -148,6 +148,16 @@ def load_measured():
         # human ageing observations
         "aSyn_protein_aging": val("K027"),  # +1.0 = doubling
         "SNCA_mRNA_aging": val("K028"),     # -0.6
+        # Abeta42 aggregate load in human brain, Cohen 2013 Table S2; M
+        "Ab_load_ctrl_median": val("K032"),
+        "Ab_load_AD_median":   val("K035"),
+        "Ab_load_ctrl_lq":     val("K031"),
+        "Ab_load_AD_uq":       val("K036"),
+        # EN/PT: K040/K041 (genome-wide medians) are deliberately NOT loaded here. They
+        #        are kind=derived - computed by this project from a supplementary table,
+        #        not read in a sentence - and they only justify the free-parameter range
+        #        in FREE["d_mRNA"]. The val() guard refuses non-numeric kinds, which is
+        #        what caught an earlier attempt to feed one straight into the model.
     }
     # EN/PT: miR-29a does not decay measurably within the assay (K019, qualitative).
     #        Represented by the slowest rate the data can support, the whole-population
@@ -165,10 +175,12 @@ def load_measured():
 #      scripts varrem; o ponto medio serve apenas para desenhar as curvas.
 FREE = {
     "d_mRNA": dict(low=LN2 / 20.0, high=LN2 / 2.0,
-                   why_en="BACE1 and SNCA mRNA half-life: declared gap K030. Range spans "
-                           "2-20 h, which brackets every mammalian mRNA median reported.",
-                   why_pt="Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. A faixa "
-                           "cobre 2-20 h, que contem toda mediana de mRNA de mamifero reportada."),
+                   why_en="BACE1 and SNCA mRNA half-life: declared gap K030. Neither gene appears "
+                           "in the genome-wide table (checked directly: 0 of 5028 rows), so the "
+                           "range spans 2-20 h and brackets the genome-wide median of 9.9 h (K040).",
+                   why_pt="Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. Nenhum dos dois "
+                           "genes aparece na tabela genomica (checado direto: 0 de 5028 linhas), entao "
+                           "a faixa cobre 2-20 h e contem a mediana genomica de 9,9 h (K040)."),
     "k_repress": dict(low=0.1, high=3.0,
                       why_en="Strength of miRNA repression per unit miRNA. Not measured as a "
                               "rate anywhere in the table.",
@@ -407,6 +419,32 @@ def experiment_mimic_washout(measured):
     return out
 
 
+def experiment_human_aggregate_load(measured):
+    """
+    EN | Where the measured human brain aggregate loads sit relative to the critical
+         fibril concentration above which secondary nucleation takes over. This is a
+         comparison of measured quantities, not a simulation output, so it does not
+         depend on any free parameter.
+    PT | Onde as cargas de agregado medidas em cerebro humano ficam em relacao a
+         concentracao critica de fibrila acima da qual a nucleacao secundaria assume.
+         E uma comparacao entre quantidades medidas, nao saida de simulacao, entao nao
+         depende de nenhum parametro livre.
+    """
+    mstar = measured["M_star_uM"] * 1e-6          # uM -> M
+    out = {}
+    for lab, key in [("control median [K032]", "Ab_load_ctrl_median"),
+                     ("control lower quartile [K031]", "Ab_load_ctrl_lq"),
+                     ("AD median [K035]", "Ab_load_AD_median"),
+                     ("AD upper quartile [K036]", "Ab_load_AD_uq")]:
+        out[lab] = dict(load_nM=measured[key] * 1e9,
+                        multiples_of_M_star=measured[key] / mstar,
+                        above_M_star=bool(measured[key] > mstar))
+    out["M_star_nM [K014]"] = mstar * 1e9
+    out["AD_over_control_median_fold"] = (measured["Ab_load_AD_median"]
+                                          / measured["Ab_load_ctrl_median"])
+    return out
+
+
 def experiment_ph_gate(measured):
     """
     EN | What the pH gate does to aggregate number, holding everything else fixed.
@@ -530,6 +568,7 @@ def main():
     clearance = experiment_clearance_vs_production(measured)
     washout = experiment_mimic_washout(measured)
     ph = experiment_ph_gate(measured)
+    loads = experiment_human_aggregate_load(measured)
     sens = experiment_free_parameter_sensitivity(measured)
 
     print("\n--- AD: clearance versus production ---")
@@ -544,6 +583,17 @@ def main():
     for lab, d in washout.items():
         print(f"  {lab:<32} t_half {d['half_life_hours']:6.1f} h   "
               f"back to baseline in {d['days_to_return_to_baseline']:6.2f} d")
+
+    print("\n--- Human brain Abeta42 aggregate load vs the critical concentration ---")
+    print(f"  M* (secondary nucleation takes over) : {loads['M_star_nM [K014]']:.4g} nM")
+    for lab in ["control lower quartile [K031]", "control median [K032]",
+                "AD median [K035]", "AD upper quartile [K036]"]:
+        d = loads[lab]
+        print(f"  {lab:<32} {d['load_nM']:8.4g} nM   "
+              f"{d['multiples_of_M_star']:8.4g} x M*   "
+              f"{'above' if d['above_M_star'] else 'below'}")
+    print(f"  AD / control, median                 : "
+          f"{loads['AD_over_control_median_fold']:.4g} fold")
 
     print("\n--- alpha-synuclein pH gate ---")
     print(f"  fibril number, neutral pH     : {ph['fibril_number_neutral_pH']:.4g}")
@@ -572,6 +622,7 @@ def main():
         ad_clearance_vs_production=clearance,
         mimic_washout=washout,
         alpha_synuclein_ph_gate=ph,
+        human_abeta_aggregate_load=loads,
         free_parameter_sensitivity_scans=len(sens),
         free_parameter_sensitivity_ad_above_control=len(ok),
         free_parameter_sensitivity_flips=len(flips),

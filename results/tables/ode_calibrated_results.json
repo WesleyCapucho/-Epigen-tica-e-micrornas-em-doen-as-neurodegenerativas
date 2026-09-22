@@ -5,8 +5,8 @@
   "d_mRNA": {
    "low": 0.03465735902799726,
    "high": 0.34657359027997264,
-   "why_en": "BACE1 and SNCA mRNA half-life: declared gap K030. Range spans 2-20 h, which brackets every mammalian mRNA median reported.",
-   "why_pt": "Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. A faixa cobre 2-20 h, que contem toda mediana de mRNA de mamifero reportada."
+   "why_en": "BACE1 and SNCA mRNA half-life: declared gap K030. Neither gene appears in the genome-wide table (checked directly: 0 of 5028 rows), so the range spans 2-20 h and brackets the genome-wide median of 9.9 h (K040).",
+   "why_pt": "Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. Nenhum dos dois genes aparece na tabela genomica (checado direto: 0 de 5028 linhas), entao a faixa cobre 2-20 h e contem a mediana genomica de 9,9 h (K040)."
   },
   "k_repress": {
    "low": 0.1,
@@ -68,6 +68,30 @@
   "fold_difference": 2877.484075227437,
   "fibril_mass_neutral_pH": 16.010581737083797,
   "fibril_mass_acidic_pH": 1434.343403162081
+ },
+ "human_abeta_aggregate_load": {
+  "control median [K032]": {
+   "load_nM": 20.0,
+   "multiples_of_M_star": 2.0,
+   "above_M_star": true
+  },
+  "control lower quartile [K031]": {
+   "load_nM": 2.0,
+   "multiples_of_M_star": 0.2,
+   "above_M_star": false
+  },
+  "AD median [K035]": {
+   "load_nM": 2000.0000000000002,
+   "multiples_of_M_star": 200.00000000000003,
+   "above_M_star": true
+  },
+  "AD upper quartile [K036]": {
+   "load_nM": 3000.0,
+   "multiples_of_M_star": 300.0,
+   "above_M_star": true
+  },
+  "M_star_nM [K014]": 10.0,
+  "AD_over_control_median_fold": 100.00000000000001
  },
  "free_parameter_sensitivity_scans": 27,
  "free_parameter_sensitivity_ad_above_control": 26,

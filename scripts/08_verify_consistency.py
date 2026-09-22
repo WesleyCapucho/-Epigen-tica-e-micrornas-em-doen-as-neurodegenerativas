@@ -259,9 +259,26 @@ def main():
                 check(len(r["note"].strip()) > 80,
                       f"kinetics {pid}: a declared gap must record how it was searched")
                 continue
+            if r["kind"] == "derived":
+                # EN | A value this project COMPUTED from a source table rather than read
+                #      in a sentence. It must name its source and document the derivation,
+                #      and it must not claim a verbatim quote it does not have: quoting a
+                #      sentence that never contained the number is how a computed figure
+                #      starts looking like a measured one.
+                # PT | Valor que este projeto CALCULOU de uma tabela-fonte em vez de ler
+                #      numa frase. Precisa nomear a fonte e documentar a derivacao, e nao
+                #      pode alegar citacao verbatim que nao tem: citar uma frase que nunca
+                #      continha o numero e como uma cifra calculada passa a parecer medida.
+                check(not r["verbatim_quote"].strip(),
+                      f"kinetics {pid}: a derived value must not carry a verbatim quote")
+                check(bool(r["source"].strip()) and bool(r["value_si"].strip()),
+                      f"kinetics {pid}: a derived value needs a source and an SI value")
+                check("DERIVED" in r["note"] or "derived" in r["note"],
+                      f"kinetics {pid}: a derived value must document its derivation")
+                continue
             check(bool(r["verbatim_quote"].strip()), f"kinetics {pid}: no verbatim quote")
             check(bool(r["pmid"].strip() or r["doi"].strip()), f"kinetics {pid}: no PMID or DOI")
-            check(r["kind"] in ("numeric", "qualitative_constraint", "declared_gap"),
+            check(r["kind"] in ("numeric", "qualitative_constraint", "declared_gap", "derived"),
                   f"kinetics {pid}: unknown kind {r['kind']!r}")
             check(bool(r["species"].strip()), f"kinetics {pid}: species not recorded")
             if r["kind"] != "numeric":
