@@ -245,9 +245,23 @@ def main():
         check(len(set(kids)) == len(kids), "kinetics: duplicate param_id")
         for r in kin:
             pid = r["param_id"]
+            if r["kind"] == "declared_gap":
+                # EN | A parameter that was searched for and not found. It must say how it
+                #      was searched and must not borrow a source, a quote or a number -
+                #      attaching the DOI of a paper that was rejected would make a gap look
+                #      like evidence.
+                # PT | Um parametro procurado e nao encontrado. Precisa dizer como foi
+                #      buscado e nao pode emprestar fonte, citacao nem numero - anexar o DOI
+                #      de um artigo rejeitado faria uma lacuna parecer evidencia.
+                check(not r["value_si"].strip() and not r["verbatim_quote"].strip()
+                      and not r["pmid"].strip() and not r["doi"].strip(),
+                      f"kinetics {pid}: a declared gap must not carry a value, quote or source")
+                check(len(r["note"].strip()) > 80,
+                      f"kinetics {pid}: a declared gap must record how it was searched")
+                continue
             check(bool(r["verbatim_quote"].strip()), f"kinetics {pid}: no verbatim quote")
             check(bool(r["pmid"].strip() or r["doi"].strip()), f"kinetics {pid}: no PMID or DOI")
-            check(r["kind"] in ("numeric", "qualitative_constraint"),
+            check(r["kind"] in ("numeric", "qualitative_constraint", "declared_gap"),
                   f"kinetics {pid}: unknown kind {r['kind']!r}")
             check(bool(r["species"].strip()), f"kinetics {pid}: species not recorded")
             if r["kind"] != "numeric":
