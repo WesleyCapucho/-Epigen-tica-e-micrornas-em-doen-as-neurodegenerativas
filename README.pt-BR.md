@@ -19,7 +19,7 @@ Dois corpos de trabalho convivem aqui:
 |---|---|---|
 | **Bibliométrica** | Mineração do corpus PubMed, extração de miRNAs, PCA, clusterização, rede miRNA–doença, modelos EDO exploratórios dos eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína | `01`, `02` |
 | **Meta-analítica** | Busca sistemática PICO, triagem PRISMA, extração de texto completo, meta-análise de efeitos aleatórios de AUC, panorama de translação clínica | `03`–`11` |
-| **Mecanística** | Modelos EDO dos dois eixos construídos sobre medidas cinéticas publicadas; figuras estruturais renderizadas a partir de coordenadas depositadas; viabilidade de dosagem a partir de constantes de decaimento medidas | `12`, `13`, `17` |
+| **Mecanística** | Modelos EDO dos dois eixos construídos sobre medidas cinéticas publicadas; figuras estruturais renderizadas a partir de coordenadas depositadas; viabilidade de dosagem a partir de constantes de decaimento medidas; GIFs animados das mesmas simulações | `12`, `13`, `17`, `19` |
 | **Apreciação crítica** | Risco de viés QUADAS-2, síntese bivariada de sensibilidade e especificidade, certeza da evidência GRADE | `14`–`16` |
 
 A camada meta-analítica existe para responder a uma pergunta que a monografia de origem levantou sobre si mesma: frequência bibliométrica e validação experimental não são fontes independentes de evidência, porque os miRNAs mais estudados acumulam as duas. A acurácia diagnóstica agregada é externa a esse laço.
@@ -80,6 +80,7 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 15_bivariate_srocc.py                      # Modelo bivariado de Reitsma + ROC sumária
 │   ├── 16_grade_certainty.py                      # Certeza GRADE + resumo de achados por 1000
 │   ├── 17_mimic_dosing_feasibility.py             # O que a dosagem repetida custa a um mimético instável
+│   ├── 19_mechanism_animations.py                 # GIFs animados de mecanismos já simulados
 │   ├── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
 │   └── tools/mirror_extraction_json.py            # Regenera o espelho JSON da tabela de extração
 ├── docs/
@@ -118,6 +119,7 @@ python scripts/08_verify_consistency.py           # precisa passar antes de vers
 # Camada mecanística, offline
 python scripts/12_ode_models_calibrated.py
 python scripts/17_mimic_dosing_feasibility.py
+python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # só é necessário para o scripts/13
 python scripts/13_structure_figures.py
 ```
@@ -136,7 +138,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1644 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1651 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -181,6 +183,7 @@ O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula
 - A comparação entre a dose de miR-29 que o modelo pede e a queda que Hébert et al. mediram atravessa sistemas: um estado estacionário num modelo de cérebro humano contra uma transfecção transitória de linhagem de neuroblastoma. Ela responde se a intervenção exigida é maior ou menor que uma já alcançada em células, e nada além disso.
 - As figuras estruturais são ilustração. Não testam nada. As resoluções vêm de critérios diferentes (6CU7 FSC 0,5; 5OQV FSC 0,143) e não são diretamente comparáveis.
 - O `scripts/17` supõe que um mimético entregue seja eliminado na mesma taxa de primeira ordem da espécie endógena. Um mimético quimicamente estabilizado não seria, e é exatamente por isso que a saída dele é um fator de estabilização **necessário** (20× para o miR-7 tolerar dose diária) e não um veredito de viabilidade. O cálculo não tem parâmetro livre — a dose se cancela na razão entre pico e média — mas é uma afirmação sobre farmacocinética em abstrato, não sobre um veículo de entrega ou tecido em particular.
+- O `scripts/19` anima três dos mecanismos acima (Aβ42 alcançando o novo estado estacionário, a eliminação de dose única, o dente de serra da dosagem repetida) reaproveitando exatamente as funções do `scripts/12` e do `scripts/17`, sem rederivá-las — o último quadro de cada GIF é conferido contra o mesmo JSON com que as figuras estáticas são conferidas. Ele deliberadamente **não** anima o crescimento de fibrila da comporta de pH da α-sinucleína, porque a constante de velocidade em pH ácido dessa curva é declarada ilustrativa (K042, só qualitativa): pôr uma velocidade específica na tela para uma grandeza que este projeto reporta só como direção, não magnitude, seria mais enganoso em movimento do que já é parado. Esses GIFs são ilustração de simulações que já estão neste repositório, não um experimento novo.
 
 ## Integridade científica e uso de IA
 

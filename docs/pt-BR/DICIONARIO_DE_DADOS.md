@@ -209,6 +209,14 @@ Uma linha por espécie e intervalo de dose: `species`, `param_id` (a linha da ta
 
 O mesmo cálculo com as comparações que o usam: a constante de decaimento de cada espécie e seu `param_id`, a comparação de dosagem diária contra a referência de estabilidade mediana (penalidade, intervalo equivalente, fator de estabilização necessário) e a suposição declarada de que o mimético entregue é eliminado na taxa endógena — por isso a saída é um fator de estabilização necessário e não um veredito de viabilidade.
 
+## `results/tables/mechanism_animations.json`
+
+Os números que cada animação em `results/figures/anim_*.gif` desenha: a razão final Aβ42 DA/controle, os tempos de eliminação das duas espécies, e as razões pico sobre média das duas espécies e a penalidade entre elas. Todo campo é recalculado pelo `scripts/08` a partir do `ode_calibrated_results.json` e do `mimic_dosing_feasibility.json` e exigido a bater, para que o manifesto não possa se afastar das tabelas de onde seus próprios números vieram.
+
+## `results/figures/anim_*.gif`
+
+Três GIFs animados, cada um nos dois idiomas: `anim_ad_monomer` (Aβ42 acumulando até o estado estacionário, sem parâmetro livre), `anim_mimic_washout` (um bolus único de mimético decaindo na meia-vida medida), `anim_dosing_sawtooth` (a penalidade de pico sobre média da dosagem repetida como um ciclo em movimento). Cada um é produzido pelo `scripts/19_mechanism_animations.py`, que importa suas equações do `scripts/12` e do `scripts/17` em vez de rederivá-las. A trajetória da comporta de pH da α-sinucleína não está entre eles, porque sua constante de velocidade em pH ácido é ilustrativa e não medida (K042).
+
 ## `results/figures/`
 
 Toda figura existe duas vezes, `<nome>.en.png` e `<nome>.pt-BR.png`. As duas são desenhadas pelo mesmo código, a partir dos mesmos vetores, na mesma execução; só o texto dos rótulos muda.

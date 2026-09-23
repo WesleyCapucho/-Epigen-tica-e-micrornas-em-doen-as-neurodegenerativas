@@ -26,6 +26,7 @@ PT | Este repositorio e um pacote de reprodutibilidade: dados brutos, scripts,
 """
 
 import csv
+import os
 import json
 import math
 import re
@@ -54,6 +55,7 @@ BIVARIATE_JSON = "results/tables/bivariate_model.json"
 GRADE_JSON = "results/tables/grade_certainty.json"
 DOSING_JSON = "results/tables/mimic_dosing_feasibility.json"
 DOSING_CSV = "results/tables/mimic_dosing_feasibility.csv"
+ANIM_JSON = "results/tables/mechanism_animations.json"
 
 
 def study_id(row):
@@ -879,6 +881,61 @@ def main():
             check(abs(p["fold_stabilisation_required"] - d / ref) < 1e-2,
                   f"dosing {name}: matching the reference at a fixed interval means "
                   "matching its decay constant, so the stabilisation is d/d_ref")
+
+    # --- 8g. Mechanism animations recompute the same simulation ------------
+    # EN | An animation is a movie of a simulation, and the only thing worth checking
+    #      about it automatically is whether it is a movie of THIS simulation: its final
+    #      frame has to land on the same numbers ode_calibrated_results.json and
+    #      mimic_dosing_feasibility.json already carry. This does not open the GIF files
+    #      - matplotlib figures are not meaningfully diffable - it recomputes the
+    #      manifest scripts/19 wrote its numbers from and compares that manifest to the
+    #      already-verified tables, the same one step removed from the pixels that every
+    #      other figure check in this file uses.
+    # PT | Uma animacao e o filme de uma simulacao, e a unica coisa que vale a pena
+    #      conferir automaticamente nela e se e o filme DESTA simulacao: seu ultimo
+    #      quadro tem de cair nos mesmos numeros que o ode_calibrated_results.json e o
+    #      mimic_dosing_feasibility.json ja guardam. Isto nao abre os arquivos GIF -
+    #      figuras do matplotlib nao sao comparaveis de forma significativa - recalcula
+    #      o manifesto do qual o scripts/19 tirou seus numeros e compara esse manifesto
+    #      as tabelas ja verificadas, o mesmo passo removido dos pixels que toda outra
+    #      checagem de figura deste arquivo usa.
+    try:
+        anim = json.load(open(ANIM_JSON, encoding="utf-8"))
+    except FileNotFoundError:
+        anim = None
+    if anim is not None and ode is not None:
+        clr = ode["ad_clearance_vs_production"]
+        check(abs(anim["ad_monomer_accumulation"]["ratio_AD_over_control"]
+                  - clr["abeta_ratio_AD_over_control"]) < 1e-3,
+              "animation manifest: AD/control ratio disagrees with ode_calibrated_results.json")
+
+        wo = ode["mimic_washout"]
+        m = anim["mimic_washout"]
+        check(m["fast_species"] in wo and m["slow_species"] in wo,
+              "animation manifest: washout species are not in ode_calibrated_results.json")
+        if m["fast_species"] in wo and m["slow_species"] in wo:
+            check(abs(m["fast_hours_to_baseline"]
+                      - wo[m["fast_species"]]["hours_to_return_to_baseline"]) < 1e-3,
+                  "animation manifest: fast-species washout time disagrees with the ODE table")
+            check(abs(m["slow_hours_to_baseline"]
+                      - wo[m["slow_species"]]["hours_to_return_to_baseline"]) < 1e-3,
+                  "animation manifest: slow-species washout time disagrees with the ODE table")
+
+    if anim is not None and dos is not None:
+        d = anim["dosing_sawtooth"]
+        mir7 = dos["daily_dosing_comparison"]["miR-7"]
+        check(abs(d["peak_over_average_fast"] - mir7["peak_over_average_daily"]) < 1e-3,
+              "animation manifest: fast-species peak/average disagrees with mimic_dosing_feasibility.json")
+        check(abs(d["peak_over_average_slow"] - mir7["reference_peak_over_average_daily"]) < 1e-3,
+              "animation manifest: reference peak/average disagrees with mimic_dosing_feasibility.json")
+        check(abs(d["penalty_ratio"] - mir7["penalty_versus_reference"]) < 1e-3,
+              "animation manifest: penalty ratio disagrees with mimic_dosing_feasibility.json")
+
+    anim_stems = ("anim_ad_monomer", "anim_mimic_washout", "anim_dosing_sawtooth")
+    for stem in anim_stems:
+        for lang in ("en", "pt-BR"):
+            fp = f"results/figures/{stem}.{lang}.gif"
+            claim(os.path.isfile(fp), f"animation: {fp} is missing")
 
     # --- 8f. The corpus holds each article once ----------------------------
     # EN | Deduplication happens in scripts/09 and is easy to break silently: reading the

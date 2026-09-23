@@ -19,7 +19,7 @@ Two bodies of work live here:
 |---|---|---|
 | **Bibliometric** | PubMed corpus mining, miRNA extraction, PCA, clustering, miRNA–disease network, exploratory ODE models of the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes | `01`, `02` |
 | **Meta-analytic** | PICO systematic search, PRISMA screening, full-text extraction, random-effects meta-analysis of AUC, clinical-translation landscape | `03`–`11` |
-| **Mechanistic** | ODE models of both axes built on published kinetic measurements; structural figures rendered from deposited coordinates; dosing feasibility from measured decay constants | `12`, `13`, `17` |
+| **Mechanistic** | ODE models of both axes built on published kinetic measurements; structural figures rendered from deposited coordinates; dosing feasibility from measured decay constants; animated GIFs of the same simulations | `12`, `13`, `17`, `19` |
 | **Appraisal** | QUADAS-2 risk of bias, bivariate sensitivity–specificity synthesis, GRADE certainty of evidence | `14`–`16` |
 
 The meta-analytic layer exists to answer a question the source monograph raised about itself: bibliometric frequency and experimental validation are not independent sources of evidence, because the most-studied miRNAs accumulate both. Pooled diagnostic accuracy is external to that loop.
@@ -80,6 +80,7 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 15_bivariate_srocc.py                      # Reitsma bivariate model + summary ROC
 │   ├── 16_grade_certainty.py                      # GRADE certainty + summary of findings per 1000
 │   ├── 17_mimic_dosing_feasibility.py             # What repeated dosing costs a fast-decaying mimic
+│   ├── 19_mechanism_animations.py                 # Animated GIFs of already-simulated mechanisms
 │   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR
 │   └── tools/mirror_extraction_json.py            # Regenerates the JSON mirror of the extraction table
 ├── docs/
@@ -118,6 +119,7 @@ python scripts/08_verify_consistency.py           # must pass before committing
 # Mechanistic layer, offline
 python scripts/12_ode_models_calibrated.py
 python scripts/17_mimic_dosing_feasibility.py
+python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # only needed for scripts/13
 python scripts/13_structure_figures.py
 ```
@@ -136,7 +138,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1644 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1651 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -181,6 +183,7 @@ Ten defects in this pipeline were found after results had already been produced.
 - The comparison between the miR-29 dose the model asks for and the knockdown Hébert et al. measured crosses systems: a steady state in a model of human brain against a transient transfection of a neuroblastoma line. It answers whether the required intervention is larger or smaller than one already achieved in cells, and nothing more.
 - The structure figures are illustration. They test nothing. Resolutions come from different criteria (6CU7 FSC 0.5, 5OQV FSC 0.143) and are not directly comparable.
 - `scripts/17` assumes a delivered mimic is cleared at the same first-order rate as the endogenous species. A chemically stabilised mimic would not be, which is exactly why its output is a **required** fold stabilisation (20× for miR-7 to tolerate daily dosing) rather than a verdict on feasibility. The calculation has no free parameter — the dose cancels out of the peak-to-average ratio — but it is a statement about pharmacokinetics in the abstract, not about any particular delivery vehicle or tissue.
+- `scripts/19` animates three of the mechanisms above (Aβ42 reaching its new steady state, a single-dose washout, the repeated-dosing sawtooth) by reusing the exact functions from `scripts/12` and `scripts/17`, not by re-deriving them — each GIF's final frame is checked against the same JSON the static figures are checked against. It deliberately does **not** animate the α-synuclein pH-gate fibril growth, because that curve's acidic-pH rate constant is declared illustrative (K042, qualitative only): putting a specific speed on screen for a quantity this project reports only as a direction, not a magnitude, would be more misleading in motion than it already is standing still. These GIFs are illustration of simulations already in this repository, not a new experiment.
 
 ## Scientific integrity and use of AI
 
