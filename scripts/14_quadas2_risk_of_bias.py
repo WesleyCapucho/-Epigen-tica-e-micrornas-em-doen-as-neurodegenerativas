@@ -57,6 +57,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _bilingual import LANGS, t, fig_path
+
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
@@ -68,13 +71,18 @@ HIGH, LOW, UNCLEAR, UNRATED = "high", "low", "unclear", "unrated"
 # PT | Os quatro dominios de risco de vies e os tres de aplicabilidade do QUADAS-2, com
 #      as perguntas-sinal que cada regra responde.
 DOMAINS = OrderedDict([
-    ("rob_patient_selection", "Risk of bias: patient selection"),
-    ("rob_index_test", "Risk of bias: index test"),
-    ("rob_reference_standard", "Risk of bias: reference standard"),
-    ("rob_flow_timing", "Risk of bias: flow and timing"),
-    ("app_patient_selection", "Applicability: patient selection"),
-    ("app_index_test", "Applicability: index test"),
-    ("app_reference_standard", "Applicability: reference standard"),
+    ("rob_patient_selection", ("Risk of bias: patient selection",
+                               "Risco de viés: seleção de pacientes")),
+    ("rob_index_test", ("Risk of bias: index test", "Risco de viés: teste índice")),
+    ("rob_reference_standard", ("Risk of bias: reference standard",
+                                "Risco de viés: padrão de referência")),
+    ("rob_flow_timing", ("Risk of bias: flow and timing",
+                         "Risco de viés: fluxo e tempo")),
+    ("app_patient_selection", ("Applicability: patient selection",
+                               "Aplicabilidade: seleção de pacientes")),
+    ("app_index_test", ("Applicability: index test", "Aplicabilidade: teste índice")),
+    ("app_reference_standard", ("Applicability: reference standard",
+                                "Aplicabilidade: padrão de referência")),
 ])
 
 
@@ -266,12 +274,13 @@ def assess(rows_by_study):
     return out
 
 
-def plot(assessment, path):
+def plot(assessment, path, lang):
     """EN/PT: the standard QUADAS-2 stacked bar, one row per domain."""
     order = [HIGH, UNCLEAR, LOW, UNRATED]
     colour = {HIGH: "#c0392b", UNCLEAR: "#f0c419", LOW: "#2e8b57", UNRATED: "#9aa0a6"}
-    label = {HIGH: "High | Alto", UNCLEAR: "Unclear | Incerto",
-             LOW: "Low | Baixo", UNRATED: "Not assessed | Nao avaliado"}
+    label = {HIGH: t(lang, "High", "Alto"), UNCLEAR: t(lang, "Unclear", "Incerto"),
+             LOW: t(lang, "Low", "Baixo"),
+             UNRATED: t(lang, "Not assessed", "Não avaliado")}
     keys = list(DOMAINS)
     fig, ax = plt.subplots(figsize=(10, 4.6))
     n = len(assessment)
@@ -290,11 +299,12 @@ def plot(assessment, path):
                         color="white" if v != UNCLEAR else "black")
             left += frac
     ax.set_yticks(range(len(keys)))
-    ax.set_yticklabels([DOMAINS[k] for k in reversed(keys)], fontsize=9)
-    ax.set_xlabel(f"per cent of studies | por cento dos estudos  (n = {n})")
+    ax.set_yticklabels([t(lang, *DOMAINS[k]) for k in reversed(keys)], fontsize=9)
+    ax.set_xlabel(t(lang, f"per cent of studies  (n = {n})",
+                    f"por cento dos estudos  (n = {n})"))
     ax.set_xlim(0, 100)
-    ax.set_title("QUADAS-2 | risk of bias and applicability\n"
-                 "Risco de vies e aplicabilidade", fontsize=11)
+    ax.set_title(t(lang, "QUADAS-2: risk of bias and applicability",
+                   "QUADAS-2: risco de viés e aplicabilidade"), fontsize=11)
     handles = [plt.Rectangle((0, 0), 1, 1, color=colour[v]) for v in order]
     ax.legend(handles, [label[v] for v in order], loc="lower center",
               bbox_to_anchor=(0.5, -0.32), ncol=4, fontsize=8, frameon=False)
@@ -346,7 +356,8 @@ def main():
         c = Counter(r[key] for r in assessment)
         summary[key] = OrderedDict((v, c.get(v, 0)) for v in (HIGH, UNCLEAR, LOW, UNRATED))
 
-    plot(assessment, f"{FIG_DIR}/quadas2_summary.png")
+    for lang in LANGS:
+        plot(assessment, fig_path(FIG_DIR, "quadas2_summary", lang), lang)
 
     payload = OrderedDict([
         ("instrument", "QUADAS-2 (Whiting et al., Ann Intern Med 2011;155:529-536)"),
@@ -393,9 +404,9 @@ def main():
     print("EN | QUADAS-2 risk of bias | PT | QUADAS-2 risco de vies")
     print("=" * 78)
     print(f"  studies assessed | estudos avaliados : {len(assessment)}")
-    for key, title in DOMAINS.items():
+    for key, titles in DOMAINS.items():
         c = summary[key]
-        print(f"  {title:42s} high {c[HIGH]:3d} | unclear {c[UNCLEAR]:3d} | "
+        print(f"  {titles[0]:42s} high {c[HIGH]:3d} | unclear {c[UNCLEAR]:3d} | "
               f"low {c[LOW]:3d} | unrated {c[UNRATED]:3d}")
     print(f"\n  EN | Uniform patient-selection judgements are partly a consequence of the")
     print(f"       eligibility rule: {sum(excluded_contrasts.values())} estimates from "
@@ -404,7 +415,8 @@ def main():
     print(f"  PT | Julgamentos uniformes de selecao vem em parte da regra de elegibilidade.")
     print(f"\nEN/PT -> {TAB_DIR}/quadas2_assessment.csv")
     print(f"EN/PT -> {TAB_DIR}/quadas2_summary.json")
-    print(f"EN/PT -> {FIG_DIR}/quadas2_summary.png")
+    for lang in LANGS:
+        print(f"EN/PT -> {fig_path(FIG_DIR, 'quadas2_summary', lang)}")
     return 0
 
 

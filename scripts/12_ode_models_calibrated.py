@@ -99,6 +99,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# EN/PT: imported as tr because t is the time vector throughout this script
+from _bilingual import LANGS, t as tr, fig_path
+
 KINETICS = "data/extracted/kinetic_parameters.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
@@ -842,56 +846,75 @@ def experiment_free_parameter_sensitivity(measured, n=9):
     return rows
 
 
-def figures(measured):
+def figures(measured, lang):
     os.makedirs(FIG_DIR, exist_ok=True)
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 
     # --- miR-29 paralogues decay apart ---------------------------------------
     ax = axes[0, 0]
     t = np.linspace(0, 48, 400)
-    for lab, d, pid in [("miR-29a (no measurable decay)", measured["d_miR29a_proxy"], "K019"),
+    for lab, d, pid in [(tr(lang, "miR-29a (no measurable decay)",
+                            "miR-29a (sem decaimento mensurável)"),
+                         measured["d_miR29a_proxy"], "K019"),
                         ("miR-29b (7 h)", measured["d_miR29b"], "K017"),
-                        ("miR-29c (10.6 h)", measured["d_miR29c"], "K018")]:
+                        ("miR-29c (10,6 h)" if lang != "en" else "miR-29c (10.6 h)",
+                         measured["d_miR29c"], "K018")]:
         ax.plot(t, np.exp(-d * t), label=f"{lab}  [{pid}]")
-    ax.set_title("miR-29 paralogues are not one species\nParalogos de miR-29 nao sao uma especie", fontsize=9)
-    ax.set_xlabel("hours | horas"); ax.set_ylabel("fraction remaining | fracao restante")
+    ax.set_title(tr(lang, "miR-29 paralogues are not one species",
+                   "Parálogos de miR-29 não são uma espécie só"), fontsize=9)
+    ax.set_xlabel(tr(lang, "hours", "horas"))
+    ax.set_ylabel(tr(lang, "fraction remaining", "fração restante"))
     ax.legend(fontsize=7); ax.grid(alpha=.3)
 
     # --- miR-7 washout -------------------------------------------------------
     ax = axes[0, 1]
     t = np.linspace(0, 120, 400)
-    for lab, d in [("miR-7 (1.7 h) [K020]", measured["d_miR7"]),
-                   ("miR-7 bound (5 h) [K021]", measured["d_miR7_slow"]),
-                   ("median miRNA (34 h) [K016]", measured["d_miR_median"])]:
+    for lab, d in [(tr(lang, "miR-7 (1.7 h) [K020]", "miR-7 (1,7 h) [K020]"),
+                    measured["d_miR7"]),
+                   (tr(lang, "miR-7 upper bound (5 h) [K021]",
+                       "miR-7 limite superior (5 h) [K021]"), measured["d_miR7_slow"]),
+                   (tr(lang, "median miRNA (34 h) [K016]",
+                       "miRNA mediano (34 h) [K016]"), measured["d_miR_median"])]:
         ax.plot(t, 1.0 + 9.0 * np.exp(-d * t), label=lab)
     ax.axhline(1.1, ls="--", c="k", lw=.8)
     ax.set_yscale("log")
-    ax.set_title("A 10-fold mimic bolus, by measured decay\nBolus 10x de mimetico, pelo decaimento medido", fontsize=9)
-    ax.set_xlabel("hours | horas"); ax.set_ylabel("fold over baseline | vezes o basal")
+    ax.set_title(tr(lang, "A 10-fold mimic bolus, by measured decay",
+                   "Bolus de mimético de 10x, pelo decaimento medido"), fontsize=9)
+    ax.set_xlabel(tr(lang, "hours", "horas"))
+    ax.set_ylabel(tr(lang, "fold over baseline", "vezes o basal"))
     ax.legend(fontsize=7); ax.grid(alpha=.3)
 
     # --- Abeta: clearance vs production --------------------------------------
     ax = axes[1, 0]
     sc, _ = run_ad(measured, "control")
     sd, _ = run_ad(measured, "AD")
-    ax.plot(sc.t / 24.0, sc.y[5], label="control | controle")
-    ax.plot(sd.t / 24.0, sd.y[5], label="AD (clearance -30%) | AD (depuracao -30%)")
-    ax.set_title("Abeta42: the human lever is clearance [K001-K004]\nAbeta42: a alavanca humana e a depuracao", fontsize=9)
-    ax.set_xlabel("days | dias"); ax.set_ylabel("Abeta (relative | relativo)")
+    ax.plot(sc.t / 24.0, sc.y[5], label=tr(lang, "control", "controle"))
+    ax.plot(sd.t / 24.0, sd.y[5],
+            label=tr(lang, "AD (clearance -30%)", "DA (depuração -30%)"))
+    ax.set_title(tr(lang, "Abeta42: the human lever is clearance [K001-K004]",
+                   "Aβ42: a alavanca humana é a depuração [K001-K004]"), fontsize=9)
+    ax.set_xlabel(tr(lang, "days", "dias"))
+    ax.set_ylabel(tr(lang, "Abeta (relative)", "Aβ (relativo)"))
     ax.legend(fontsize=7); ax.grid(alpha=.3)
 
     # --- alpha-syn aggregation, pH gate --------------------------------------
     ax = axes[1, 1]
     sn, _ = run_pd(measured, acidic=False)
     sa, _ = run_pd(measured, acidic=True)
-    ax.plot(sn.t / 24.0, sn.y[4], label="neutral pH: no self-amplification [K011]")
-    ax.plot(sa.t / 24.0, sa.y[4], label="acidic pH: secondary nucleation on [K042]")
-    ax.set_title("alpha-synuclein fibril mass\nMassa de fibrila de alfa-sinucleina", fontsize=9)
-    ax.set_xlabel("days | dias"); ax.set_ylabel("fibril mass | massa (relative)")
+    ax.plot(sn.t / 24.0, sn.y[4],
+            label=tr(lang, "neutral pH: no self-amplification [K011]",
+                    "pH neutro: sem autoamplificação [K011]"))
+    ax.plot(sa.t / 24.0, sa.y[4],
+            label=tr(lang, "acidic pH: secondary nucleation on [K042]",
+                    "pH ácido: nucleação secundária ligada [K042]"))
+    ax.set_title(tr(lang, "alpha-synuclein fibril mass",
+                   "Massa de fibrila de α-sinucleína"), fontsize=9)
+    ax.set_xlabel(tr(lang, "days", "dias"))
+    ax.set_ylabel(tr(lang, "fibril mass (relative)", "massa de fibrila (relativa)"))
     ax.legend(fontsize=7); ax.grid(alpha=.3)
 
     fig.tight_layout()
-    fig.savefig(f"{FIG_DIR}/ode_calibrated_overview.png", dpi=200)
+    fig.savefig(fig_path(FIG_DIR, "ode_calibrated_overview", lang), dpi=200)
     plt.close(fig)
 
 
@@ -1033,10 +1056,12 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(sens[0].keys()))
         w.writeheader(); w.writerows(sens)
 
-    figures(measured)
+    for lang in LANGS:
+        figures(measured, lang)
     print(f"\nEN/PT -> {TAB_DIR}/ode_calibrated_results.json")
     print(f"EN/PT -> {TAB_DIR}/ode_free_parameter_sensitivity.csv")
-    print(f"EN/PT -> {FIG_DIR}/ode_calibrated_overview.png")
+    for lang in LANGS:
+        print(f"EN/PT -> {fig_path(FIG_DIR, 'ode_calibrated_overview', lang)}")
     return 0
 
 

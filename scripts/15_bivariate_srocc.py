@@ -79,6 +79,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _bilingual import LANGS, t, fig_path
+
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
@@ -323,7 +326,7 @@ def sroc_points(fit, n=200):
     return xs, ys
 
 
-def plot(fit, meta, primary, path):
+def plot(fit, meta, primary, path, lang):
     fig, ax = plt.subplots(figsize=(6.4, 6.0))
     sizes = [30 + 2.2 * (m["n_cases"] + m["n_controls"]) ** 0.5 * 3 for m in meta]
     colours = {"AD": "#1f77b4", "PD": "#d62728"}
@@ -334,10 +337,10 @@ def plot(fit, meta, primary, path):
     xs, ys = sroc_points(fit)
     if xs:
         ax.plot(xs, ys, color="black", lw=1.6, zorder=4,
-                label="SROC (bivariate | bivariada)")
+                label=t(lang, "SROC (bivariate)", "ROC sumária (bivariada)"))
     ax.scatter([1 - primary["summary_specificity"]], [primary["summary_sensitivity"]],
                marker="D", s=95, color="black", zorder=5,
-               label=(f"summary | sumario  "
+               label=(t(lang, "summary  ", "sumário  ") +
                       f"{primary['summary_sensitivity']:.2f} / "
                       f"{primary['summary_specificity']:.2f}"))
     ax.plot([1 - primary["specificity_ci_low"], 1 - primary["specificity_ci_high"]],
@@ -347,13 +350,16 @@ def plot(fit, meta, primary, path):
             color="black", lw=1.2, zorder=5)
     ax.plot([0, 1], [0, 1], ls=":", color="grey", lw=1)
     for d, c in colours.items():
-        ax.scatter([], [], color=c, alpha=0.6, s=60, label=f"{d} study | estudo")
+        ax.scatter([], [], color=c, alpha=0.6, s=60,
+                   label=t(lang, f"{d} study", f"estudo de {d}"))
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-    ax.set_xlabel("1 - specificity | 1 - especificidade")
-    ax.set_ylabel("sensitivity | sensibilidade")
-    ax.set_title("Bivariate summary ROC | ROC sumaria bivariada\n"
-                 f"{primary['n_studies']} studies, one estimate each | "
-                 f"{primary['n_studies']} estudos, uma estimativa cada", fontsize=10)
+    ax.set_xlabel(t(lang, "1 - specificity", "1 - especificidade"))
+    ax.set_ylabel(t(lang, "sensitivity", "sensibilidade"))
+    ax.set_title(t(lang,
+                   "Bivariate summary ROC\n"
+                   f"{primary['n_studies']} studies, one estimate each",
+                   "ROC sumária bivariada\n"
+                   f"{primary['n_studies']} estudos, uma estimativa cada"), fontsize=10)
     ax.legend(loc="lower right", fontsize=8, frameon=False)
     ax.grid(alpha=0.25)
     fig.tight_layout()
@@ -412,7 +418,8 @@ def main():
         for m in meta_all:
             w.writerow({**m, "in_primary_analysis": m["record_id"] in primary_ids})
 
-    plot(fit_one, meta_one, primary, f"{FIG_DIR}/bivariate_sroc.png")
+    for lang in LANGS:
+        plot(fit_one, meta_one, primary, fig_path(FIG_DIR, "bivariate_sroc", lang), lang)
 
     payload = dict(
         model="bivariate random effects (Reitsma et al., J Clin Epidemiol 2005;58:982-990)",
@@ -442,7 +449,8 @@ def main():
     print(f"\nEN/PT -> {TAB_DIR}/bivariate_summary.csv")
     print(f"EN/PT -> {TAB_DIR}/bivariate_input_estimates.csv")
     print(f"EN/PT -> {TAB_DIR}/bivariate_model.json")
-    print(f"EN/PT -> {FIG_DIR}/bivariate_sroc.png")
+    for lang in LANGS:
+        print(f"EN/PT -> {fig_path(FIG_DIR, 'bivariate_sroc', lang)}")
     return 0
 
 

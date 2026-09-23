@@ -25,6 +25,7 @@ PT | Entrada: os mesmos arquivos acima.
 """
 
 import os
+import sys
 import re
 import json
 import numpy as np
@@ -38,6 +39,9 @@ COUNTS = "data/raw/systematic_review_2026/mirna_mention_counts.csv"
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _bilingual import LANGS, t, fig_path
 
 MIRNA_RE = re.compile(
     r'\b(?:hsa[-‐‑])?(?:miR|let|mir)[-‐‑]\s?[0-9][0-9a-zA-Z]*'
@@ -183,34 +187,36 @@ def main():
     # PT | Preenchido = estimativa elegivel para o pool primario; vazado =
     #      sinalizada fora (instavel, comparador errado, populacao divergente).
     #      Mostrar as duas, com a distincao visivel, e mais honesto que ocultar.
-    fig, ax = plt.subplots(figsize=(8.6, 6.0))
-    is_elig = merged["family"].isin(eligible_fams).values
-    ax.scatter(x[is_elig], y[is_elig], s=68, color="#3B6EA5", alpha=0.9,
-               edgecolor="white", zorder=3, label="eligible | elegivel")
-    ax.scatter(x[~is_elig], y[~is_elig], s=68, facecolor="none",
-               edgecolor="#3B6EA5", linewidth=1.4, zorder=3,
-               label="flagged out | sinalizada fora")
-    for i, (_, r_) in enumerate(merged.iterrows()):
-        # EN/PT: alternate label side to reduce overlap in the dense region
-        dx, ha = (7, "left") if i % 2 == 0 else (-7, "right")
-        ax.annotate(r_["family"],
-                    (r_["n_articles_mentioning"], r_["mean_auc"]),
-                    textcoords="offset points", xytext=(dx, 4),
-                    ha=ha, fontsize=7.4)
-    ax.axhline(0.80, color="#B3541E", ls="--", lw=1.2, zorder=2)
-    ax.text(ax.get_xlim()[1], 0.803, "AUC = 0.80", ha="right", fontsize=8, color="#B3541E")
-    ax.set_xlabel("Articles mentioning the miRNA in the screened corpus\n"
-                  "Artigos que mencionam o miRNA no corpus triado", fontsize=9)
-    ax.set_ylabel("Mean reported AUC | AUC media reportada", fontsize=9)
-    ax.set_title("Literature attention does not track diagnostic performance\n"
-                 "Atencao da literatura nao acompanha o desempenho diagnostico",
-                 fontsize=11)
-    ax.legend(fontsize=8, frameon=False, loc="lower left")
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
-    fig.tight_layout()
-    fig.savefig(f"{FIG_DIR}/citation_frequency_vs_auc.png", dpi=300, bbox_inches="tight")
-    plt.close(fig)
+    for lang in LANGS:
+        fig, ax = plt.subplots(figsize=(8.6, 6.0))
+        is_elig = merged["family"].isin(eligible_fams).values
+        ax.scatter(x[is_elig], y[is_elig], s=68, color="#3B6EA5", alpha=0.9,
+                   edgecolor="white", zorder=3, label=t(lang, "eligible", "elegivel"))
+        ax.scatter(x[~is_elig], y[~is_elig], s=68, facecolor="none",
+                   edgecolor="#3B6EA5", linewidth=1.4, zorder=3,
+                   label=t(lang, "flagged out", "sinalizada fora"))
+        for i, (_, r_) in enumerate(merged.iterrows()):
+            # EN/PT: alternate label side to reduce overlap in the dense region
+            dx, ha = (7, "left") if i % 2 == 0 else (-7, "right")
+            ax.annotate(r_["family"],
+                        (r_["n_articles_mentioning"], r_["mean_auc"]),
+                        textcoords="offset points", xytext=(dx, 4),
+                        ha=ha, fontsize=7.4)
+        ax.axhline(0.80, color="#B3541E", ls="--", lw=1.2, zorder=2)
+        ax.text(ax.get_xlim()[1], 0.803, "AUC = 0.80", ha="right", fontsize=8, color="#B3541E")
+        ax.set_xlabel(t(lang, "Articles mentioning the miRNA in the screened corpus",
+                        "Artigos que mencionam o miRNA no corpus triado"), fontsize=9)
+        ax.set_ylabel(t(lang, "Mean reported AUC", "AUC média reportada"), fontsize=9)
+        ax.set_title(t(lang, "Literature attention does not track diagnostic performance",
+                       "Atenção da literatura não acompanha o desempenho diagnóstico"),
+                     fontsize=11)
+        ax.legend(fontsize=8, frameon=False, loc="lower left")
+        for s in ("top", "right"):
+            ax.spines[s].set_visible(False)
+        fig.tight_layout()
+        fig.savefig(fig_path(FIG_DIR, "citation_frequency_vs_auc", lang), dpi=300,
+                    bbox_inches="tight")
+        plt.close(fig)
     print(f"\nEN: table -> {TAB_DIR}/citation_frequency_vs_auc.csv | figure -> {FIG_DIR}")
     print(f"PT: tabela -> {TAB_DIR}/citation_frequency_vs_auc.csv | figura -> {FIG_DIR}")
 

@@ -32,6 +32,7 @@ PT | Nenhum valor e simulado: toda AUC, tamanho amostral e intervalo de confianc
 """
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -42,6 +43,9 @@ import matplotlib.pyplot as plt
 IN_CSV = "data/extracted/diagnostic_accuracy_extraction.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _bilingual import LANGS, t, fig_path
 
 
 # --------------------------------------------------------------------------
@@ -232,8 +236,9 @@ def main():
 
     sensitivity_analyses(pool)
 
-    forest_plot(pool)
-    funnel_plot(pool)
+    for lang in LANGS:
+        forest_plot(pool, lang)
+        funnel_plot(pool, lang)
     print(f"\nEN: tables -> {TAB_DIR} | figures -> {FIG_DIR}")
     print(f"PT: tabelas -> {TAB_DIR} | figuras -> {FIG_DIR}")
 
@@ -310,7 +315,7 @@ def _pooled_auc(sub):
             inv_logit(r["ci_high"]), r["k"], r["I2"])
 
 
-def forest_plot(pool):
+def forest_plot(pool, lang):
     """EN | Forest plot of every estimate, grouped by disease and marker type,
            with a DerSimonian-Laird summary diamond for each block.
        PT | Forest plot de cada estimativa, agrupada por doenca e tipo de
@@ -318,8 +323,8 @@ def forest_plot(pool):
     colors = {"AD": "#3B6EA5", "PD": "#B3541E", "mixed_neurodegenerative": "#777777"}
     blocks = []
     for dis in ["AD", "PD"]:
-        for mt, lab in [("single_miRNA", "single miRNA | miRNA isolado"),
-                        ("multi_miRNA_panel", "panel | painel")]:
+        for mt, lab in [("single_miRNA", t(lang, "single miRNA", "miRNA isolado")),
+                        ("multi_miRNA_panel", t(lang, "panel", "painel"))]:
             sub = pool[(pool["disease"] == dis) & (pool["marker_type"] == mt)]
             sub = sub.sort_values("auc")
             if len(sub):
@@ -367,19 +372,22 @@ def forest_plot(pool):
     ax.set_yticks(ytick_pos)
     ax.set_yticklabels(ytick_lab, fontsize=7.4)
     ax.tick_params(axis="y", length=0)
-    ax.set_xlabel("AUC (95% CI)   |   square/quadrado = single miRNA;  "
-                  "diamond/losango = panel;  black diamond = random-effects summary",
-                  fontsize=8.4)
-    ax.set_title("Diagnostic accuracy of circulating miRNAs in AD and PD\n"
-                 "Acuracia diagnostica de miRNAs circulantes em AD e PD", fontsize=11.5)
+    ax.set_xlabel(t(lang,
+                    "AUC (95% CI).  Square = single miRNA;  diamond = panel;  "
+                    "black diamond = random-effects summary",
+                    "AUC (IC 95%).  Quadrado = miRNA isolado;  losango = painel;  "
+                    "losango preto = resumo de efeitos aleatórios"), fontsize=8.4)
+    ax.set_title(t(lang, "Diagnostic accuracy of circulating miRNAs in AD and PD",
+                   "Acurácia diagnóstica de miRNAs circulantes na DA e na DP"),
+                 fontsize=11.5)
     for s in ("top", "right", "left"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
-    fig.savefig(f"{FIG_DIR}/forest_plot_auc.png", dpi=300, bbox_inches="tight")
+    fig.savefig(fig_path(FIG_DIR, "forest_plot_auc", lang), dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
-def funnel_plot(pool):
+def funnel_plot(pool, lang):
     """EN/PT: funnel plot on the logit(AUC) scale to inspect small-study effects."""
     y = logit(pool["auc"].values)
     se = pool["se_auc"].values / (pool["auc"].values * (1 - pool["auc"].values))
@@ -402,14 +410,14 @@ def funnel_plot(pool):
 
     ax.invert_yaxis()
     ax.set_xlabel("logit(AUC)")
-    ax.set_ylabel("Standard error | Erro-padrao")
-    ax.set_title("Funnel plot: small-study effects\nGrafico de funil: efeitos de estudos pequenos",
-                 fontsize=10.5)
+    ax.set_ylabel(t(lang, "Standard error", "Erro-padrão"))
+    ax.set_title(t(lang, "Funnel plot: small-study effects",
+                   "Gráfico de funil: efeitos de estudos pequenos"), fontsize=10.5)
     ax.legend(fontsize=8, frameon=False)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
-    fig.savefig(f"{FIG_DIR}/funnel_plot_auc.png", dpi=300, bbox_inches="tight")
+    fig.savefig(fig_path(FIG_DIR, "funnel_plot_auc", lang), dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
