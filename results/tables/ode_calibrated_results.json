@@ -220,6 +220,63 @@
   "reading_en": "The enzyme is outnumbered by its substrate about fifty to one in the presynaptic bouton, which is the arrangement in which the enzyme's own abundance sets the flux. That is the arrangement a miR-29 mimic would act on. Rat synaptosomes; no human equivalent is in this table.",
   "reading_pt": "A enzima e superada pelo substrato em cerca de cinquenta para um no botao presinaptico, que e o arranjo em que a abundancia da propria enzima fixa o fluxo. E o arranjo sobre o qual um mimetico de miR-29 agiria. Sinaptossomos de rato; nao ha equivalente humano nesta tabela."
  },
+ "mir7_knockdown_to_elongation": {
+  "alpha_synuclein_uM_in_bouton": 21.565,
+  "cases": [
+   {
+    "knockdown_source": "miR-7 alone, 3'UTR reporter [K058]",
+    "knockdown": 0.3,
+    "m_half_source": "K009: 49.8 uM",
+    "m_half_uM": 49.8,
+    "alpha_synuclein_after_uM": 15.0955,
+    "elongation_rate_reduction": 0.2302162707737826,
+    "reduction_over_knockdown": 0.767387569245942
+   },
+   {
+    "knockdown_source": "miR-7 alone, 3'UTR reporter [K058]",
+    "knockdown": 0.3,
+    "m_half_source": "K010: 46 uM",
+    "m_half_uM": 46.0,
+    "alpha_synuclein_after_uM": 15.0955,
+    "elongation_rate_reduction": 0.22587588283916182,
+    "reduction_over_knockdown": 0.7529196094638728
+   },
+   {
+    "knockdown_source": "miR-7 + miR-153, cortical neurons [K063]",
+    "knockdown": 0.43,
+    "m_half_source": "K009: 49.8 uM",
+    "m_half_uM": 49.8,
+    "alpha_synuclein_after_uM": 12.292050000000001,
+    "elongation_rate_reduction": 0.3448750685474228,
+    "reduction_over_knockdown": 0.8020350431335413
+   },
+   {
+    "knockdown_source": "miR-7 + miR-153, cortical neurons [K063]",
+    "knockdown": 0.43,
+    "m_half_source": "K010: 46 uM",
+    "m_half_uM": 46.0,
+    "alpha_synuclein_after_uM": 12.292050000000001,
+    "elongation_rate_reduction": 0.33932586004438003,
+    "reduction_over_knockdown": 0.7891299070799536
+   }
+  ],
+  "elongation_rate_reduction_range": [
+   0.22587588283916182,
+   0.3448750685474228
+  ],
+  "less_than_proportional_everywhere": true,
+  "additivity": {
+   "miR7_alone": 0.3,
+   "miR153_alone": 0.19,
+   "pair_measured": 0.46,
+   "pair_if_independent": 0.43300000000000005,
+   "excess_over_independent": 0.02699999999999997,
+   "reading_en": "Independent action predicts the pair almost exactly, so the data do not require synergy between the two miRNAs at the protein level.",
+   "reading_pt": "Acao independente preve o par quase exatamente, entao os dados nao exigem sinergia entre os dois miRNAs no nivel da proteina."
+  },
+  "reading_en": "Three systems in one chain: a knockdown measured in a cell line and in rat cortical neurons, a concentration measured in rat synaptosomes, and a saturation curve measured on recombinant protein in vitro. The chain is arithmetic on measured numbers with no free parameter anywhere, but it is not a prediction for a human brain, and each step carries the system it came from.",
+  "reading_pt": "Tres sistemas numa cadeia so: uma queda medida em linhagem celular e em neuronios corticais de rato, uma concentracao medida em sinaptossomos de rato e uma curva de saturacao medida em proteina recombinante in vitro. A cadeia e aritmetica sobre numeros medidos, sem nenhum parametro livre, mas nao e predicao para cerebro humano, e cada passo carrega o sistema de onde veio."
+ },
  "free_parameter_sensitivity_scans": 27,
  "free_parameter_sensitivity_ad_above_control": 26,
  "free_parameter_sensitivity_flips": 0,

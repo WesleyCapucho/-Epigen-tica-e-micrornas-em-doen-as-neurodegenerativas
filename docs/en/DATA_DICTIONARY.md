@@ -91,7 +91,7 @@ Per miRNA family: mean reported AUC, number of contributing studies, min/max AUC
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 56 rows from 14 primary sources.
+Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 64 rows from 15 primary sources.
 
 | Column | Type | Description |
 |---|---|---|

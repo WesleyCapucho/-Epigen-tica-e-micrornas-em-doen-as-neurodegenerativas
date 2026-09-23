@@ -91,7 +91,7 @@ Por família de miRNA: AUC média reportada, número de estudos contribuintes, A
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 56 linhas de 14 fontes primárias.
+Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 64 linhas de 15 fontes primárias.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|

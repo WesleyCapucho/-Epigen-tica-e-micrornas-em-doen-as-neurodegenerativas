@@ -469,6 +469,47 @@ def main():
         check(abs(st["APP_per_BACE1"] - na / nb) < 1e-9,
               "ode stoichiometry: the ratio is not APP over BACE1")
 
+    # EN | The three-source chain is arithmetic on measured rows, so every step is
+    #      recomputed from the parameter table: the knockdown against its row, the
+    #      concentration against K054, the saturation form against K009 and K010, and
+    #      the additivity comparison against K058, K059 and K060.
+    # PT | A cadeia de tres fontes e aritmetica sobre linhas medidas, entao cada passo e
+    #      recalculado a partir da tabela: a queda contra a linha dela, a concentracao
+    #      contra o K054, a forma de saturacao contra K009 e K010, e a comparacao de
+    #      aditividade contra K058, K059 e K060.
+    if ode is not None and "mir7_knockdown_to_elongation" in ode:
+        ch = ode["mir7_knockdown_to_elongation"]
+        C0 = float(kin_by_id["K054"]["value_si"])
+        check(abs(ch["alpha_synuclein_uM_in_bouton"] - C0) < 1e-9,
+              "ode chain: concentration does not match K054")
+        known_kd = {float(kin_by_id[pid]["value_si"]) for pid in ("K058", "K063")}
+        known_mh = {float(kin_by_id[pid]["value_si"]) * 1e6 for pid in ("K009", "K010")}
+        for c in ch["cases"]:
+            kd, mh = c["knockdown"], c["m_half_uM"]
+            check(any(abs(kd - k) < 1e-12 for k in known_kd),
+                  f"ode chain: knockdown {kd} is not a row of the parameter table")
+            check(any(abs(mh - m) < 1e-6 for m in known_mh),
+                  f"ode chain: m_half {mh} is neither K009 nor K010")
+            C1 = C0 * (1.0 - kd)
+            check(abs(c["alpha_synuclein_after_uM"] - C1) < 1e-9,
+                  "ode chain: post-knockdown concentration is not C0 x (1 - knockdown)")
+            expect = 1.0 - (C1 / (mh + C1)) / (C0 / (mh + C0))
+            check(abs(c["elongation_rate_reduction"] - expect) < 1e-9,
+                  f"ode chain: elongation reduction {c['elongation_rate_reduction']:.6f} "
+                  f"!= {expect:.6f} from the saturation form")
+            check(c["elongation_rate_reduction"] < kd,
+                  "ode chain: a saturating curve cannot give a more than proportional "
+                  "slowdown; this one did")
+        check(ch["less_than_proportional_everywhere"] ==
+              all(c["elongation_rate_reduction"] < c["knockdown"] for c in ch["cases"]),
+              "ode chain: the less-than-proportional verdict disagrees with its own cases")
+        ad = ch["additivity"]
+        a_, b_ = float(kin_by_id["K058"]["value_si"]), float(kin_by_id["K059"]["value_si"])
+        check(abs(ad["pair_measured"] - float(kin_by_id["K060"]["value_si"])) < 1e-12,
+              "ode chain: the measured pair does not match K060")
+        check(abs(ad["pair_if_independent"] - (1.0 - (1.0 - a_) * (1.0 - b_))) < 1e-12,
+              "ode chain: the independent-action prediction is not 1 - (1-a)(1-b)")
+
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
     check(nd["mirna_directed_therapeutic_trials"] == 0,

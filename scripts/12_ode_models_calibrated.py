@@ -163,6 +163,11 @@ def load_measured():
         "C_aSyn_uM": derived("K054"),           # alpha only, derived from K052 and K053
         "N_BACE1": val("K055"),
         "N_APP": val("K056"),
+        # measured size of miR-7 repression of alpha-synuclein (Doxakis 2010)
+        "kd_SNCA_miR7_reporter": val("K058"),
+        "kd_SNCA_miR153_reporter": val("K059"),
+        "kd_SNCA_pair_reporter": val("K060"),
+        "kd_SNCA_neurons": val("K063"),
         # measured size of miR-29 repression of BACE1 (Hebert 2008)
         "BACE1_knockdown_miR29": val("K047"),
         # miR-7 neuronal steady state (Kleaveland 2018)
@@ -622,6 +627,85 @@ def experiment_alpha_synuclein_saturation(measured):
     return out
 
 
+def experiment_mir7_to_elongation(measured):
+    """
+    EN | The longest chain in this project that never touches a free parameter. Three
+         independent measurements, in this order:
+           Doxakis 2010  - how much miR-7 lowers alpha-synuclein (K058, K063)
+           Wilhelm 2014  - how much alpha-synuclein is in a presynaptic bouton (K054)
+           Buell 2014    - how fibril elongation depends on that concentration (K009, K010)
+         Together they answer a question neither answers alone: what does a measured
+         miR-7 knockdown do to the rate at which fibrils grow?
+    PT | A cadeia mais longa deste projeto que nao toca em nenhum parametro livre. Tres
+         medidas independentes, nesta ordem:
+           Doxakis 2010  - quanto o miR-7 baixa a alfa-sinucleina (K058, K063)
+           Wilhelm 2014  - quanta alfa-sinucleina existe num botao presinaptico (K054)
+           Buell 2014    - como a elongacao da fibrila depende dessa concentracao (K009, K010)
+         Juntas respondem a uma pergunta que nenhuma responde sozinha: o que uma queda
+         medida de miR-7 faz com a velocidade de crescimento das fibrilas?
+
+    EN | The answer is less than proportional, and that is the point. Because elongation
+         saturates, a knockdown buys a smaller fractional slowdown than the knockdown
+         itself. It is worth more than a hand-wave in either direction: the effect is
+         neither negligible nor one-for-one.
+    PT | A resposta e menos que proporcional, e e esse o ponto. Como a elongacao satura,
+         uma queda compra um retardo fracional menor que a propria queda. Vale mais que
+         um aceno em qualquer direcao: o efeito nao e desprezivel nem de um para um.
+    """
+    C0 = measured["C_aSyn_uM"]
+
+    def rate(S, m_half):
+        """EN/PT: elongation rate as a fraction of its maximum, Buell saturation form."""
+        return S / (m_half + S)
+
+    out = dict(alpha_synuclein_uM_in_bouton=float(C0), cases=[])
+    for kd_label, kd in (("miR-7 alone, 3'UTR reporter [K058]", measured["kd_SNCA_miR7_reporter"]),
+                         ("miR-7 + miR-153, cortical neurons [K063]", measured["kd_SNCA_neurons"])):
+        for mh_label, m_half in (("K009: 49.8 uM", measured["m_half_uM"]),
+                                 ("K010: 46 uM", measured["m_half_uM_b"])):
+            C1 = C0 * (1.0 - kd)
+            slow = 1.0 - rate(C1, m_half) / rate(C0, m_half)
+            out["cases"].append(dict(
+                knockdown_source=kd_label, knockdown=float(kd),
+                m_half_source=mh_label, m_half_uM=float(m_half),
+                alpha_synuclein_after_uM=float(C1),
+                elongation_rate_reduction=float(slow),
+                reduction_over_knockdown=float(slow / kd)))
+    slows = [c["elongation_rate_reduction"] for c in out["cases"]]
+    out["elongation_rate_reduction_range"] = [float(min(slows)), float(max(slows))]
+    out["less_than_proportional_everywhere"] = bool(
+        all(c["elongation_rate_reduction"] < c["knockdown"] for c in out["cases"]))
+
+    # EN | The paper calls the two miRNAs additive. Independent action on what the other
+    #      leaves would predict 1 - (1-a)(1-b); compare that with the measured pair.
+    # PT | O artigo chama os dois miRNAs de aditivos. Acao independente sobre o que o
+    #      outro deixa preveria 1 - (1-a)(1-b); compare com o par medido.
+    a, b = measured["kd_SNCA_miR7_reporter"], measured["kd_SNCA_miR153_reporter"]
+    pair = measured["kd_SNCA_pair_reporter"]
+    out["additivity"] = dict(
+        miR7_alone=float(a), miR153_alone=float(b), pair_measured=float(pair),
+        pair_if_independent=float(1.0 - (1.0 - a) * (1.0 - b)),
+        excess_over_independent=float(pair - (1.0 - (1.0 - a) * (1.0 - b))),
+        reading_en=("Independent action predicts the pair almost exactly, so the data do "
+                    "not require synergy between the two miRNAs at the protein level."),
+        reading_pt=("Acao independente preve o par quase exatamente, entao os dados nao "
+                    "exigem sinergia entre os dois miRNAs no nivel da proteina."))
+
+    out["reading_en"] = (
+        "Three systems in one chain: a knockdown measured in a cell line and in rat "
+        "cortical neurons, a concentration measured in rat synaptosomes, and a saturation "
+        "curve measured on recombinant protein in vitro. The chain is arithmetic on "
+        "measured numbers with no free parameter anywhere, but it is not a prediction for "
+        "a human brain, and each step carries the system it came from.")
+    out["reading_pt"] = (
+        "Tres sistemas numa cadeia so: uma queda medida em linhagem celular e em neuronios "
+        "corticais de rato, uma concentracao medida em sinaptossomos de rato e uma curva de "
+        "saturacao medida em proteina recombinante in vitro. A cadeia e aritmetica sobre "
+        "numeros medidos, sem nenhum parametro livre, mas nao e predicao para cerebro "
+        "humano, e cada passo carrega o sistema de onde veio.")
+    return out
+
+
 def experiment_enzyme_substrate_stoichiometry(measured):
     """
     EN | BACE1 and its substrate counted in the same preparation, in the same units.
@@ -820,6 +904,7 @@ def main():
     dose = experiment_mimic_versus_measured_knockdown(measured, clearance)
     sat = experiment_alpha_synuclein_saturation(measured)
     stoich = experiment_enzyme_substrate_stoichiometry(measured)
+    chain = experiment_mir7_to_elongation(measured)
 
     print("\n--- AD: clearance versus production ---")
     print(f"  Abeta AD / control            : {clearance['abeta_ratio_AD_over_control']:.3f}")
@@ -867,6 +952,15 @@ def main():
               f"rate change per 100% level change")
     print(f"  below half-saturation                 : {sat['below_half_saturation']}")
 
+    print("\n--- miR-7 knockdown carried through to fibril elongation ---")
+    for c in chain["cases"]:
+        print(f"  {c['knockdown_source']:<42} {100*c['knockdown']:.0f}% down, "
+              f"m_half {c['m_half_uM']:.1f} uM  ->  elongation {100*c['elongation_rate_reduction']:.0f}% slower")
+    print(f"  less than proportional everywhere     : {chain['less_than_proportional_everywhere']}")
+    ad = chain["additivity"]
+    print(f"  additivity: pair measured {100*ad['pair_measured']:.0f}%, "
+          f"independent action predicts {100*ad['pair_if_independent']:.0f}%")
+
     print("\n--- BACE1 and APP in the same bouton [K055, K056] ---")
     print(f"  BACE1 copies                          : {stoich['BACE1_copies_per_bouton']:.0f}")
     print(f"  APP copies                            : {stoich['APP_copies_per_bouton']:.0f}")
@@ -904,6 +998,7 @@ def main():
         mimic_dose_vs_measured_knockdown=dose,
         alpha_synuclein_saturation=sat,
         enzyme_substrate_stoichiometry=stoich,
+        mir7_knockdown_to_elongation=chain,
         free_parameter_sensitivity_scans=len(sens),
         free_parameter_sensitivity_ad_above_control=len(ok),
         free_parameter_sensitivity_flips=len(flips),
