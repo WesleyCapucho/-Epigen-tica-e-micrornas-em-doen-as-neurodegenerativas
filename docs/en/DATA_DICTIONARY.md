@@ -209,6 +209,10 @@ One row per species and dosing interval: `species`, `param_id` (the kinetic-tabl
 
 The same calculation with the comparisons that use it: each species' decay constant and its `param_id`, the daily-dosing comparison against the median-stability reference (penalty, equivalent interval, fold stabilisation required), and the stated assumption that the delivered mimic is cleared at the endogenous rate — which is why the output is a required fold stabilisation rather than a verdict on feasibility.
 
+## `results/tables/graphical_abstract_values.json`
+
+Every number drawn on `results/figures/graphical_abstract.*.png`, loaded from `ode_calibrated_results.json`, `mimic_dosing_feasibility.json` and `kinetic_parameters.csv` at draw time rather than typed as a separate string, plus the `param_id`s each figure grounds a claim in. Nothing here is a new computation; it is a record of which already-verified number went where.
+
 ## `results/tables/mechanism_animations.json`
 
 The numbers each animation in `results/figures/anim_*.gif` draws: the final AD/control Aβ42 ratio, the two species' washout times, and the two species' peak-to-average ratios and the penalty between them. Every field is recomputed by `scripts/08` from `ode_calibrated_results.json` and `mimic_dosing_feasibility.json` and required to match, so the manifest cannot drift from the tables its own numbers came from.

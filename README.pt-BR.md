@@ -19,7 +19,7 @@ Dois corpos de trabalho convivem aqui:
 |---|---|---|
 | **Bibliométrica** | Mineração do corpus PubMed, extração de miRNAs, PCA, clusterização, rede miRNA–doença, modelos EDO exploratórios dos eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína | `01`, `02` |
 | **Meta-analítica** | Busca sistemática PICO, triagem PRISMA, extração de texto completo, meta-análise de efeitos aleatórios de AUC, panorama de translação clínica | `03`–`11` |
-| **Mecanística** | Modelos EDO dos dois eixos construídos sobre medidas cinéticas publicadas; figuras estruturais renderizadas a partir de coordenadas depositadas; viabilidade de dosagem a partir de constantes de decaimento medidas; GIFs animados das mesmas simulações; um painel composto dos renders estruturais | `12`, `13`, `17`, `19`, `20` |
+| **Mecanística** | Modelos EDO dos dois eixos construídos sobre medidas cinéticas publicadas; figuras estruturais renderizadas a partir de coordenadas depositadas; viabilidade de dosagem a partir de constantes de decaimento medidas; um graphical abstract dos dois eixos; GIFs animados das mesmas simulações; um painel composto dos renders estruturais | `12`, `13`, `17`, `18`, `19`, `20` |
 | **Apreciação crítica** | Risco de viés QUADAS-2, síntese bivariada de sensibilidade e especificidade, certeza da evidência GRADE | `14`–`16` |
 
 A camada meta-analítica existe para responder a uma pergunta que a monografia de origem levantou sobre si mesma: frequência bibliométrica e validação experimental não são fontes independentes de evidência, porque os miRNAs mais estudados acumulam as duas. A acurácia diagnóstica agregada é externa a esse laço.
@@ -80,6 +80,7 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 15_bivariate_srocc.py                      # Modelo bivariado de Reitsma + ROC sumária
 │   ├── 16_grade_certainty.py                      # Certeza GRADE + resumo de achados por 1000
 │   ├── 17_mimic_dosing_feasibility.py             # O que a dosagem repetida custa a um mimético instável
+│   ├── 18_graphical_abstract.py                   # Figura esquemática: os dois eixos, números calculados
 │   ├── 19_mechanism_animations.py                 # GIFs animados de mecanismos já simulados
 │   ├── 20_structure_story_panel.py                # Compõe os renders do scripts/13 numa figura só
 │   ├── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
@@ -123,6 +124,7 @@ python scripts/17_mimic_dosing_feasibility.py
 python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # só é necessário para o scripts/13
 python scripts/13_structure_figures.py
+python scripts/18_graphical_abstract.py     # needs 12, 17 and 13 to have run
 python scripts/20_structure_story_panel.py
 ```
 

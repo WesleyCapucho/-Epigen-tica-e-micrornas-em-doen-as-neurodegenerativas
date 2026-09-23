@@ -952,6 +952,20 @@ def main():
         fp = f"results/figures/structure_story_panel.{lang}.png"
         claim(os.path.isfile(fp), f"structure story panel: {fp} is missing")
 
+    # EN | The graphical abstract's every number is loaded at draw time from files
+    #      scripts/08 already checks (see the animation and dosing sections above), so
+    #      what remains to confirm here is only that the manifest and the two images
+    #      were actually produced together.
+    # PT | Todo numero do graphical abstract e carregado no momento do desenho de
+    #      arquivos que o scripts/08 ja confere (ver as secoes de animacao e dosagem
+    #      acima), entao o que resta confirmar aqui e so que o manifesto e as duas
+    #      imagens foram de fato produzidos juntos.
+    claim(os.path.isfile("results/tables/graphical_abstract_values.json"),
+          "graphical abstract: results/tables/graphical_abstract_values.json is missing")
+    for lang in ("en", "pt-BR"):
+        fp = f"results/figures/graphical_abstract.{lang}.png"
+        claim(os.path.isfile(fp), f"graphical abstract: {fp} is missing")
+
     # --- 8f. The corpus holds each article once ----------------------------
     # EN | Deduplication happens in scripts/09 and is easy to break silently: reading the
     #      DOI under one spelling while the corpus stores it under another leaves the

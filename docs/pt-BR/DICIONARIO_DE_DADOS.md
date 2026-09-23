@@ -209,6 +209,10 @@ Uma linha por espécie e intervalo de dose: `species`, `param_id` (a linha da ta
 
 O mesmo cálculo com as comparações que o usam: a constante de decaimento de cada espécie e seu `param_id`, a comparação de dosagem diária contra a referência de estabilidade mediana (penalidade, intervalo equivalente, fator de estabilização necessário) e a suposição declarada de que o mimético entregue é eliminado na taxa endógena — por isso a saída é um fator de estabilização necessário e não um veredito de viabilidade.
 
+## `results/tables/graphical_abstract_values.json`
+
+Todo número desenhado em `results/figures/graphical_abstract.*.png`, carregado do `ode_calibrated_results.json`, do `mimic_dosing_feasibility.json` e do `kinetic_parameters.csv` no momento do desenho, e não digitado como string separada, mais os `param_id`s em que cada afirmação da figura se apoia. Nada aqui é cálculo novo; é o registro de qual número já verificado foi parar onde.
+
 ## `results/tables/mechanism_animations.json`
 
 Os números que cada animação em `results/figures/anim_*.gif` desenha: a razão final Aβ42 DA/controle, os tempos de eliminação das duas espécies, e as razões pico sobre média das duas espécies e a penalidade entre elas. Todo campo é recalculado pelo `scripts/08` a partir do `ode_calibrated_results.json` e do `mimic_dosing_feasibility.json` e exigido a bater, para que o manifesto não possa se afastar das tabelas de onde seus próprios números vieram.
