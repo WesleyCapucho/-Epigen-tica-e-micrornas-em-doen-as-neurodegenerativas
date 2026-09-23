@@ -19,7 +19,7 @@ Two bodies of work live here:
 |---|---|---|
 | **Bibliometric** | PubMed corpus mining, miRNA extraction, PCA, clustering, miRNA–disease network, exploratory ODE models of the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes | `01`, `02` |
 | **Meta-analytic** | PICO systematic search, PRISMA screening, full-text extraction, random-effects meta-analysis of AUC, clinical-translation landscape | `03`–`11` |
-| **Mechanistic** | ODE models of both axes built on published kinetic measurements; structural figures rendered from deposited coordinates; dosing feasibility from measured decay constants; animated GIFs of the same simulations | `12`, `13`, `17`, `19` |
+| **Mechanistic** | ODE models of both axes built on published kinetic measurements; structural figures rendered from deposited coordinates; dosing feasibility from measured decay constants; animated GIFs of the same simulations; a composite panel of the structural renders | `12`, `13`, `17`, `19`, `20` |
 | **Appraisal** | QUADAS-2 risk of bias, bivariate sensitivity–specificity synthesis, GRADE certainty of evidence | `14`–`16` |
 
 The meta-analytic layer exists to answer a question the source monograph raised about itself: bibliometric frequency and experimental validation are not independent sources of evidence, because the most-studied miRNAs accumulate both. Pooled diagnostic accuracy is external to that loop.
@@ -81,6 +81,7 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 16_grade_certainty.py                      # GRADE certainty + summary of findings per 1000
 │   ├── 17_mimic_dosing_feasibility.py             # What repeated dosing costs a fast-decaying mimic
 │   ├── 19_mechanism_animations.py                 # Animated GIFs of already-simulated mechanisms
+│   ├── 20_structure_story_panel.py                # Composites scripts/13's renders into one figure
 │   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR
 │   └── tools/mirror_extraction_json.py            # Regenerates the JSON mirror of the extraction table
 ├── docs/
@@ -122,6 +123,7 @@ python scripts/17_mimic_dosing_feasibility.py
 python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # only needed for scripts/13
 python scripts/13_structure_figures.py
+python scripts/20_structure_story_panel.py
 ```
 
 `scripts/05`, `06`, `08`, `10` and `11` run entirely offline from the committed data. `scripts/03` calls the live PubMed API and will legitimately return more records than the frozen 2026-09-10 counts, because the literature keeps growing; `data/raw/systematic_review_2026/search_strategy.json` preserves the counts behind the reported numbers.

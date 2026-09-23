@@ -937,6 +937,21 @@ def main():
             fp = f"results/figures/{stem}.{lang}.gif"
             claim(os.path.isfile(fp), f"animation: {fp} is missing")
 
+    # EN | The structure story panel composites scripts/13's own renders and fails loudly
+    #      at generation time (missing provenance, missing PNG) rather than at check time,
+    #      matching scripts/13's own stance that these figures are illustration, not a
+    #      result, and so carry a lighter checking bar than a quantitative table. All
+    #      scripts/08 confirms is that the composite was actually produced.
+    # PT | O painel estrutural composto reaproveita os renders do proprio scripts/13 e
+    #      falha alto na geracao (proveniencia ou PNG faltando), nao na checagem, no mesmo
+    #      espirito do proprio scripts/13 de que essas figuras sao ilustracao, nao
+    #      resultado, e por isso carregam uma barra de checagem mais leve que uma tabela
+    #      quantitativa. Tudo que o scripts/08 confirma e que o composto foi de fato
+    #      produzido.
+    for lang in ("en", "pt-BR"):
+        fp = f"results/figures/structure_story_panel.{lang}.png"
+        claim(os.path.isfile(fp), f"structure story panel: {fp} is missing")
+
     # --- 8f. The corpus holds each article once ----------------------------
     # EN | Deduplication happens in scripts/09 and is easy to break silently: reading the
     #      DOI under one spelling while the corpus stores it under another leaves the

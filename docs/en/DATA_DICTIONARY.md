@@ -221,6 +221,10 @@ Three animated GIFs, each in both languages: `anim_ad_monomer` (Aβ42 accumulati
 
 Every figure exists twice, `<name>.en.png` and `<name>.pt-BR.png`. Both are drawn by the same code from the same arrays in the same run; only the label text differs.
 
+## `results/figures/structure_story_panel.*.png`
+
+The four `scripts/13` renders composited into one figure, with the accompanying facts (PDB id, method, resolution, catalytic dyad residues, protofilament count and spacing) pulled from `structure_figure_provenance.json` rather than retyped. No new render, no new claim - only the layout and the grouping are new.
+
 ## Conventions
 
 - Proportions are stored as proportions (0.82), not percentages (82%).

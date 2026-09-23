@@ -221,6 +221,10 @@ Três GIFs animados, cada um nos dois idiomas: `anim_ad_monomer` (Aβ42 acumulan
 
 Toda figura existe duas vezes, `<nome>.en.png` e `<nome>.pt-BR.png`. As duas são desenhadas pelo mesmo código, a partir dos mesmos vetores, na mesma execução; só o texto dos rótulos muda.
 
+## `results/figures/structure_story_panel.*.png`
+
+Os quatro renders do `scripts/13` compostos numa figura só, com os fatos que acompanham (PDB id, método, resolução, resíduos da díade catalítica, número e espaçamento dos protofilamentos) tirados do `structure_figure_provenance.json`, não redigitados. Nenhum render novo, nenhuma afirmação nova - só o layout e o agrupamento são novos.
+
 ## Convenções
 
 - Proporções são armazenadas como proporções (0,82), não como percentuais (82%).
