@@ -28,6 +28,7 @@ PT | Este repositorio e um pacote de reprodutibilidade: dados brutos, scripts,
 import csv
 import json
 import math
+import re
 import sys
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
@@ -46,6 +47,7 @@ COUNTS = "data/raw/systematic_review_2026/mirna_mention_counts.csv"
 CORPUS = "data/raw/systematic_review_2026/screening_corpus.json"
 TRIALS = "data/raw/clinical_trials_2026/mirna_therapeutics_trials.json"
 QUADAS = "results/tables/quadas2_assessment.csv"
+QUADAS_STUDY_LEVEL = "data/extracted/quadas2_study_level.csv"
 QUADAS_SUMMARY = "results/tables/quadas2_summary.json"
 BIVARIATE = "results/tables/bivariate_summary.csv"
 BIVARIATE_JSON = "results/tables/bivariate_model.json"
@@ -607,6 +609,64 @@ def main():
         check(qsum["excluded_non_case_control_estimates"] == excluded,
               f"QUADAS-2: the recorded eligibility circularity {qsum['excluded_non_case_control_estimates']} "
               f"disagrees with the extraction {excluded}")
+
+    # EN | The study-level record behind the reference-standard and flow domains. A
+    #      verdict of LOW or HIGH there rests on a quoted sentence, so the quote has to be
+    #      present, and the flags derived from it have to agree with it.
+    # PT | O registro por estudo que sustenta os dominios de padrao de referencia e fluxo.
+    #      Um veredito LOW ou HIGH ali repousa numa frase citada, entao a citacao precisa
+    #      existir, e os sinalizadores derivados dela precisam concordar com ela.
+    try:
+        sl = list(csv.DictReader(open(QUADAS_STUDY_LEVEL, encoding="utf-8")))
+    except FileNotFoundError:
+        sl = None
+    if sl is not None and quadas is not None:
+        eligible_studies = {study_id(r) for r in ext if r["eligible_primary_pool"] == "yes"}
+        check({r["study_id"] for r in sl} == eligible_studies,
+              "QUADAS-2 study level: the studies covered are not the studies pooled")
+        for r in sl:
+            avail = r["fulltext_availability"]
+            check(avail in ("yes", "no_fulltext_in_pmc", "no_pmc_record"),
+                  f"QUADAS-2 study level {r['study_id']}: unexpected availability {avail!r}")
+            if avail != "yes":
+                check(not r["reference_standard_quote"] and not r["blinding_quote"],
+                      f"QUADAS-2 study level {r['study_id']}: quotes recorded although the "
+                      "full text was not retrievable")
+                continue
+            check(r["reference_standard_named"] in ("yes", "no"),
+                  f"QUADAS-2 study level {r['study_id']}: reference_standard_named must be yes or no")
+            check((r["reference_standard_named"] == "yes") == bool(r["reference_standard_quote"]),
+                  f"QUADAS-2 study level {r['study_id']}: the named flag and the quote disagree")
+            check((r["blinding_stated"] == "yes") == bool(r["blinding_quote"]),
+                  f"QUADAS-2 study level {r['study_id']}: the blinding flag and the quote disagree")
+            if r["autopsy_confirmed"] == "yes":
+                check(bool(re.search(r"autops|neuropatholog|Braak|Brain Bank Network",
+                                     r["reference_standard_quote"], re.I)),
+                      f"QUADAS-2 study level {r['study_id']}: autopsy claimed but the quote "
+                      "does not mention neuropathological confirmation")
+        # EN/PT: every reference-standard verdict must follow from the study-level record
+        by_sl = {r["study_id"]: r for r in sl}
+        for row in quadas:
+            rec = by_sl.get(row["study_id"])
+            if not rec:
+                continue
+            v = row["rob_reference_standard"]
+            if rec["autopsy_confirmed"] == "yes" or rec["blinding_stated"] == "yes":
+                check(v == "low", f"QUADAS-2 {row['study_id']}: expected low reference-standard risk")
+            elif rec["fulltext_availability"] != "yes":
+                check(v == "unclear",
+                      f"QUADAS-2 {row['study_id']}: unretrievable full text must be unclear")
+            elif rec["reference_standard_named"] == "yes":
+                check(v == "unclear", f"QUADAS-2 {row['study_id']}: named criteria must be unclear")
+            else:
+                check(v == "high", f"QUADAS-2 {row['study_id']}: unnamed criteria must be high")
+        check(all(r["rob_flow_timing"] == "unclear" for r in quadas),
+              "QUADAS-2: flow and timing is no longer uniformly unclear; the reason text "
+              "in scripts/14 claims it is, so one of the two is now wrong")
+        check(all(r[d] != "unrated" for r in quadas
+                  for d in ("rob_patient_selection", "rob_index_test",
+                            "rob_reference_standard", "rob_flow_timing")),
+              "QUADAS-2: a risk-of-bias domain is unrated again")
 
     # --- 8c. Bivariate model ------------------------------------------------
     # EN | Recompute the derived diagnostic measures from the summary point, and require

@@ -17,16 +17,16 @@
    "unrated": 0
   },
   "rob_reference_standard": {
-   "high": 0,
-   "unclear": 0,
-   "low": 0,
-   "unrated": 28
+   "high": 9,
+   "unclear": 17,
+   "low": 2,
+   "unrated": 0
   },
   "rob_flow_timing": {
    "high": 0,
-   "unclear": 0,
+   "unclear": 28,
    "low": 0,
-   "unrated": 28
+   "unrated": 0
   },
   "app_patient_selection": {
    "high": 28,
@@ -42,9 +42,9 @@
   },
   "app_reference_standard": {
    "high": 0,
-   "unclear": 0,
-   "low": 0,
-   "unrated": 28
+   "unclear": 15,
+   "low": 13,
+   "unrated": 0
   }
  },
  "eligibility_circularity_en": "Every study assessed is high risk and high concern for patient selection because every eligible estimate is a case-versus-healthy-control contrast. That is partly by construction: the review's eligibility rule required that contrast, and 13 estimates from 9 studies were excluded for using another one ({'differential_diagnosis': 4, 'within_disease': 3, 'prodromal_vs_control': 6}). The clinically relevant comparisons - this disease against its mimics, and prodromal against control - exist in the literature and were set aside by the PICO, not missing from it. The honest reading is that the pooled estimates answer an easier question than the clinical one, and are upper bounds for that reason.",

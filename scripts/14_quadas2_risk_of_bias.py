@@ -61,6 +61,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
+STUDY_LEVEL = "data/extracted/quadas2_study_level.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
 
@@ -152,38 +153,77 @@ def rob_index_test(rows):
     return UNCLEAR, "cohort stage not determinable [cohort_stage]"
 
 
-def rob_reference_standard(rows):
+def rob_reference_standard(rows, sl):
     """
     EN | Signalling questions: is the reference standard likely to classify the target
          condition correctly? was it interpreted without knowledge of the index test?
-         Neither is answerable: the extraction did not record which diagnostic criteria
-         each study used, nor whether the diagnosis was made blind to the miRNA result.
-         This matters more than usual here, because for Alzheimer and Parkinson disease
-         the practical reference standard is clinical criteria rather than autopsy, and
-         its own error rate propagates into every accuracy estimate pooled in this review.
+         Both are answered from data/extracted/quadas2_study_level.csv, which records,
+         per study, the sentence naming the diagnostic criteria and the sentence stating
+         blinding, read from the PubMed Central full text.
+         The judgement turns on a fact specific to these two diseases: the practical
+         reference standard is clinical criteria, not autopsy, and clinical criteria
+         misclassify a known fraction of cases. A study that names accepted criteria has
+         done what the field expects and still cannot be rated LOW on that ground alone,
+         because the standard it used is imperfect and the accuracy estimates inherit its
+         error. Only neuropathological confirmation, or named criteria plus stated
+         blinding, clears the domain.
     PT | Perguntas-sinal: o padrao de referencia provavelmente classifica corretamente a
          condicao alvo? foi interpretado sem conhecer o teste indice?
-         Nenhuma e respondivel: a extracao nao registrou quais criterios diagnosticos cada
-         estudo usou, nem se o diagnostico foi feito cego ao resultado do miRNA. Isso pesa
-         mais que o normal aqui, porque para doenca de Alzheimer e de Parkinson o padrao
-         de referencia pratico e criterio clinico e nao autopsia, e a taxa de erro dele se
-         propaga para toda estimativa agrupada nesta revisao.
+         As duas sao respondidas por data/extracted/quadas2_study_level.csv, que registra,
+         por estudo, a frase que nomeia os criterios diagnosticos e a frase que declara
+         cegamento, lidas do texto completo no PubMed Central.
+         O julgamento gira num fato especifico destas duas doencas: o padrao de referencia
+         pratico e criterio clinico, nao autopsia, e criterio clinico classifica errado uma
+         fracao conhecida dos casos. Um estudo que nomeia criterios aceitos fez o que o
+         campo espera e ainda assim nao pode ser LOW so por isso, porque o padrao que usou
+         e imperfeito e as estimativas de acuracia herdam o erro dele. So confirmacao
+         neuropatologica, ou criterios nomeados mais cegamento declarado, limpa o dominio.
     """
-    return UNRATED, "reference standard and blinding were not captured by the extraction"
+    if not sl:
+        return UNCLEAR, "no study-level record for this study [quadas2_study_level.csv]"
+    if sl["fulltext_availability"] != "yes":
+        return UNCLEAR, (f"full text not retrievable ({sl['fulltext_availability']}), so the "
+                         "reference standard could not be checked [quadas2_study_level.csv]")
+    if sl["autopsy_confirmed"] == "yes":
+        return LOW, "neuropathological confirmation of the target condition [reference_standard_quote]"
+    if sl["reference_standard_named"] == "yes":
+        if sl["blinding_stated"] == "yes":
+            return LOW, ("named diagnostic criteria and stated blinding to the index test "
+                         "[reference_standard_quote, blinding_quote]")
+        return UNCLEAR, ("named clinical diagnostic criteria, which misclassify a known "
+                         "fraction of AD and PD cases, and no statement of blinding "
+                         "[reference_standard_quote]")
+    return HIGH, ("the full text was read and names no diagnostic criteria for the target "
+                  "condition [reference_standard_named=no]")
 
 
-def rob_flow_timing(rows):
+def rob_flow_timing(rows, sl):
     """
     EN | Signalling questions: appropriate interval between index test and reference
          standard? did all patients receive a reference standard, and the same one? were
          all patients included in the analysis?
-         None is answerable from the extraction.
+         These were checked against the full texts and are, with one exception each, not
+         reported: none of the 22 retrievable full texts contains a STARD flow diagram or
+         flow chart, one accounts for post-enrolment exclusions, and one states the
+         interval between sampling and diagnosis. The domain is therefore UNCLEAR rather
+         than unrated - the question was asked of the primary reports and they do not
+         answer it. That silence is itself a finding about how this literature reports.
     PT | Perguntas-sinal: intervalo adequado entre teste indice e padrao de referencia?
          todos os pacientes receberam padrao de referencia, e o mesmo? todos entraram na
          analise?
-         Nenhuma e respondivel pela extracao.
+         Foram conferidas contra os textos completos e, com uma excecao cada, nao sao
+         reportadas: nenhum dos 22 textos completos recuperaveis traz fluxograma STARD ou
+         diagrama de fluxo, um presta contas de exclusoes apos a inclusao e um declara o
+         intervalo entre coleta e diagnostico. O dominio fica UNCLEAR e nao nao-avaliado -
+         a pergunta foi feita aos relatos primarios e eles nao respondem. Esse silencio e,
+         em si, um achado sobre como esta literatura reporta.
     """
-    return UNRATED, "patient flow and timing were not captured by the extraction"
+    if not sl or sl["fulltext_availability"] != "yes":
+        return UNCLEAR, ("full text not retrievable, so patient flow could not be checked "
+                         "[quadas2_study_level.csv]")
+    return UNCLEAR, ("full text read: no STARD flow diagram, and neither the accounting of "
+                     "all enrolled participants nor the interval between sampling and "
+                     "diagnosis is reported [full text]")
 
 
 def app_patient_selection(rows):
@@ -236,9 +276,22 @@ def app_index_test(rows):
     return LOW, f"minimally invasive circulating sample: {sorted(fluids)} [biofluid]"
 
 
-def app_reference_standard(rows):
-    """EN/PT: not captured by the extraction, as in rob_reference_standard."""
-    return UNRATED, "reference standard was not captured by the extraction"
+def app_reference_standard(rows, sl):
+    """
+    EN | Does the target condition as defined by the reference standard match the review
+         question? The review asks about diagnosing clinically established AD or PD, and a
+         study using the accepted clinical criteria for those diseases is answering that
+         question, whatever the criteria's own error rate.
+    PT | A condicao alvo definida pelo padrao de referencia corresponde a pergunta da
+         revisao? A revisao trata de diagnosticar DA ou DP clinicamente estabelecida, e um
+         estudo que usa os criterios clinicos aceitos para essas doencas esta respondendo a
+         essa pergunta, qualquer que seja a taxa de erro dos criterios.
+    """
+    if not sl or sl["fulltext_availability"] != "yes":
+        return UNCLEAR, "full text not retrievable [quadas2_study_level.csv]"
+    if sl["reference_standard_named"] == "yes" or sl["autopsy_confirmed"] == "yes":
+        return LOW, "the target condition is AD or PD as defined by accepted criteria"
+    return UNCLEAR, "the target condition definition is not stated in the full text"
 
 
 RULES = OrderedDict([
@@ -252,7 +305,10 @@ RULES = OrderedDict([
 ])
 
 
-def assess(rows_by_study):
+NEEDS_STUDY_LEVEL = {"rob_reference_standard", "rob_flow_timing", "app_reference_standard"}
+
+
+def assess(rows_by_study, study_level):
     out = []
     for sid, rows in sorted(rows_by_study.items()):
         first = rows[0]
@@ -266,8 +322,9 @@ def assess(rows_by_study):
             ("n_estimates_eligible", sum(1 for r in rows
                                          if r["eligible_primary_pool"] == "yes")),
         ])
+        sl = study_level.get(sid)
         for key, rule in RULES.items():
-            verdict, reason = rule(rows)
+            verdict, reason = (rule(rows, sl) if key in NEEDS_STUDY_LEVEL else rule(rows))
             rec[key] = verdict
             rec[key + "_reason"] = reason
         out.append(rec)
@@ -331,7 +388,11 @@ def main():
     for r in eligible:
         by_study.setdefault(study_id(r), []).append(r)
 
-    assessment = assess(by_study)
+    study_level = {}
+    if os.path.exists(STUDY_LEVEL):
+        study_level = {r["study_id"]: r
+                       for r in csv.DictReader(open(STUDY_LEVEL, encoding="utf-8"))}
+    assessment = assess(by_study, study_level)
     fields = list(assessment[0].keys())
     with open(f"{TAB_DIR}/quadas2_assessment.csv", "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)

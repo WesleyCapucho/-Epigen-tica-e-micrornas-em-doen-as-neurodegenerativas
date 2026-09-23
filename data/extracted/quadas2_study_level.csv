@@ -1,0 +1,29 @@
+study_id,first_author,year,disease,fulltext_availability,reference_standard_named,reference_standard_quote,autopsy_confirmed,blinding_stated,blinding_quote,source
+10.1515/tjb-2025-0113,(Turk J Biochem),2026,AD,no_pmc_record,,,,,,full text not retrievable
+10.19193/0393-6384_2020_3_291,Wu L,2020,PD,no_pmc_record,,,,,,full text not retrievable
+10.3760/cma.j.cn371468-20200828-01692,Li J,2021,PD,no_pmc_record,,,,,,full text not retrievable
+10.3760/cma.j.issn.0254-9026.2024.01.005,Chen T,2024,PD,no_pmc_record,,,,,,full text not retrievable
+27814298,Lusardi TA,2017,AD,yes,yes,"The 50 AD participants were recruited from OHSU Neurology clinics and diagnosed with probable AD according to ADRDA-NINDS criteria [,] at a consensus conference of OADC clinicians, with mean MMSE scores between 18 and 19 (18.",no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+27844283,Marques TM,2016,PD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+28137310,Hara N,2017,AD,yes,yes,"The discovery set, ROW, consisted of samples obtained from the Japanese Brain Bank Network for Neuroscience Research (JBBNNR), where all autopsied brains are systematically diagnosed with Braak staging [,] and stored at −80 °C.",yes,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+29707120,Dos Santos MCT,2018,PD,yes,yes,PD was diagnosed according to the United Kingdom Brain Bank Society Criteria [].,no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+31591382,Jain G,2019,AD,yes,yes,All AD dementia patients fulfilled the National Institute of Neurological and Communicative Disorders and Stroke and the Alzheimer’s Disease and Related Disorders Association (NINCDS-ADRDA) and National Institute on Aging and Alzheimer’s Association (NIAA) diagnosis criteria for probable AD dementia.,no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+31809862,Ludwig N,2019,AD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+32585840,Oliveira SR,2020,PD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+32955460,Sandau US,2020,AD,yes,yes,"AD patients were diagnosed with probable AD according to ADRDA-NINDS criteria [,], with a mean MMSE score of 21.",no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+32962113,Karaglani M,2020,AD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+33129241,Hojati Z,2020,AD,yes,yes,NINDS-ADRDA and the revised criteria (pertained to the National Institute on Aging-Alzheimer’s Association) were used for the diagnosis of AD patients.,no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+33416118,Grossi I,2020,PD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+33542630,Zhang M,2021,AD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+34042273,Dong LH,2021,AD,yes,yes,The diagnostic criteria for AD patients were set by the National Institute of Neurology and the Institute of Alzheimer's Diseases.,no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+34749366,Zhang M,2021,AD,no_pmc_record,,,,,,full text not retrievable
+35655754,Wu L,2022,PD,yes,yes,"Patients with PD were examined and diagnosed by at least two experienced neurologists from the Department of Neurology of our hospital, according to the Movement Disorder Society (MDS) clinical diagnostic criteria of PD (,).",no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+37483339,Aguilar MA,2023,PD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+38033547,Rai S,2023,PD,yes,yes,The clinical diagnosis was in accordance with the guidelines of the Movement Disorder Society (MDS) clinical diagnostic criteria for Parkinson's disease (Postuma et al.,no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+38172670,Liang J,2024,PD,yes,yes,Patients with PD were diagnosed according to the UK Parkinson’s Disease Society Brain Bank diagnostic criteria [].,no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+38200052,Li Y,2024,PD,yes,yes,"The diagnosis of PD was performed according to the International Parkinson and Movement Disorder Society (MDS) diagnostic criteria by at least two neurologists skilled in movement disorders, and all of the patients were diagnosed as idiopathic PD.",no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+38618193,Duan X,2024,AD,yes,yes,"Materials and Methods Subject and Sample Collection All patients with AD (n=71) were enrolled between March 2017 and August 2018 at Changsha, Hunan Province, China, and diagnosed with possible or probable AD according to the 2011 version of the diagnostic guidelines for Alzheimer’s disease recommended by the National Institute on Aging-Alzheimer’s Association workgroups.",no,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+41373032,Omura T,2025,PD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+41836608,Yang SJ,2026,AD,yes,no,,,not_stated,,"PubMed Central full text via NCBI, retrieved 2026-09-23"
+42389429,Qin Q,2026,AD,yes,yes,"AD patients were diagnosed in accordance with established diagnostic guidelines,with AD patients confirmed through visual reading of [18F] florbetapir (AV45)-PET imaging and/ or a low Aβ42/40 ratio (<0.",no,yes,"All experimental procedures were performed under blinded conditions, with laboratory personnel remaining unaware of participants’ clinical diagnoses during the discovery, training, and validation phases.","PubMed Central full text via NCBI, retrieved 2026-09-23"
+42492311,Chen P,2026,PD,no_pmc_record,,,,,,full text not retrievable
