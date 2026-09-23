@@ -33,6 +33,7 @@ import sys
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 KINETICS = "data/extracted/kinetic_parameters.csv"
 SCHWANHAUSSER = "data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls"
+TUSHEV = "data/raw/kinetics_2026/tushev_2018_table_S1.xls"
 ODE_RESULTS = "results/tables/ode_calibrated_results.json"
 EXTRACTION_JSON = "data/extracted/diagnostic_accuracy_extraction.json"
 FLOW = "data/processed/prisma_flow.json"
@@ -393,7 +394,11 @@ def main():
         def kd(d, k, m):
             return 1.0 - (d + 3.0 * k) / (d + 3.0 * k * m)
 
-        corners = [(d, k) for d in (fr["d_mRNA"]["low"], fr["d_mRNA"]["high"])
+        # EN/PT: d_mRNA is measured now (K068), so the corners span k_repress only
+        d_meas = dose["d_mRNA_BACE1_measured"]
+        check(abs(d_meas - float(kin_by_id["K068"]["value_si"])) < 1e-12,
+              "ode dose: the BACE1 mRNA decay used is not K068")
+        corners = [(d_meas, k)
                    for k in (fr["k_repress"]["low"], fr["k_repress"]["high"])]
         m = dose["mimic_fold_needed_to_offset_clearance"]
         lo, hi = dose["BACE1_knockdown_at_required_mimic"]
@@ -509,6 +514,55 @@ def main():
               "ode chain: the measured pair does not match K060")
         check(abs(ad["pair_if_independent"] - (1.0 - (1.0 - a_) * (1.0 - b_))) < 1e-12,
               "ode chain: the independent-action prediction is not 1 - (1-a)(1-b)")
+
+    # EN | The Tushev rows are read straight out of a 24,435-row table, so each one is
+    #      looked up again here by gene symbol and compared field by field, and the
+    #      derived pooled decay constant is recomputed from all five BACE1 isoforms.
+    #      The pooling is the part worth guarding: the abundance-weighted mean of the
+    #      RATE constants is the right quantity, and the mean of the half-lives is not.
+    # PT | As linhas do Tushev sao lidas de uma tabela de 24.435 linhas, entao cada uma e
+    #      procurada de novo aqui pelo simbolo do gene e comparada campo a campo, e a
+    #      constante de decaimento derivada e recalculada a partir das cinco isoformas de
+    #      BACE1. O pooling e a parte que vale guardar: a media ponderada das CONSTANTES
+    #      DE VELOCIDADE e a grandeza certa, e a media das meias-vidas nao e.
+    if {"K066", "K067", "K068", "K069"} <= set(kin_by_id):
+        try:
+            import pandas as pd
+            tu = pd.read_excel(TUSHEV, sheet_name="PASSData", header=0)
+            tu.columns = [str(c) for c in tu.columns]
+        except Exception as e:
+            tu = None
+            check(False, f"kinetics: cannot read {TUSHEV}: {e}")
+        if tu is not None:
+            sym = tu["gene.symbol"].astype(str).str.lower()
+            hl = pd.to_numeric(tu["half.life[hours]"], errors="coerce")
+            rpm = pd.to_numeric(tu["rpm.neuron.culture"], errors="coerce")
+            for pid, gene, single in (("K066", "snca", True), ("K069", "app", True)):
+                rowsg = tu[sym == gene]
+                check(len(rowsg) == 1,
+                      f"kinetics {pid}: {gene} has {len(rowsg)} isoforms, the row assumes one")
+                if len(rowsg) == 1:
+                    t_printed = float(hl[rowsg.index[0]])
+                    check(abs(float(kin_by_id[pid]["value_as_written"]) - t_printed) < 1e-4,
+                          f"kinetics {pid}: half-life {kin_by_id[pid]['value_as_written']} "
+                          f"!= {t_printed} in the table")
+                    check(abs(float(kin_by_id[pid]["value_si"]) - math.log(2) / t_printed) < 1e-7,
+                          f"kinetics {pid}: value_si is not ln2 over the printed half-life")
+            b = tu[sym == "bace1"]
+            check(len(b) == 5, f"kinetics K067: bace1 has {len(b)} isoforms, the note says five")
+            if len(b):
+                dom = rpm[b.index].idxmax()
+                check(abs(float(kin_by_id["K067"]["value_as_written"]) - float(hl[dom])) < 1e-4,
+                      "kinetics K067: this is not the most abundant BACE1 isoform's half-life")
+                k_eff = float((rpm[b.index] * (math.log(2) / hl[b.index])).sum()
+                              / rpm[b.index].sum())
+                check(abs(float(kin_by_id["K068"]["value_si"]) - k_eff) < 1e-7,
+                      f"kinetics K068: pooled constant {kin_by_id['K068']['value_si']} != {k_eff:.8f}")
+                # EN/PT: and it must NOT be ln2 over the mean of the half-lives
+                wrong = math.log(2) / float((rpm[b.index] * hl[b.index]).sum() / rpm[b.index].sum())
+                check(abs(float(kin_by_id["K068"]["value_si"]) - wrong) > 1e-4,
+                      "kinetics K068: the pooled constant equals the mean-of-half-lives form, "
+                      "which is the wrong average for a decaying pool")
 
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]

@@ -91,7 +91,7 @@ Per miRNA family: mean reported AUC, number of contributing studies, min/max AUC
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 64 rows from 15 primary sources.
+Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 67 rows from 15 primary sources.
 
 | Column | Type | Description |
 |---|---|---|
@@ -118,6 +118,10 @@ Rate constants, half-lives and concentrations used by `scripts/12`, one row per 
 - K038 and K039 record values from a model that the source paper itself rejects. They are kept as warnings and not used.
 - A value printed in a figure or in a figure's table is recorded with that row or label as its quote, and `note` says which figure it was read from. A value that exists only as a position on a plotted curve is not recorded at all.
 - K052 and K054 are the reason the `derived` kind exists. Wilhelm et al. report α- and β-synuclein together (K052) and, in a footnote, the ratio between them (K053); neither is an α-synuclein concentration on its own. K054 combines the two and says so, and `scripts/08` recomputes it. Quoting K052 as α-synuclein would overstate it twofold.
+
+## `data/raw/kinetics_2026/tushev_2018_table_S1.xls`
+
+Supplementary Table S1 of Tushev et al. 2018 (Neuron, DOI 10.1016/j.neuron.2018.03.030): 24,435 3'UTR isoforms with gene symbol, cell-type enrichment, compartment localisation and a `half.life[hours]` column, the processed data the paper's own availability statement points to. `scripts/08` looks up the SNCA, BACE1 and APP rows again from this file and recomputes the pooled BACE1 decay constant. Read it with two cautions, both recorded in the rows that use it: the decay was observed over 16 h, so a quarter of the isoforms carry half-lives beyond the window and the largest reach 18,858 h; and the paper's neuron-enriched summary reproduces only when values above about 25 h are excluded, while the glia summary does not reproduce at all.
 
 ## `data/raw/kinetics_2026/wilhelm_2014_table_S1.xlsx`
 

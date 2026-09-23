@@ -2,13 +2,6 @@
  "generated_on": "2026-09-23",
  "measured_parameter_source": "data/extracted/kinetic_parameters.csv",
  "free_parameters": {
-  "d_mRNA": {
-   "low": 0.03465735902799726,
-   "high": 0.34657359027997264,
-   "default": 0.09392238218969448,
-   "why_en": "BACE1 and SNCA mRNA half-life: declared gap K030. Neither gene appears in the genome-wide table (checked directly: 0 of 5028 rows), so the range spans 2-20 h. The central value is no longer the midpoint of that range but the measured median half-life of neuron-enriched transcripts, 7.38 h (K043, rat hippocampal neurons), which is what this model is about. The fibroblast median is 9.925 h (K040) and the glia median in the same neuronal experiment is 4.89 h (K044); the range covers all three.",
-   "why_pt": "Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. Nenhum dos dois genes aparece na tabela genomica (checado direto: 0 de 5028 linhas), entao a faixa cobre 2-20 h. O valor central nao e mais o meio dessa faixa e sim a mediana medida das transcricoes enriquecidas em neuronio, 7,38 h (K043, neuronios hipocampais de rato), que e o caso que este modelo trata. A mediana em fibroblasto e 9,925 h (K040) e a mediana em glia no mesmo experimento neuronal e 4,89 h (K044); a faixa cobre as tres."
-  },
   "k_repress": {
    "low": 0.1,
    "high": 3.0,
@@ -50,9 +43,9 @@
   }
  },
  "ad_clearance_vs_production": {
-  "abeta_control": 13.64601020225674,
-  "abeta_AD": 19.275806019295892,
-  "abeta_ratio_AD_over_control": 1.4125598422979424,
+  "abeta_control": 14.036770250753765,
+  "abeta_AD": 19.82777797177719,
+  "abeta_ratio_AD_over_control": 1.4125598422979426,
   "clearance_deficit_percent": 30.263157894736846,
   "production_difference_percent": 1.4925373134328401,
   "mimic_fold_needed": 1.493723849372385,
@@ -92,52 +85,52 @@
  },
  "alpha_synuclein_ph_gate": {
   "fibril_number_neutral_pH": 0.001,
-  "fibril_number_acidic_pH": 2.951134807020939,
-  "fold_difference_at_illustrative_values": 2951.134807020939,
-  "fibril_mass_neutral_pH": 16.2012696150402,
-  "fibril_mass_acidic_pH": 1471.4875893816354,
+  "fibril_number_acidic_pH": 2.8931879361042636,
+  "fold_difference_at_illustrative_values": 2893.1879361042634,
+  "fibril_mass_neutral_pH": 16.051635569232513,
+  "fibril_mass_acidic_pH": 1442.26332817374,
   "neutral_stays_at_seed": true,
   "acidic_above_neutral_in_every_k2": true,
   "fold_range_over_k2_sweep": [
-   548.0017443897418,
-   14029.689715718436
+   534.7910686378079,
+   13764.298057967892
   ],
   "k2_sweep": [
    {
     "k2_aSyn": 1e-08,
-    "fold": 548.0017443897418
+    "fold": 534.7910686378079
    },
    {
     "k2_aSyn": 3.162277660168379e-08,
-    "fold": 858.1746095552919
+    "fold": 839.1969774118959
    },
    {
     "k2_aSyn": 1e-07,
-    "fold": 1312.741564180682
+    "fold": 1285.3264259607638
    },
    {
     "k2_aSyn": 3.162277660168379e-07,
-    "fold": 1977.805775586909
+    "fold": 1938.0163151066306
    },
    {
     "k2_aSyn": 1e-06,
-    "fold": 2951.134807020939
+    "fold": 2893.1879361042634
    },
    {
     "k2_aSyn": 3.162277660168379e-06,
-    "fold": 4376.832733227338
+    "fold": 4292.23754287492
    },
    {
     "k2_aSyn": 9.999999999999999e-06,
-    "fold": 6466.784936352319
+    "fold": 6343.076553772416
    },
    {
     "k2_aSyn": 3.1622776601683795e-05,
-    "fold": 9532.155501000403
+    "fold": 9351.03534453805
    },
    {
     "k2_aSyn": 0.0001,
-    "fold": 14029.689715718436
+    "fold": 13764.298057967892
    }
   ],
   "reading_en": "Direction sourced (K011, K042); magnitude set by illustrative constants.",
@@ -169,15 +162,16 @@
  },
  "mimic_dose_vs_measured_knockdown": {
   "mimic_fold_needed_to_offset_clearance": 1.493723849372385,
+  "d_mRNA_BACE1_measured": 0.04556472,
   "measured_BACE1_knockdown_K047": 0.5,
   "grid_points": 81,
   "mimic_fold_to_reproduce_measured_knockdown": [
-   2.0038508176697776,
-   3.155245300933242
+   2.005062746666667,
+   2.1518824
   ],
   "BACE1_knockdown_at_required_mimic": [
-   0.18638338967270385,
-   0.32968229246794867
+   0.3000255070498702,
+   0.3294157091324299
   ],
   "required_knockdown_below_measured_everywhere": true,
   "reading_en": "The comparison is between a modelled dose and a measured effect in a cell line, not a prediction of what a mimic would do in a human brain. It says only whether the intervention the model asks for is larger or smaller than one already shown to be achievable.",
@@ -277,12 +271,12 @@
   "reading_en": "Three systems in one chain: a knockdown measured in a cell line and in rat cortical neurons, a concentration measured in rat synaptosomes, and a saturation curve measured on recombinant protein in vitro. The chain is arithmetic on measured numbers with no free parameter anywhere, but it is not a prediction for a human brain, and each step carries the system it came from.",
   "reading_pt": "Tres sistemas numa cadeia so: uma queda medida em linhagem celular e em neuronios corticais de rato, uma concentracao medida em sinaptossomos de rato e uma curva de saturacao medida em proteina recombinante in vitro. A cadeia e aritmetica sobre numeros medidos, sem nenhum parametro livre, mas nao e predicao para cerebro humano, e cada passo carrega o sistema de onde veio."
  },
- "free_parameter_sensitivity_scans": 27,
- "free_parameter_sensitivity_ad_above_control": 26,
+ "free_parameter_sensitivity_scans": 18,
+ "free_parameter_sensitivity_ad_above_control": 16,
  "free_parameter_sensitivity_flips": 0,
- "free_parameter_sensitivity_not_evaluable": 1,
- "abeta_ratio_min": 1.4125598422802839,
- "abeta_ratio_max": 1.4125598472810137,
+ "free_parameter_sensitivity_not_evaluable": 2,
+ "abeta_ratio_min": 1.4125598422975647,
+ "abeta_ratio_max": 1.4125598434901554,
  "abeta_ratio_note_en": "The AD/control monomer ratio is analytically (k_prod_AD/k_clear_AD)/(k_prod_ctrl/k_clear_ctrl) and is therefore independent of every free parameter. The scan confirms this numerically rather than discovering it.",
  "abeta_ratio_note_pt": "O ratio de monomero AD/controle e analiticamente (k_prod_AD/k_clear_AD)/(k_prod_ctrl/k_clear_ctrl) e, portanto, independente de todo parametro livre. A varredura confirma isso numericamente, em vez de descobrir."
 }

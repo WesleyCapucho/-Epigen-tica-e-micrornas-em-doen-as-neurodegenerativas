@@ -1,41 +1,15 @@
 # Pedido de extração externa
 
-**Estado em 23/09/2026.** Você já enviou três PDFs e as três tabelas suplementares do
-Wilhelm. O que saiu deles está em `data/extracted/kinetic_parameters.csv` (K043 a K065).
-**Nada é obrigatório.** Restou um item opcional, abaixo, com o ganho esperado explicitado.
+**Estado em 23/09/2026.** Você enviou quatro PDFs e sete tabelas suplementares. O que
+saiu deles está em `data/extracted/kinetic_parameters.csv` (K043 a K069). **A lista está
+fechada.**
 
 ---
 
-## Ainda faltando
+## Nada faltando
 
-### Tushev 2018 — Tabela S1 (dados processados, meia-vida por isoforma)
-
-Artigo: DOI 10.1016/j.neuron.2018.03.030 · PMID 29656876 · Neuron 98:495-511
-
-**Onde está.** Na mesma página de onde você tirou o `mmc6.pdf`, em *Supplemental
-Information*. O artigo diz, na seção **DATA AND SOFTWARE AVAILABILITY**:
-
-> "The accession number for the raw sequencing data reported in this paper is NCBI
-> BioProject: PRJNA390472. **Processed data used for analyses in this manuscript are
-> included in Table S1.**"
-
-O suplemento tem oito figuras e **cinco tabelas**. O `mmc6.pdf` que você mandou traz as
-figuras S1–S8 e a Tabela S5 (primers). As Tabelas S1–S4 são arquivos Excel separados,
-provavelmente `mmc2.xlsx` a `mmc5.xlsx`. **A que interessa é a S1.** Se não der para
-saber qual arquivo é qual pelo nome, baixe todos os `.xlsx` e me mande — eu identifico.
-
-**O que preciso saber dela:** se existe uma coluna de meia-vida (em horas) por isoforma
-de 3'UTR, e se **Bace1**, **Snca** e **App** aparecem, com que valor e com qual isoforma.
-
-**O que isso muda, para você decidir se vale o esforço.** Fecharia a última lacuna
-declarada (K030) e transformaria um parâmetro livre do modelo num valor medido. Não
-mexe em nenhum dos resultados principais: a razão de Aβ na DA é invariante a parâmetros
-livres, e a eliminação do mimético, a saturação da α-sinucleína e a cadeia miR-7 →
-elongação não dependem do decaimento de mRNA. O ganho concreto é estreitar a faixa de
-19–33% da queda de BACE1 exigida. É melhoria real, mas não é resultado novo.
-
-**Se os genes não estiverem lá, isso também é resposta.** A K030 continua lacuna
-declarada, agora com uma segunda fonte conferida em vez de uma.
+Todas as fontes externas pedidas foram entregues e extraídas. A última lacuna declarada
+(K030, meias-vidas dos mRNAs de BACE1 e SNCA) foi fechada pela Tabela S1 do Tushev.
 
 ---
 
@@ -57,7 +31,7 @@ parametro | valor exatamente como impresso | unidade | n | condição experiment
 
 | Fonte | O que entrou na tabela |
 |---|---|
-| Tushev 2018, *Neuron* | K043 mediana de meia-vida de mRNA em neurônio, 7,38 h; K044 mediana em glia, 4,89 h |
+| Tushev 2018, *Neuron* | K043 mediana em neurônio, 7,38 h; K044 mediana em glia, 4,89 h (não reproduz da tabela — ver ressalva); K066 meia-vida do mRNA de SNCA, 6,53 h; K067 isoforma dominante de BACE1, 17,39 h de cinco; K068 constante agrupada derivada da BACE1; K069 APP, 51,39 h, extrapolação marcada como não usável |
 | Hébert 2008, *PNAS* | K045 miR-29b-1 a 0,60 do controle (p = 0,02751); K046 replicação por qRT-PCR; K047 queda de ~50% da BACE1; K048 queda de ~50–80% em Aβ e sAPPβ; K049 ~30% dos casos de DA esporádica com BACE1 alta |
 | Doxakis 2010, *JBC* | K058 miR-7 baixa a SNCA em 30%; K059 miR-153 em 19%; K060 os dois em 46%; K061/K062 mRNA em 15% e 50%; K063 SNCA endógena em neurônios corticais, 43%; K064 réplica em hipocampo, ~30–40%; K065 bloqueio dos miRNAs endógenos eleva o repórter em 44% |
 | Wilhelm 2014, *Science* | K050 volume do botão, 0,37 µm³; K052 α+β-sinucleína 6525,67 cópias; K053 razão α:β de 0,98:1; K054 α-sinucleína derivada, 21,6 µM; K055 BACE1 115,84 cópias; K056 APP 6283,6 cópias; K057 volume mitocondrial 0,12 µm³ |
@@ -68,6 +42,16 @@ linha saiu da tabela. A ressalva que eu havia levantado estava certa: o número 
 que é o que permite separar. Sem essa nota, o valor combinado teria superestimado a
 α-sinucleína em duas vezes.
 
+Duas ressalvas saíram da leitura da Tabela S1 do Tushev, e as duas ficaram registradas:
+
+1. O decaimento foi observado por 16 h. Um quarto das 24.435 isoformas tem meia-vida
+   além dessa janela, e as maiores chegam a 18.858 h. A meia-vida de 51,39 h do APP está
+   nessa faixa, então é extrapolação, não medida, e a linha diz isso.
+2. A mediana publicada para neurônio (7,38 h) se reproduz da tabela quando se excluem
+   meias-vidas acima de cerca de 25 h — dá 7,394 h. A da glia (4,89 h) não se reproduz
+   com nenhum filtro que testei; o mais próximo foi 6,70 h. A linha K044 passou a avisar
+   que deve ser citada como impressa e nunca recalculada.
+
 Os PDFs dos artigos não são versionados no repositório: só os dados extraídos e as
-citações. A tabela S1 é tabela de dados suplementares e está arquivada em
-`data/raw/kinetics_2026/wilhelm_2014_table_S1.xlsx`, para que as verificações rodem.
+citações. As tabelas de dados suplementares ficam em `data/raw/kinetics_2026/`, para que
+as verificações rodem.

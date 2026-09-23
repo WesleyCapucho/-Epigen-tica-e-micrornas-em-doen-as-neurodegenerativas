@@ -29,7 +29,13 @@ EN | What changed, and why. The models in scripts/02 came from the source monogr
           a free parameter, and the Abeta aggregation block is illustrative. Borrowing
           the alpha-synuclein value instead would be wrong by roughly two orders of
           magnitude against the measured clearance rate.
-       6. In humans, Abeta42 production does not differ between AD and control
+       6. BACE1 mRNA is not one species either. It has five 3'UTR isoforms whose
+          half-lives run from 2.8 to 23.9 h (K067), so the pool's decay constant is the
+          abundance-weighted mean of the RATE constants, not of the half-lives (K068).
+          SNCA has a single isoform at 6.53 h (K066). Both were a declared gap until the
+          Tushev supplementary table was read, and both are now measured, which is why
+          mRNA decay is no longer a free parameter.
+       7. In humans, Abeta42 production does not differ between AD and control
           (6.7 vs 6.6 %/h, p = 0.96); clearance does (7.6 vs 5.3 %/h, p = 0.03)
           (K001-K004). The disease lever is clearance. The old model moved production.
 
@@ -52,21 +58,27 @@ PT | O que mudou, e por que. Os modelos do scripts/02 vieram da monografia e usa
        4. Em pH neutro, nucleacao primaria e secundaria da alfa-sinucleina sao
           indetectaveis (K011). O termo autocatalitico precisa ficar desligado a menos
           que o compartimento seja acido. O modelo antigo nao tinha essa trava.
-       5. Em humanos, a producao de Abeta42 nao difere entre AD e controle
+       5. O mRNA de BACE1 tambem nao e uma especie so. Ele tem cinco isoformas de 3'UTR
+          com meias-vidas de 2,8 a 23,9 h (K067), entao a constante de decaimento do pool
+          e a media ponderada das CONSTANTES DE VELOCIDADE, nao das meias-vidas (K068). O
+          SNCA tem uma isoforma so, de 6,53 h (K066). Os dois eram lacuna declarada ate a
+          tabela suplementar do Tushev ser lida, e os dois agora sao medidos, e por isso o
+          decaimento de mRNA deixou de ser parametro livre.
+       6. Em humanos, a producao de Abeta42 nao difere entre AD e controle
           (6,7 vs 6,6 %/h, p = 0,96); a depuracao difere (7,6 vs 5,3 %/h, p = 0,03)
           (K001-K004). A alavanca da doenca e a depuracao. O modelo antigo mexia na
           producao.
 
 EN | What this model is and is not. Where a constant was measured it is used and cited
-     by param_id. Where it was not - the mRNA decay rates, the translation and
-     transcription rates, the strength of miRNA repression - it is a FREE parameter,
+     by param_id. Where it was not - the translation rate and the strength of miRNA
+     repression - it is a FREE parameter,
      named as such, and the conclusions are reported across a scan of its plausible
      range rather than at one convenient value. No free parameter was tuned to make a
      result come out. The output is therefore semi-quantitative: it supports statements
      about direction, ordering and order of magnitude, not about absolute concentrations.
 PT | O que este modelo e e o que nao e. Onde a constante foi medida, ela e usada e
-     citada pelo param_id. Onde nao foi - taxas de decaimento de mRNA, de traducao e de
-     transcricao, forca da repressao por miRNA - ela e parametro LIVRE, nomeado como
+     citada pelo param_id. Onde nao foi - taxa de traducao e forca da repressao por
+     miRNA - ela e parametro LIVRE, nomeado como
      tal, e as conclusoes sao reportadas ao longo de uma varredura da faixa plausivel,
      nao num valor conveniente. Nenhum parametro livre foi ajustado para produzir um
      resultado. A saida e, portanto, semiquantitativa: sustenta afirmacoes sobre
@@ -159,8 +171,11 @@ def load_measured():
         "d_miR29c": val("K018"),
         "d_miR7":   val("K020"),
         "d_miR7_slow": val("K021"),
+        # mRNA decay of the two target genes, measured in neurons (Tushev 2018)
+        "d_mRNA_SNCA": val("K066"),
         # absolute abundances in the presynaptic bouton (Wilhelm 2014)
-        "C_aSyn_uM": derived("K054"),           # alpha only, derived from K052 and K053
+        "C_aSyn_uM": derived("K054"),
+        "d_mRNA_BACE1": derived("K068"),           # alpha only, derived from K052 and K053
         "N_BACE1": val("K055"),
         "N_APP": val("K056"),
         # measured size of miR-7 repression of alpha-synuclein (Doxakis 2010)
@@ -188,9 +203,10 @@ def load_measured():
         "Ab_load_AD_uq":       val("K036"),
         # EN/PT: K040/K041 (genome-wide medians) are deliberately NOT loaded here. They
         #        are kind=derived - computed by this project from a supplementary table,
-        #        not read in a sentence - and they only justify the free-parameter range
-        #        in FREE["d_mRNA"]. The val() guard refuses non-numeric kinds, which is
-        #        what caught an earlier attempt to feed one straight into the model.
+        #        not read in a sentence - and they were only ever context for the mRNA
+        #        decay rate, which is now measured per gene (K066, K068). The val() guard
+        #        refuses non-numeric kinds, which is what caught an earlier attempt to
+        #        feed one straight into the model.
     }
     # EN/PT: miR-29a does not decay measurably within the assay (K019, qualitative).
     #        Represented by the slowest rate the data can support, the whole-population
@@ -204,24 +220,17 @@ def load_measured():
 # --------------------------------------------------------------------------
 # EN | Every entry here is UNMEASURED in the parameter table. The scan range is what
 #      the scripts explore; the midpoint is used only to draw the time courses.
+#      mRNA decay used to live here. It does not any more: Tushev et al. 2018 measured
+#      it in neurons for both genes (SNCA 6.53 h, K066; BACE1 pooled over its five
+#      3'UTR isoforms, K068), so each arm now carries its own measured rate and the
+#      scan is one parameter shorter.
 # PT | Toda entrada aqui e NAO MEDIDA na tabela de parametros. A faixa e o que os
 #      scripts varrem; o ponto medio serve apenas para desenhar as curvas.
+#      O decaimento de mRNA morava aqui. Nao mora mais: Tushev et al. 2018 o mediram em
+#      neuronios para os dois genes (SNCA 6,53 h, K066; BACE1 agrupado sobre suas cinco
+#      isoformas de 3'UTR, K068), entao cada braco carrega agora sua taxa medida e a
+#      varredura tem um parametro a menos.
 FREE = {
-    "d_mRNA": dict(low=LN2 / 20.0, high=LN2 / 2.0, default=LN2 / 7.38,
-                   why_en="BACE1 and SNCA mRNA half-life: declared gap K030. Neither gene appears "
-                           "in the genome-wide table (checked directly: 0 of 5028 rows), so the "
-                           "range spans 2-20 h. The central value is no longer the midpoint of that "
-                           "range but the measured median half-life of neuron-enriched transcripts, "
-                           "7.38 h (K043, rat hippocampal neurons), which is what this model is about. "
-                           "The fibroblast median is 9.925 h (K040) and the glia median in the same "
-                           "neuronal experiment is 4.89 h (K044); the range covers all three.",
-                   why_pt="Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. Nenhum dos dois "
-                           "genes aparece na tabela genomica (checado direto: 0 de 5028 linhas), entao "
-                           "a faixa cobre 2-20 h. O valor central nao e mais o meio dessa faixa e sim a "
-                           "mediana medida das transcricoes enriquecidas em neuronio, 7,38 h (K043, "
-                           "neuronios hipocampais de rato), que e o caso que este modelo trata. A "
-                           "mediana em fibroblasto e 9,925 h (K040) e a mediana em glia no mesmo "
-                           "experimento neuronal e 4,89 h (K044); a faixa cobre as tres."),
     "k_repress": dict(low=0.1, high=3.0,
                       why_en="Strength of miRNA repression per unit miRNA. Not measured as a "
                               "rate anywhere in the table.",
@@ -354,7 +363,7 @@ def run_ad(measured, condition, free=None, t_end=2000.0, mimic=1.0):
         "d_miR29a": measured["d_miR29a_proxy"],
         "d_miR29b": measured["d_miR29b"],
         "d_miR29c": measured["d_miR29c"],
-        "d_mRNA": free["d_mRNA"],
+        "d_mRNA": measured["d_mRNA_BACE1"],
         "k_repress": free["k_repress"],
         "k_translate": free["k_translate"],
         "d_BACE1": measured["d_BACE1_neuron"],
@@ -426,7 +435,7 @@ def run_pd(measured, acidic=False, free=None, t_end=2000.0, mimic=1.0,
     free = free or {k: midpoint(k) for k in FREE}
     p = {
         "d_miR7": d_miR7 if d_miR7 is not None else measured["d_miR7"],
-        "d_mRNA": free["d_mRNA"],
+        "d_mRNA": measured["d_mRNA_SNCA"],
         "k_repress": free["k_repress"],
         "k_translate": free["k_translate"],
         "d_aSyn": measured["d_aSyn"],
@@ -744,14 +753,15 @@ def experiment_mimic_versus_measured_knockdown(measured, clearance, n=9):
     EN | At steady state the BACE1 mRNA level is s_mRNA / (d_mRNA + 3 k_repress m) for a
          mimic factor m, because each of the three paralogues settles at m times baseline.
          Protein follows mRNA linearly, so the knockdown does not depend on k_translate
-         and the whole comparison is analytic. It DOES depend on d_mRNA and k_repress,
-         both free, so it is reported across their declared ranges and never at one value.
+         and the whole comparison is analytic. Since Tushev et al. 2018 the mRNA decay is
+         measured (K068), so the only free quantity left here is k_repress, reported
+         across its declared range.
     PT | No estado estacionario o mRNA de BACE1 vale s_mRNA / (d_mRNA + 3 k_repress m)
          para um fator de mimetico m, porque cada um dos tres paralogos se estabiliza em m
          vezes o basal. A proteina acompanha o mRNA linearmente, entao a queda nao depende
-         de k_translate e a comparacao inteira e analitica. Ela DEPENDE de d_mRNA e
-         k_repress, os dois livres, entao e reportada nas faixas declaradas e nunca num
-         valor so.
+         de k_translate e a comparacao inteira e analitica. Desde Tushev et al. 2018 o
+         decaimento do mRNA e medido (K068), entao a unica grandeza livre aqui e o
+         k_repress, reportado em toda a faixa declarada.
     """
     m_needed = clearance["mimic_fold_needed"]
     measured_kd = measured["BACE1_knockdown_miR29"]      # K047, fraction
@@ -764,14 +774,16 @@ def experiment_mimic_versus_measured_knockdown(measured, clearance, n=9):
         """EN/PT: mimic factor that gives a target fractional knockdown."""
         return 1.0 + target / (1.0 - target) * (d + 3.0 * k) / (3.0 * k)
 
-    grid = [(float(d), float(k))
-            for d in np.geomspace(FREE["d_mRNA"]["low"], FREE["d_mRNA"]["high"], n)
-            for k in np.geomspace(FREE["k_repress"]["low"], FREE["k_repress"]["high"], n)]
+    # EN/PT: d is measured now (K068), so only k_repress is swept
+    d_fixed = measured["d_mRNA_BACE1"]
+    grid = [(d_fixed, float(k))
+            for k in np.geomspace(FREE["k_repress"]["low"], FREE["k_repress"]["high"], n * n)]
     kds = [knockdown(d, k, m_needed) for d, k in grid] if m_needed else []
     mimics = [mimic_for(d, k, measured_kd) for d, k in grid]
 
     out = dict(
         mimic_fold_needed_to_offset_clearance=m_needed,
+        d_mRNA_BACE1_measured=float(d_fixed),
         measured_BACE1_knockdown_K047=measured_kd,
         grid_points=len(grid),
         mimic_fold_to_reproduce_measured_knockdown=[float(min(mimics)), float(max(mimics))],

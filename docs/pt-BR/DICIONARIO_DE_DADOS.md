@@ -91,7 +91,7 @@ Por família de miRNA: AUC média reportada, número de estudos contribuintes, A
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 64 linhas de 15 fontes primárias.
+Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 67 linhas de 15 fontes primárias.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
@@ -118,6 +118,10 @@ Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`
 - K038 e K039 registram valores de um modelo que o próprio artigo rejeita. Ficam como aviso e não são usados.
 - Um valor impresso numa figura ou na tabela de uma figura é registrado com aquela linha ou rótulo como citação, e o `note` diz de que figura foi lido. Um valor que só existe como posição numa curva não é registrado.
 - K052 e K054 são a razão de existir o tipo `derived`. Wilhelm et al. reportam α- e β-sinucleína juntas (K052) e, numa nota de rodapé, a razão entre as duas (K053); nenhuma das duas é, sozinha, uma concentração de α-sinucleína. O K054 combina as duas e diz isso, e o `scripts/08` o recalcula. Citar K052 como α-sinucleína superestimaria o valor em duas vezes.
+
+## `data/raw/kinetics_2026/tushev_2018_table_S1.xls`
+
+Tabela Suplementar S1 de Tushev et al. 2018 (Neuron, DOI 10.1016/j.neuron.2018.03.030): 24.435 isoformas de 3'UTR com símbolo do gene, enriquecimento por tipo celular, localização por compartimento e uma coluna `half.life[hours]`, que são os dados processados para os quais a própria declaração de disponibilidade do artigo aponta. O `scripts/08` procura de novo as linhas de SNCA, BACE1 e APP neste arquivo e recalcula a constante de decaimento agrupada da BACE1. Leia com duas ressalvas, ambas registradas nas linhas que o usam: o decaimento foi observado por 16 h, então um quarto das isoformas traz meias-vidas além da janela e as maiores chegam a 18.858 h; e o resumo do artigo para transcrições de neurônio só se reproduz quando se excluem valores acima de cerca de 25 h, enquanto o da glia não se reproduz de forma alguma.
 
 ## `data/raw/kinetics_2026/wilhelm_2014_table_S1.xlsx`
 
