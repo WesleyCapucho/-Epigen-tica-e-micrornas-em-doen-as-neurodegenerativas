@@ -91,7 +91,7 @@ Per miRNA family: mean reported AUC, number of contributing studies, min/max AUC
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 42 rows from 11 primary sources.
+Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 51 rows from 14 primary sources.
 
 | Column | Type | Description |
 |---|---|---|
@@ -101,7 +101,7 @@ Rate constants, half-lives and concentrations used by `scripts/12`, one row per 
 | `parameter` / `symbol` | string | What the value is, and the symbol the model uses |
 | `value_as_written` | string | The value exactly as printed in the source. For `numeric` and `qualitative_constraint` it must appear inside `verbatim_quote` |
 | `value_si` | float | The same value converted to the model's units. Blank for qualitative constraints and gaps |
-| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `fold`, `fractional change`, `fractional increase`, `dimensionless` |
+| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `um^3`, `fold`, `fractional change`, `fractional increase`, `fraction of patients`, `dimensionless` |
 | `unit_as_written` | string | Unit as printed in the source |
 | `population` / `condition` | free text | Who or what was measured, and under which experimental condition. A rate constant without its condition is rejected by `scripts/08` |
 | `n` | string | Sample size as reported |
@@ -116,6 +116,8 @@ Rate constants, half-lives and concentrations used by `scripts/12`, one row per 
 - A `declared_gap` row carries no value, no quote and no citation. It records that a number was looked for and not found, and where. The ODE code refuses to load it.
 - A `derived` row is **not** a number printed by its source. Its derivation is in `note`, and `scripts/08` recomputes it from the archived table in `data/raw/kinetics_2026/`.
 - K038 and K039 record values from a model that the source paper itself rejects. They are kept as warnings and not used.
+- A value printed in a figure or in a figure's table is recorded with that row or label as its quote, and `note` says which figure it was read from. A value that exists only as a position on a plotted curve is not recorded at all.
+- K051 is the most specific kind of gap: the source did quantify the protein, but under the label `α/β-synuclein` and only in a supplementary table that is not in hand. The row says so, so nobody fills it from a different paper by mistake.
 
 ## `data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls`
 
@@ -127,7 +129,7 @@ Deposited coordinates, unchanged: `6N4O.pdb` (human Argonaute2 with miR-122 and 
 
 ## `results/tables/ode_calibrated_results.json`
 
-Output of `scripts/12`: the free parameters and their ranges with the reason each is free; the illustrative aggregation constants and why no source gives them; the AD clearance-versus-production experiment; time for a miRNA mimic to wash out at each measured half-life; the α-synuclein pH-gate experiment; human Aβ42 aggregate loads expressed as multiples of M\*; and a summary of the free-parameter scan.
+Output of `scripts/12`: the free parameters, their ranges and the central value of each (measured where a comparable measurement exists); the illustrative aggregation constants and why no source gives them; the comparison between the required mimic dose and the measured BACE1 knockdown; the AD clearance-versus-production experiment; time for a miRNA mimic to wash out at each measured half-life; the α-synuclein pH-gate experiment; human Aβ42 aggregate loads expressed as multiples of M\*; and a summary of the free-parameter scan.
 
 ## `results/tables/ode_free_parameter_sensitivity.csv`
 

@@ -139,6 +139,8 @@ def load_measured():
         "d_miR29c": val("K018"),
         "d_miR7":   val("K020"),
         "d_miR7_slow": val("K021"),
+        # measured size of miR-29 repression of BACE1 (Hebert 2008)
+        "BACE1_knockdown_miR29": val("K047"),
         # miR-7 neuronal steady state (Kleaveland 2018)
         "miR7_copies": val("K022"),
         "miR7_fold_noCyrano": val("K023"),
@@ -176,13 +178,21 @@ def load_measured():
 # PT | Toda entrada aqui e NAO MEDIDA na tabela de parametros. A faixa e o que os
 #      scripts varrem; o ponto medio serve apenas para desenhar as curvas.
 FREE = {
-    "d_mRNA": dict(low=LN2 / 20.0, high=LN2 / 2.0,
+    "d_mRNA": dict(low=LN2 / 20.0, high=LN2 / 2.0, default=LN2 / 7.38,
                    why_en="BACE1 and SNCA mRNA half-life: declared gap K030. Neither gene appears "
                            "in the genome-wide table (checked directly: 0 of 5028 rows), so the "
-                           "range spans 2-20 h and brackets the genome-wide median of 9.9 h (K040).",
+                           "range spans 2-20 h. The central value is no longer the midpoint of that "
+                           "range but the measured median half-life of neuron-enriched transcripts, "
+                           "7.38 h (K043, rat hippocampal neurons), which is what this model is about. "
+                           "The fibroblast median is 9.925 h (K040) and the glia median in the same "
+                           "neuronal experiment is 4.89 h (K044); the range covers all three.",
                    why_pt="Meia-vida do mRNA de BACE1 e SNCA: lacuna declarada K030. Nenhum dos dois "
                            "genes aparece na tabela genomica (checado direto: 0 de 5028 linhas), entao "
-                           "a faixa cobre 2-20 h e contem a mediana genomica de 9,9 h (K040)."),
+                           "a faixa cobre 2-20 h. O valor central nao e mais o meio dessa faixa e sim a "
+                           "mediana medida das transcricoes enriquecidas em neuronio, 7,38 h (K043, "
+                           "neuronios hipocampais de rato), que e o caso que este modelo trata. A "
+                           "mediana em fibroblasto e 9,925 h (K040) e a mediana em glia no mesmo "
+                           "experimento neuronal e 4,89 h (K044); a faixa cobre as tres."),
     "k_repress": dict(low=0.1, high=3.0,
                       why_en="Strength of miRNA repression per unit miRNA. Not measured as a "
                               "rate anywhere in the table.",
@@ -226,7 +236,20 @@ ILLUSTRATIVE = {
 
 
 def midpoint(name):
+    """
+    EN | The central value of a free parameter: a measured value where one exists for a
+         comparable system, otherwise the geometric mean of the declared range. This is
+         still not a fit - the default is read from the parameter table, not chosen to
+         make a result come out - but it is better than the middle of an interval.
+    PT | O valor central de um parametro livre: um valor medido quando existe para um
+         sistema comparavel, senao a media geometrica da faixa declarada. Isto continua
+         nao sendo ajuste - o padrao vem da tabela de parametros, nao e escolhido para
+         produzir um resultado - mas e melhor que o meio de um intervalo.
+    """
     f = FREE[name]
+    if "default" in f:
+        assert f["low"] <= f["default"] <= f["high"], f"{name}: default outside its range"
+        return f["default"]
     return math.sqrt(f["low"] * f["high"])   # EN/PT: geometric mean of the scan range
 
 
@@ -520,6 +543,72 @@ def experiment_ph_gate(measured):
     )
 
 
+def experiment_mimic_versus_measured_knockdown(measured, clearance, n=9):
+    """
+    EN | Put the dose the model asks for next to a dose that has actually been achieved.
+         The model says how much miR-29 has to rise to bring AD Abeta back to the control
+         steady state (clearance experiment). Hebert et al. 2008 measured what miR-29a/b-1
+         transfection does to BACE1 protein in cells: about 50% knockdown (K047). The two
+         meet on BACE1, so the comparison is: what BACE1 knockdown does the required mimic
+         produce, and how large a mimic would be needed to reproduce the measured 50%?
+    PT | Poe a dose que o modelo pede ao lado de uma dose de fato alcancada. O modelo diz
+         quanto o miR-29 precisa subir para levar o Abeta de AD ao estado do controle
+         (experimento de depuracao). Hebert et al. 2008 mediram o que a transfeccao de
+         miR-29a/b-1 faz com a proteina BACE1 em celulas: cerca de 50% de queda (K047).
+         Os dois se encontram na BACE1, entao a comparacao e: que queda de BACE1 a dose
+         exigida produz, e que dose reproduziria os 50% medidos?
+
+    EN | At steady state the BACE1 mRNA level is s_mRNA / (d_mRNA + 3 k_repress m) for a
+         mimic factor m, because each of the three paralogues settles at m times baseline.
+         Protein follows mRNA linearly, so the knockdown does not depend on k_translate
+         and the whole comparison is analytic. It DOES depend on d_mRNA and k_repress,
+         both free, so it is reported across their declared ranges and never at one value.
+    PT | No estado estacionario o mRNA de BACE1 vale s_mRNA / (d_mRNA + 3 k_repress m)
+         para um fator de mimetico m, porque cada um dos tres paralogos se estabiliza em m
+         vezes o basal. A proteina acompanha o mRNA linearmente, entao a queda nao depende
+         de k_translate e a comparacao inteira e analitica. Ela DEPENDE de d_mRNA e
+         k_repress, os dois livres, entao e reportada nas faixas declaradas e nunca num
+         valor so.
+    """
+    m_needed = clearance["mimic_fold_needed"]
+    measured_kd = measured["BACE1_knockdown_miR29"]      # K047, fraction
+
+    def knockdown(d, k, m):
+        """EN/PT: fractional fall in steady-state BACE1 for a mimic factor m."""
+        return 1.0 - (d + 3.0 * k) / (d + 3.0 * k * m)
+
+    def mimic_for(d, k, target):
+        """EN/PT: mimic factor that gives a target fractional knockdown."""
+        return 1.0 + target / (1.0 - target) * (d + 3.0 * k) / (3.0 * k)
+
+    grid = [(float(d), float(k))
+            for d in np.geomspace(FREE["d_mRNA"]["low"], FREE["d_mRNA"]["high"], n)
+            for k in np.geomspace(FREE["k_repress"]["low"], FREE["k_repress"]["high"], n)]
+    kds = [knockdown(d, k, m_needed) for d, k in grid] if m_needed else []
+    mimics = [mimic_for(d, k, measured_kd) for d, k in grid]
+
+    out = dict(
+        mimic_fold_needed_to_offset_clearance=m_needed,
+        measured_BACE1_knockdown_K047=measured_kd,
+        grid_points=len(grid),
+        mimic_fold_to_reproduce_measured_knockdown=[float(min(mimics)), float(max(mimics))],
+    )
+    if kds:
+        out["BACE1_knockdown_at_required_mimic"] = [float(min(kds)), float(max(kds))]
+        out["required_knockdown_below_measured_everywhere"] = bool(max(kds) < measured_kd)
+    out["reading_en"] = (
+        "The comparison is between a modelled dose and a measured effect in a cell line, "
+        "not a prediction of what a mimic would do in a human brain. It says only whether "
+        "the intervention the model asks for is larger or smaller than one already shown "
+        "to be achievable.")
+    out["reading_pt"] = (
+        "A comparacao e entre uma dose modelada e um efeito medido em linhagem celular, "
+        "nao uma predicao do que um mimetico faria num cerebro humano. Ela diz apenas se a "
+        "intervencao que o modelo pede e maior ou menor que uma ja demonstrada como "
+        "alcancavel.")
+    return out
+
+
 def experiment_free_parameter_sensitivity(measured, n=9):
     """
     EN | Do the qualitative conclusions survive the free parameters? Each is scanned
@@ -629,6 +718,7 @@ def main():
     ph = experiment_ph_gate(measured)
     loads = experiment_human_aggregate_load(measured)
     sens = experiment_free_parameter_sensitivity(measured)
+    dose = experiment_mimic_versus_measured_knockdown(measured, clearance)
 
     print("\n--- AD: clearance versus production ---")
     print(f"  Abeta AD / control            : {clearance['abeta_ratio_AD_over_control']:.3f}")
@@ -668,6 +758,15 @@ def main():
     nanq = [r for r in sens if r["verdict"] == "not_evaluable"]
     ok = [r for r in sens if r["verdict"] == "AD_above_control"]
     ratios = [r["abeta_AD_over_control"] for r in ok]
+    print("\n--- Required mimic dose vs a measured knockdown [K047] ---")
+    kd = dose.get("BACE1_knockdown_at_required_mimic")
+    if kd:
+        print(f"  BACE1 knockdown at the required mimic : "
+              f"{100*kd[0]:.0f}-{100*kd[1]:.0f}%  across {dose['grid_points']} free-parameter pairs")
+    print(f"  measured knockdown in cells [K047]    : {100*dose['measured_BACE1_knockdown_K047']:.0f}%")
+    lo, hi = dose["mimic_fold_to_reproduce_measured_knockdown"]
+    print(f"  mimic fold to reproduce it            : {lo:.2f} .. {hi:.2f}")
+
     print("\n--- Free-parameter sensitivity ---")
     print(f"  scans run / varreduras        : {len(sens)}")
     print(f"  AD above control              : {len(ok)}")
@@ -688,6 +787,7 @@ def main():
         mimic_washout=washout,
         alpha_synuclein_ph_gate=ph,
         human_abeta_aggregate_load=loads,
+        mimic_dose_vs_measured_knockdown=dose,
         free_parameter_sensitivity_scans=len(sens),
         free_parameter_sensitivity_ad_above_control=len(ok),
         free_parameter_sensitivity_flips=len(flips),

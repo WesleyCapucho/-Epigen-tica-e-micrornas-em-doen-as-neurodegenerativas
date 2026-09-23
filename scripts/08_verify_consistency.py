@@ -372,6 +372,42 @@ def main():
                   f"ode washout {lab}: {w['hours_to_return_to_baseline']:.3f} h, "
                   f"expected {expect:.3f} h")
 
+    # EN | The dose comparison is analytic, so it can be checked in closed form rather
+    #      than trusted: a mimic factor m gives a fractional BACE1 knockdown of
+    #      1 - (d + 3k)/(d + 3k m), and the inverse must return the measured knockdown.
+    #      Both ends of each reported range must also be consistent with the free
+    #      parameter ranges the same file declares.
+    # PT | A comparacao de doses e analitica, entao pode ser checada em forma fechada em
+    #      vez de aceita: um fator de mimetico m da uma queda fracional de BACE1 de
+    #      1 - (d + 3k)/(d + 3k m), e a inversa tem de devolver a queda medida. As duas
+    #      pontas de cada faixa reportada tambem precisam ser coerentes com as faixas de
+    #      parametro livre que o mesmo arquivo declara.
+    if ode is not None and "mimic_dose_vs_measured_knockdown" in ode:
+        dose = ode["mimic_dose_vs_measured_knockdown"]
+        fr = ode["free_parameters"]
+        target = dose["measured_BACE1_knockdown_K047"]
+        kin_by_pid = {r["param_id"]: r for r in kin}
+        check(abs(target - float(kin_by_pid["K047"]["value_si"])) < 1e-12,
+              "ode dose: measured knockdown does not match K047")
+
+        def kd(d, k, m):
+            return 1.0 - (d + 3.0 * k) / (d + 3.0 * k * m)
+
+        corners = [(d, k) for d in (fr["d_mRNA"]["low"], fr["d_mRNA"]["high"])
+                   for k in (fr["k_repress"]["low"], fr["k_repress"]["high"])]
+        m = dose["mimic_fold_needed_to_offset_clearance"]
+        lo, hi = dose["BACE1_knockdown_at_required_mimic"]
+        vals = [kd(d, k, m) for d, k in corners]
+        check(abs(min(vals) - lo) < 1e-9 and abs(max(vals) - hi) < 1e-9,
+              f"ode dose: knockdown range {lo:.4f}-{hi:.4f} != corners "
+              f"{min(vals):.4f}-{max(vals):.4f}")
+        for m_end in dose["mimic_fold_to_reproduce_measured_knockdown"]:
+            got = [kd(d, k, m_end) for d, k in corners]
+            check(min(abs(g - target) for g in got) < 1e-9,
+                  f"ode dose: mimic fold {m_end:.4f} does not give the measured knockdown")
+        check(dose["required_knockdown_below_measured_everywhere"] == (hi < target),
+              "ode dose: the below-measured verdict disagrees with the reported range")
+
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
     check(nd["mirna_directed_therapeutic_trials"] == 0,

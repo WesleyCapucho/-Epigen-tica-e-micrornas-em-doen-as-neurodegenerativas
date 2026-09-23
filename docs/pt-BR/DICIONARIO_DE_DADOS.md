@@ -91,7 +91,7 @@ Por família de miRNA: AUC média reportada, número de estudos contribuintes, A
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 42 linhas de 11 fontes primárias.
+Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 51 linhas de 14 fontes primárias.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
@@ -101,7 +101,7 @@ Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`
 | `parameter` / `symbol` | string | O que o valor é, e o símbolo usado no modelo |
 | `value_as_written` | string | O valor exatamente como impresso na fonte. Em `numeric` e `qualitative_constraint`, precisa aparecer dentro de `verbatim_quote` |
 | `value_si` | float | O mesmo valor convertido para as unidades do modelo. Vazio em restrições qualitativas e lacunas |
-| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `fold`, `fractional change`, `fractional increase`, `dimensionless` |
+| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `um^3`, `fold`, `fractional change`, `fractional increase`, `fraction of patients`, `dimensionless` |
 | `unit_as_written` | string | Unidade como impressa na fonte |
 | `population` / `condition` | texto livre | Quem ou o que foi medido, e em que condição experimental. Constante de velocidade sem condição é rejeitada pelo `scripts/08` |
 | `n` | string | Tamanho amostral como reportado |
@@ -116,6 +116,8 @@ Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`
 - Uma linha `declared_gap` não traz valor, citação nem frase. Ela registra que um número foi procurado e não encontrado, e onde. O código das EDOs se recusa a carregá-la.
 - Uma linha `derived` **não** é número impresso pela fonte. A derivação está em `note`, e o `scripts/08` a recalcula a partir da tabela arquivada em `data/raw/kinetics_2026/`.
 - K038 e K039 registram valores de um modelo que o próprio artigo rejeita. Ficam como aviso e não são usados.
+- Um valor impresso numa figura ou na tabela de uma figura é registrado com aquela linha ou rótulo como citação, e o `note` diz de que figura foi lido. Um valor que só existe como posição numa curva não é registrado.
+- K051 é o tipo mais específico de lacuna: a fonte quantificou a proteína, mas sob o rótulo `α/β-sinucleína` e apenas numa tabela suplementar que não está em mãos. A linha diz isso, para ninguém preencher com outro artigo por engano.
 
 ## `data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls`
 
@@ -127,7 +129,7 @@ Coordenadas depositadas, sem alteração: `6N4O.pdb` (Argonauta2 humana com miR-
 
 ## `results/tables/ode_calibrated_results.json`
 
-Saída do `scripts/12`: os parâmetros livres e suas faixas, com o motivo de cada um ser livre; as constantes ilustrativas de agregação e por que nenhuma fonte as dá; o experimento depuração-versus-produção na DA; o tempo para um mimético de miRNA ser eliminado em cada meia-vida medida; o experimento da comporta de pH da α-sinucleína; as cargas de agregado de Aβ42 humanas expressas em múltiplos de M\*; e um resumo da varredura dos parâmetros livres.
+Saída do `scripts/12`: os parâmetros livres, suas faixas e o valor central de cada um (medido quando existe medida comparável); as constantes ilustrativas de agregação e por que nenhuma fonte as dá; a comparação entre a dose de mimético exigida e a queda de BACE1 medida; o experimento depuração-versus-produção na DA; o tempo para um mimético de miRNA ser eliminado em cada meia-vida medida; o experimento da comporta de pH da α-sinucleína; as cargas de agregado de Aβ42 humanas expressas em múltiplos de M\*; e um resumo da varredura dos parâmetros livres.
 
 ## `results/tables/ode_free_parameter_sensitivity.csv`
 
