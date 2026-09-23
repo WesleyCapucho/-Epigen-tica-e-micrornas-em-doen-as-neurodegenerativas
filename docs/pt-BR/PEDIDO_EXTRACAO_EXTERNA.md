@@ -2,18 +2,40 @@
 
 **Estado em 23/09/2026.** Você já enviou três PDFs e as três tabelas suplementares do
 Wilhelm. O que saiu deles está em `data/extracted/kinetic_parameters.csv` (K043 a K065).
-**Nada é obrigatório agora.** Restou só um item opcional, abaixo.
+**Nada é obrigatório.** Restou um item opcional, abaixo, com o ganho esperado explicitado.
 
 ---
 
 ## Ainda faltando
 
-### Tushev 2018 — tabela suplementar com meia-vida por gene (opcional)
+### Tushev 2018 — Tabela S1 (dados processados, meia-vida por isoforma)
 
-O PDF enviado traz a mediana (7,38 h), mas não os genes individuais. Se houver uma
-tabela suplementar com meia-vida por isoforma de 3'UTR, preciso saber se **Bace1**,
-**Snca** e **App** aparecem, e com que valor. Se não aparecerem, isso também é
-resposta: a lacuna K030 continua registrada como lacuna.
+Artigo: DOI 10.1016/j.neuron.2018.03.030 · PMID 29656876 · Neuron 98:495-511
+
+**Onde está.** Na mesma página de onde você tirou o `mmc6.pdf`, em *Supplemental
+Information*. O artigo diz, na seção **DATA AND SOFTWARE AVAILABILITY**:
+
+> "The accession number for the raw sequencing data reported in this paper is NCBI
+> BioProject: PRJNA390472. **Processed data used for analyses in this manuscript are
+> included in Table S1.**"
+
+O suplemento tem oito figuras e **cinco tabelas**. O `mmc6.pdf` que você mandou traz as
+figuras S1–S8 e a Tabela S5 (primers). As Tabelas S1–S4 são arquivos Excel separados,
+provavelmente `mmc2.xlsx` a `mmc5.xlsx`. **A que interessa é a S1.** Se não der para
+saber qual arquivo é qual pelo nome, baixe todos os `.xlsx` e me mande — eu identifico.
+
+**O que preciso saber dela:** se existe uma coluna de meia-vida (em horas) por isoforma
+de 3'UTR, e se **Bace1**, **Snca** e **App** aparecem, com que valor e com qual isoforma.
+
+**O que isso muda, para você decidir se vale o esforço.** Fecharia a última lacuna
+declarada (K030) e transformaria um parâmetro livre do modelo num valor medido. Não
+mexe em nenhum dos resultados principais: a razão de Aβ na DA é invariante a parâmetros
+livres, e a eliminação do mimético, a saturação da α-sinucleína e a cadeia miR-7 →
+elongação não dependem do decaimento de mRNA. O ganho concreto é estreitar a faixa de
+19–33% da queda de BACE1 exigida. É melhoria real, mas não é resultado novo.
+
+**Se os genes não estiverem lá, isso também é resposta.** A K030 continua lacuna
+declarada, agora com uma segunda fonte conferida em vez de uma.
 
 ---
 
