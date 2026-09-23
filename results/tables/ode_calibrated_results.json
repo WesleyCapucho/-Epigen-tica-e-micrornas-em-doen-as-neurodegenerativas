@@ -1,5 +1,5 @@
 {
- "generated_on": "2026-09-22",
+ "generated_on": "2026-09-23",
  "measured_parameter_source": "data/extracted/kinetic_parameters.csv",
  "free_parameters": {
   "d_mRNA": {
@@ -21,6 +21,33 @@
    "why_pt": "Producao de proteina por unidade de mRNA por hora."
   }
  },
+ "illustrative_constants": {
+  "kn_Ab": {
+   "value": 1e-06,
+   "why_en": "Abeta42 primary nucleation. Not separable from k+ with the published data (K037).",
+   "why_pt": "Nucleacao primaria do Abeta42. Nao separavel de k+ com os dados publicados (K037)."
+  },
+  "k2_Ab": {
+   "value": 0.0001,
+   "why_en": "Abeta42 secondary nucleation. Not separable (K037).",
+   "why_pt": "Nucleacao secundaria do Abeta42. Nao separavel (K037)."
+  },
+  "kplus_Ab": {
+   "value": 0.001,
+   "why_en": "Abeta42 elongation. Not separable (K037); the alpha-synuclein value must not be borrowed.",
+   "why_pt": "Alongamento do Abeta42. Nao separavel (K037); o valor da alfa-sinucleina nao pode ser emprestado."
+  },
+  "kn_aSyn": {
+   "value": 1e-08,
+   "why_en": "alpha-synuclein primary nucleation at acidic pH. Only qualitative in the source (K042).",
+   "why_pt": "Nucleacao primaria da alfa-sinucleina em pH acido. So qualitativa na fonte (K042)."
+  },
+  "k2_aSyn": {
+   "value": 1e-06,
+   "why_en": "alpha-synuclein secondary nucleation at acidic pH. Only qualitative in the source (K042).",
+   "why_pt": "Nucleacao secundaria da alfa-sinucleina em pH acido. So qualitativa na fonte (K042)."
+  }
+ },
  "ad_clearance_vs_production": {
   "abeta_control": 13.523982942445567,
   "abeta_AD": 19.103435212420983,
@@ -34,40 +61,86 @@
   "miR-7 (1.7 h, K020)": {
    "decay_constant_per_hour": 0.407734,
    "half_life_hours": 1.6999984807740962,
-   "hours_to_return_to_baseline": 5.388867686619756,
-   "days_to_return_to_baseline": 0.2245361536091565
+   "hours_to_return_to_baseline": 11.036140401169058,
+   "days_to_return_to_baseline": 0.4598391833820441
   },
   "miR-7 upper bound (5 h, K021)": {
    "decay_constant_per_hour": 0.138629,
    "half_life_hours": 5.00001572946458,
-   "hours_to_return_to_baseline": 15.849674868434596,
-   "days_to_return_to_baseline": 0.6604031195181082
+   "hours_to_return_to_baseline": 32.45936759502171,
+   "days_to_return_to_baseline": 1.3524736497925713
   },
   "miR-29b (7 h, K017)": {
    "decay_constant_per_hour": 0.099021,
    "half_life_hours": 7.000001823451039,
-   "hours_to_return_to_baseline": 22.189480790299225,
-   "days_to_return_to_baseline": 0.924561699595801
+   "hours_to_return_to_baseline": 45.442983511883995,
+   "days_to_return_to_baseline": 1.8934576463284998
   },
   "miR-29c (10.6 h, K018)": {
    "decay_constant_per_hour": 0.0653912,
    "half_life_hours": 10.6000070431487,
-   "hours_to_return_to_baseline": 33.60122734154167,
-   "days_to_return_to_baseline": 1.400051139230903
+   "hours_to_return_to_baseline": 68.81368854418126,
+   "days_to_return_to_baseline": 2.867237022674219
   },
   "median miRNA (34 h, K016)": {
    "decay_constant_per_hour": 0.0203867,
    "half_life_hours": 33.99996961548192,
-   "hours_to_return_to_baseline": 107.77735373239511,
-   "days_to_return_to_baseline": 4.49072307218313
+   "hours_to_return_to_baseline": 220.72280802338116,
+   "days_to_return_to_baseline": 9.196783667640881
   }
  },
  "alpha_synuclein_ph_gate": {
   "fibril_number_neutral_pH": 0.001,
   "fibril_number_acidic_pH": 2.877484075227437,
-  "fold_difference": 2877.484075227437,
+  "fold_difference_at_illustrative_values": 2877.484075227437,
   "fibril_mass_neutral_pH": 16.010581737083797,
-  "fibril_mass_acidic_pH": 1434.343403162081
+  "fibril_mass_acidic_pH": 1434.343403162081,
+  "neutral_stays_at_seed": true,
+  "acidic_above_neutral_in_every_k2": true,
+  "fold_range_over_k2_sweep": [
+   531.2109958716524,
+   13692.377541884578
+  ],
+  "k2_sweep": [
+   {
+    "k2_aSyn": 1e-08,
+    "fold": 531.2109958716524
+   },
+   {
+    "k2_aSyn": 3.162277660168379e-08,
+    "fold": 834.0538224967856
+   },
+   {
+    "k2_aSyn": 1e-07,
+    "fold": 1277.8966395840669
+   },
+   {
+    "k2_aSyn": 3.162277660168379e-07,
+    "fold": 1927.2330900806853
+   },
+   {
+    "k2_aSyn": 1e-06,
+    "fold": 2877.484075227437
+   },
+   {
+    "k2_aSyn": 3.162277660168379e-06,
+    "fold": 4269.312123029493
+   },
+   {
+    "k2_aSyn": 9.999999999999999e-06,
+    "fold": 6309.551322121102
+   },
+   {
+    "k2_aSyn": 3.1622776601683795e-05,
+    "fold": 9301.951495842128
+   },
+   {
+    "k2_aSyn": 0.0001,
+    "fold": 13692.377541884578
+   }
+  ],
+  "reading_en": "Direction sourced (K011, K042); magnitude set by illustrative constants.",
+  "reading_pt": "Direcao com fonte (K011, K042); magnitude fixada por constantes ilustrativas."
  },
  "human_abeta_aggregate_load": {
   "control median [K032]": {

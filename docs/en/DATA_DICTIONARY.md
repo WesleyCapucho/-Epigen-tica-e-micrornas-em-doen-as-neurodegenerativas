@@ -89,6 +89,54 @@ The 24 poolable estimates with the standard error used for each and, critically,
 
 Per miRNA family: mean reported AUC, number of contributing studies, min/max AUC, and number of corpus articles mentioning it.
 
+## `data/extracted/kinetic_parameters.csv`
+
+Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 42 rows from 11 primary sources.
+
+| Column | Type | Description |
+|---|---|---|
+| `param_id` | string | Identifier (K001…). `scripts/12` loads parameters by this id, never by position |
+| `kind` | enum | `numeric` (a number printed in the source), `qualitative_constraint` (a statement with no usable number, e.g. "undetectable"), `declared_gap` (searched for and not found), `derived` (computed by us from a primary table) |
+| `axis` | enum | `miR-29/BACE1/Abeta`, `miR-7/SNCA/alpha-synuclein`, `both` |
+| `parameter` / `symbol` | string | What the value is, and the symbol the model uses |
+| `value_as_written` | string | The value exactly as printed in the source. For `numeric` and `qualitative_constraint` it must appear inside `verbatim_quote` |
+| `value_si` | float | The same value converted to the model's units. Blank for qualitative constraints and gaps |
+| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `fold`, `fractional change`, `fractional increase`, `dimensionless` |
+| `unit_as_written` | string | Unit as printed in the source |
+| `population` / `condition` | free text | Who or what was measured, and under which experimental condition. A rate constant without its condition is rejected by `scripts/08` |
+| `n` | string | Sample size as reported |
+| `method` | free text | Measurement technique |
+| `species` | string | Organism or system (human CSF, cell line, rat or mouse neurons, recombinant protein in vitro…) |
+| `pmid` / `doi` / `first_author` / `year` / `journal` | | Citation of the primary source |
+| `verbatim_quote` | free text | **The sentence the value was read from.** Empty for `derived` and `declared_gap` rows, on purpose |
+| `source` | string | Where the text was read (PMC full text, supplementary PDF or table supplied by the author of this repository, Scite full text) |
+| `note` | free text | Conversions, caveats, and for `derived` and `declared_gap` rows, how the value was computed or how the search was done |
+
+**Reading rules.**
+- A `declared_gap` row carries no value, no quote and no citation. It records that a number was looked for and not found, and where. The ODE code refuses to load it.
+- A `derived` row is **not** a number printed by its source. Its derivation is in `note`, and `scripts/08` recomputes it from the archived table in `data/raw/kinetics_2026/`.
+- K038 and K039 record values from a model that the source paper itself rejects. They are kept as warnings and not used.
+
+## `data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls`
+
+Supplementary table of Schwanhäusser et al. 2011 (Nature, DOI 10.1038/nature10098): genome-wide mRNA and protein half-lives, copy numbers and synthesis rates in mouse NIH3T3 fibroblasts, 5028 rows. Archived unchanged. The file metadata show it was last modified in November 2012; the paper's corrigendum (DOI 10.1038/nature11848) came out in February 2013, and it has not been confirmed whether this is the corrected version. Used only for the genome-wide medians (K040, K041) and to confirm that BACE1 and SNCA are absent (K030).
+
+## `data/raw/structures_2026/`
+
+Deposited coordinates, unchanged: `6N4O.pdb` (human Argonaute2 with miR-122 and target, X-ray 2.9 Å), `4D8C.cif` (BACE1 with a cyclic sulfone inhibitor, X-ray 2.07 Å), `6CU7.cif` (full-length α-synuclein fibril, rod polymorph, cryo-EM), `5OQV.cif` (Aβ(1-42) fibril, cryo-EM 4.0 Å).
+
+## `results/tables/ode_calibrated_results.json`
+
+Output of `scripts/12`: the free parameters and their ranges with the reason each is free; the illustrative aggregation constants and why no source gives them; the AD clearance-versus-production experiment; time for a miRNA mimic to wash out at each measured half-life; the α-synuclein pH-gate experiment; human Aβ42 aggregate loads expressed as multiples of M\*; and a summary of the free-parameter scan.
+
+## `results/tables/ode_free_parameter_sensitivity.csv`
+
+One row per point of the free-parameter scan: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). A run that fails numerically is reported as `not_evaluable`, never counted as a reversal.
+
+## `results/tables/structure_figure_provenance.json`
+
+One entry per structure, read from the coordinate file by `scripts/13`: deposited title, method, resolution and resolution criterion, primary-citation DOI and PMID, the figure's role, and checks computed from the coordinates: for 4D8C the catalytic aspartates found both by sequence motif (DTGS, DSGT) and by distance to the inhibitor; for the fibrils, the chains in each protofilament, the layer spacing and the distance between protofilaments. Residue numbers are those of the deposition.
+
 ## Conventions
 
 - Proportions are stored as proportions (0.82), not percentages (82%).

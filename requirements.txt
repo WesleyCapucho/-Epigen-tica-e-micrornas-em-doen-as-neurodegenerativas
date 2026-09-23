@@ -6,6 +6,7 @@ networkx>=3.2
 plotly>=5.18
 tqdm>=4.66
 openpyxl>=3.1
+xlrd>=2.0          # EN/PT: reads the archived .xls in data/raw/kinetics_2026 (scripts/08)
 
 # EN | Systematic review and meta-analysis (scripts 03-06)
 # PT | Revisao sistematica e meta-analise (scripts 03-06)
@@ -13,3 +14,6 @@ numpy>=1.26
 scipy>=1.11
 pandas>=2.0
 matplotlib>=3.8
+
+# EN | Structure figures (scripts/13) | PT | Figuras estruturais (scripts/13)
+# pymol-open-source>=3.0  (install separately: pip install pymol-open-source)

@@ -32,6 +32,8 @@ import sys
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 KINETICS = "data/extracted/kinetic_parameters.csv"
+SCHWANHAUSSER = "data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls"
+ODE_RESULTS = "results/tables/ode_calibrated_results.json"
 EXTRACTION_JSON = "data/extracted/diagnostic_accuracy_extraction.json"
 FLOW = "data/processed/prisma_flow.json"
 POOLED = "results/tables/meta_analysis_pooled_auc.csv"
@@ -317,6 +319,58 @@ def main():
             check(written in quote or trimmed in quote,
                   f"kinetics {pid}: value_as_written {written!r} does not appear in its "
                   "verbatim quote")
+
+    # EN | The two derived rows and the K030 gap rest on one archived spreadsheet
+    #      (Schwanhausser et al. 2011, supplementary table). They were first worked
+    #      out by hand; here they are recomputed from the file, so that anyone can see
+    #      the medians and the absence of BACE1/SNCA come from the data and not from
+    #      a note.
+    # PT | As duas linhas derivadas e a lacuna K030 dependem de uma planilha arquivada
+    #      (Schwanhausser et al. 2011, tabela suplementar). Foram calculadas a mao
+    #      primeiro; aqui sao recalculadas a partir do arquivo, para que qualquer um
+    #      veja que as medianas e a ausencia de BACE1/SNCA vem dos dados e nao de uma
+    #      nota.
+    kin_by_id = {r["param_id"]: r for r in kin}
+    if {"K030", "K040", "K041"} <= set(kin_by_id):
+        try:
+            import pandas as pd
+            sch = pd.read_excel(SCHWANHAUSSER)
+        except Exception as e:  # EN/PT: missing xlrd or missing file is a failure
+            sch = None
+            check(False, f"kinetics: cannot read {SCHWANHAUSSER}: {e}")
+        if sch is not None:
+            for pid, col in (("K040", "mRNA half-life average [h]"),
+                             ("K041", "Protein half-life average [h]")):
+                vals = pd.to_numeric(sch[col], errors="coerce").dropna()
+                r = kin_by_id[pid]
+                check(int(r["n"]) == len(vals),
+                      f"kinetics {pid}: n={r['n']} but the table has {len(vals)} values")
+                check(abs(float(r["value_as_written"]) - float(vals.median())) < 1e-9,
+                      f"kinetics {pid}: median {vals.median()} != {r['value_as_written']}")
+                check(abs(float(r["value_si"]) - math.log(2) / float(vals.median())) < 1e-6,
+                      f"kinetics {pid}: value_si is not ln2 / median half-life")
+            genes = {g.strip().lower() for cell in sch["Gene Names"].dropna()
+                     for g in str(cell).split(";")}
+            for g in ("bace1", "snca", "sncb", "sncg", "app"):
+                check(g not in genes,
+                      f"kinetics K030: {g} IS in the table - the declared gap is wrong")
+
+    # EN | Mimic washout: the reported time must be the time for a 10-fold bolus
+    #      (excess 9x) to decay within 10% of baseline, t = ln(90) * t_half / ln 2.
+    #      This once used ln(9) and halved every washout time.
+    # PT | Eliminacao do mimetico: o tempo reportado deve ser o de um bolus de 10x
+    #      (excesso 9x) decair a menos de 10% do basal, t = ln(90) * t_meia / ln 2.
+    #      Isto ja usou ln(9) e cortou pela metade todos os tempos de eliminacao.
+    try:
+        ode = json.load(open(ODE_RESULTS, encoding="utf-8"))
+    except FileNotFoundError:
+        ode = None
+    if ode is not None:
+        for lab, w in ode["mimic_washout"].items():
+            expect = math.log(90.0) * w["half_life_hours"] / math.log(2.0)
+            check(abs(w["hours_to_return_to_baseline"] - expect) < 1e-6 * expect,
+                  f"ode washout {lab}: {w['hours_to_return_to_baseline']:.3f} h, "
+                  f"expected {expect:.3f} h")
 
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]

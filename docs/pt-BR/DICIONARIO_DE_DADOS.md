@@ -89,6 +89,54 @@ As 24 estimativas agregáveis com o erro-padrão usado em cada uma e, crucialmen
 
 Por família de miRNA: AUC média reportada, número de estudos contribuintes, AUC mínima/máxima e número de artigos do corpus que a mencionam.
 
+## `data/extracted/kinetic_parameters.csv`
+
+Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 42 linhas de 11 fontes primárias.
+
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| `param_id` | string | Identificador (K001…). O `scripts/12` carrega os parâmetros por esse id, nunca pela posição |
+| `kind` | enum | `numeric` (número impresso na fonte), `qualitative_constraint` (afirmação sem número utilizável, ex.: "indetectável"), `declared_gap` (procurado e não encontrado), `derived` (calculado por nós a partir de uma tabela primária) |
+| `axis` | enum | `miR-29/BACE1/Abeta`, `miR-7/SNCA/alpha-synuclein`, `both` |
+| `parameter` / `symbol` | string | O que o valor é, e o símbolo usado no modelo |
+| `value_as_written` | string | O valor exatamente como impresso na fonte. Em `numeric` e `qualitative_constraint`, precisa aparecer dentro de `verbatim_quote` |
+| `value_si` | float | O mesmo valor convertido para as unidades do modelo. Vazio em restrições qualitativas e lacunas |
+| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `fold`, `fractional change`, `fractional increase`, `dimensionless` |
+| `unit_as_written` | string | Unidade como impressa na fonte |
+| `population` / `condition` | texto livre | Quem ou o que foi medido, e em que condição experimental. Constante de velocidade sem condição é rejeitada pelo `scripts/08` |
+| `n` | string | Tamanho amostral como reportado |
+| `method` | texto livre | Técnica de medida |
+| `species` | string | Organismo ou sistema (LCR humano, linhagem celular, neurônios de rato ou camundongo, proteína recombinante in vitro…) |
+| `pmid` / `doi` / `first_author` / `year` / `journal` | | Citação da fonte primária |
+| `verbatim_quote` | texto livre | **A frase de onde o valor foi lido.** Vazia de propósito nas linhas `derived` e `declared_gap` |
+| `source` | string | Onde o texto foi lido (texto completo no PMC, PDF ou tabela suplementar fornecidos pelo autor deste repositório, texto completo no Scite) |
+| `note` | texto livre | Conversões, ressalvas e, nas linhas `derived` e `declared_gap`, como o valor foi calculado ou como a busca foi feita |
+
+**Regras de leitura.**
+- Uma linha `declared_gap` não traz valor, citação nem frase. Ela registra que um número foi procurado e não encontrado, e onde. O código das EDOs se recusa a carregá-la.
+- Uma linha `derived` **não** é número impresso pela fonte. A derivação está em `note`, e o `scripts/08` a recalcula a partir da tabela arquivada em `data/raw/kinetics_2026/`.
+- K038 e K039 registram valores de um modelo que o próprio artigo rejeita. Ficam como aviso e não são usados.
+
+## `data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls`
+
+Tabela suplementar de Schwanhäusser et al. 2011 (Nature, DOI 10.1038/nature10098): meias-vidas de mRNA e proteína, números de cópias e taxas de síntese em escala genômica em fibroblastos NIH3T3 de camundongo, 5028 linhas. Arquivada sem alteração. Os metadados do arquivo indicam última modificação em novembro de 2012; a errata do artigo (DOI 10.1038/nature11848) saiu em fevereiro de 2013, e não foi confirmado se esta é a versão corrigida. Usada só para as medianas genômicas (K040, K041) e para confirmar a ausência de BACE1 e SNCA (K030).
+
+## `data/raw/structures_2026/`
+
+Coordenadas depositadas, sem alteração: `6N4O.pdb` (Argonauta2 humana com miR-122 e alvo, raio X 2,9 Å), `4D8C.cif` (BACE1 com inibidor sulfona cíclica, raio X 2,07 Å), `6CU7.cif` (fibrila de α-sinucleína completa, polimorfo rod, crio-EM), `5OQV.cif` (fibrila de Aβ(1-42), crio-EM 4,0 Å).
+
+## `results/tables/ode_calibrated_results.json`
+
+Saída do `scripts/12`: os parâmetros livres e suas faixas, com o motivo de cada um ser livre; as constantes ilustrativas de agregação e por que nenhuma fonte as dá; o experimento depuração-versus-produção na DA; o tempo para um mimético de miRNA ser eliminado em cada meia-vida medida; o experimento da comporta de pH da α-sinucleína; as cargas de agregado de Aβ42 humanas expressas em múltiplos de M\*; e um resumo da varredura dos parâmetros livres.
+
+## `results/tables/ode_free_parameter_sensitivity.csv`
+
+Uma linha por ponto da varredura dos parâmetros livres: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). Uma execução que falha numericamente é reportada como `not_evaluable`, nunca contada como inversão.
+
+## `results/tables/structure_figure_provenance.json`
+
+Uma entrada por estrutura, lida do arquivo de coordenadas pelo `scripts/13`: título depositado, método, resolução e critério de resolução, DOI e PMID da citação primária, o papel da figura, e verificações calculadas a partir das coordenadas: para 4D8C, os aspartatos catalíticos encontrados tanto pelo motivo de sequência (DTGS, DSGT) quanto pela distância ao inibidor; para as fibrilas, as cadeias de cada protofilamento, o espaçamento entre camadas e a distância entre protofilamentos. Os números de resíduo são os do depósito.
+
 ## Convenções
 
 - Proporções são armazenadas como proporções (0,82), não como percentuais (82%).

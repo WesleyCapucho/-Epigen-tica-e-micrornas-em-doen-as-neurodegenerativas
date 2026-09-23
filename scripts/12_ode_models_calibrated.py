@@ -16,8 +16,9 @@ EN | What changed, and why. The models in scripts/02 came from the source monogr
           The three paralogues are separate state variables here.
        2. miR-7 is not a stable miRNA. Its half-life is 1.7 h, the shortest in a
           genome-wide survey whose median is 34 h (K016, K020), because the lncRNA
-          Cyrano drives target-directed degradation. A mimic therefore washes out in
-          hours, which a generic decay rate hides completely.
+          Cyrano drives target-directed degradation. A single mimic dose is therefore
+          back within 10% of baseline in 11-32 h (K020, K021), where the median
+          miRNA would take about 9 days - a gap a generic decay rate hides.
        3. alpha-synuclein fibrils do not grow first-order in monomer. Elongation
           saturates with a half-maximal concentration near 46-50 uM (K009, K010).
        4. At neutral pH, primary and secondary nucleation of alpha-synuclein are
@@ -42,8 +43,9 @@ PT | O que mudou, e por que. Os modelos do scripts/02 vieram da monografia e usa
           (K017-K019). Os tres paralogos sao variaveis de estado separadas aqui.
        2. O miR-7 nao e um miRNA estavel. Sua meia-vida e 1,7 h, a mais curta de um
           levantamento genomico cuja mediana e 34 h (K016, K020), porque o lncRNA
-          Cyrano promove degradacao dirigida pelo alvo. Um mimetico, portanto, se
-          esvai em horas - o que uma taxa generica de decaimento esconde por completo.
+          Cyrano promove degradacao dirigida pelo alvo. Uma dose unica de mimetico volta,
+          portanto, a menos de 10% do basal em 11-32 h (K020, K021), quando o miRNA
+          mediano levaria cerca de 9 dias - diferenca que uma taxa generica esconde.
        3. Fibrilas de alfa-sinucleina nao crescem em primeira ordem no monomero. A
           elongacao satura, com concentracao de meia-saturacao perto de 46-50 uM
           (K009, K010).
@@ -192,6 +194,37 @@ FREE = {
 }
 
 
+# EN | Aggregation rate constants that no source in the table gives as a number.
+#      Unlike FREE, they are not swept in the main scan, because no result that is
+#      reported as a finding depends on them: the Abeta block has no feedback on the
+#      monomer pool, and for alpha-synuclein only the DIRECTION of the pH switch is
+#      sourced (K011, K042). experiment_ph_gate sweeps k2_aSyn to show that the size
+#      of the switch is set by these numbers and not by data.
+# PT | Constantes de agregacao que nenhuma fonte da tabela da como numero. Diferente
+#      de FREE, nao entram na varredura principal, porque nenhum resultado reportado
+#      como achado depende delas: o bloco do Abeta nao realimenta o pool de monomero,
+#      e para a alfa-sinucleina so a DIRECAO da chave de pH tem fonte (K011, K042).
+#      experiment_ph_gate varre k2_aSyn para mostrar que o tamanho da chave e fixado
+#      por esses numeros e nao por dados.
+ILLUSTRATIVE = {
+    "kn_Ab": dict(value=1e-6, why_en="Abeta42 primary nucleation. Not separable from k+ with "
+                  "the published data (K037).", why_pt="Nucleacao primaria do Abeta42. Nao "
+                  "separavel de k+ com os dados publicados (K037)."),
+    "k2_Ab": dict(value=1e-4, why_en="Abeta42 secondary nucleation. Not separable (K037).",
+                  why_pt="Nucleacao secundaria do Abeta42. Nao separavel (K037)."),
+    "kplus_Ab": dict(value=1e-3, why_en="Abeta42 elongation. Not separable (K037); the "
+                     "alpha-synuclein value must not be borrowed.", why_pt="Alongamento do "
+                     "Abeta42. Nao separavel (K037); o valor da alfa-sinucleina nao pode ser "
+                     "emprestado."),
+    "kn_aSyn": dict(value=1e-8, why_en="alpha-synuclein primary nucleation at acidic pH. Only "
+                    "qualitative in the source (K042).", why_pt="Nucleacao primaria da "
+                    "alfa-sinucleina em pH acido. So qualitativa na fonte (K042)."),
+    "k2_aSyn": dict(value=1e-6, why_en="alpha-synuclein secondary nucleation at acidic pH. "
+                    "Only qualitative in the source (K042).", why_pt="Nucleacao secundaria da "
+                    "alfa-sinucleina em pH acido. So qualitativa na fonte (K042)."),
+}
+
+
 def midpoint(name):
     f = FREE[name]
     return math.sqrt(f["low"] * f["high"])   # EN/PT: geometric mean of the scan range
@@ -276,12 +309,11 @@ def run_ad(measured, condition, free=None, t_end=2000.0, mimic=1.0):
         "n_c": measured["n_c"],
         "n_2": measured["n_2"],
         "M_star": measured["M_star_uM"],
-        # EN/PT: all three are FREE - no measured Abeta elongation constant exists
-        #        in the parameter table. They set the illustrative aggregation block
-        #        only and do not feed back on the monomer pool.
-        "k_n": 1e-6,
-        "k_2": 1e-4,
-        "k_plus_Ab_FREE": 1e-3,
+        # EN/PT: ILLUSTRATIVE - no measured Abeta42 constant exists (K037). They set
+        #        the aggregation block only and do not feed back on the monomer pool.
+        "k_n": ILLUSTRATIVE["kn_Ab"]["value"],
+        "k_2": ILLUSTRATIVE["k2_Ab"]["value"],
+        "k_plus_Ab_FREE": ILLUSTRATIVE["kplus_Ab"]["value"],
     }
     # EN/PT: each paralogue held at a steady state of 1.0 before the mimic
     p["s29a"] = 1.0 * p["d_miR29a"] * mimic
@@ -338,7 +370,7 @@ def pd_rhs(t, y, p):
 
 
 def run_pd(measured, acidic=False, free=None, t_end=2000.0, mimic=1.0,
-           d_miR7=None, seed=1e-3):
+           d_miR7=None, seed=1e-3, k2=None):
     free = free or {k: midpoint(k) for k in FREE}
     p = {
         "d_miR7": d_miR7 if d_miR7 is not None else measured["d_miR7"],
@@ -348,8 +380,8 @@ def run_pd(measured, acidic=False, free=None, t_end=2000.0, mimic=1.0,
         "d_aSyn": measured["d_aSyn"],
         "k_plus": measured["kplus_high"],
         "m_half": measured["m_half_uM"],
-        "k_n": 1e-8,
-        "k_2": 1e-6,
+        "k_n": ILLUSTRATIVE["kn_aSyn"]["value"],
+        "k_2": ILLUSTRATIVE["k2_aSyn"]["value"] if k2 is None else k2,
         "acidic": acidic,
     }
     p["s_miR7"] = 1.0 * p["d_miR7"] * mimic
@@ -410,8 +442,18 @@ def experiment_mimic_washout(measured):
                      ("miR-29b (7 h, K017)", measured["d_miR29b"]),
                      ("miR-29c (10.6 h, K018)", measured["d_miR29c"]),
                      ("median miRNA (34 h, K016)", measured["d_miR_median"])]:
-        # EN/PT: time for a 10-fold bolus to fall back within 10% of baseline
-        t = math.log(9.0) / d if d > 0 else float("nan")
+        # EN | Time for a 10-fold bolus to fall back within 10% of baseline: the excess
+        #      starts at 9x baseline and must decay to 0.1x, so t = ln(9 / 0.1) / d.
+        #      An earlier version used ln(9) / d, which is the time to reach TWICE
+        #      baseline, and so reported washout times about half as long as the
+        #      threshold drawn in the figure (dashed line at 1.1x).
+        # PT | Tempo para um bolus de 10x voltar a menos de 10% do basal: o excesso
+        #      comeca em 9x o basal e precisa cair a 0,1x, entao t = ln(9 / 0,1) / d.
+        #      Uma versao anterior usava ln(9) / d, que e o tempo para chegar ao DOBRO
+        #      do basal, e por isso reportava eliminacoes com cerca de metade do tempo
+        #      do limiar desenhado na figura (linha tracejada em 1,1x).
+        excess0, tolerance = 9.0, 0.1
+        t = math.log(excess0 / tolerance) / d if d > 0 else float("nan")
         out[label] = dict(decay_constant_per_hour=float(d),
                           half_life_hours=float(LN2 / d),
                           hours_to_return_to_baseline=float(t),
@@ -452,12 +494,29 @@ def experiment_ph_gate(measured):
     """
     neutral, _ = run_pd(measured, acidic=False)
     acidic, _ = run_pd(measured, acidic=True)
+    n0 = float(neutral.y[3][-1])
+    # EN | The size of the switch, swept over four orders of magnitude of k2_aSyn.
+    #      If the fold change moves with k2, the magnitude is not a result.
+    # PT | O tamanho da chave, varrido em quatro ordens de grandeza de k2_aSyn. Se a
+    #      razao muda com k2, a magnitude nao e resultado.
+    sweep = []
+    for k2 in np.geomspace(1e-8, 1e-4, 9):
+        a, _ = run_pd(measured, acidic=True, k2=float(k2))
+        sweep.append(dict(k2_aSyn=float(k2),
+                          fold=float(a.y[3][-1] / n0) if n0 else float("inf")))
+    folds = [x["fold"] for x in sweep]
     return dict(
-        fibril_number_neutral_pH=float(neutral.y[3][-1]),
+        fibril_number_neutral_pH=n0,
         fibril_number_acidic_pH=float(acidic.y[3][-1]),
-        fold_difference=float(acidic.y[3][-1] / neutral.y[3][-1]) if neutral.y[3][-1] else float("inf"),
+        fold_difference_at_illustrative_values=float(acidic.y[3][-1] / n0) if n0 else float("inf"),
         fibril_mass_neutral_pH=float(neutral.y[4][-1]),
         fibril_mass_acidic_pH=float(acidic.y[4][-1]),
+        neutral_stays_at_seed=bool(abs(n0 - 1e-3) < 1e-12),
+        acidic_above_neutral_in_every_k2=bool(all(f > 1.0 for f in folds)),
+        fold_range_over_k2_sweep=[float(min(folds)), float(max(folds))],
+        k2_sweep=sweep,
+        reading_en="Direction sourced (K011, K042); magnitude set by illustrative constants.",
+        reading_pt="Direcao com fonte (K011, K042); magnitude fixada por constantes ilustrativas.",
     )
 
 
@@ -542,7 +601,7 @@ def figures(measured):
     sn, _ = run_pd(measured, acidic=False)
     sa, _ = run_pd(measured, acidic=True)
     ax.plot(sn.t / 24.0, sn.y[4], label="neutral pH: no self-amplification [K011]")
-    ax.plot(sa.t / 24.0, sa.y[4], label="acidic pH: secondary nucleation on")
+    ax.plot(sa.t / 24.0, sa.y[4], label="acidic pH: secondary nucleation on [K042]")
     ax.set_title("alpha-synuclein fibril mass\nMassa de fibrila de alfa-sinucleina", fontsize=9)
     ax.set_xlabel("days | dias"); ax.set_ylabel("fibril mass | massa (relative)")
     ax.legend(fontsize=7); ax.grid(alpha=.3)
@@ -598,7 +657,12 @@ def main():
     print("\n--- alpha-synuclein pH gate ---")
     print(f"  fibril number, neutral pH     : {ph['fibril_number_neutral_pH']:.4g}")
     print(f"  fibril number, acidic pH      : {ph['fibril_number_acidic_pH']:.4g}")
-    print(f"  fold difference               : {ph['fold_difference']:.4g}")
+    print(f"  neutral stays at seed         : {ph['neutral_stays_at_seed']}")
+    print(f"  acidic > neutral, every k2    : {ph['acidic_above_neutral_in_every_k2']}")
+    lo, hi = ph["fold_range_over_k2_sweep"]
+    print(f"  fold range over k2 sweep      : {lo:.3g} .. {hi:.3g}")
+    print("  -> direction is sourced; magnitude is not a result | "
+          "direcao tem fonte; magnitude nao e resultado")
 
     flips = [r for r in sens if r["verdict"] == "AD_at_or_below_control"]
     nanq = [r for r in sens if r["verdict"] == "not_evaluable"]
@@ -615,10 +679,11 @@ def main():
                   if not flips else "CONCLUSION NOT ROBUST | CONCLUSAO NAO ROBUSTA"))
 
     out = dict(
-        generated_on="2026-09-22",
+        generated_on="2026-09-23",
         measured_parameter_source=KINETICS,
         free_parameters={k: {kk: (vv if not isinstance(vv, float) else float(vv))
                              for kk, vv in v.items()} for k, v in FREE.items()},
+        illustrative_constants=ILLUSTRATIVE,
         ad_clearance_vs_production=clearance,
         mimic_washout=washout,
         alpha_synuclein_ph_gate=ph,

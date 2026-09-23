@@ -19,6 +19,7 @@ Two bodies of work live here:
 |---|---|---|
 | **Bibliometric** | PubMed corpus mining, miRNA extraction, PCA, clustering, miRNA–disease network, exploratory ODE models of the miR-29/BACE1/Aβ and miR-7/SNCA/α-synuclein axes | `01`, `02` |
 | **Meta-analytic** | PICO systematic search, PRISMA screening, full-text extraction, random-effects meta-analysis of AUC, clinical-translation landscape | `03`–`11` |
+| **Mechanistic** | ODE models of both axes built on published kinetic measurements; structural figures rendered from deposited coordinates | `12`, `13` |
 
 The meta-analytic layer exists to answer a question the source monograph raised about itself: bibliometric frequency and experimental validation are not independent sources of evidence, because the most-studied miRNAs accumulate both. Pooled diagnostic accuracy is external to that loop.
 
@@ -50,8 +51,11 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   │   ├── pubmed/                    # Bibliometric sample, live from NCBI (provenance in manifest.json)
 │   │   ├── systematic_review_2026/    # Search strategy, screening corpus and decisions,
 │   │   │                              #   Scopus exports, mention counts, prior meta-analyses
-│   │   └── clinical_trials_2026/      # ClinicalTrials.gov landscape of miRNA-directed therapeutics
-│   ├── extracted/                     # Diagnostic-accuracy extraction table + verbatim source quotes
+│   │   ├── clinical_trials_2026/      # ClinicalTrials.gov landscape of miRNA-directed therapeutics
+│   │   ├── kinetics_2026/             # Schwanhäusser et al. 2011 supplementary table (genome-wide half-lives)
+│   │   └── structures_2026/           # Deposited coordinates: 6N4O, 4D8C, 6CU7, 5OQV
+│   ├── extracted/                     # Diagnostic-accuracy extraction table, kinetic-parameter table,
+│   │                                  #   both with verbatim source quotes
 │   └── processed/                     # PRISMA flow counts (regenerable)
 ├── scripts/
 │   ├── 01_busca_ranqueamento_pubmed.py            # Bibliometric search + ranking (original monograph)
@@ -64,12 +68,15 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 08_verify_consistency.py                   # Cross-checks data, PRISMA counts and result tables
 │   ├── 09_ingest_scopus_wos.py                    # Merges and deduplicates Scopus / WoS exports
 │   ├── 10_build_screening_corpus.py               # Assembles the corpus, rebuilds mention counts
-│   └── 11_attention_finding_audit.py              # Decomposes what moved the attention correlation
+│   ├── 11_attention_finding_audit.py              # Decomposes what moved the attention correlation
+│   ├── 12_ode_models_calibrated.py                # ODE models on published kinetic constants
+│   └── 13_structure_figures.py                    # PyMOL figures from deposited structures
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, how to export Scopus/WoS
 │   └── pt-BR/                         # Métodos, dicionário de dados, como exportar Scopus/WoS
 ├── results/
-│   ├── figures/                       # Forest plot, funnel plot, attention-vs-accuracy plot
+│   ├── figures/                       # Forest, funnel and attention-vs-accuracy plots, ODE overview,
+│   │                                  #   structures/ (PyMOL renders)
 │   └── tables/                        # Pooled estimates, inputs, sensitivity, correlations, audit
 └── requirements.txt
 ```
@@ -92,6 +99,11 @@ python scripts/06_citation_vs_performance.py
 python scripts/07_clinical_translation_landscape.py
 python scripts/11_attention_finding_audit.py
 python scripts/08_verify_consistency.py           # must pass before committing
+
+# Mechanistic layer, offline
+python scripts/12_ode_models_calibrated.py
+pip install pymol-open-source                     # only needed for scripts/13
+python scripts/13_structure_figures.py
 ```
 
 `scripts/05`, `06`, `08`, `10` and `11` run entirely offline from the committed data. `scripts/03` calls the live PubMed API and will legitimately return more records than the frozen 2026-09-10 counts, because the literature keeps growing; `data/raw/systematic_review_2026/search_strategy.json` preserves the counts behind the reported numbers.
@@ -108,7 +120,10 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 429 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 717 checks currently pass.
+
+- **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 42 rows from 11 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
+- **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
 
 Full texts are **not** redistributed here — only extracted data points and their citations. Fetch sources through their DOIs.
 
@@ -133,7 +148,10 @@ Three defects in this pipeline were found after results had already been produce
 - 34 of the 41 weighted standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval.
 - Heterogeneity is high (I² up to 97%) and estimates within studies are correlated, which also makes Egger's test unreliable here.
 - Most miRNAs contribute a single study, so the attention-vs-performance analysis is underpowered in both directions.
-- The ODE models in `scripts/02` use illustrative, non-calibrated parameters. They are qualitative and hypothesis-generating; they are not quantitative predictions and should not be reported as such.
+- The ODE models in `scripts/02` use illustrative, non-calibrated parameters and are kept only as part of the original monograph. They are superseded by `scripts/12`.
+- `scripts/12` uses measured constants where they exist, but they come from different systems (human CSF, HEK cells, rat and mouse neurons, SH-SY5Y, fibroblasts). Three parameters were never measured for these genes and are left free, declared, and scanned over a range rather than tuned. The Aβ42 aggregation rate constants cannot be separated from one another with the published data (row K037), and α-synuclein nucleation at acidic pH is reported only qualitatively (K042). These are fixed at declared illustrative values. As a result, the size of the α-synuclein pH switch is not a result: across the sweep in `scripts/12` it ranges from about 500-fold to about 14,000-fold. Only its direction is.
+- The model's clearest number, a 1.41-fold higher Aβ monomer level in AD, is fixed analytically by the production and clearance rates of Mawuenyega et al. 2010 and does not depend on any free parameter. It restates that measurement in model form; it is not an independent prediction.
+- The structure figures are illustration. They test nothing. Resolutions come from different criteria (6CU7 FSC 0.5, 5OQV FSC 0.143) and are not directly comparable.
 
 ## Scientific integrity and use of AI
 

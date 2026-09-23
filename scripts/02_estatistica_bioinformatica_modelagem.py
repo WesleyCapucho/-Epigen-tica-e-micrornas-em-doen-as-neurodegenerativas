@@ -10,6 +10,18 @@ scripts/01_busca_ranqueamento_pubmed.py:
 
 Saídas gravadas em results/figures/.
 
+NOTA (2026) — Os modelos EDO deste script usam parâmetros ilustrativos, sem
+calibração, e ficam aqui apenas como registro da monografia original. Eles foram
+substituídos pelo scripts/12_ode_models_calibrated.py, que carrega constantes
+medidas de data/extracted/kinetic_parameters.csv e declara explicitamente os
+parâmetros que continuam livres. Não reporte números das EDOs deste arquivo.
+
+NOTE (2026) — The ODE models in this script use illustrative, uncalibrated
+parameters and are kept only as a record of the original monograph. They are
+superseded by scripts/12_ode_models_calibrated.py, which loads measured constants
+from data/extracted/kinetic_parameters.csv and declares the parameters that remain
+free. Do not report ODE numbers from this file.
+
 # ETAPA 1 — AUDITORIA E ESTATÍSTICA DESCRITIVA
 """
 
