@@ -925,6 +925,37 @@ def main():
     check(len(trials["therapeutic_trials_all_indications"]) > 0,
           "trials: therapeutic trial list is empty")
 
+    # --- 9b. A prose claim about a scanned range must match the scan -------
+    # EN | The methods prose once said the required BACE1 knockdown was "19-33%",
+    #      copied from before d_mRNA was measured (K068) and the free-parameter grid
+    #      narrowed. Nothing recomputed it when the grid changed, and it sat wrong in
+    #      both language files. It is corrected here and pinned to the JSON, exactly as
+    #      the README's own numbers were pinned in section 10 below: the whole point of
+    #      writing the range into ode_calibrated_results.json was so a sentence quoting
+    #      it could be checked instead of trusted.
+    # PT | A prosa dos metodos dizia "19-33%" para a queda de BACE1 necessaria, copiada
+    #      de antes de o d_mRNA ser medido (K068) e a grade de parametros livres se
+    #      estreitar. Nada recalculou quando a grade mudou, e o texto ficou errado nos
+    #      dois idiomas. E corrigido aqui e preso ao JSON, exatamente como os numeros do
+    #      README sao presos na secao 10 abaixo: o motivo de escrever a faixa em
+    #      ode_calibrated_results.json era justamente poder conferir uma frase que a cita,
+    #      em vez de confiar nela.
+    if ode is not None and "mimic_dose_vs_measured_knockdown" in ode:
+        lo, hi = ode["mimic_dose_vs_measured_knockdown"]["BACE1_knockdown_at_required_mimic"]
+        expect = f"{math.floor(lo * 100):.0f}\u2013{round(hi * 100):.0f}%"
+        anchor = {"docs/en/METHODS.md": "knockdown needed to offset",
+                  "docs/pt-BR/METODOS.md": "queda de BACE1 necess\u00e1ria"}
+        for name, needle in anchor.items():
+            try:
+                text = open(name, encoding="utf-8").read()
+            except FileNotFoundError:
+                continue
+            claim(needle in text, f"{name}: the sentence this check anchors to is gone; "
+                                  "update the anchor before trusting its pass")
+            claim(expect in text,
+                  f"{name}: does not quote the current BACE1-knockdown range {expect} "
+                  f"computed from {ODE_RESULTS}")
+
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections
     #      table below them, and both were found stale once: the check count said 1374
