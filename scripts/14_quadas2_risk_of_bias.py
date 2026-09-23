@@ -367,9 +367,17 @@ def plot(assessment, path, lang):
     ax.set_xlim(0, 100)
     ax.set_title(t(lang, "QUADAS-2: risk of bias and applicability",
                    "QUADAS-2: risco de viés e aplicabilidade"), fontsize=11)
-    handles = [plt.Rectangle((0, 0), 1, 1, color=colour[v]) for v in order]
-    ax.legend(handles, [label[v] for v in order], loc="lower center",
-              bbox_to_anchor=(0.5, -0.32), ncol=4, fontsize=8, frameon=False)
+    # EN | Only put a category in the legend if it is actually on the chart. A grey
+    #      "Not assessed" key above a chart with no grey in it invites the reader to go
+    #      looking for a bar that is not there.
+    # PT | So entra na legenda a categoria que esta de fato no grafico. Uma chave cinza
+    #      "Nao avaliado" sobre um grafico sem nada de cinza convida o leitor a procurar
+    #      uma barra que nao existe.
+    present = [v for v in order
+               if any(r[k] == v for r in assessment for k in keys)]
+    handles = [plt.Rectangle((0, 0), 1, 1, color=colour[v]) for v in present]
+    ax.legend(handles, [label[v] for v in present], loc="lower center",
+              bbox_to_anchor=(0.5, -0.32), ncol=len(present), fontsize=8, frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     fig.savefig(path, dpi=200, bbox_inches="tight")

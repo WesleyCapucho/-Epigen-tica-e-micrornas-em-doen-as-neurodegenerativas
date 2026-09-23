@@ -180,13 +180,27 @@ def plot(dec, rows, path, lang):
 
     ax = axes[0]
     T = np.linspace(0.5, 72, 400)
+    # EN | The two miR-7 rows are the two ends of one measurement, not two species, so
+    #      the upper bound is drawn as a dashed line in the same colour: the gap between
+    #      the pair is the uncertainty in the miR-7 half-life, and hiding it would make
+    #      the penalty look better determined than the source allows. The right panel
+    #      lists both for the same reason.
+    # PT | As duas linhas de miR-7 sao os dois extremos de uma mesma medida, nao duas
+    #      especies, entao o limite superior sai tracejado na mesma cor: a distancia entre
+    #      o par e a incerteza da meia-vida do miR-7, e esconde-la faria a penalidade
+    #      parecer mais bem determinada do que a fonte permite. O painel da direita lista
+    #      os dois pela mesma razao.
+    mir7_colour = None
     for key, info in dec.items():
-        if key == "miR-7 upper bound":
-            continue
         y = [peak_to_average(info["decay_per_hour"], x) for x in T]
-        ax.plot(T, y, lw=1.8,
-                label=f"{tr(lang, info['label_en'], info['label_pt'])} "
-                      f"({info['half_life_hours']:.1f} h)")
+        upper = key == "miR-7 upper bound"
+        line, = ax.plot(T, y, lw=1.4 if upper else 1.8,
+                        ls="--" if upper else "-",
+                        color=mir7_colour if upper else None,
+                        label=f"{tr(lang, info['label_en'], info['label_pt'])} "
+                              f"({info['half_life_hours']:.1f} h)")
+        if key == "miR-7":
+            mir7_colour = line.get_color()
     ax.axvline(24, color="#888888", ls="--", lw=1)
     ax.text(24.6, ax.get_ylim()[1] * 0.93, tr(lang, "daily", "diário"),
             fontsize=8, color="#666666")
