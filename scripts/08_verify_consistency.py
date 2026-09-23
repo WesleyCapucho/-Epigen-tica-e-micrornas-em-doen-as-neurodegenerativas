@@ -51,6 +51,7 @@ QUADAS_STUDY_LEVEL = "data/extracted/quadas2_study_level.csv"
 QUADAS_SUMMARY = "results/tables/quadas2_summary.json"
 BIVARIATE = "results/tables/bivariate_summary.csv"
 BIVARIATE_JSON = "results/tables/bivariate_model.json"
+GRADE_JSON = "results/tables/grade_certainty.json"
 
 
 def study_id(row):
@@ -702,6 +703,59 @@ def main():
         if primary:
             check(primary[0]["k_estimates"] == primary[0]["n_studies"],
                   "bivariate: the one-estimate-per-study analysis has more estimates than studies")
+
+    # --- 8d. GRADE ----------------------------------------------------------
+    # EN | The certainty rating is arithmetic on the other tables, so it is recomputed
+    #      here: the downgrade steps must follow from the thresholds the file itself
+    #      declares, the total must give the stated level, and the summary of findings
+    #      must follow from the summary sensitivity and specificity at each prevalence.
+    # PT | A classificacao de certeza e aritmetica sobre as outras tabelas, entao e
+    #      recalculada aqui: os passos de rebaixamento tem de decorrer dos limiares que o
+    #      proprio arquivo declara, o total tem de dar o nivel declarado, e o resumo de
+    #      achados tem de decorrer da sensibilidade e da especificidade sumarias em cada
+    #      prevalencia.
+    try:
+        gr = json.load(open(GRADE_JSON, encoding="utf-8"))
+    except FileNotFoundError:
+        gr = None
+    if gr is not None and quadas is not None and biv is not None:
+        th = gr["thresholds"]
+        dom = ["rob_patient_selection", "rob_index_test",
+               "rob_reference_standard", "rob_flow_timing"]
+        n = len(quadas)
+        high_rob = sum(1 for r in quadas if any(r[d] == "high" for d in dom))
+        expect = 2 if high_rob / n >= th["risk_of_bias_very_serious_fraction"] else (
+                 1 if high_rob / n >= th["risk_of_bias_serious_fraction"] else 0)
+        check(gr["domains"]["risk_of_bias"]["downgrade_steps"] == expect,
+              f"GRADE risk of bias: {gr['domains']['risk_of_bias']['downgrade_steps']} steps "
+              f"but {high_rob}/{n} high-risk studies imply {expect}")
+        i2 = float(next(r for r in pooled if r["subgroup"].startswith("Overall"))["I2_percent"])
+        expect = 2 if i2 >= th["inconsistency_very_serious_i2"] else (
+                 1 if i2 >= th["inconsistency_serious_i2"] else 0)
+        check(gr["domains"]["inconsistency"]["downgrade_steps"] == expect,
+              f"GRADE inconsistency: I2 {i2} implies {expect} steps")
+        total = sum(d["downgrade_steps"] for d in gr["domains"].values())
+        check(total == gr["total_downgrade_steps"], "GRADE: the downgrade steps do not sum")
+        levels = ["very low", "low", "moderate", "high"]
+        check(gr["certainty_of_evidence"] == levels[max(0, len(levels) - 1 - total)],
+              f"GRADE: {total} steps from high does not give {gr['certainty_of_evidence']!r}")
+        se_, sp_ = gr["summary_sensitivity"], gr["summary_specificity"]
+        primary_biv = next(r for r in biv if r["analysis"].startswith("one estimate per study"))
+        check(abs(se_ - float(primary_biv["summary_sensitivity"])) < 1e-9
+              and abs(sp_ - float(primary_biv["summary_specificity"])) < 1e-9,
+              "GRADE: the operating point does not match the bivariate primary analysis")
+        for row in gr["summary_of_findings"]:
+            p_ = row["pre_test_probability"]
+            d_, h_ = 1000.0 * p_, 1000.0 * (1 - p_)
+            for key, want in (("true_positives_per_1000", se_ * d_),
+                              ("false_negatives_per_1000", d_ - se_ * d_),
+                              ("true_negatives_per_1000", sp_ * h_),
+                              ("false_positives_per_1000", h_ - sp_ * h_)):
+                check(abs(row[key] - round(want, 1)) < 0.05,
+                      f"GRADE summary of findings at {p_}: {key} is {row[key]}, not {want:.1f}")
+            tp, fp = row["true_positives_per_1000"], row["false_positives_per_1000"]
+            check(abs(row["positive_predictive_value"] - tp / (tp + fp)) < 1e-3,
+                  f"GRADE summary of findings at {p_}: PPV is not TP/(TP+FP)")
 
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]

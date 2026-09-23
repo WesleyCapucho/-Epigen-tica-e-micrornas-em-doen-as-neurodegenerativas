@@ -1,0 +1,81 @@
+{
+ "instrument": "GRADE for diagnostic test accuracy (Schunemann et al., J Clin Epidemiol 2020;122:129-141 and 142-152)",
+ "starting_certainty": "high",
+ "thresholds": {
+  "risk_of_bias_serious_fraction": 0.5,
+  "risk_of_bias_very_serious_fraction": 0.75,
+  "inconsistency_serious_i2": 50.0,
+  "inconsistency_very_serious_i2": 90.0,
+  "imprecision_serious_ci_width": 0.2,
+  "imprecision_very_serious_ci_width": 0.4,
+  "publication_bias_egger_p": 0.05,
+  "indirectness_serious_fraction_high_applicability": 0.5
+ },
+ "domains": {
+  "risk_of_bias": {
+   "downgrade_steps": 2,
+   "judgement_en": "very serious",
+   "judgement_pt": "muito serio",
+   "reason": "28 of 28 studies are at high risk of bias in at least one QUADAS-2 domain (100%)"
+  },
+  "indirectness": {
+   "downgrade_steps": 1,
+   "judgement_en": "serious",
+   "judgement_pt": "serio",
+   "reason": "28 of 28 studies raise high applicability concern for patient selection (100%): the pooled contrast is case versus healthy control, not the differential diagnosis a clinician faces"
+  },
+  "inconsistency": {
+   "downgrade_steps": 2,
+   "judgement_en": "very serious",
+   "judgement_pt": "muito serio",
+   "reason": "I2 = 95.7% across the pooled estimates"
+  },
+  "imprecision": {
+   "downgrade_steps": 0,
+   "judgement_en": "not serious",
+   "judgement_pt": "nao serio",
+   "reason": "widest 95% interval around the summary point is 0.199 (sensitivity 0.189, specificity 0.199)"
+  },
+  "publication_bias": {
+   "downgrade_steps": 1,
+   "judgement_en": "serious",
+   "judgement_pt": "serio",
+   "reason": "Egger test p = 0 on the pooled estimates, strongly suspected"
+  }
+ },
+ "total_downgrade_steps": 6,
+ "certainty_of_evidence": "very low",
+ "summary_sensitivity": 0.796,
+ "summary_specificity": 0.7249,
+ "summary_of_findings": [
+  {
+   "pre_test_probability": 0.05,
+   "true_positives_per_1000": 39.8,
+   "false_negatives_per_1000": 10.2,
+   "true_negatives_per_1000": 688.7,
+   "false_positives_per_1000": 261.3,
+   "positive_predictive_value": 0.1322,
+   "negative_predictive_value": 0.9854
+  },
+  {
+   "pre_test_probability": 0.2,
+   "true_positives_per_1000": 159.2,
+   "false_negatives_per_1000": 40.8,
+   "true_negatives_per_1000": 579.9,
+   "false_positives_per_1000": 220.1,
+   "positive_predictive_value": 0.4197,
+   "negative_predictive_value": 0.9343
+  },
+  {
+   "pre_test_probability": 0.5,
+   "true_positives_per_1000": 398.0,
+   "false_negatives_per_1000": 102.0,
+   "true_negatives_per_1000": 362.4,
+   "false_positives_per_1000": 137.6,
+   "positive_predictive_value": 0.7432,
+   "negative_predictive_value": 0.7804
+  }
+ ],
+ "reading_en": "Certainty is very low, and the five domains that put it there are not independent afflictions of a few weak studies: every pooled estimate comes from a case-versus-healthy-control design with a threshold chosen in the same sample, heterogeneity is near total, and the funnel is asymmetric. The summary of findings is the part to quote. At a pre-test probability of 5%, the order of a screening setting, the pooled test returns 301 positives per 1000 people tested, of which 261 are false: 40 real cases found at the cost of 261 people sent for unnecessary further work-up, a positive predictive value of 0.13. The test is better at ruling out than ruling in, with a negative predictive value of 0.99 at that prevalence, and that asymmetry is the honest way to describe it.",
+ "reading_pt": "A certeza e muito baixa, e os cinco dominios que a levaram ate la nao sao males independentes de alguns estudos fracos: toda estimativa agrupada vem de um desenho caso-versus-controle-saudavel com limiar escolhido na mesma amostra, a heterogeneidade e quase total e o funil e assimetrico. A tabela de resumo de achados e a parte a citar. Numa probabilidade pre-teste de 5%, a ordem de um cenario de rastreio, o teste agrupado devolve 301 positivos por 1000 pessoas testadas, dos quais 261 sao falsos: 40 casos reais encontrados ao custo de 261 pessoas encaminhadas para investigacao desnecessaria, um valor preditivo positivo de 0,13. O teste e melhor para descartar que para confirmar, com valor preditivo negativo de 0,99 nessa prevalencia, e essa assimetria e o jeito honesto de descreve-lo."
+}
