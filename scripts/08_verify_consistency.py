@@ -408,6 +408,67 @@ def main():
         check(dose["required_knockdown_below_measured_everywhere"] == (hi < target),
               "ode dose: the below-measured verdict disagrees with the reported range")
 
+    # EN | Wilhelm et al. print copy numbers and concentrations in the same table and
+    #      state in the legend that the concentrations were computed over the synaptic
+    #      volume MINUS the mitochondrial volume. Both halves of that statement are
+    #      recomputed here: the alpha-synuclein split that K054 derives, and the volume
+    #      implied by each copy number / concentration pair, which must agree with the
+    #      two geometric rows read from a different figure of the same paper.
+    # PT | Wilhelm et al. imprimem numero de copias e concentracao na mesma tabela e
+    #      dizem na legenda que as concentracoes foram calculadas sobre o volume
+    #      sinaptico MENOS o volume mitocondrial. As duas metades disso sao recalculadas
+    #      aqui: a separacao da alfa-sinucleina que o K054 deriva, e o volume implicado
+    #      por cada par copias / concentracao, que tem de bater com as duas linhas
+    #      geometricas lidas de outra figura do mesmo artigo.
+    if {"K050", "K052", "K053", "K054", "K057"} <= set(kin_by_id):
+        AVOGADRO = 6.02214076e23
+        ratio = float(kin_by_id["K053"]["value_si"])
+        share = ratio / (1.0 + ratio)
+        total_uM = 43.57                      # printed beside K052 in the same row
+        check(f"{total_uM}" in kin_by_id["K052"]["verbatim_quote"],
+              "kinetics K052: the quoted row no longer carries the 43.57 uM used by K054")
+        check(abs(float(kin_by_id["K054"]["value_si"]) - total_uM * share) < 1e-3,
+              f"kinetics K054: {kin_by_id['K054']['value_si']} != "
+              f"{total_uM} x {share:.6f} = {total_uM * share:.4f}")
+        v_cyto = float(kin_by_id["K050"]["value_si"]) - float(kin_by_id["K057"]["value_si"])
+        for pid, conc_uM in (("K052", 43.57), ("K055", 0.77), ("K056", 41.96)):
+            copies = float(kin_by_id[pid]["value_si"])
+            implied = copies / (conc_uM * 1e-6 * AVOGADRO) * 1e15     # litres -> um^3
+            check(abs(implied - v_cyto) / v_cyto < 0.02,
+                  f"kinetics {pid}: copies and concentration imply {implied:.4f} um^3, "
+                  f"but the bouton minus its mitochondria is {v_cyto:.4f} um^3")
+
+    # EN | The saturation and stoichiometry blocks are pure arithmetic on measured rows,
+    #      so they are recomputed here from the parameter table rather than trusted.
+    # PT | Os blocos de saturacao e estequiometria sao aritmetica pura sobre linhas
+    #      medidas, entao sao recalculados aqui a partir da tabela em vez de aceitos.
+    if ode is not None and "alpha_synuclein_saturation" in ode:
+        sat = ode["alpha_synuclein_saturation"]
+        C = float(kin_by_id["K054"]["value_si"])
+        check(abs(sat["alpha_synuclein_uM_in_bouton"] - C) < 1e-9,
+              "ode saturation: concentration does not match K054")
+        for pt in sat["points"]:
+            mh = pt["m_half_uM"]
+            check(abs(pt["fraction_of_maximal_elongation_rate"] - C / (mh + C)) < 1e-9,
+                  f"ode saturation: fraction at m_half {mh} is not C/(m_half+C)")
+            check(abs(pt["percent_rate_change_per_percent_concentration_change"]
+                      - mh / (mh + C)) < 1e-9,
+                  f"ode saturation: elasticity at m_half {mh} is not m_half/(m_half+C)")
+            check(abs(pt["m_half_uM"] - float(kin_by_id["K009"]["value_si"]) * 1e6) < 1e-6
+                  or abs(pt["m_half_uM"] - float(kin_by_id["K010"]["value_si"]) * 1e6) < 1e-6,
+                  f"ode saturation: m_half {mh} is neither K009 nor K010")
+        check(sat["below_half_saturation"] == (max(
+            p["fraction_of_maximal_elongation_rate"] for p in sat["points"]) < 0.5),
+            "ode saturation: the below-half-saturation verdict disagrees with its own numbers")
+    if ode is not None and "enzyme_substrate_stoichiometry" in ode:
+        st = ode["enzyme_substrate_stoichiometry"]
+        nb, na = float(kin_by_id["K055"]["value_si"]), float(kin_by_id["K056"]["value_si"])
+        check(abs(st["BACE1_copies_per_bouton"] - nb) < 1e-9
+              and abs(st["APP_copies_per_bouton"] - na) < 1e-9,
+              "ode stoichiometry: copy numbers do not match K055 and K056")
+        check(abs(st["APP_per_BACE1"] - na / nb) < 1e-9,
+              "ode stoichiometry: the ratio is not APP over BACE1")
+
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
     check(nd["mirna_directed_therapeutic_trials"] == 0,

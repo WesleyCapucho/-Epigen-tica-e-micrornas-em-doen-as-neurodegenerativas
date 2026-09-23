@@ -183,6 +183,43 @@
   "reading_en": "The comparison is between a modelled dose and a measured effect in a cell line, not a prediction of what a mimic would do in a human brain. It says only whether the intervention the model asks for is larger or smaller than one already shown to be achievable.",
   "reading_pt": "A comparacao e entre uma dose modelada e um efeito medido em linhagem celular, nao uma predicao do que um mimetico faria num cerebro humano. Ela diz apenas se a intervencao que o modelo pede e maior ou menor que uma ja demonstrada como alcancavel."
  },
+ "alpha_synuclein_saturation": {
+  "alpha_synuclein_uM_in_bouton": 21.565,
+  "points": [
+   {
+    "m_half_source": "K009 (pH 7.4, 45 C): 49.8 uM",
+    "m_half_uM": 49.8,
+    "concentration_over_m_half": 0.43303212851405626,
+    "fraction_of_maximal_elongation_rate": 0.3021789392559378,
+    "percent_rate_change_per_percent_concentration_change": 0.6978210607440622
+   },
+   {
+    "m_half_source": "K010 (pH 7.4, 37 C): 46 uM",
+    "m_half_uM": 46.0,
+    "concentration_over_m_half": 0.468804347826087,
+    "fraction_of_maximal_elongation_rate": 0.3191741286168875,
+    "percent_rate_change_per_percent_concentration_change": 0.6808258713831126
+   }
+  ],
+  "below_half_saturation": true,
+  "fraction_of_maximal_range": [
+   0.3021789392559378,
+   0.3191741286168875
+  ],
+  "elasticity_range": [
+   0.6808258713831126,
+   0.6978210607440622
+  ],
+  "reading_en": "Physiological alpha-synuclein sits below half-saturation, on the rising part of the elongation curve, so lowering it lowers elongation almost in proportion. That is what makes a miR-7 mimic a coherent idea at all. The saturation constant is from recombinant protein in vitro and the concentration from rat synaptosomes, so this is a statement about regime, not a predicted rate.",
+  "reading_pt": "A alfa-sinucleina fisiologica fica abaixo da meia-saturacao, na parte ascendente da curva de elongacao, entao baixa-la reduz a elongacao quase em proporcao. E o que torna um mimetico de miR-7 uma ideia coerente. A constante de saturacao vem de proteina recombinante in vitro e a concentracao de sinaptossomo de rato, entao isto fala de regime, nao de taxa predita."
+ },
+ "enzyme_substrate_stoichiometry": {
+  "BACE1_copies_per_bouton": 115.84,
+  "APP_copies_per_bouton": 6283.6,
+  "APP_per_BACE1": 54.24378453038674,
+  "reading_en": "The enzyme is outnumbered by its substrate about fifty to one in the presynaptic bouton, which is the arrangement in which the enzyme's own abundance sets the flux. That is the arrangement a miR-29 mimic would act on. Rat synaptosomes; no human equivalent is in this table.",
+  "reading_pt": "A enzima e superada pelo substrato em cerca de cinquenta para um no botao presinaptico, que e o arranjo em que a abundancia da propria enzima fixa o fluxo. E o arranjo sobre o qual um mimetico de miR-29 agiria. Sinaptossomos de rato; nao ha equivalente humano nesta tabela."
+ },
  "free_parameter_sensitivity_scans": 27,
  "free_parameter_sensitivity_ad_above_control": 26,
  "free_parameter_sensitivity_flips": 0,

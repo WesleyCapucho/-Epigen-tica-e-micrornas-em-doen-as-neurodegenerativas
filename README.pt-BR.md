@@ -52,7 +52,8 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   │   ├── systematic_review_2026/    # Estratégia de busca, corpus e decisões de triagem,
 │   │   │                              #   exportações do Scopus, contagens de menção, meta-análises prévias
 │   │   ├── clinical_trials_2026/      # Panorama do ClinicalTrials.gov de terapêuticos dirigidos a miRNA
-│   │   ├── kinetics_2026/             # Tabela suplementar de Schwanhäusser et al. 2011 (meias-vidas genômicas)
+│   │   ├── kinetics_2026/             # Tabelas suplementares: meias-vidas genômicas (Schwanhäusser 2011),
+│   │   │                              #   cópias de proteína presináptica (Wilhelm 2014, tabela S1)
 │   │   └── structures_2026/           # Coordenadas depositadas: 6N4O, 4D8C, 6CU7, 5OQV
 │   ├── extracted/                     # Tabela de extração de acurácia e tabela de parâmetros cinéticos,
 │   │                                  #   ambas com citações verbatim das fontes
@@ -120,9 +121,9 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 778 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 829 verificações passam.
 
-- **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 51 linhas de 14 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
+- **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 56 linhas de 14 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
 
 Os textos completos **não** são redistribuídos aqui — apenas os pontos de dado extraídos e suas citações. Busque as fontes pelos DOIs.

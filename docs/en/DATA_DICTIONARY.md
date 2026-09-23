@@ -91,7 +91,7 @@ Per miRNA family: mean reported AUC, number of contributing studies, min/max AUC
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 51 rows from 14 primary sources.
+Rate constants, half-lives and concentrations used by `scripts/12`, one row per parameter per source. 56 rows from 14 primary sources.
 
 | Column | Type | Description |
 |---|---|---|
@@ -101,7 +101,7 @@ Rate constants, half-lives and concentrations used by `scripts/12`, one row per 
 | `parameter` / `symbol` | string | What the value is, and the symbol the model uses |
 | `value_as_written` | string | The value exactly as printed in the source. For `numeric` and `qualitative_constraint` it must appear inside `verbatim_quote` |
 | `value_si` | float | The same value converted to the model's units. Blank for qualitative constraints and gaps |
-| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `um^3`, `fold`, `fractional change`, `fractional increase`, `fraction of patients`, `dimensionless` |
+| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `uM`, `um^3`, `fold`, `fractional change`, `fractional increase`, `fraction of patients`, `dimensionless` |
 | `unit_as_written` | string | Unit as printed in the source |
 | `population` / `condition` | free text | Who or what was measured, and under which experimental condition. A rate constant without its condition is rejected by `scripts/08` |
 | `n` | string | Sample size as reported |
@@ -117,7 +117,11 @@ Rate constants, half-lives and concentrations used by `scripts/12`, one row per 
 - A `derived` row is **not** a number printed by its source. Its derivation is in `note`, and `scripts/08` recomputes it from the archived table in `data/raw/kinetics_2026/`.
 - K038 and K039 record values from a model that the source paper itself rejects. They are kept as warnings and not used.
 - A value printed in a figure or in a figure's table is recorded with that row or label as its quote, and `note` says which figure it was read from. A value that exists only as a position on a plotted curve is not recorded at all.
-- K051 is the most specific kind of gap: the source did quantify the protein, but under the label `α/β-synuclein` and only in a supplementary table that is not in hand. The row says so, so nobody fills it from a different paper by mistake.
+- K052 and K054 are the reason the `derived` kind exists. Wilhelm et al. report α- and β-synuclein together (K052) and, in a footnote, the ratio between them (K053); neither is an α-synuclein concentration on its own. K054 combines the two and says so, and `scripts/08` recomputes it. Quoting K052 as α-synuclein would overstate it twofold.
+
+## `data/raw/kinetics_2026/wilhelm_2014_table_S1.xlsx`
+
+Additional Data Table S1 of Wilhelm et al. 2014 (Science, DOI 10.1126/science.1252884): quantitative immunoblot measurements of 64 presynaptic proteins, with percentage of total protein, copy number per synapse (mean ± SEM of four preparations), molar concentration and footnotes. The legend is embedded in the sheet as an image. Concentrations were computed by the authors over the synaptic volume minus the mitochondrial volume; `scripts/08` confirms this by recomputing the implied volume from each copy number and concentration pair and comparing it against K050 minus K057, read from Figure 1C of the same paper.
 
 ## `data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls`
 

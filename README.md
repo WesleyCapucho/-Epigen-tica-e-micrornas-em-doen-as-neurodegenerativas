@@ -52,7 +52,8 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   │   ├── systematic_review_2026/    # Search strategy, screening corpus and decisions,
 │   │   │                              #   Scopus exports, mention counts, prior meta-analyses
 │   │   ├── clinical_trials_2026/      # ClinicalTrials.gov landscape of miRNA-directed therapeutics
-│   │   ├── kinetics_2026/             # Schwanhäusser et al. 2011 supplementary table (genome-wide half-lives)
+│   │   ├── kinetics_2026/             # Supplementary data tables: genome-wide half-lives (Schwanhäusser 2011),
+│   │   │                              #   presynaptic protein copy numbers (Wilhelm 2014, table S1)
 │   │   └── structures_2026/           # Deposited coordinates: 6N4O, 4D8C, 6CU7, 5OQV
 │   ├── extracted/                     # Diagnostic-accuracy extraction table, kinetic-parameter table,
 │   │                                  #   both with verbatim source quotes
@@ -120,9 +121,9 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 778 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 829 checks currently pass.
 
-- **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 51 rows from 14 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
+- **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 56 rows from 14 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
 
 Full texts are **not** redistributed here — only extracted data points and their citations. Fetch sources through their DOIs.

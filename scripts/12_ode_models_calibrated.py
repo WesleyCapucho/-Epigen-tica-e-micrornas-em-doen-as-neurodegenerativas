@@ -118,6 +118,26 @@ def load_measured():
             sys.exit(f"EN/PT: parameter {pid} is {r['kind']}, not a numeric value")
         return float(r["value_si"])
 
+    def derived(pid):
+        """
+        EN | Load a value we computed ourselves from a primary table. Kept separate from
+             val() on purpose: a derived number must be asked for by name, never picked
+             up by accident, and its row has to say how it was derived. scripts/08
+             recomputes every derived row from its sources.
+        PT | Carrega um valor que nos mesmos calculamos a partir de uma tabela primaria.
+             Separado de val() de proposito: um numero derivado tem de ser pedido pelo
+             nome, nunca apanhado por acaso, e a linha dele precisa dizer como foi
+             derivado. O scripts/08 recalcula cada linha derivada a partir das fontes.
+        """
+        r = table.get(pid)
+        if r is None:
+            sys.exit(f"EN/PT: parameter {pid} not found in {KINETICS}")
+        if r["kind"] != "derived":
+            sys.exit(f"EN/PT: parameter {pid} is {r['kind']}, not a derived value")
+        if "DERIVED" not in r["note"] and "derived" not in r["note"]:
+            sys.exit(f"EN/PT: parameter {pid} does not document its derivation")
+        return float(r["value_si"])
+
     m = {
         # Abeta42 handling, human in vivo (Mawuenyega 2010)
         "k_prod_Ab_ctrl": val("K001"),      # 1/h
@@ -139,6 +159,10 @@ def load_measured():
         "d_miR29c": val("K018"),
         "d_miR7":   val("K020"),
         "d_miR7_slow": val("K021"),
+        # absolute abundances in the presynaptic bouton (Wilhelm 2014)
+        "C_aSyn_uM": derived("K054"),           # alpha only, derived from K052 and K053
+        "N_BACE1": val("K055"),
+        "N_APP": val("K056"),
         # measured size of miR-29 repression of BACE1 (Hebert 2008)
         "BACE1_knockdown_miR29": val("K047"),
         # miR-7 neuronal steady state (Kleaveland 2018)
@@ -543,6 +567,81 @@ def experiment_ph_gate(measured):
     )
 
 
+def experiment_alpha_synuclein_saturation(measured):
+    """
+    EN | The one place in this project where two independent measurements meet with no
+         free parameter between them. Buell et al. measured that alpha-synuclein fibril
+         elongation saturates, with half-maximal rate near 46-50 uM of monomer (K009,
+         K010). Wilhelm et al. measured how much alpha-synuclein is actually in a
+         presynaptic bouton: 21.6 uM (K054, derived from the combined synuclein number
+         and the alpha-to-beta ratio). Putting one on the other says which regime the
+         protein sits in, and therefore how much a change in its level matters.
+    PT | O unico ponto deste projeto em que duas medidas independentes se encontram sem
+         nenhum parametro livre entre elas. Buell et al. mediram que a elongacao da
+         fibrila de alfa-sinucleina satura, com meia-taxa perto de 46-50 uM de monomero
+         (K009, K010). Wilhelm et al. mediram quanta alfa-sinucleina existe de fato num
+         botao presinaptico: 21,6 uM (K054, derivado do numero combinado de sinucleina e
+         da razao alfa para beta). Por um sobre o outro se descobre em que regime a
+         proteina esta, e portanto o quanto uma mudanca no seu nivel importa.
+
+    EN | Two systems, and the reader must be told: the saturation constant is recombinant
+         protein in vitro, the concentration is a rat synaptosome. The comparison is an
+         order-of-magnitude statement about regime, not a rate prediction.
+    PT | Dois sistemas, e o leitor precisa saber: a constante de saturacao e proteina
+         recombinante in vitro, a concentracao e um sinaptossomo de rato. A comparacao e
+         uma afirmacao de ordem de grandeza sobre regime, nao predicao de taxa.
+    """
+    C = measured["C_aSyn_uM"]
+    out = dict(alpha_synuclein_uM_in_bouton=float(C), points=[])
+    for label, m_half in (("K009 (pH 7.4, 45 C): 49.8 uM", measured["m_half_uM"]),
+                          ("K010 (pH 7.4, 37 C): 46 uM", measured["m_half_uM_b"])):
+        frac = C / (m_half + C)          # EN/PT: rate as a fraction of maximal
+        elasticity = m_half / (m_half + C)   # EN/PT: d(ln rate) / d(ln concentration)
+        out["points"].append(dict(
+            m_half_source=label, m_half_uM=float(m_half),
+            concentration_over_m_half=float(C / m_half),
+            fraction_of_maximal_elongation_rate=float(frac),
+            percent_rate_change_per_percent_concentration_change=float(elasticity)))
+    fr = [p["fraction_of_maximal_elongation_rate"] for p in out["points"]]
+    el = [p["percent_rate_change_per_percent_concentration_change"] for p in out["points"]]
+    out["below_half_saturation"] = bool(max(fr) < 0.5)
+    out["fraction_of_maximal_range"] = [float(min(fr)), float(max(fr))]
+    out["elasticity_range"] = [float(min(el)), float(max(el))]
+    out["reading_en"] = (
+        "Physiological alpha-synuclein sits below half-saturation, on the rising part of "
+        "the elongation curve, so lowering it lowers elongation almost in proportion. "
+        "That is what makes a miR-7 mimic a coherent idea at all. The saturation constant "
+        "is from recombinant protein in vitro and the concentration from rat synaptosomes, "
+        "so this is a statement about regime, not a predicted rate.")
+    out["reading_pt"] = (
+        "A alfa-sinucleina fisiologica fica abaixo da meia-saturacao, na parte ascendente "
+        "da curva de elongacao, entao baixa-la reduz a elongacao quase em proporcao. E o "
+        "que torna um mimetico de miR-7 uma ideia coerente. A constante de saturacao vem "
+        "de proteina recombinante in vitro e a concentracao de sinaptossomo de rato, "
+        "entao isto fala de regime, nao de taxa predita.")
+    return out
+
+
+def experiment_enzyme_substrate_stoichiometry(measured):
+    """
+    EN | BACE1 and its substrate counted in the same preparation, in the same units.
+    PT | BACE1 e seu substrato contados na mesma preparacao, nas mesmas unidades.
+    """
+    n_b, n_a = measured["N_BACE1"], measured["N_APP"]
+    return dict(
+        BACE1_copies_per_bouton=float(n_b),
+        APP_copies_per_bouton=float(n_a),
+        APP_per_BACE1=float(n_a / n_b),
+        reading_en=("The enzyme is outnumbered by its substrate about fifty to one in the "
+                    "presynaptic bouton, which is the arrangement in which the enzyme's own "
+                    "abundance sets the flux. That is the arrangement a miR-29 mimic would "
+                    "act on. Rat synaptosomes; no human equivalent is in this table."),
+        reading_pt=("A enzima e superada pelo substrato em cerca de cinquenta para um no "
+                    "botao presinaptico, que e o arranjo em que a abundancia da propria "
+                    "enzima fixa o fluxo. E o arranjo sobre o qual um mimetico de miR-29 "
+                    "agiria. Sinaptossomos de rato; nao ha equivalente humano nesta tabela."))
+
+
 def experiment_mimic_versus_measured_knockdown(measured, clearance, n=9):
     """
     EN | Put the dose the model asks for next to a dose that has actually been achieved.
@@ -719,6 +818,8 @@ def main():
     loads = experiment_human_aggregate_load(measured)
     sens = experiment_free_parameter_sensitivity(measured)
     dose = experiment_mimic_versus_measured_knockdown(measured, clearance)
+    sat = experiment_alpha_synuclein_saturation(measured)
+    stoich = experiment_enzyme_substrate_stoichiometry(measured)
 
     print("\n--- AD: clearance versus production ---")
     print(f"  Abeta AD / control            : {clearance['abeta_ratio_AD_over_control']:.3f}")
@@ -758,6 +859,19 @@ def main():
     nanq = [r for r in sens if r["verdict"] == "not_evaluable"]
     ok = [r for r in sens if r["verdict"] == "AD_above_control"]
     ratios = [r["abeta_AD_over_control"] for r in ok]
+    print("\n--- alpha-synuclein: measured level on the measured saturation curve ---")
+    print(f"  in the presynaptic bouton [K054]      : {sat['alpha_synuclein_uM_in_bouton']:.1f} uM")
+    for pt in sat["points"]:
+        print(f"  vs m_half {pt['m_half_uM']:.1f} uM  ->  {100*pt['fraction_of_maximal_elongation_rate']:.0f}% "
+              f"of maximal elongation, {100*pt['percent_rate_change_per_percent_concentration_change']:.0f}% "
+              f"rate change per 100% level change")
+    print(f"  below half-saturation                 : {sat['below_half_saturation']}")
+
+    print("\n--- BACE1 and APP in the same bouton [K055, K056] ---")
+    print(f"  BACE1 copies                          : {stoich['BACE1_copies_per_bouton']:.0f}")
+    print(f"  APP copies                            : {stoich['APP_copies_per_bouton']:.0f}")
+    print(f"  substrate per enzyme                  : {stoich['APP_per_BACE1']:.0f} to 1")
+
     print("\n--- Required mimic dose vs a measured knockdown [K047] ---")
     kd = dose.get("BACE1_knockdown_at_required_mimic")
     if kd:
@@ -788,6 +902,8 @@ def main():
         alpha_synuclein_ph_gate=ph,
         human_abeta_aggregate_load=loads,
         mimic_dose_vs_measured_knockdown=dose,
+        alpha_synuclein_saturation=sat,
+        enzyme_substrate_stoichiometry=stoich,
         free_parameter_sensitivity_scans=len(sens),
         free_parameter_sensitivity_ad_above_control=len(ok),
         free_parameter_sensitivity_flips=len(flips),

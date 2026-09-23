@@ -91,7 +91,7 @@ Por família de miRNA: AUC média reportada, número de estudos contribuintes, A
 
 ## `data/extracted/kinetic_parameters.csv`
 
-Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 51 linhas de 14 fontes primárias.
+Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`, uma linha por parâmetro por fonte. 56 linhas de 14 fontes primárias.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
@@ -101,7 +101,7 @@ Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`
 | `parameter` / `symbol` | string | O que o valor é, e o símbolo usado no modelo |
 | `value_as_written` | string | O valor exatamente como impresso na fonte. Em `numeric` e `qualitative_constraint`, precisa aparecer dentro de `verbatim_quote` |
 | `value_si` | float | O mesmo valor convertido para as unidades do modelo. Vazio em restrições qualitativas e lacunas |
-| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `um^3`, `fold`, `fractional change`, `fractional increase`, `fraction of patients`, `dimensionless` |
+| `unit_si` | enum | `1/hour`, `M`, `M^-1 s^-1`, `molecules per cell`, `uM`, `um^3`, `fold`, `fractional change`, `fractional increase`, `fraction of patients`, `dimensionless` |
 | `unit_as_written` | string | Unidade como impressa na fonte |
 | `population` / `condition` | texto livre | Quem ou o que foi medido, e em que condição experimental. Constante de velocidade sem condição é rejeitada pelo `scripts/08` |
 | `n` | string | Tamanho amostral como reportado |
@@ -117,7 +117,11 @@ Constantes de velocidade, meias-vidas e concentrações usadas pelo `scripts/12`
 - Uma linha `derived` **não** é número impresso pela fonte. A derivação está em `note`, e o `scripts/08` a recalcula a partir da tabela arquivada em `data/raw/kinetics_2026/`.
 - K038 e K039 registram valores de um modelo que o próprio artigo rejeita. Ficam como aviso e não são usados.
 - Um valor impresso numa figura ou na tabela de uma figura é registrado com aquela linha ou rótulo como citação, e o `note` diz de que figura foi lido. Um valor que só existe como posição numa curva não é registrado.
-- K051 é o tipo mais específico de lacuna: a fonte quantificou a proteína, mas sob o rótulo `α/β-sinucleína` e apenas numa tabela suplementar que não está em mãos. A linha diz isso, para ninguém preencher com outro artigo por engano.
+- K052 e K054 são a razão de existir o tipo `derived`. Wilhelm et al. reportam α- e β-sinucleína juntas (K052) e, numa nota de rodapé, a razão entre as duas (K053); nenhuma das duas é, sozinha, uma concentração de α-sinucleína. O K054 combina as duas e diz isso, e o `scripts/08` o recalcula. Citar K052 como α-sinucleína superestimaria o valor em duas vezes.
+
+## `data/raw/kinetics_2026/wilhelm_2014_table_S1.xlsx`
+
+Additional Data Table S1 de Wilhelm et al. 2014 (Science, DOI 10.1126/science.1252884): medidas de immunoblot quantitativo de 64 proteínas presinápticas, com porcentagem da proteína total, número de cópias por sinapse (média ± EPM de quatro preparações), concentração molar e notas de rodapé. A legenda está embutida na planilha como imagem. As concentrações foram calculadas pelos autores sobre o volume sináptico menos o volume mitocondrial; o `scripts/08` confirma isso recalculando o volume implicado por cada par de cópias e concentração e comparando com K050 menos K057, lidos da Figura 1C do mesmo artigo.
 
 ## `data/raw/kinetics_2026/schwanhausser_2011_supplementary_table.xls`
 
