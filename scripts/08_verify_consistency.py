@@ -52,6 +52,8 @@ QUADAS_SUMMARY = "results/tables/quadas2_summary.json"
 BIVARIATE = "results/tables/bivariate_summary.csv"
 BIVARIATE_JSON = "results/tables/bivariate_model.json"
 GRADE_JSON = "results/tables/grade_certainty.json"
+DOSING_JSON = "results/tables/mimic_dosing_feasibility.json"
+DOSING_CSV = "results/tables/mimic_dosing_feasibility.csv"
 
 
 def study_id(row):
@@ -756,6 +758,62 @@ def main():
             tp, fp = row["true_positives_per_1000"], row["false_positives_per_1000"]
             check(abs(row["positive_predictive_value"] - tp / (tp + fp)) < 1e-3,
                   f"GRADE summary of findings at {p_}: PPV is not TP/(TP+FP)")
+
+    # --- 8e. Mimic dosing feasibility ---------------------------------------
+    # EN | Closed form throughout, so every published number is recomputed from the decay
+    #      constants in the parameter table. Two properties are asserted as properties of
+    #      the function rather than of this run: the peak-to-average ratio never drops
+    #      below one, and a species that decays faster always pays a larger penalty at the
+    #      same interval. A version that violated either would be wrong regardless of what
+    #      the data said.
+    # PT | Tudo em forma fechada, entao cada numero publicado e recalculado a partir das
+    #      constantes de decaimento da tabela de parametros. Duas propriedades sao exigidas
+    #      como propriedades da funcao e nao desta execucao: a razao pico sobre media nunca
+    #      cai abaixo de um, e uma especie que decai mais rapido sempre paga penalidade
+    #      maior no mesmo intervalo. Uma versao que violasse qualquer uma estaria errada
+    #      independentemente do que os dados dissessem.
+    try:
+        dos = json.load(open(DOSING_JSON, encoding="utf-8"))
+        dos_rows = list(csv.DictReader(open(DOSING_CSV, encoding="utf-8")))
+    except FileNotFoundError:
+        dos, dos_rows = None, None
+    if dos is not None:
+        ln2 = math.log(2.0)
+
+        def p2a(d, T):
+            x = d * T
+            return 1.0 if x < 1e-9 else x / (1.0 - math.exp(-x))
+
+        for name, rec in dos["decay_constants"].items():
+            row = kin_by_id.get(rec["param_id"])
+            check(row is not None and abs(float(row["value_si"]) - rec["decay_per_hour"]) < 1e-12,
+                  f"dosing: {name} decay does not match {rec['param_id']}")
+            check(abs(rec["half_life_hours"] - ln2 / rec["decay_per_hour"]) < 1e-9,
+                  f"dosing: {name} half-life is not ln2 over its decay constant")
+        for r in dos_rows:
+            d = ln2 / float(r["half_life_hours"])
+            T = float(r["dosing_interval_hours"])
+            check(abs(float(r["peak_over_average"]) - p2a(d, T)) < 1e-3,
+                  f"dosing {r['species']} at {T} h: peak/average is not dT/(1-exp(-dT))")
+            check(abs(float(r["fraction_of_interval_above_half_peak"])
+                      - min(1.0, (ln2 / d) / T)) < 1e-3,
+                  f"dosing {r['species']} at {T} h: time above half peak is not one half-life")
+            check(float(r["peak_over_average"]) >= 1.0,
+                  f"dosing {r['species']}: a peak below the average is impossible")
+        ref = dos["decay_constants"][dos["reference_species"]]["decay_per_hour"]
+        for name, p in dos["daily_dosing_comparison"].items():
+            d = ln2 / p["half_life_hours"]
+            check(abs(p["peak_over_average_daily"] - p2a(d, 24.0)) < 1e-3,
+                  f"dosing {name}: daily peak/average disagrees")
+            check(abs(p["penalty_versus_reference"]
+                      - p2a(d, 24.0) / p2a(ref, 24.0)) < 1e-3,
+                  f"dosing {name}: the penalty is not its ratio to the reference")
+            check(d > ref and p["penalty_versus_reference"] > 1.0,
+                  f"dosing {name}: a species decaying faster than the reference must pay "
+                  "a penalty above one")
+            check(abs(p["fold_stabilisation_required"] - d / ref) < 1e-2,
+                  f"dosing {name}: matching the reference at a fixed interval means "
+                  "matching its decay constant, so the stabilisation is d/d_ref")
 
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
