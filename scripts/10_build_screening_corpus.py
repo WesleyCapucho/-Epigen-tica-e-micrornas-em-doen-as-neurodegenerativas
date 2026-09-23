@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-EN | Assemble the full screening corpus (PubMed + Scopus arms) and rebuild the
+EN | Assemble the full screening corpus (PubMed + imported database arms) and rebuild the
      miRNA mention counts from it.
-PT | Monta o corpus completo de triagem (PubMed + bracos do Scopus) e reconstroi
+PT | Monta o corpus completo de triagem (PubMed + bracos de bases importadas) e reconstroi
      as contagens de mencao de miRNA a partir dele.
 
 EN | Why this script exists. The mention counts feed the attention-versus-
@@ -115,8 +115,25 @@ def fetch_pubmed_half(pmids):
 def main():
     if not os.path.exists(DECISIONS):
         sys.exit(f"EN/PT: missing {DECISIONS}")
-    archived = [r["pmid"].strip() for r in csv.DictReader(open(DECISIONS, encoding="utf-8"))
-                if r["pmid"].strip()]
+    # EN | Only the PubMed-keyed rows. The decisions file used to hold the PubMed half
+    #      alone; it now covers the whole merged corpus, so taking every key here made
+    #      this script treat 353 imported records as missing PubMed articles and try to
+    #      fetch them by ID from NCBI. A row is PubMed's when its database says so, with
+    #      an all-digits key as the fallback for a file written before that column.
+    # PT | Apenas as linhas com chave do PubMed. O arquivo de decisoes guardava so a
+    #      metade do PubMed; agora cobre o corpus unido inteiro, entao pegar toda chave
+    #      aqui fazia este script tratar 353 registros importados como artigos do PubMed
+    #      faltantes e tentar busca-los por ID no NCBI. Uma linha e do PubMed quando a
+    #      coluna database diz isso, com a chave toda numerica como reserva para um
+    #      arquivo escrito antes dessa coluna.
+    archived = []
+    for r in csv.DictReader(open(DECISIONS, encoding="utf-8")):
+        key = (r.get("pmid") or "").strip()
+        if not key:
+            continue
+        db = (r.get("database") or "").strip()
+        if db == "PubMed" or (not db and key.isdigit()):
+            archived.append(key)
 
     # --- PubMed half -------------------------------------------------------
     corpus = {}
@@ -139,12 +156,21 @@ def main():
     if still:
         sys.exit(f"EN/PT: could not recover {len(still)} archived records: {still[:10]}")
 
-    # --- Scopus arms -------------------------------------------------------
-    n_scopus = 0
+    # --- imported database arms --------------------------------------------
+    # EN | Each arm file carries its own database name per record. Counting them
+    #      all as "Scopus" was harmless while Scopus was the only import; with Web
+    #      of Science ingested it would put a false number in the methods, so the
+    #      tally is per database and the key prefix no longer names one.
+    # PT | Cada arquivo de braco traz o nome da base por registro. Conta-los todos
+    #      como "Scopus" era inofensivo enquanto a Scopus era a unica importacao;
+    #      com a Web of Science ingerida isso poria um numero falso nos metodos,
+    #      entao a contagem e por base e o prefixo da chave nao nomeia mais uma.
+    from collections import Counter
+    imported = Counter()
     for fp in sorted(glob.glob(f"{RAW}/additional_records_*.json")):
         arm = os.path.basename(fp).replace("additional_records_", "").replace(".json", "")
         for j, r in enumerate(json.load(open(fp, encoding="utf-8"))):
-            key = f"scopus_{arm}_{r.get('DOI') or j}"
+            key = f"import_{arm}_{r.get('DOI') or j}"
             corpus[key] = {
                 "title": r.get("Title", ""),
                 "abstract": r.get("Abstract", ""),
@@ -155,8 +181,10 @@ def main():
                 "database": r.get("database", "Scopus"),
                 "search_arm": arm,
             }
-            n_scopus += 1
-    print(f"EN | Scopus records merged | PT | Registros do Scopus somados: {n_scopus}")
+            imported[corpus[key]["database"]] += 1
+    n_imported = sum(imported.values())
+    print("EN | Imported database records merged | PT | Registros importados somados: "
+          f"{n_imported} " + ", ".join(f"{k} {v}" for k, v in sorted(imported.items())))
 
     os.makedirs(RAW, exist_ok=True)
     json.dump(corpus, open(CORPUS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
@@ -192,7 +220,8 @@ def main():
     print("=" * 70)
     print(f"Records in corpus / registros no corpus  : {len(corpus)}")
     print(f"   PubMed                                : {sum(1 for v in corpus.values() if v['database']=='PubMed')}")
-    print(f"   Scopus                                : {n_scopus}")
+    for db, n in sorted(imported.items()):
+        print(f"   {db:38s}: {n}")
     print(f"Records without abstract / sem resumo    : {n_no_abstract}")
     print(f"Distinct miRNA labels / rotulos distintos: {len(rows)}")
     print(f"Distinct families / familias distintas   : {len(fam)}")

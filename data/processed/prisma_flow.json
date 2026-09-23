@@ -1,6 +1,6 @@
 {
  "generated_on": "2026-09-10",
- "source": "PubMed/MEDLINE via NCBI E-utilities; Scopus via authenticated export",
+ "source": "PubMed/MEDLINE via NCBI E-utilities; Scopus and Web of Science via authenticated export",
  "identification": {
   "pubmed_records_AD_arm": 168,
   "pubmed_records_PD_arm": 97,
@@ -10,13 +10,22 @@
   "scopus_records_already_in_pubmed_corpus": 159,
   "scopus_duplicates_within_export": 1,
   "scopus_records_new": 326,
-  "total_unique_records": 560,
+  "total_unique_records": 587,
   "note_en": "Both Scopus arms have now been run. The AD arm added 248 records and the PD arm 78 more; 79 PD-arm records had already arrived with the AD arm, because a paper naming both diseases is returned by both searches and must be counted once.",
   "note_pt": "Os dois bracos do Scopus foram executados. O braco AD acrescentou 248 registros e o braco PD outros 78; 79 registros do braco PD ja haviam chegado com o braco AD, porque um artigo que cita as duas doencas volta nas duas buscas e deve ser contado uma vez so.",
   "scopus_records_PD_arm": 255,
   "scopus_PD_already_in_pubmed_corpus": 98,
   "scopus_PD_overlapping_scopus_AD_arm": 79,
-  "scopus_PD_records_new": 78
+  "scopus_PD_records_new": 78,
+  "wos_records_AD_arm": 187,
+  "wos_AD_already_in_pubmed_or_scopus": 169,
+  "wos_AD_records_new": 18,
+  "wos_records_PD_arm": 108,
+  "wos_PD_already_in_pubmed_or_scopus_or_wos_AD": 99,
+  "wos_PD_records_new": 9,
+  "wos_records_new_total": 27,
+  "wos_note_en": "Web of Science was searched on 23 September 2026 under institutional authentication and exported in full-record form, because it cannot be queried by API from this project. The AD arm returned 187 records and the PD arm 108; 27 of those 295 were not already in the PubMed or Scopus corpus. The search date is later than the 10 September 2026 date of the other two databases, and is reported as its own date rather than folded into theirs.",
+  "wos_note_pt": "A Web of Science foi buscada em 23 de setembro de 2026 sob autenticacao institucional e exportada em registro completo, porque nao pode ser consultada por API a partir deste projeto. O braco AD retornou 187 registros e o braco PD 108; 27 desses 295 ainda nao estavam no corpus do PubMed ou da Scopus. A data da busca e posterior a de 10 de setembro de 2026 das outras duas bases, e e reportada como data propria em vez de fundida a delas."
  },
  "screening": {
   "pubmed_records_screened": 234,
@@ -33,16 +42,32 @@
   "scopus_PD_new_records_screened": 78,
   "scopus_PD_excluded_review_or_secondary": 30,
   "scopus_PD_primary_studies": 48,
-  "scopus_PD_primary_reporting_auc_or_sens_spec": 12
+  "scopus_PD_primary_reporting_auc_or_sens_spec": 12,
+  "wos_new_records_screened": 27,
+  "wos_excluded_review_or_secondary": 12,
+  "wos_primary_studies": 15,
+  "wos_primary_reporting_auc_or_sens_spec": 3,
+  "scopus_new_records_screened_total": 326,
+  "scopus_excluded_review_or_secondary_total": 173,
+  "scopus_primary_studies_total": 153,
+  "scopus_primary_reporting_auc_or_sens_spec_total": 31,
+  "wos_new_records_screened_total": 27,
+  "wos_excluded_review_or_secondary_total": 12,
+  "wos_primary_studies_total": 15,
+  "wos_primary_reporting_auc_or_sens_spec_total": 3
  },
  "eligibility_fulltext": {
   "fulltext_retrieved": 47,
-  "studies_contributing_extracted_estimates": 42,
-  "extracted_estimates_total": 76,
+  "studies_contributing_extracted_estimates": 45,
+  "extracted_estimates_total": 79,
   "estimates_added_from_scopus": 34,
   "estimates_eligible_for_primary_pool": 51,
   "note_en": "Two further full texts were read for the PD arm (PMC10765853 and PMC10357515). Four PD-arm candidates were access-restricted and could only be extracted from their abstracts; four more were screened out at full text because the index test was not a circulating miRNA (a lncRNA, a circRNA, a brain-tissue gene signature and a faecal microbiome genus) and one because the population was immune thrombocytopenia.",
-  "note_pt": "Mais dois textos completos foram lidos para o braco PD (PMC10765853 e PMC10357515). Quatro candidatos do braco PD estavam com acesso restrito e so puderam ser extraidos do resumo; outros quatro sairam na leitura do texto completo porque o teste indice nao era um miRNA circulante (um lncRNA, um circRNA, uma assinatura genica de tecido cerebral e um genero do microbioma fecal) e um porque a populacao era trombocitopenia imune."
+  "note_pt": "Mais dois textos completos foram lidos para o braco PD (PMC10765853 e PMC10357515). Quatro candidatos do braco PD estavam com acesso restrito e so puderam ser extraidos do resumo; outros quatro sairam na leitura do texto completo porque o teste indice nao era um miRNA circulante (um lncRNA, um circRNA, uma assinatura genica de tecido cerebral e um genero do microbioma fecal) e um porque a populacao era trombocitopenia imune.",
+  "wos_candidates_adjudicated": 3,
+  "wos_estimates_entering_primary_pool": 0,
+  "wos_note_en": "All three Web of Science candidates were adjudicated against the PICO and none entered the primary pool: one measures a long non-coding RNA rather than a microRNA (E077), one measures post-mortem prefrontal cortex rather than a circulating biofluid (E078), and one - the only record matching the PICO on population, biofluid and index test - reports its AUC only as the inequality 'AUC>0.90' and has no DOI, no PubMed ID and no reachable full text to confirm a value (E079). All three are recorded in the extraction table with their exclusion reasons rather than dropped, so the arm can be audited.",
+  "wos_note_pt": "Os tres candidatos da Web of Science foram julgados contra o PICO e nenhum entrou no pool primario: um mede um RNA longo nao codificante e nao um microRNA (E077), um mede cortex pre-frontal post-mortem e nao um biofluido circulante (E078), e um - o unico registro que casa com o PICO em populacao, biofluido e teste indice - reporta a AUC apenas como a desigualdade 'AUC>0,90' e nao tem DOI, nem PubMed ID, nem texto completo alcancavel para confirmar um valor (E079). Os tres ficam registrados na tabela de extracao com suas razoes de exclusao, em vez de descartados, para que o braco possa ser auditado."
  },
  "included_in_meta_analysis": {
   "estimates_with_estimable_standard_error": 41,
@@ -65,5 +90,16 @@
   "impact_en": "Material. It inflated the attention-versus-performance correlation. See results/tables/attention_correlation_audit.csv for the decomposition.",
   "impact_pt": "Material. Inflava a correlacao atencao-versus-desempenho. Ver results/tables/attention_correlation_audit.csv para a decomposicao.",
   "fixed_in": "scripts/10_build_screening_corpus.py"
+ },
+ "screening_rule_recomputation": {
+  "records_screened": 587,
+  "excluded_review_or_secondary": 231,
+  "primary_studies": 356,
+  "primary_reporting_auc_or_sens_spec": 129,
+  "of_which_carry_a_pmcid": 55,
+  "scope_en": "rule output recomputed over the whole merged corpus; the per-database-arm counts are in 'screening'",
+  "scope_pt": "saida das regras recalculada sobre o corpus unido inteiro; as contagens por braco de base estao em 'screening'",
+  "pmcid_note_en": "only PubMed records carry a PMCID, so this count says nothing about full-text availability for records imported from Scopus or Web of Science",
+  "pmcid_note_pt": "so registros do PubMed trazem PMCID, entao esta contagem nao diz nada sobre disponibilidade de texto completo para registros importados da Scopus ou da Web of Science"
  }
 }

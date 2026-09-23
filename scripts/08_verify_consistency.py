@@ -112,8 +112,20 @@ def main():
           f"{[r['record_id'] for r in ext if r['eligible_primary_pool']=='no' and not r['exclusion_reason'].strip()]}")
     check(all(r["eligible_primary_pool"] in ("yes", "no") for r in ext),
           "extraction: eligible_primary_pool must be yes or no")
-    check(all(r["marker_type"] in ("single_miRNA", "multi_miRNA_panel") for r in ext),
+    # EN | non_miRNA_marker exists so that a record excluded BECAUSE its index test is
+    #      not a microRNA can still be recorded with what it actually measured. Calling a
+    #      long non-coding RNA a single_miRNA to fit the vocabulary would make the
+    #      exclusion reason contradict the row it sits on.
+    # PT | O non_miRNA_marker existe para que um registro excluido PORQUE seu teste indice
+    #      nao e um microRNA ainda possa ser registrado com o que de fato mediu. Chamar um
+    #      RNA longo nao codificante de single_miRNA para caber no vocabulario faria a
+    #      razao de exclusao contradizer a propria linha em que esta.
+    check(all(r["marker_type"] in ("single_miRNA", "multi_miRNA_panel", "non_miRNA_marker")
+              for r in ext),
           "extraction: unexpected marker_type")
+    check(all(r["eligible_primary_pool"] == "no" for r in ext
+              if r["marker_type"] == "non_miRNA_marker"),
+          "extraction: a non-miRNA marker reached the primary pool")
     for r in ext:
         if r["auc"]:
             check(0.0 < float(r["auc"]) <= 1.0, f"extraction {r['record_id']}: AUC out of range")
@@ -868,6 +880,44 @@ def main():
                   f"dosing {name}: matching the reference at a fixed interval means "
                   "matching its decay constant, so the stabilisation is d/d_ref")
 
+    # --- 8f. The corpus holds each article once ----------------------------
+    # EN | Deduplication happens in scripts/09 and is easy to break silently: reading the
+    #      DOI under one spelling while the corpus stores it under another leaves the
+    #      DOI check inert, and the corpus grows a second copy of an article whose title
+    #      two databases typeset differently. That is exactly what happened, and nothing
+    #      noticed until a record count moved for an unrelated reason. The corpus is the
+    #      denominator of every screening count, so its uniqueness is checked here rather
+    #      than trusted to the code that builds it.
+    # PT | A deduplicacao acontece no scripts/09 e quebra em silencio com facilidade: ler
+    #      o DOI numa grafia enquanto o corpus o guarda em outra deixa a checagem de DOI
+    #      inerte, e o corpus ganha uma segunda copia de um artigo cujo titulo duas bases
+    #      compoem de forma diferente. Foi exatamente o que ocorreu, e nada percebeu ate
+    #      uma contagem se mexer por outro motivo. O corpus e o denominador de toda
+    #      contagem de triagem, entao sua unicidade e conferida aqui, e nao confiada ao
+    #      codigo que o monta.
+    try:
+        corpus = json.load(open(CORPUS, encoding="utf-8"))
+    except FileNotFoundError:
+        corpus = None
+    if corpus:
+        by_doi, by_title = {}, {}
+        for key, art in corpus.items():
+            doi = str(art.get("DOI") or art.get("doi") or "").strip().lower()
+            doi = re.sub(r"^https?://(dx\.)?doi\.org/", "", doi)
+            if doi:
+                by_doi.setdefault(doi, []).append(key)
+            t = re.sub(r"[^a-z0-9]+", "", str(art.get("title") or art.get("Title") or "").lower())
+            if t:
+                by_title.setdefault(t, []).append(key)
+        dup_doi = {d: k for d, k in by_doi.items() if len(k) > 1}
+        dup_title = {t: k for t, k in by_title.items() if len(k) > 1}
+        check(not dup_doi,
+              f"corpus: {len(dup_doi)} DOI(s) appear on more than one record, so the same "
+              f"article is counted twice: {list(dup_doi.items())[:3]}")
+        check(not dup_title,
+              f"corpus: {len(dup_title)} normalised title(s) appear on more than one "
+              f"record: {list(dup_title.items())[:3]}")
+
     # --- 9. Clinical trial landscape --------------------------------------
     nd = trials["neurodegeneration_specific"]
     check(nd["mirna_directed_therapeutic_trials"] == 0,
@@ -893,8 +943,14 @@ def main():
                ("README.pt-BR.md", "| Defeito | Efeito | Corrigido em |",
                 "Atualmente {n} verificacoes passam.",
                 ("Cinco", "defeitos deste pipeline foram encontrados"))]
-    spelled = {3: ("Three", "Tres"), 4: ("Four", "Quatro"), 5: ("Five", "Cinco"),
-               6: ("Six", "Seis"), 7: ("Seven", "Sete"), 8: ("Eight", "Oito")}
+    spelled = {1: ("One", "Um"), 2: ("Two", "Dois"), 3: ("Three", "Tres"),
+               4: ("Four", "Quatro"), 5: ("Five", "Cinco"), 6: ("Six", "Seis"),
+               7: ("Seven", "Sete"), 8: ("Eight", "Oito"), 9: ("Nine", "Nove"),
+               10: ("Ten", "Dez"), 11: ("Eleven", "Onze"), 12: ("Twelve", "Doze"),
+               13: ("Thirteen", "Treze"), 14: ("Fourteen", "Catorze"),
+               15: ("Fifteen", "Quinze"), 16: ("Sixteen", "Dezesseis"),
+               17: ("Seventeen", "Dezessete"), 18: ("Eighteen", "Dezoito"),
+               19: ("Nineteen", "Dezenove"), 20: ("Twenty", "Vinte")}
     for idx, (name, header, count_claim, _) in enumerate(readmes):
         try:
             text = open(name, encoding="utf-8").read()
@@ -905,7 +961,12 @@ def main():
         rows = [ln for ln in body.splitlines()
                 if ln.startswith("| ") and not ln.startswith("|---")]
         claim(len(rows) > 0, f"{name}: the corrections table was not found")
-        word = spelled.get(len(rows), ("?", "?"))[idx]
+        # EN/PT: past the table, say so rather than silently passing an unchecked claim
+        if len(rows) not in spelled:
+            claim(False, f"{name}: the corrections table has {len(rows)} rows, which is "
+                         "past the range this check can spell; extend `spelled`")
+            continue
+        word = spelled[len(rows)][idx]
         claim(word.lower() in text.lower(),
               f"{name}: the corrections table has {len(rows)} rows, so the prose above it "
               f"should say {word.lower()}, and it does not")

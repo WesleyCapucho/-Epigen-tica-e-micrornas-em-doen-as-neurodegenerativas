@@ -28,13 +28,13 @@ A camada meta-analítica existe para responder a uma pergunta que a monografia d
 
 | | |
 |---|---|
-| Bases consultadas | PubMed/MEDLINE, Scopus (os dois braços de doença) |
-| Registros únicos | 560 |
+| Bases consultadas | PubMed/MEDLINE, Scopus, Web of Science (os dois braços de doença) |
+| Registros únicos | 587 |
 | Textos completos lidos | 47 |
-| Estudos que contribuem com estimativas | 42 |
-| Estimativas extraídas | 76 (51 elegíveis, 41 agregáveis) |
+| Estudos que contribuem com estimativas | 45 |
+| Estimativas extraídas | 79 (51 elegíveis, 41 agregáveis) |
 | Estudos independentes agregados | 20 |
-| Data da busca | 10 de setembro de 2026 |
+| Data da busca | 10 de setembro de 2026 (PubMed, Scopus); 23 de setembro de 2026 (Web of Science) |
 | Estudos avaliados com QUADAS-2 | 28 |
 | Certeza da evidência (GRADE) | Muito baixa |
 
@@ -43,7 +43,7 @@ As estimativas agregadas estão em `results/tables/meta_analysis_pooled_auc.csv`
 A interpretação pertence ao manuscrito, não a este repositório. Duas coisas, porém, pertencem aqui, porque são propriedades dos dados e não do argumento:
 
 - **Estimativas de um mesmo estudo são correlacionadas.** Um estudo contribui com oito estimativas e outro com seis, e o modelo de efeitos aleatórios trata cada uma como independente. Por isso o `scripts/05` também reagrega uma-estimativa-por-estudo e deixando-um-estudo-de-fora, e a distância entre elas faz parte do resultado.
-- **Cinco defeitos foram encontrados e corrigidos neste pipeline, e cada um mudou um número.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
+- **Dez defeitos foram encontrados e corrigidos neste pipeline.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
 
 ## Estrutura do repositório
 
@@ -80,7 +80,8 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 15_bivariate_srocc.py                      # Modelo bivariado de Reitsma + ROC sumária
 │   ├── 16_grade_certainty.py                      # Certeza GRADE + resumo de achados por 1000
 │   ├── 17_mimic_dosing_feasibility.py             # O que a dosagem repetida custa a um mimético instável
-│   └── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
+│   ├── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
+│   └── tools/mirror_extraction_json.py            # Regenera o espelho JSON da tabela de extração
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, PRISMA-DTA checklist, Scopus/WoS export
 │   └── pt-BR/                         # Métodos, dicionário de dados, checklist PRISMA-DTA, exportação
@@ -135,7 +136,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1637 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1644 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -144,7 +145,7 @@ Os textos completos **não** são redistribuídos aqui — apenas os pontos de d
 
 ## Correções
 
-Cinco defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
+Dez defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
 
 | Defeito | Efeito | Corrigido em |
 |---|---|---|
@@ -153,12 +154,17 @@ Cinco defeitos deste pipeline foram encontrados depois que resultados já haviam
 | Estudos identificados só por PMID | Os quatro estudos publicados fora do MEDLINE colapsavam num único grupo de PMID vazio; duas coortes independentes de miR-124 contadas como uma; totais de estudo subestimados | `scripts/05`, `scripts/06` |
 | Subgrupos de biofluido exigiam três *estimativas*, e não três *estudos* | Produziam um subgrupo de oito estimativas vindas de uma só coorte — dispersão intraestudo reportada como evidência entre estudos | `scripts/05` |
 | O `scripts/09` deduplicava apenas contra o PubMed | O braço PD do Scopus parecia acrescentar 157 registros novos em vez de 78 | `scripts/09` |
+| O `scripts/09` lia o DOI do PubMed só como `DOI`, mas o corpus o guarda como `doi` | A desduplicação por DOI contra toda a metade do PubMed ficou inerte; um artigo entrou duas vezes sob duas composições do próprio título | `scripts/09` |
+| O `scripts/09` deduplicava um braço contra um corpus que já o continha | Reingerir um braço devolvia zero registros novos e esvaziava o arquivo dele; o pipeline documentado destruía dados se rodado duas vezes | `scripts/09` |
+| O `scripts/09` nomeava a saída só pelo `--arm` e a excluía da desduplicação | Reusar um rótulo entre bases substituía em silêncio o braço anterior; ingerir a Web of Science como `--arm AD` teria apagado 248 registros da Scopus | `scripts/09` |
+| O `scripts/04` lia o corpus como se fosse só do PubMed, e sobrescrevia o `prisma_flow.json` inteiro | Quebrava no primeiro registro importado, e se não quebrasse teria substituído o registro PRISMA curado por cinco chaves | `scripts/04` |
+| O `scripts/10` contava todo registro importado como Scopus | Com a Web of Science ingerida, isso poria uma contagem por base falsa nos métodos | `scripts/10` |
 
 O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula a correlação atenção–desempenho sob cada combinação de entradas e separa a contribuição do defeito da contribuição dos dados novos.
 
 ## Limitações conhecidas
 
-- **A Web of Science não foi consultada.** A cobertura é simétrica entre as doenças, mas tem profundidade de duas bases. Como a Scopus, a Web of Science não pode ser consultada por API a partir deste ambiente — exige autenticação institucional — então o caminho de ingestão está pronto e à espera de uma exportação: as consultas dos dois braços estão em `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md`, e `python scripts/09_ingest_scopus_wos.py --wos <export.csv> --arm AD` mescla e desduplica o resultado contra todo braço já ingerido.
+- **A Web of Science já foi consultada**, em 23 de setembro de 2026, sob autenticação institucional e treze dias depois das outras duas bases — o que é reportado como data própria de busca, e não fundido às delas. Ela retornou 295 registros nos dois braços, dos quais **27 eram novos**, e **nenhum deles entrou no pool primário**: um mede um RNA longo não codificante e não um microRNA, um mede córtex post-mortem e não um biofluido circulante, e o único registro que casa com o PICO reporta a AUC apenas como a desigualdade "AUC>0,90" e não tem DOI, nem PubMed ID, nem texto completo alcançável para confirmar um valor. Os três ficam registrados na tabela de extração com suas razões de exclusão (E077–E079), em vez de descartados. As estimativas agregadas, o ponto de operação bivariado, a tabela QUADAS-2 e a classificação GRADE são idênticos byte a byte antes e depois.
 - A extração se restringe a textos completos de acesso aberto e a resumos, o que pode selecionar um subconjunto não aleatório da literatura; quatro estudos do braço PD estavam com acesso restrito de modo que só uma AUC de modelo combinado pôde ser lida.
 - 34 dos 41 erros-padrão ponderados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
 - A heterogeneidade é alta (I² até 97%) e as estimativas dentro dos estudos são correlacionadas, o que também torna o teste de Egger pouco confiável aqui.

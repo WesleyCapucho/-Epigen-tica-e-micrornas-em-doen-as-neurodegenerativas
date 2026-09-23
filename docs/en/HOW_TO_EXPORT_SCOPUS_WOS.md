@@ -65,9 +65,9 @@ The **abstract is mandatory**: screening reads it. Without it a record still ent
 
 5. Save one file per arm. Suggested names: `scopus_AD.csv` and `scopus_PD.csv`.
 
-## Step 3 — Web of Science (this is the one still missing)
+## Step 3 — Web of Science (done, 23 September 2026)
 
-Scopus has been searched and ingested for both arms. Web of Science has **not**, and it is the last declared gap in the search. `webofscience.com` was tried from this environment and is unreachable for the same reason Scopus is: it answers only to an authenticated institutional session. Nothing else is blocking it — the ingest path, the deduplication and the downstream reruns are all in place and tested.
+Both arms have been run and ingested: 187 records for the AD arm, 108 for the PD arm, 27 of them new after deduplication. The exports are archived in `data/raw/systematic_review_2026/exports/` as `wos_AD_2026-09-23.txt` and `wos_PD_2026-09-23.txt`. The instructions stay here because the search has to be repeatable, and because an update of this review will run it again.
 
 In **Advanced Search**, using the `TS=` (Topic) field:
 
@@ -89,8 +89,8 @@ Export as a **Tab-delimited file** or **RIS**, including *Full Record*. Suggeste
 Send the exported files. The pipeline then runs:
 
 ```bash
-python scripts/09_ingest_scopus_wos.py --wos wos_AD.txt --arm AD
-python scripts/09_ingest_scopus_wos.py --wos wos_PD.txt --arm PD
+python scripts/09_ingest_scopus_wos.py --wos wos_AD.txt --arm AD_wos
+python scripts/09_ingest_scopus_wos.py --wos wos_PD.txt --arm PD_wos
 python scripts/04_screening.py
 python scripts/10_build_screening_corpus.py
 python scripts/05_meta_analysis.py
@@ -101,7 +101,9 @@ python scripts/16_grade_certainty.py
 python scripts/08_verify_consistency.py
 ```
 
-Script `09` deduplicates the incoming records against the PubMed corpus by DOI, PubMed ID and normalised title, and reports how many records each database actually added.
+Script `09` deduplicates the incoming records against the PubMed corpus and against every previously ingested arm, by DOI, PubMed ID and normalised title, and reports how many records each database actually added.
+
+**Give each database its own `--arm` label.** The output file is named from `--arm` alone, so `--arm AD` for a Web of Science export would overwrite the Scopus AD arm. `scripts/09` now refuses that and says so, but the habit to keep is `AD`/`PD` for Scopus and `AD_wos`/`PD_wos` for Web of Science. Every `additional_records_*.json` file is picked up downstream, so a new label costs nothing.
 
 ## What changes downstream
 

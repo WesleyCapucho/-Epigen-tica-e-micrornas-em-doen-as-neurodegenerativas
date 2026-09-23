@@ -28,13 +28,13 @@ The meta-analytic layer exists to answer a question the source monograph raised 
 
 | | |
 |---|---|
-| Databases searched | PubMed/MEDLINE, Scopus (both disease arms) |
-| Unique records | 560 |
+| Databases searched | PubMed/MEDLINE, Scopus, Web of Science (both disease arms) |
+| Unique records | 587 |
 | Full texts read | 47 |
-| Studies contributing estimates | 42 |
-| Extracted estimates | 76 (51 eligible, 41 poolable) |
+| Studies contributing estimates | 45 |
+| Extracted estimates | 79 (51 eligible, 41 poolable) |
 | Independent studies pooled | 20 |
-| Search date | 10 September 2026 |
+| Search date | 10 September 2026 (PubMed, Scopus); 23 September 2026 (Web of Science) |
 | Studies appraised with QUADAS-2 | 28 |
 | Certainty of evidence (GRADE) | Very low |
 
@@ -43,7 +43,7 @@ Pooled estimates live in `results/tables/meta_analysis_pooled_auc.csv`, the per-
 Interpretation belongs in the manuscript, not here. Two things do belong here, because they are properties of the data rather than of the argument:
 
 - **Estimates within a study are correlated.** One study contributes eight estimates and another six, and the random-effects model treats each as independent. `scripts/05` therefore also re-pools one-estimate-per-study and leave-one-study-out, and the spread between them is part of the result.
-- **Five defects were found and corrected in this pipeline, and each changed a number.** They are recorded in `data/processed/prisma_flow.json` and in the header comments of the scripts that carry the fix. See *Corrections* below.
+- **Ten defects were found and corrected in this pipeline.** They are recorded in `data/processed/prisma_flow.json` and in the header comments of the scripts that carry the fix. See *Corrections* below.
 
 ## Repository layout
 
@@ -80,7 +80,8 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 15_bivariate_srocc.py                      # Reitsma bivariate model + summary ROC
 │   ├── 16_grade_certainty.py                      # GRADE certainty + summary of findings per 1000
 │   ├── 17_mimic_dosing_feasibility.py             # What repeated dosing costs a fast-decaying mimic
-│   └── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR
+│   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR
+│   └── tools/mirror_extraction_json.py            # Regenerates the JSON mirror of the extraction table
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, PRISMA-DTA checklist, Scopus/WoS export
 │   └── pt-BR/                         # Métodos, dicionário de dados, checklist PRISMA-DTA, exportação
@@ -135,7 +136,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1637 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1644 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -144,7 +145,7 @@ Full texts are **not** redistributed here — only extracted data points and the
 
 ## Corrections
 
-Five defects in this pipeline were found after results had already been produced. Each is fixed, and each changed a reported number. They are listed here rather than quietly patched, because a reproducibility package that hides its own corrections is not one.
+Ten defects in this pipeline were found after results had already been produced. Each is fixed, and each changed a reported number. They are listed here rather than quietly patched, because a reproducibility package that hides its own corrections is not one.
 
 | Defect | Effect | Fixed in |
 |---|---|---|
@@ -153,12 +154,17 @@ Five defects in this pipeline were found after results had already been produced
 | Studies keyed on PMID alone | The four studies published outside MEDLINE collapsed into one blank-PMID group; two independent miR-124 cohorts counted as one; study totals understated | `scripts/05`, `scripts/06` |
 | Biofluid subgroups required three *estimates*, not three *studies* | Produced a subgroup of eight estimates from a single cohort — within-study spread reported as between-study evidence | `scripts/05` |
 | `scripts/09` deduplicated only against PubMed | The Scopus PD arm appeared to add 157 new records instead of 78 | `scripts/09` |
+| `scripts/09` read the PubMed DOI only as `DOI`, while the corpus stores it as `doi` | DOI deduplication against the whole PubMed half was inert; one article entered twice under two typesettings of its own title | `scripts/09` |
+| `scripts/09` deduplicated an arm against a corpus that already contained it | Re-ingesting an arm returned zero new records and emptied its file; the documented pipeline destroyed data when run twice | `scripts/09` |
+| `scripts/09` named its output from `--arm` alone and excluded it from deduplication | Reusing a label across databases silently replaced the earlier arm; ingesting Web of Science as `--arm AD` would have deleted 248 Scopus records | `scripts/09` |
+| `scripts/04` read the corpus as PubMed-shaped only, and overwrote `prisma_flow.json` wholesale | It crashed on the first imported record, and had it not crashed it would have replaced the curated PRISMA record with five keys | `scripts/04` |
+| `scripts/10` counted every imported record as Scopus | With Web of Science ingested this would have put a false per-database count in the methods | `scripts/10` |
 
 `scripts/11_attention_finding_audit.py` quantifies the second of these: it recomputes the attention–performance correlation under each combination of inputs and separates the contribution of the bug from that of the new data.
 
 ## Known limitations
 
-- **Web of Science has not been searched.** Coverage is symmetric across diseases but two databases deep. Like Scopus, Web of Science cannot be queried by API from this environment — it requires institutional authentication — so the ingest path is ready and waiting for an export: the two-arm queries are in `docs/en/HOW_TO_EXPORT_SCOPUS_WOS.md`, and `python scripts/09_ingest_scopus_wos.py --wos <export.csv> --arm AD` merges and deduplicates the result against every arm already ingested.
+- **Web of Science has now been searched**, on 23 September 2026, under institutional authentication and thirteen days later than the other two databases — which is reported as its own search date rather than folded into theirs. It returned 295 records across the two arms, of which **27 were new**, and **none of them entered the primary pool**: one measures a long non-coding RNA rather than a microRNA, one measures post-mortem cortex rather than a circulating biofluid, and the one record that does match the PICO reports its AUC only as the inequality "AUC>0.90" and has no DOI, no PubMed ID and no reachable full text to confirm a value. All three are recorded in the extraction table with their exclusion reasons (E077–E079) rather than dropped. The pooled estimates, the bivariate operating point, the QUADAS-2 table and the GRADE rating are byte-identical before and after.
 - Extraction is restricted to open-access full texts and abstracts, which may select a non-random subset of the literature; four Parkinson-arm studies were access-restricted such that only a combined-model AUC could be read.
 - 34 of the 41 weighted standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval.
 - Heterogeneity is high (I² up to 97%) and estimates within studies are correlated, which also makes Egger's test unreliable here.

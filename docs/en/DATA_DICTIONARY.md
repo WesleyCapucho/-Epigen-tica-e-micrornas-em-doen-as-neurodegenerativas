@@ -65,6 +65,14 @@ One row per screened record (234 rows).
 
 Counts are of **distinct articles**, never of raw occurrences.
 
+## `data/raw/systematic_review_2026/exports/`
+
+The database exports this review was built from, archived exactly as downloaded: `scopus_AD_2026-09-10.csv`, `scopus_PD_2026-09-10.csv`, `wos_AD_2026-09-23.txt`, `wos_PD_2026-09-23.txt`. Scopus and Web of Science require an authenticated institutional session and cannot be queried by API from this project, so the export is the primary record of what the search returned. Web of Science files are tab-delimited full records carrying the two-letter field tags (`TI`, `AB`, `DI`, `PM`, `PY`, `SO`, `AU`, `DT`, `DE`); `scripts/09` also accepts the long column names.
+
+## `data/raw/systematic_review_2026/additional_records_*.json`
+
+One file per ingested database arm, named from the `--arm` label: `AD` and `PD` hold the Scopus arms, `AD_wos` and `PD_wos` the Web of Science arms. Each record carries `Title`, `Abstract`, `DOI`, `PMID`, `Year`, `Journal`, `Authors`, `PublicationTypes`, `Keywords` and `database`. Deduplication happens on the way in, against the PubMed corpus and against every arm already ingested. Each database needs its own label: the file name comes from the label alone, so reusing one across databases would replace the earlier arm, and `scripts/09` refuses it.
+
 ## `data/raw/pubmed/`
 
 Bibliometric sample from the original monograph layer, pulled live from the NCBI API on 2026-09-10. `manifest.json` records the exact query, access date, the real total number of matching records in PubMed, and an explicit no-fabrication statement.

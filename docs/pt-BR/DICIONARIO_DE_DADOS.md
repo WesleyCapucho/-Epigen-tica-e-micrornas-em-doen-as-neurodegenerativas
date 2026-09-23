@@ -65,6 +65,14 @@ Uma linha por registro triado (234 linhas).
 
 As contagens são de **artigos distintos**, nunca de ocorrências brutas.
 
+## `data/raw/systematic_review_2026/exports/`
+
+As exportações das bases de que esta revisão partiu, arquivadas exatamente como baixadas: `scopus_AD_2026-09-10.csv`, `scopus_PD_2026-09-10.csv`, `wos_AD_2026-09-23.txt`, `wos_PD_2026-09-23.txt`. Scopus e Web of Science exigem sessão institucional autenticada e não podem ser consultadas por API a partir deste projeto, então a exportação é o registro primário do que a busca retornou. Os arquivos da Web of Science são registros completos delimitados por tabulação com as etiquetas de campo de duas letras (`TI`, `AB`, `DI`, `PM`, `PY`, `SO`, `AU`, `DT`, `DE`); o `scripts/09` também aceita os nomes longos de coluna.
+
+## `data/raw/systematic_review_2026/additional_records_*.json`
+
+Um arquivo por braço de base ingerido, nomeado pelo rótulo `--arm`: `AD` e `PD` guardam os braços da Scopus, `AD_wos` e `PD_wos` os da Web of Science. Cada registro traz `Title`, `Abstract`, `DOI`, `PMID`, `Year`, `Journal`, `Authors`, `PublicationTypes`, `Keywords` e `database`. A desduplicação acontece na entrada, contra o corpus do PubMed e contra todo braço já ingerido. Cada base precisa do próprio rótulo: o nome do arquivo vem só do rótulo, então reusar um entre bases substituiria o braço anterior, e o `scripts/09` recusa.
+
 ## `data/raw/pubmed/`
 
 Amostra bibliométrica da camada da monografia original, obtida ao vivo da API do NCBI em 10/09/2026. O `manifest.json` registra a query exata, a data de acesso, o número real total de registros correspondentes no PubMed e uma declaração explícita de não fabricação.

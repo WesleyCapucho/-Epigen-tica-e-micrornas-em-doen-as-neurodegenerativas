@@ -192,6 +192,42 @@ def main():
     suffix = f"_{args.arm}" if args.arm else ""
     out_json = f"{OUT_DIR}/additional_records{suffix}.json"
 
+    # EN | Refuse to overwrite another database's arm. The output file is named from
+    #      --arm alone, and it is deliberately excluded from the deduplication set so
+    #      that a re-run does not deduplicate an arm against itself. Those two facts
+    #      together mean that reusing a label across databases silently replaces the
+    #      earlier arm: ingesting the Web of Science AD export as --arm AD would have
+    #      destroyed 248 Scopus records without a word. Nothing downstream could detect
+    #      it, because the corpus would simply be smaller.
+    # PT | Recusa sobrescrever o braco de outra base. O arquivo de saida e nomeado so
+    #      pelo --arm, e e de proposito excluido do conjunto de deduplicacao para que
+    #      uma reexecucao nao deduplique um braco contra si mesmo. Os dois fatos juntos
+    #      significam que reusar um rotulo entre bases substitui em silencio o braco
+    #      anterior: ingerir a exportacao AD da Web of Science como --arm AD teria
+    #      destruido 248 registros da Scopus sem um aviso. Nada adiante detectaria, pois
+    #      o corpus so ficaria menor.
+    incoming_dbs = set()
+    if args.scopus:
+        incoming_dbs.add("Scopus")
+    if args.wos:
+        incoming_dbs.add("Web of Science")
+    if os.path.exists(out_json):
+        try:
+            held = {r.get("database") for r in json.load(open(out_json, encoding="utf-8"))}
+        except Exception:
+            held = set()
+        held.discard(None)
+        if held and not held <= incoming_dbs:
+            sys.exit(
+                f"EN | Refusing to overwrite {out_json}, which holds {sorted(held)} records,\n"
+                f"     with an ingest of {sorted(incoming_dbs)}. Give this export its own\n"
+                f"     --arm label (for example {args.arm or 'AD'}_wos); every\n"
+                f"     additional_records_*.json file is picked up downstream.\n"
+                f"PT | Recusando sobrescrever {out_json}, que guarda registros de\n"
+                f"     {sorted(held)}, com uma ingestao de {sorted(incoming_dbs)}. De a esta\n"
+                f"     exportacao um rotulo --arm proprio (por exemplo {args.arm or 'AD'}_wos);\n"
+                f"     todo arquivo additional_records_*.json e lido adiante.")
+
     # --- existing PubMed corpus, for deduplication -------------------------
     # EN | Prefer the full corpus when present; otherwise fall back to the
     #      committed screening decisions, which carry pmid, doi and title -
@@ -203,10 +239,39 @@ def main():
     n_loaded, source = 0, None
     if os.path.exists(CORPUS):
         corpus = json.load(open(CORPUS))
+        # EN | Skip the corpus entries this very arm contributed. scripts/10 merges every
+        #      ingested arm into the corpus, so on a second run the arm would be
+        #      deduplicated against its own already-merged records: zero new records, and
+        #      an emptied arm file. Excluding the output file from the dedup set is not
+        #      enough, because by then the records live in the corpus too. Ingesting is
+        #      meant to be idempotent, and without this it is destructive.
+        # PT | Ignora as entradas do corpus que este mesmo braco contribuiu. O scripts/10
+        #      funde todo braco ingerido no corpus, entao numa segunda execucao o braco
+        #      seria deduplicado contra os proprios registros ja fundidos: zero registros
+        #      novos, e um arquivo de braco esvaziado. Excluir o arquivo de saida do
+        #      conjunto de deduplicacao nao basta, porque a essa altura os registros
+        #      tambem vivem no corpus. Ingerir deve ser idempotente, e sem isto e
+        #      destrutivo.
+        corpus = {k: v for k, v in corpus.items()
+                  if not (args.arm and v.get("search_arm") == args.arm)}
         for pmid, art in corpus.items():
             ids = art.get("identifiers", {}) if isinstance(art.get("identifiers"), dict) else {}
+            # EN | Read the DOI under every spelling the corpus actually uses. PubMed
+            #      entries store it as lowercase "doi" at the top level, so reading only
+            #      "DOI" and identifiers.doi left pm_dois empty for the entire PubMed
+            #      half: deduplication against PubMed ran on PMID and title alone, and a
+            #      record whose title is typeset differently in two databases slipped
+            #      through. One did - the same article with the same DOI entered twice,
+            #      once as "Ab-induced" and once as "Ab1-42-induced".
+            # PT | Le o DOI em toda grafia que o corpus de fato usa. As entradas do PubMed
+            #      guardam-no como "doi" minusculo no topo, entao ler so "DOI" e
+            #      identifiers.doi deixava pm_dois vazio para toda a metade do PubMed: a
+            #      deduplicacao contra o PubMed rodava so por PMID e titulo, e um registro
+            #      com titulo composto de forma diferente em duas bases passava. Um
+            #      passou - o mesmo artigo com o mesmo DOI entrou duas vezes, uma como
+            #      "Ab-induced" e outra como "Ab1-42-induced".
             pm_pmids.add(str(pmid))
-            pm_dois.add(norm_doi(art.get("DOI") or ids.get("doi")))
+            pm_dois.add(norm_doi(art.get("DOI") or art.get("doi") or ids.get("doi")))
             pm_titles.add(norm_title(art.get("Title") or art.get("title")))
         n_loaded, source = len(corpus), CORPUS
     elif os.path.exists(DECISIONS):

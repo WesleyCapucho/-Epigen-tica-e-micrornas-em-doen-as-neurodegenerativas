@@ -72,24 +72,70 @@ def screen(record):
                 carries_quantitative_accuracy=has_auc or (has_sens and has_spec))
 
 
+def corpus_field(rec, *names):
+    """
+    EN | The corpus holds two record shapes: PubMed records, where journal and
+         publication date are objects, and imported database records, where they
+         are plain strings. Reading one shape as the other crashed this script
+         the moment a Web of Science export arrived, so the shapes are flattened
+         here in one place instead of at each use.
+    PT | O corpus guarda duas formas de registro: os do PubMed, em que revista e
+         data sao objetos, e os importados de outras bases, em que sao strings.
+         Ler uma forma como a outra quebrava este script no instante em que
+         chegou uma exportacao da Web of Science, entao as formas sao achatadas
+         aqui, num lugar so, e nao em cada uso.
+    """
+    for n in names:
+        v = rec.get(n)
+        if isinstance(v, dict):
+            v = v.get("title") or v.get("year") or ""
+        if v:
+            return str(v).strip()
+    return ""
+
+
 def main():
     corpus = json.load(open(IN_CORPUS))
+
+    # EN | Columns that this script cannot derive are carried forward from the
+    #      committed decisions rather than recomputed. pmc_fulltext_available
+    #      records whether a full text was actually fetched from PubMed Central;
+    #      it is an observation, not a rule output, and overwriting it with a
+    #      blank would silently destroy work. Empty means not checked.
+    # PT | Colunas que este script nao consegue derivar sao trazidas das decisoes
+    #      ja versionadas, em vez de recalculadas. O pmc_fulltext_available
+    #      registra se um texto completo foi de fato obtido do PubMed Central; e
+    #      observacao, nao saida de regra, e sobrescreve-lo com vazio destruiria
+    #      trabalho em silencio. Vazio significa nao conferido.
+    carried = {}
+    if os.path.exists(OUT_CSV):
+        with open(OUT_CSV, encoding="utf-8", newline="") as f:
+            for row in csv.DictReader(f):
+                carried[row["pmid"]] = row
+
     rows = []
     for pmid, rec in corpus.items():
         ids = rec.get("identifiers", {}) if isinstance(rec.get("identifiers"), dict) else {}
+        prev = carried.get(pmid, {})
         d = screen(rec)
+        types = rec.get("article_types")
+        types = "; ".join(types) if isinstance(types, list) else (rec.get("PublicationTypes") or "")
         rows.append({
             "pmid": pmid,
-            "doi": rec.get("DOI") or ids.get("doi", ""),
-            "pmcid": rec.get("PMC") or ids.get("pmc", ""),
-            "year": rec.get("Year") or (rec.get("publication_date") or {}).get("year", ""),
-            "journal": rec.get("Journal") or (rec.get("journal") or {}).get("title", ""),
+            "doi": rec.get("DOI") or rec.get("doi") or ids.get("doi", ""),
+            "pmcid": rec.get("PMC") or rec.get("pmcid") or ids.get("pmc", "") or prev.get("pmcid", ""),
+            "year": corpus_field(rec, "Year", "year", "publication_date"),
+            "journal": corpus_field(rec, "Journal", "journal"),
             "title": rec.get("Title") or rec.get("title", ""),
+            "search_arm": rec.get("search_arm") or prev.get("search_arm", ""),
+            "article_types": types or prev.get("article_types", ""),
             "is_review_or_secondary": "yes" if d["is_review_or_secondary"] else "no",
             "abstract_reports_auc": "yes" if d["abstract_reports_auc"] else "no",
             "abstract_reports_sensitivity": "yes" if d["abstract_reports_sensitivity"] else "no",
             "abstract_reports_specificity": "yes" if d["abstract_reports_specificity"] else "no",
             "carries_quantitative_accuracy": "yes" if d["carries_quantitative_accuracy"] else "no",
+            "database": rec.get("database", ""),
+            "pmc_fulltext_available": prev.get("pmc_fulltext_available", ""),
         })
     rows.sort(key=lambda r: r["pmid"])
 
@@ -108,10 +154,45 @@ def main():
         "excluded_review_or_secondary": n - len(prim),
         "primary_studies": len(prim),
         "primary_reporting_auc_or_sens_spec": len(quant),
-        "of_which_pmc_open_access_fulltext": len(pmc),
+        "of_which_carry_a_pmcid": len(pmc),
     }
+
+    # EN | Merge, never replace. This script used to dump its five counts over
+    #      data/processed/prisma_flow.json, which also holds the identification
+    #      counts per database arm, the eligibility and full-text counts, and the
+    #      notes recording what each correction changed - none of which this
+    #      script can regenerate. One run would have destroyed all of it. The
+    #      rule-derived counts now live under their own key, beside the per-arm
+    #      record rather than on top of it.
+    # PT | Funde, nunca substitui. Este script despejava suas cinco contagens
+    #      sobre data/processed/prisma_flow.json, que tambem guarda as contagens
+    #      de identificacao por braco, as de elegibilidade e texto completo, e as
+    #      notas do que cada correcao mudou - nada disso ele sabe regenerar. Uma
+    #      execucao teria destruido tudo. As contagens derivadas por regra passam
+    #      a ficar sob chave propria, ao lado do registro por braco e nao em cima
+    #      dele.
     os.makedirs(os.path.dirname(OUT_FLOW), exist_ok=True)
-    json.dump(flow, open(OUT_FLOW, "w"), indent=1)
+    existing = {}
+    if os.path.exists(OUT_FLOW):
+        try:
+            existing = json.load(open(OUT_FLOW, encoding="utf-8"))
+        except ValueError:
+            existing = {}
+    if not isinstance(existing, dict):
+        existing = {}
+    flow["scope_en"] = ("rule output recomputed over the whole merged corpus; the "
+                        "per-database-arm counts are in 'screening'")
+    flow["scope_pt"] = ("saida das regras recalculada sobre o corpus unido inteiro; as "
+                        "contagens por braco de base estao em 'screening'")
+    flow["pmcid_note_en"] = ("only PubMed records carry a PMCID, so this count says nothing "
+                             "about full-text availability for records imported from Scopus "
+                             "or Web of Science")
+    flow["pmcid_note_pt"] = ("so registros do PubMed trazem PMCID, entao esta contagem nao diz "
+                             "nada sobre disponibilidade de texto completo para registros "
+                             "importados da Scopus ou da Web of Science")
+    existing["screening_rule_recomputation"] = flow
+    json.dump(existing, open(OUT_FLOW, "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1)
 
     print("EN | PRISMA screening counts | PT | Contagens da triagem PRISMA")
     for k, v in flow.items():

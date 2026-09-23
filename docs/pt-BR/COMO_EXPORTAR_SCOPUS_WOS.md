@@ -65,9 +65,9 @@ O **resumo é obrigatório**: a triagem o lê. Sem ele, o registro entra no flux
 
 5. Salve os dois arquivos, um por braço. Sugestão de nome: `scopus_AD.csv` e `scopus_PD.csv`.
 
-## Passo 3 — Web of Science (esta é a que ainda falta)
+## Passo 3 — Web of Science (feito, 23 de setembro de 2026)
 
-A Scopus já foi buscada e ingerida nos dois braços. A Web of Science **não**, e ela é a última lacuna declarada da busca. O `webofscience.com` foi tentado a partir deste ambiente e está inalcançável pela mesma razão da Scopus: só responde a uma sessão institucional autenticada. Nada mais está travando — o caminho de ingestão, a desduplicação e os reprocessamentos seguintes estão todos prontos e testados.
+Os dois braços foram executados e ingeridos: 187 registros no braço DA, 108 no braço DP, 27 deles novos após a desduplicação. As exportações estão arquivadas em `data/raw/systematic_review_2026/exports/` como `wos_AD_2026-09-23.txt` e `wos_PD_2026-09-23.txt`. As instruções continuam aqui porque a busca precisa ser repetível, e porque uma atualização desta revisão vai rodá-la de novo.
 
 Em **Advanced Search**, campo `TS=` (Topic):
 
@@ -89,8 +89,8 @@ Exporte como **Tab-delimited file** ou **RIS**, incluindo *Full Record*. Sugest�
 Envie os arquivos exportados. O pipeline então roda:
 
 ```bash
-python scripts/09_ingest_scopus_wos.py --wos wos_AD.txt --arm AD
-python scripts/09_ingest_scopus_wos.py --wos wos_PD.txt --arm PD
+python scripts/09_ingest_scopus_wos.py --wos wos_AD.txt --arm AD_wos
+python scripts/09_ingest_scopus_wos.py --wos wos_PD.txt --arm PD_wos
 python scripts/04_screening.py
 python scripts/10_build_screening_corpus.py
 python scripts/05_meta_analysis.py
@@ -101,7 +101,9 @@ python scripts/16_grade_certainty.py
 python scripts/08_verify_consistency.py
 ```
 
-O script `09` deduplica os novos registros contra o corpus do PubMed por DOI, PubMed ID e título normalizado, e reporta quantos registros cada base acrescentou de fato.
+O script `09` deduplica os novos registros contra o corpus do PubMed e contra todo braço já ingerido, por DOI, PubMed ID e título normalizado, e reporta quantos registros cada base acrescentou de fato.
+
+**Dê a cada base seu próprio rótulo `--arm`.** O arquivo de saída é nomeado só pelo `--arm`, então `--arm AD` para uma exportação da Web of Science sobrescreveria o braço AD da Scopus. O `scripts/09` agora recusa isso e diz por quê, mas o hábito a manter é `AD`/`PD` para a Scopus e `AD_wos`/`PD_wos` para a Web of Science. Todo arquivo `additional_records_*.json` é lido adiante, então um rótulo novo não custa nada.
 
 ## O que muda daí para a frente
 
