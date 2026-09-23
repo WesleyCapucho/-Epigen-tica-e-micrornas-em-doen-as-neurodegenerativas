@@ -54,7 +54,14 @@ EXPECT = {
                          "sitio ativo."),
     "6CU7": dict(file="6CU7.cif", must_match=r"synuclein",
                  role_en="The aggregated end state of the miR-7/SNCA axis.",
-                 role_pt="O estado agregado final do eixo miR-7/SNCA."),
+                 role_pt="O estado agregado final do eixo miR-7/SNCA.",
+                 # EN/PT: checked against PubMed (PMID 30190461) on 2026-09-23
+                 note_en="The deposition reports 3.5 A (FSC 0.5 cut-off); the article "
+                         "abstract reports 3.7 A for both polymorphs. Quote the criterion "
+                         "with the number.",
+                 note_pt="O deposito informa 3,5 A (corte FSC 0,5); o resumo do artigo "
+                         "informa 3,7 A para os dois polimorfos. Citar o criterio junto "
+                         "com o numero."),
     "5OQV": dict(file="5OQV.cif", must_match=r"amyloid",
                  role_en="The aggregated end state of the miR-29/BACE1/Abeta axis.",
                  role_pt="O estado agregado final do eixo miR-29/BACE1/Abeta."),
@@ -98,26 +105,89 @@ def read_provenance(pdb_id, path):
             if m:
                 res = float(m.group(1))
         p["resolution_angstrom"] = res
-        # EN | In a loop_ block the tag is a COLUMN HEADER, not a key-value pair, so
-        #      reading the next token returns the first data row ("primary") instead of
-        #      the DOI. That is exactly what happened for 4D8C. Match the DOI by its own
-        #      shape instead, and take the PubMed id only when it is a plausible id.
-        # PT | Num bloco loop_ a tag e CABECALHO DE COLUNA, nao par chave-valor, entao ler
-        #      o proximo token devolve a primeira linha de dados ("primary") em vez do
-        #      DOI. Foi exatamente o que ocorreu com o 4D8C. Casa o DOI pelo formato dele,
-        #      e pega o PubMed id so quando for um id plausivel.
-        m = re.search(r"\b(10\.\d{4,9}/[^\s'\";]+)", text)
-        p["doi"] = m.group(1).strip().lower().rstrip(".,") if m else ""
-        pmid = ""
+        m = re.search(r"_em_3d_reconstruction\.resolution_method\s+(?:'([^']*)'|(\S+))", text)
+        if m:
+            p["resolution_method"] = (m.group(1) or m.group(2)).strip()
+        cit = parse_cif_citation(text)
+        p["doi"] = cit.get("pdbx_database_id_DOI", "")
+        p["pmid"] = cit.get("pdbx_database_id_PubMed", "")
+    return p
+
+
+def parse_cif_citation(text):
+    """
+    EN | Read the primary citation from an mmCIF file, handling both the key-value
+         form and the loop_ form, and skipping the PDB deposition DOI.
+    PT | Le a citacao primaria de um mmCIF, tratando tanto a forma chave-valor quanto a
+         forma loop_, e ignorando o DOI de deposito do PDB.
+
+    EN | Two traps here, both of which produced a wrong DOI in this project before this
+         function existed. First, in a loop_ block the tag is a column header, so
+         reading the token after it returns the first data row ("primary"). Second,
+         matching the first DOI-shaped string in the file returns 10.2210/pdb<id>/pdb -
+         the DOI of the DEPOSITION, not of the paper that reports the structure. A
+         legend citing the deposition DOI instead of the article looks correct and
+         is not.
+    PT | Duas armadilhas, e as duas produziram DOI errado neste projeto antes desta
+         funcao existir. Primeiro, num bloco loop_ a tag e cabecalho de coluna, entao
+         ler o token seguinte devolve a primeira linha de dados ("primary"). Segundo,
+         casar a primeira string com cara de DOI no arquivo devolve
+         10.2210/pdb<id>/pdb - o DOI do DEPOSITO, nao do artigo que reporta a
+         estrutura. Uma legenda citando o DOI do deposito parece certa e nao e.
+    """
+    def usable(doi):
+        d = (doi or "").strip().strip("'\"").lower()
+        if not d.startswith("10.") or d in ("?", "."):
+            return ""
+        return "" if d.startswith("10.2210/pdb") else d.rstrip(".,")
+
+    out = {}
+    # --- loop_ form ------------------------------------------------------
+    for m in re.finditer(r"^loop_\s*\n((?:\s*_citation\.[^\n]*\n)+)", text, re.M):
+        tags = re.findall(r"_citation\.(\S+)", m.group(1))
+        body = text[m.end():]
+        end = re.search(r"^\s*(?:#|loop_|_\w)", body, re.M)
+        body = body[:end.start()] if end else body
+        # EN/PT: tokenise, keeping ;multi-line; and quoted values whole
+        toks = re.findall(r";(?:[^\n]*\n)*?;|'[^']*'|\"[^\"]*\"|\S+", body)
+        if len(toks) >= len(tags):
+            row = dict(zip(tags, toks[:len(tags)]))
+            for k in ("pdbx_database_id_DOI", "pdbx_database_id_PubMed"):
+                v = row.get(k, "").strip().strip("'\"")
+                if k.endswith("DOI"):
+                    v = usable(v)
+                elif not re.fullmatch(r"\d{6,9}", v):
+                    v = ""
+                if v:
+                    out[k] = v
+    # --- key-value form --------------------------------------------------
+    if "pdbx_database_id_DOI" not in out:
+        m = re.search(r"_citation\.pdbx_database_id_DOI\s+(\S+)", text)
+        if m:
+            v = usable(m.group(1))
+            if v:
+                out["pdbx_database_id_DOI"] = v
+    if "pdbx_database_id_PubMed" not in out:
         m = re.search(r"_citation\.pdbx_database_id_PubMed\s+(\d{6,9})\b", text)
         if m:
-            pmid = m.group(1)
-        else:
-            for cand in re.findall(r"^\s*(\d{7,8})\s*$", text, re.M):
-                pmid = cand
-                break
-        p["pmid"] = pmid
-    return p
+            out["pdbx_database_id_PubMed"] = m.group(1)
+    return out
+
+
+def open_clip(cmd, margin=150.0):
+    """
+    EN | Put the front and rear clipping planes well outside the molecule, set from
+         the camera distance rather than nudged with relative moves (whose sign is
+         easy to get backwards - doing so once left a thin slab through BACE1).
+    PT | Coloca os planos de corte frontal e traseiro bem fora da molecula, definidos a
+         partir da distancia da camera e nao por deslocamentos relativos (cujo sinal e
+         facil de inverter - isso ja deixou uma fatia fina atravessando a BACE1).
+    """
+    v = list(cmd.get_view())
+    cam = -v[11]
+    v[15] = max(1.0, cam - margin)
+    v[16] = cam + margin
+    cmd.set_view(v)
 
 
 def style_common(cmd):
@@ -165,7 +235,15 @@ def render_ago2(cmd, path, out):
 
 def render_bace1(cmd, path, out):
     """EN/PT: BACE1 with the co-crystallised inhibitor and the catalytic aspartates."""
-    cmd.delete("all"); cmd.load(path, "bace1"); style_common(cmd)
+    cmd.delete("all"); cmd.load(path, "asu"); style_common(cmd)
+    # EN | Chain A and its inhibitor go into their own object. Left inside the
+    #      three-copy asymmetric unit, the neighbouring copies take part in the
+    #      surface calculation and leave a grey cut patch where they touch chain A.
+    # PT | A cadeia A e seu inibidor vao para um objeto proprio. Dentro da unidade
+    #      assimetrica com tres copias, as copias vizinhas entram no calculo da
+    #      superficie e deixam uma placa cinza cortada onde encostam na cadeia A.
+    cmd.create("bace1", "asu and chain A and (polymer.protein or resn BXD)")
+    cmd.delete("asu")
     cmd.hide("everything")
     sel = "bace1 and chain A"
     # EN | One flat colour for cartoon and surface. An earlier version ran a spectrum
@@ -181,21 +259,106 @@ def render_bace1(cmd, path, out):
     lig = f"{sel} and resn BXD"
     cmd.show("sticks", lig); cmd.color("orange", f"{lig} and elem C")
     cmd.set("stick_radius", 0.22, lig)
-    # EN/PT: catalytic aspartyl dyad, selected by proximity to the inhibitor
+    # EN | The catalytic aspartyl dyad, identified TWICE and required to agree: by
+    #      sequence motif (the Asp of DTGS and of DSGT, the two catalytic motifs of
+    #      pepsin-family aspartic proteases) and by proximity to the inhibitor. Residue
+    #      numbers are NOT hard-coded: in this deposition the DSGT aspartate is
+    #      numbered 217, and BACE1 depositions do not all share one numbering, so a
+    #      legend must quote the motif together with the number read from the file.
+    # PT | A diade catalitica de aspartatos, identificada DUAS vezes e exigindo
+    #      concordancia: pelo motivo de sequencia (o Asp de DTGS e de DSGT, os dois
+    #      motivos cataliticos das aspartil-proteases da familia da pepsina) e pela
+    #      proximidade com o inibidor. Os numeros de residuo NAO sao fixos no codigo:
+    #      neste deposito o aspartato do DSGT e o 217, e os depositos de BACE1 nao
+    #      compartilham uma numeracao unica, entao a legenda deve citar o motivo junto
+    #      com o numero lido do arquivo.
+    ca = {"l": []}
+    cmd.iterate(f"{sel} and polymer.protein and name CA", "l.append((resi, oneletter))", space=ca)
+    seq = "".join(x[1] for x in ca["l"])
+    by_motif = {}
+    for motif in ("DTGS", "DSGT"):
+        hits = [m.start() for m in re.finditer(motif, seq)]
+        if len(hits) != 1:
+            sys.exit(f"EN/PT: BACE1 motif {motif} found {len(hits)} times in chain A")
+        by_motif[motif] = ca["l"][hits[0]][0]
     cmd.select("dyad", f"byres ({sel} and resn ASP and polymer.protein within 5 of ({lig}))")
-    cmd.show("sticks", "dyad and not hydro"); cmd.color("firebrick", "dyad and elem C")
+    near = {"l": []}
+    cmd.iterate("dyad and name CA", "l.append(resi)", space=near)
+    if sorted(near["l"]) != sorted(by_motif.values()):
+        sys.exit(f"EN/PT: dyad by motif {by_motif} != dyad by proximity {near['l']}")
+    cmd.show("sticks", "dyad and not hydro"); cmd.util.cnc("dyad")
+    cmd.color("firebrick", "dyad and elem C")
     cmd.set("stick_radius", 0.22, "dyad")
-    # EN/PT: orient on the pocket, then frame the whole domain so it is not clipped
+    # EN | Orient on the pocket, frame the whole domain, and open the clipping planes.
+    #      Without the last step the front plane slices the surface and the cut face
+    #      renders as a grey slab with coloured edges at the bottom of the figure.
+    # PT | Orienta pelo bolso, enquadra o dominio inteiro e abre os planos de corte.
+    #      Sem o ultimo passo o plano frontal fatia a superficie e a face cortada
+    #      aparece como uma placa cinza de bordas coloridas na base da figura.
     cmd.orient(lig)
     cmd.zoom(sel, 3, complete=1)
+    open_clip(cmd)
     cmd.png(out, width=2000, height=1500, dpi=300, ray=1)
-    n = cmd.count_atoms("dyad and name CA")
+
+    # EN/PT: close-up of the active site, no surface, dyad labelled from the file
+    cmd.hide("surface", sel)
+    cmd.set("cartoon_transparency", 0.8, sel)
+    cmd.set("label_size", 26); cmd.set("label_color", "black")
+    cmd.set("label_font_id", 7); cmd.set("float_labels", 1)
+    for motif, resi in by_motif.items():
+        cmd.label(f"dyad and resi {resi} and name CA", f'"Asp{resi} ({motif})"')
+    # EN | Orient on the ligand atoms plus the two dyad CA atoms, so the ligand is seen
+    #      along its length and the dyad sits beside it. Orienting on the whole pocket
+    #      put the dyad straight behind the ligand, with the two labels on top of each
+    #      other; orienting on the ligand centre and the two CAs alone showed the
+    #      ligand end-on.
+    # PT | Orienta pelos atomos do ligante mais os dois CA da diade, para que o ligante
+    #      apareca no comprimento e a diade fique ao lado. Orientar pelo bolso inteiro
+    #      punha a diade logo atras do ligante, com os rotulos sobrepostos; orientar so
+    #      pelo centro do ligante e pelos dois CA mostrava o ligante de ponta.
+    cmd.orient(f"({lig}) or (dyad and name CA)")
+    # EN | That view can still stack the two aspartates in depth. Rotate about the
+    #      screen's horizontal axis (which keeps the ligand's length in view) to the
+    #      angle that puts the two dyad CA atoms farthest apart on screen.
+    # PT | Essa vista ainda pode empilhar os dois aspartatos em profundidade. Gira em
+    #      torno do eixo horizontal da tela (o que mantem o comprimento do ligante a
+    #      vista) ate o angulo que deixa os dois CA da diade mais afastados na tela.
+    import numpy as _np
+
+    def _screen_sep():
+        v = cmd.get_view()
+        R = _np.array(v[:9]).reshape(3, 3)
+        xyz = _np.array(cmd.get_coords("dyad and name CA")) - _np.array(v[12:15])
+        cam = xyz @ R
+        return float(_np.linalg.norm(cam[0, :2] - cam[1, :2]))
+
+    best = max(range(0, 180, 5), key=lambda a: (cmd.turn("x", a), _screen_sep(),
+                                                 cmd.turn("x", -a))[1])
+    cmd.turn("x", best)
+    # EN | The inhibitor sits BETWEEN the two aspartates, as this class of inhibitor
+    #      binds, so from any angle it partly covers them. Push each label away from
+    #      the ligand along the screen's vertical axis instead of hiding the ligand.
+    # PT | O inibidor fica ENTRE os dois aspartatos, como essa classe de inibidor se
+    #      liga, entao de qualquer angulo ele os cobre em parte. Cada rotulo e
+    #      empurrado para longe do ligante no eixo vertical da tela, em vez de
+    #      esconder o ligante.
+    v = cmd.get_view()
+    R = _np.array(v[:9]).reshape(3, 3)
+    lig_y = float(((_np.array(cmd.get_coords(lig)) - _np.array(v[12:15])) @ R)[:, 1].mean())
+    for motif, resi in by_motif.items():
+        y = float(((_np.array(cmd.get_coords(f"dyad and resi {resi} and name CA"))
+                    - _np.array(v[12:15])) @ R)[0, 1])
+        cmd.set("label_position", (0.0, 5.0 if y >= lig_y else -5.0, 4.0),
+                f"dyad and resi {resi} and name CA")
+    cmd.zoom(f"({lig}) or dyad", 5, complete=1)
+    open_clip(cmd)
+    cmd.png(out.replace(".png", "_active_site.png"), width=2000, height=1500, dpi=300, ray=1)
     cmd.delete("dyad")
-    return n
+    return {m: int(r) for m, r in by_motif.items()}
 
 
 def render_fibril(cmd, path, out, label):
-    """EN/PT: fibril down the axis and from the side, chains coloured by stacking layer."""
+    """EN/PT: fibril down the axis and from the side, coloured by protofilament."""
     cmd.delete("all"); cmd.load(path, "fib"); style_common(cmd)
     cmd.hide("everything")
     cmd.show("cartoon", "fib")
@@ -203,16 +366,54 @@ def render_fibril(cmd, path, out, label):
     # EN | Colour by PROTOFILAMENT, not by chain. A rainbow over ten chains hides the
     #      one thing the view down the axis exists to show: that the fibril is two
     #      protofilaments packed against each other, each a stack of identical layers.
-    #      Chains are split into first and second half, which is how these depositions
-    #      are ordered; the split is asserted below rather than assumed.
     # PT | Colorir por PROTOFILAMENTO, nao por cadeia. Um arco-iris sobre dez cadeias
     #      esconde justamente o que a vista pelo eixo existe para mostrar: que a fibrila
     #      sao dois protofilamentos encaixados, cada um uma pilha de camadas identicas.
-    #      As cadeias sao divididas em primeira e segunda metade, que e como esses
-    #      depositos vem ordenados; a divisao e verificada abaixo, nao suposta.
+    #
+    # EN | Protofilaments are found from the structure itself. Consecutive layers of a
+    #      cross-beta stack sit ~4.7-4.9 A apart (the inter-strand spacing), while
+    #      chains in different protofilaments are tens of angstroms apart. Chains whose
+    #      CA centroids are closer than STACK_CUTOFF are linked, and the connected
+    #      components are the protofilaments. Two earlier versions were wrong: taking
+    #      the first and second half of the chain list assumes a deposition order, and
+    #      cutting along the principal axis of the centroids can cut across the stack
+    #      instead of between protofilaments when the stack is longer than the gap.
+    #      Note that a 9-chain deposition necessarily splits 5/4; that is the model's
+    #      length, not a flaw.
+    # PT | Os protofilamentos sao obtidos da propria estrutura. Camadas consecutivas de
+    #      uma pilha cross-beta ficam a ~4,7-4,9 A (espacamento entre fitas), enquanto
+    #      cadeias de protofilamentos diferentes ficam a dezenas de angstroms. Cadeias
+    #      com centroides de CA mais proximos que STACK_CUTOFF sao ligadas, e os
+    #      componentes conexos sao os protofilamentos. Duas versoes anteriores erravam:
+    #      pegar a primeira e a segunda metade da lista supoe uma ordem de deposito, e
+    #      cortar pelo eixo principal dos centroides pode cortar a pilha em vez de
+    #      separar os protofilamentos quando a pilha e mais longa que a distancia entre
+    #      eles. Um deposito com 9 cadeias necessariamente divide 5/4; e o tamanho do
+    #      modelo, nao um defeito.
+    import numpy as _np
+    STACK_CUTOFF = 6.0  # angstrom
     chains = cmd.get_chains("fib")
-    half = len(chains) // 2
-    pf1, pf2 = chains[:half], chains[half:]
+    cen = {c: _np.array(cmd.get_coords(f"fib and chain {c} and name CA")).mean(axis=0)
+           for c in chains}
+    dist = {(a, b): float(_np.linalg.norm(cen[a] - cen[b])) for a in chains for b in chains}
+    groups, seen = [], set()
+    for c in chains:
+        if c in seen:
+            continue
+        comp, todo = [], [c]
+        while todo:
+            x = todo.pop()
+            if x in seen:
+                continue
+            seen.add(x); comp.append(x)
+            todo += [y for y in chains if y not in seen and dist[(x, y)] < STACK_CUTOFF]
+        groups.append(sorted(comp))
+    if len(groups) != 2:
+        sys.exit(f"EN/PT: {label}: expected 2 protofilaments, found {len(groups)}: {groups}")
+    pf1, pf2 = groups
+    stack = [dist[(a, b)] for g in groups for a in g for b in g
+             if a < b and dist[(a, b)] < STACK_CUTOFF]
+    between = min(dist[(a, b)] for a in pf1 for b in pf2)
     cmd.color("deepteal", "fib and chain " + "+".join(pf1))
     cmd.color("orange", "fib and chain " + "+".join(pf2))
     cmd.show("sticks", "fib and sidechain and not hydro")
@@ -224,7 +425,10 @@ def render_fibril(cmd, path, out, label):
     cmd.turn("x", 90)
     cmd.zoom("fib", 4, complete=1)
     cmd.png(out.replace(".png", "_side.png"), width=2000, height=1500, dpi=300, ray=1)
-    return dict(n_chains=len(chains), protofilament_1=pf1, protofilament_2=pf2)
+    return dict(n_chains=len(chains), protofilament_1=pf1, protofilament_2=pf2,
+                layer_spacing_angstrom=[round(min(stack), 2), round(max(stack), 2)],
+                closest_interprotofilament_centroids_angstrom=round(between, 2),
+                assignment=f"connected components of chains with CA-centroid distance < {STACK_CUTOFF} A")
 
 
 def main():
@@ -254,14 +458,19 @@ def main():
                      f"'{spec['must_match']}': {p['title']!r}")
         p["role_en"] = spec["role_en"]
         p["role_pt"] = spec["role_pt"]
+        for k in ("note_en", "note_pt"):
+            if k in spec:
+                p[k] = spec[k]
         prov[pdb_id] = p
         res = f"{p['resolution_angstrom']} A" if p["resolution_angstrom"] else "n/a"
         print(f"  {pdb_id}  {p['method']:<20} {res:>8}   {p['title'][:56]}")
 
     print("\nrendering | renderizando ...")
     render_ago2(cmd, os.path.join(STRUCT_DIR, "6N4O.pdb"), f"{FIG_DIR}/ago2_guide_target.png")
-    n_asp = render_bace1(cmd, os.path.join(STRUCT_DIR, "4D8C.cif"), f"{FIG_DIR}/bace1_inhibitor.png")
-    prov["4D8C"]["catalytic_aspartates_within_5A_of_ligand"] = int(n_asp)
+    dyad = render_bace1(cmd, os.path.join(STRUCT_DIR, "4D8C.cif"), f"{FIG_DIR}/bace1_inhibitor.png")
+    prov["4D8C"]["catalytic_dyad_resi_in_this_deposition"] = dyad
+    prov["4D8C"]["catalytic_dyad_check"] = ("aspartates of DTGS and DSGT motifs == aspartates "
+                                            "within 5 A of the inhibitor")
     prov["6CU7"]["chain_split"] = render_fibril(
         cmd, os.path.join(STRUCT_DIR, "6CU7.cif"),
         f"{FIG_DIR}/alpha_synuclein_fibril.png", "alpha-synuclein")
