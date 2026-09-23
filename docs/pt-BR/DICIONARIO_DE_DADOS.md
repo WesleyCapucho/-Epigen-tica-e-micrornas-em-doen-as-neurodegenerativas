@@ -147,6 +147,64 @@ Uma linha por ponto da varredura dos parâmetros livres: `free_parameter`, `valu
 
 Uma entrada por estrutura, lida do arquivo de coordenadas pelo `scripts/13`: título depositado, método, resolução e critério de resolução, DOI e PMID da citação primária, o papel da figura, e verificações calculadas a partir das coordenadas: para 4D8C, os aspartatos catalíticos encontrados tanto pelo motivo de sequência (DTGS, DSGT) quanto pela distância ao inibidor; para as fibrilas, as cadeias de cada protofilamento, o espaçamento entre camadas e a distância entre protofilamentos. Os números de resíduo são os do depósito.
 
+## `data/extracted/quadas2_study_level.csv`
+
+A evidência por trás dos dois domínios QUADAS-2 que a extração de acurácia não responde. Uma linha por estudo agrupado, lida à mão do texto completo no PubMed Central.
+
+| Coluna | Significado |
+|---|---|
+| `study_id` | PubMed ID, ou DOI para estudos fora do MEDLINE; a mesma chave que o `scripts/05` usa |
+| `first_author`, `year`, `disease` | identidade do estudo, para ler a tabela sem consulta externa |
+| `fulltext_availability` | `yes`, `no_fulltext_in_pmc`, `no_pmc_record` — qual das três razões se aplica |
+| `reference_standard_named` | `yes` / `no`; vazio quando o texto completo não pôde ser lido |
+| `reference_standard_quote` | a frase que nomeia os critérios diagnósticos, literal |
+| `autopsy_confirmed` | `yes` / `no`; `yes` exige que a citação mencione confirmação neuropatológica |
+| `blinding_stated` | `yes` / `not_stated` |
+| `blinding_quote` | a frase que declara cegamento ao teste índice, literal |
+| `source` | de onde o texto completo foi lido |
+
+Um sinalizador e sua citação precisam concordar: o `scripts/08` falha se um `yes` não traz citação, ou se há citação registrada para um estudo cujo texto completo não era recuperável.
+
+## `results/tables/quadas2_assessment.csv`
+
+Uma linha por estudo avaliado, sete domínios, cada um como veredito mais a razão que o produziu (`..._reason`). Os vereditos são `low`, `high`, `unclear` ou `unrated`. `unclear` significa que a pergunta foi feita e a fonte não responde; `unrated` significa que ela não foi feita. Nenhum domínio está hoje como `unrated`, e o `scripts/08` falha se algum voltar a ficar. Traz também `n_estimates` e `n_estimates_eligible` por estudo.
+
+## `results/tables/quadas2_summary.json`
+
+Contagens por domínio, os estudos avaliados e dois campos narrativos calculados a partir do registro em vez de digitados: `full_text_pass_*` (quantos textos completos eram recuperáveis, quantos nomeiam critérios, quantos confirmam por autópsia, quantos declaram cegamento) e `eligibility_circularity_*` (quanto do veredito uniforme de seleção de pacientes decorre da própria regra de elegibilidade desta revisão, com os contrastes excluídos contados). O `scripts/08` confere os números da prosa contra o registro, para que o texto não sobreviva aos dados.
+
+## `results/tables/bivariate_input_estimates.csv`
+
+As tabelas 2×2 que entram no modelo bivariado, reconstruídas a partir de proporções publicadas: `sensitivity`, `specificity`, `n_cases`, `n_controls`, `continuity_corrected` (se a correção de 0,5 foi aplicada a uma célula vazia) e `in_primary_analysis` (se esta estimativa é a mantida para o estudo).
+
+## `results/tables/bivariate_summary.csv`
+
+Uma linha por análise (primária, uma estimativa por estudo; secundária, toda estimativa elegível): sensibilidade e especificidade sumárias com intervalos de 95%, os desvios-padrão entre estudos `tau_*` e sua correlação `rho_between`, a razão de chances diagnóstica, as duas razões de verossimilhança e `converged`.
+
+## `results/tables/bivariate_model.json`
+
+Os parâmetros ajustados, o autoteste do estimador em 400 estudos simulados (valor verdadeiro, valor ajustado, erro absoluto, tolerância e sinalizador de aprovação para cada um dos cinco parâmetros) e a ressalva sobre a reconstrução, nos dois idiomas. O `scripts/08` falha se qualquer componente do autoteste reportar falha.
+
+## `results/tables/grade_certainty.json`
+
+A avaliação GRADE: os limiares declarados que decidem cada rebaixamento, uma entrada por domínio com seus passos, julgamento e razão declarada, o total de passos, a certeza resultante e o resumo de achados. Mudar um limiar e rodar de novo muda o veredito — é para isso que eles ficam armazenados.
+
+## `results/tables/grade_summary_of_findings.csv`
+
+Uma linha por probabilidade pré-teste: verdadeiros e falsos positivos e negativos esperados a cada 1000 pessoas testadas, mais os valores preditivos resultantes. As contagens não são arredondadas para inteiros, porque arredondar três probabilidades para pessoas inteiras esconde que são esperanças.
+
+## `results/tables/mimic_dosing_feasibility.csv`
+
+Uma linha por espécie e intervalo de dose: `species`, `param_id` (a linha da tabela cinética de onde veio a constante de decaimento), `half_life_hours`, `dosing_interval_hours`, `peak_over_average` e `fraction_of_interval_above_half_peak`. Nenhum parâmetro livre e nenhuma dose suposta entram: a dose se cancela na razão entre pico e média.
+
+## `results/tables/mimic_dosing_feasibility.json`
+
+O mesmo cálculo com as comparações que o usam: a constante de decaimento de cada espécie e seu `param_id`, a comparação de dosagem diária contra a referência de estabilidade mediana (penalidade, intervalo equivalente, fator de estabilização necessário) e a suposição declarada de que o mimético entregue é eliminado na taxa endógena — por isso a saída é um fator de estabilização necessário e não um veredito de viabilidade.
+
+## `results/figures/`
+
+Toda figura existe duas vezes, `<nome>.en.png` e `<nome>.pt-BR.png`. As duas são desenhadas pelo mesmo código, a partir dos mesmos vetores, na mesma execução; só o texto dos rótulos muda.
+
 ## Convenções
 
 - Proporções são armazenadas como proporções (0,82), não como percentuais (82%).

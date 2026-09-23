@@ -40,7 +40,7 @@ Retornos: **408 registros** (braço AD), dos quais 248 eram novos para a revisã
 
 Esse passo entre braços não é acessório. Sem ele, o braço PD parecia acrescentar 157 registros em vez de 78, porque o mesmo artigo estava sendo contado em dois braços.
 
-**Bases não consultadas.** A Web of Science não foi consultada. Trata-se de uma limitação real de completude, declarada em vez de aproximada — nenhuma contagem estimada de registros é reportada para uma base que não foi efetivamente consultada.
+**Bases não consultadas.** A Web of Science não foi consultada. Ela foi tentada a partir do ambiente que roda este pipeline e está inalcançável ali pela mesma razão da Scopus: só atende a uma sessão institucional autenticada, e não existe API pública para ela neste projeto. A estratégia de busca dos dois braços está escrita em `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md` e o `scripts/09_ingest_scopus_wos.py` aceita uma exportação da Web of Science diretamente (`--wos`), então a lacuna se fecha no dia em que houver uma exportação. Até lá é uma limitação real de completude, declarada em vez de aproximada — nenhuma contagem estimada de registros é reportada para uma base que não foi efetivamente consultada, e nenhum número reportado supõe que ela nada acrescentaria.
 
 **Reprodutibilidade do corpus.** Títulos e resumos dos 560 registros estão arquivados em `data/raw/systematic_review_2026/screening_corpus.json` e são reconstruídos pelo `scripts/10_build_screening_corpus.py`. Eles não eram versionados nas versões anteriores, o que impedia regerar as contagens de menção da Seção 6 apenas a partir do repositório. Agora é possível.
 
@@ -114,7 +114,55 @@ Implementada em `scripts/05_meta_analysis.py` usando apenas NumPy e SciPy, para 
 
 **Sensibilidade ao agrupamento.** Vários estudos contribuem com mais de uma estimativa — um deles com oito — e o modelo de efeitos aleatórios trata cada uma como independente. Em vez de supor que isso não importa, o `scripts/05_meta_analysis.py` reagrega a estimativa de miRNA isolado de duas outras formas: uma estimativa por estudo (mediana da AUC e mediana do EP do estudo) e deixando-um-estudo-de-fora. Ambas estão em `results/tables/sensitivity_single_mirna.csv`, e a distância entre elas é tratada como parte do resultado, e não como nota de rodapé.
 
-## 6. Atenção da literatura versus desempenho medido
+## 6. Risco de viés e aplicabilidade (QUADAS-2)
+
+`scripts/14_quadas2_risk_of_bias.py`. Os 28 estudos que contribuem com ao menos uma estimativa para o pool primário foram avaliados com o QUADAS-2 (Whiting et al. 2011): quatro domínios de risco de viés e três de aplicabilidade.
+
+**Os julgamentos são derivados por regra, não digitados.** Cada veredito sai de uma função que lê um campo registrado e devolve o julgamento junto com a razão dele. Nada é preenchido à mão. O objetivo é que quem discorde de um julgamento encontre a regra que o produziu, mude uma função e rode a avaliação de novo sobre os 28 estudos de uma vez — o que uma tabela preenchida à mão não permite.
+
+**Dois domínios exigiam evidência que a extração de acurácia não guarda.** A extração foi feita para capturar estimativas e suas frases de origem; ela não registra padrão de referência, cegamento nem fluxo de pacientes. Esses dois domínios foram fechados por uma segunda passagem pelos textos completos, registrada estudo a estudo em `data/extracted/quadas2_study_level.csv` com a frase de onde cada resposta saiu. 22 dos 28 estudos têm texto completo recuperável pelo PubMed Central; **13** nomeiam os critérios diagnósticos que aplicaram, **um** tem confirmação neuropatológica da condição alvo e **um** declara que o diagnóstico foi cego ao teste índice. Os seis estudos cujo texto completo não pôde ser recuperado ficam incertos por essa razão declarada, e o registro diz qual razão vale para qual estudo.
+
+**Por que nomear critérios aceitos não basta para um veredito de baixo risco.** Na DA e na DP o padrão de referência prático é critério clínico, e critério clínico classifica errado uma fração conhecida dos casos; as estimativas de acurácia herdam esse erro. Um estudo que nomeia critérios aceitos fez o que o campo espera e é classificado como *incerto*, não *baixo*. Só a confirmação neuropatológica, ou critérios nomeados mais cegamento declarado, limpa o domínio. O resultado é 2 baixo, 17 incerto e 9 alto.
+
+**Fluxo e tempo é incerto nos 28 estudos, e isso é um achado.** Nenhum dos 22 textos completos recuperáveis traz fluxograma STARD ou prestação de contas equivalente de cada participante incluído, e só um declara o intervalo entre coleta e diagnóstico. A pergunta foi feita aos relatos primários e eles não respondem.
+
+**O veredito uniforme de seleção de pacientes é em parte circular, e a saída diz isso.** Todo estudo é de alto risco e alta preocupação em seleção de pacientes porque toda estimativa elegível é um contraste caso-versus-controle-saudável — que a própria regra de elegibilidade da revisão exigiu. 13 estimativas de 9 estudos com contraste de diagnóstico diferencial, intradoença ou prodrômico foram excluídas por não casarem com o PICO. As comparações clinicamente relevantes existem nesta literatura e foram postas de lado pela pergunta da revisão, não faltam no campo. O `quadas2_summary.json` carrega essa afirmação ao lado das contagens para que as duas não sejam lidas separadamente.
+
+## 7. Síntese bivariada de sensibilidade e especificidade
+
+`scripts/15_bivariate_srocc.py`. Agrupar só a AUC esconde o ponto de operação, então os estudos que reportam sensibilidade e especificidade num limiar declarado também foram sintetizados com o modelo bivariado de efeitos aleatórios de Reitsma et al. (2005): logito da sensibilidade e logito da especificidade são tratados como um par correlacionado vindo de uma normal bivariada, com a covariância intraestudo derivada da tabela 2×2 reconstruída e a covariância entre estudos estimada por máxima verossimilhança. A curva ROC sumária é traçada como a esperança condicional do logito da sensibilidade dado o logito da especificidade.
+
+**O estimador é testado antes de ser usado.** O script primeiro ajusta 400 estudos simulados a partir de parâmetros conhecidos e exige que os cinco sejam recuperados dentro de uma tolerância declarada; se a recuperação falhar, o script sai sem escrever resultado. O relatório de recuperação fica em `bivariate_model.json` e o `scripts/08` se recusa a passar se algum componente dele falhou.
+
+**As tabelas 2×2 são reconstruídas, e isso é uma limitação.** Os artigos-fonte reportam proporções e não contagens, então as células são obtidas multiplicando sensibilidade e especificidade publicadas pelos tamanhos de grupo publicados e arredondando, com correção de continuidade de 0,5 onde uma célula fica vazia. A análise primária usa uma estimativa por estudo — a mais próxima da AUC mediana daquele estudo — e uma análise secundária usa toda estimativa elegível.
+
+Análise primária, 9 estudos: sensibilidade sumária **0,796** (IC 95% 0,686–0,875), especificidade **0,725** (0,614–0,813), razão de chances diagnóstica 10,3, RV+ 2,89, RV− 0,28. Com nove estudos e cinco parâmetros, os termos entre estudos são fracamente identificados e não são interpretados sozinhos. O ponto de operação é o que esta análise sustenta, e ele é bem pior do que uma AUC agrupada perto de 0,78 sugere.
+
+## 8. Certeza da evidência (GRADE)
+
+`scripts/16_grade_certainty.py`. A certeza foi avaliada com o GRADE adaptado para acurácia diagnóstica (Schünemann et al. 2020), partindo de *alta* para um corpo de estudos transversais de acurácia e rebaixando em cinco domínios. Todo limiar que decide um rebaixamento é declarado como constante nomeada no topo do script e escrito em `grade_certainty.json`, de modo que quem colocaria o limiar em outro lugar possa movê-lo e rodar de novo em vez de discutir com um veredito.
+
+| Domínio | Passos | Por quê |
+|---|---|---|
+| Risco de viés | −2 | 28 de 28 estudos são de alto risco em ao menos um domínio QUADAS-2 |
+| Evidência indireta | −1 | 28 de 28 levantam alta preocupação de aplicabilidade: o contraste agrupado é caso versus controle saudável, não o diagnóstico diferencial que o clínico enfrenta |
+| Inconsistência | −2 | I² = 95,7% nas estimativas agrupadas |
+| Imprecisão | 0 | o intervalo de 95% mais largo em torno do ponto sumário é 0,199 |
+| Viés de publicação | −1 | o teste de Egger no pool global devolve p < 0,0001 (arredonda para 0,0000 na tabela), fortemente suspeito |
+
+Seis passos de rebaixamento a partir de *alta* dão certeza **muito baixa**.
+
+**O resumo de achados é a parte a citar.** Aplicando o ponto sumário bivariado a 1000 pessoas testadas, em três probabilidades pré-teste:
+
+| Probabilidade pré-teste | Verdadeiros positivos | Falsos positivos | Falsos negativos | VPP | VPN |
+|---|---|---|---|---|---|
+| 5% | 40 | 261 | 10 | 0,13 | 0,99 |
+| 20% | 159 | 220 | 41 | 0,42 | 0,93 |
+| 50% | 398 | 138 | 102 | 0,74 | 0,78 |
+
+Com probabilidade pré-teste de 5% — cenário de rastreamento — o teste chama cerca de 301 pessoas de positivas a cada 1000, e 261 delas estão erradas. Os cinco domínios que colocam a certeza em muito baixa não são males separados de alguns estudos fracos: são propriedades da mesma escolha de desenho repetida pela literatura.
+
+## 9. Atenção da literatura versus desempenho medido
 
 `scripts/06_citation_vs_performance.py`. Para cada miRNA, contou-se o número de **artigos distintos** do corpus de **560 registros** que o mencionam em título ou resumo.
 
@@ -124,14 +172,14 @@ As contagens de menção foram então correlacionadas (Spearman e Pearson) com a
 
 Esta análise é **exploratória**. A maioria dos miRNAs contribui com um único estudo, o teste tem baixo poder, e um resultado não significativo não pode ser lido como evidência de ausência de associação.
 
-## 7. O que este desenho não é capaz de entregar
+## 10. O que este desenho não é capaz de entregar
 
 - Ele mede acurácia **reportada**, não acurácia sob uso clínico prospectivo. A maior parte das estimativas incluídas deriva o ponto de corte na mesma amostra em que o avalia, o que infla a AUC.
 - A restrição a textos completos de acesso aberto no PubMed Central pode selecionar um subconjunto não aleatório da literatura.
 - Com testes de Egger significativos em vários subgrupos, os valores agregados devem ser lidos como **limites superiores**.
-- Não havia dados individuais de participantes, então não foi feita modelagem bivariada de sensibilidade–especificidade (HSROC); a síntese é sobre AUC.
+- Não havia dados individuais de participantes. A síntese bivariada da Seção 7 se apoia, por isso, em tabelas 2×2 reconstruídas a partir de proporções e tamanhos de grupo publicados, não em contagens reportadas, e cobre os 9 estudos que declaram limiar, e não os 20 agrupados por AUC.
 
-## 8. Camada mecanística: modelos EDO e figuras estruturais
+## 11. Camada mecanística: modelos EDO e figuras estruturais
 
 Esta camada pergunta algo mais estreito que a meta-análise, e deve ser lida assim. Ela não testa se um miRNA funciona como biomarcador. Pergunta o que a cinética medida de cada eixo permite, e onde uma afirmação sobre eles vai além dos números que existem.
 
@@ -145,7 +193,15 @@ O decaimento de mRNA era um terceiro parâmetro livre e não é mais. Tushev et 
 
 **O que os modelos podem e não podem afirmar.** A razão de monômero DA/controle (1,41) é igual à razão entre produção e depuração medida por Mawuenyega et al. e não depende de nenhum parâmetro livre. O modelo reescreve essa medida; não a prevê. O valor dos modelos está em outro lugar: mostram que os parálogos de miR-29 decaem em ritmos diferentes (7 h e 10,6 h, e um relatado como estável) e não podem ser tratados como uma espécie só, que uma dose única de mimético de miR-7 voltaria para perto do basal em 11 a 32 horas, contra cerca de 9 dias para um miRNA típico, que a queda de BACE1 necessária para compensar o déficit de depuração medido é de 19–33% em toda a grade de parâmetros livres e portanto menor que os cerca de 50% já alcançados em células, que uma queda medida de α-sinucleína pelo miR-7 se traduz em 23–34% de elongação de fibrila mais lenta, atravessando três medidas independentes e nenhum parâmetro livre, e que as constantes de velocidade do Aβ42 necessárias para ir além não podem ser separadas com os dados publicados (linha K037).
 
+**O que a dosagem repetida custa a um mimético de renovação rápida.** O `scripts/17_mimic_dosing_feasibility.py` faz uma pergunta que o cálculo de washout levanta mas não responde: se um mimético precisa ser dado repetidamente e não uma vez só, quanto custa a meia-vida medida? No estado estacionário sob dosagem repetida de uma espécie eliminada com constante de primeira ordem *d* no intervalo *T*, a razão entre pico e média é *dT* / (1 − e^(−*dT*)). A dose se cancela, então o cálculo não tem nenhum parâmetro livre; só entram as constantes de decaimento medidas, carregadas por identificador da tabela cinética.
+
+Dosado uma vez por dia, um mimético de miR-7 que se renove como o miR-7 endógeno (meia-vida 1,7 h, K020) precisa atingir um pico de **9,79×** o nível médio, contra **1,26×** para um miRNA de estabilidade mediana (34 h, K016) — uma penalidade de **7,7 vezes** no pico necessário para sustentar a mesma média. Ele passa **7,1%** de cada dia acima da metade do próprio pico. Para ser dosado diariamente nos termos de que um miRNA comum desfruta, precisaria de cerca de **20 vezes** de estabilização (1,7 h → 34 h); na meia-vida medida, o intervalo equivalente é de **1,2 h**. Com a meia-vida de miR-7 no limite superior (5 h, K021) a exigência cai para 6,8 vezes, e para os parálogos de miR-29 para 4,9 (miR-29b) e 3,2 (miR-29c). O resultado é enunciado como fator de estabilização necessário e não como veredito, porque um mimético quimicamente estabilizado, por construção, não é eliminado na taxa endógena; é uma meta de projeto fixada pelas medidas, e é a quantidade que uma química de entrega precisa superar.
+
 **Figuras estruturais.** O `scripts/13_structure_figures.py` renderiza quatro estruturas depositadas com o PyMOL: Argonauta2 humana com guia e alvo (6N4O), BACE1 com inibidor ligado (4D8C), uma fibrila de α-sinucleína completa (6CU7) e uma fibrila de Aβ(1-42) (5OQV). Título, método, resolução e citação primária são lidos de cada arquivo, e o script para se o título não bater com a molécula que a figura diz mostrar. Os aspartatos catalíticos da BACE1 são encontrados duas vezes, pelo motivo de sequência e pela distância ao inibidor, e precisam concordar. Os protofilamentos das fibrilas são atribuídos a partir das coordenadas, como cadeias empilhadas no espaçamento cross-β. As figuras ilustram mecanismo; não são resultado.
+
+## 12. Figuras em dois idiomas
+
+Toda figura em `results/figures/` é emitida duas vezes, uma em inglês e outra em português do Brasil, como `<nome>.en.png` e `<nome>.pt-BR.png`. As duas versões saem do mesmo caminho de código, na mesma execução, dos mesmos vetores: o `scripts/_bilingual.py` expõe a lista de idiomas, um seletor `t(lang, en, pt)` para o texto dos rótulos e um construtor de caminho, e cada função de plotagem é chamada uma vez por idioma. Só as palavras são traduzidas. Números, limites de eixo, posições de marcação e os próprios dados são idênticos por construção, porque são calculados antes de o laço de idioma começar e não passam pelo tradutor — um par de figuras não pode discordar sobre um valor sem que o código que as desenhou tenha mudado.
 
 ## Referências dos métodos
 
@@ -153,3 +209,7 @@ O decaimento de mRNA era um terceiro parâmetro livre e não é mais. Tushev et 
 - Hanley JA, McNeil BJ. The meaning and use of the area under a receiver operating characteristic (ROC) curve. *Radiology.* 1982;143(1):29–36.
 - Egger M, Davey Smith G, Schneider M, Minder C. Bias in meta-analysis detected by a simple, graphical test. *BMJ.* 1997;315(7109):629–634.
 - Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. *BMJ.* 2021;372:n71.
+- Whiting PF, Rutjes AWS, Westwood ME, et al. QUADAS-2: a revised tool for the quality assessment of diagnostic accuracy studies. *Ann Intern Med.* 2011;155(8):529–536.
+- Reitsma JB, Glas AS, Rutjes AWS, Scholten RJPM, Bossuyt PM, Zwinderman AH. Bivariate analysis of sensitivity and specificity produces informative summary measures in diagnostic reviews. *J Clin Epidemiol.* 2005;58(10):982–990.
+- Schünemann HJ, Mustafa RA, Brozek J, et al. GRADE guidelines: 21 part 1 and part 2. Test accuracy. *J Clin Epidemiol.* 2020;122:129–141 e 142–152.
+- McInnes MDF, Moher D, Thombs BD, et al. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: the PRISMA-DTA statement. *JAMA.* 2018;319(4):388–396.

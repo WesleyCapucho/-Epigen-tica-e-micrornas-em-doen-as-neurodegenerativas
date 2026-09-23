@@ -147,6 +147,64 @@ One row per point of the free-parameter scan: `free_parameter`, `value`, `abeta_
 
 One entry per structure, read from the coordinate file by `scripts/13`: deposited title, method, resolution and resolution criterion, primary-citation DOI and PMID, the figure's role, and checks computed from the coordinates: for 4D8C the catalytic aspartates found both by sequence motif (DTGS, DSGT) and by distance to the inhibitor; for the fibrils, the chains in each protofilament, the layer spacing and the distance between protofilaments. Residue numbers are those of the deposition.
 
+## `data/extracted/quadas2_study_level.csv`
+
+The evidence behind the two QUADAS-2 domains that the accuracy extraction cannot answer. One row per pooled study, read from the PubMed Central full text by hand.
+
+| Column | Meaning |
+|---|---|
+| `study_id` | PubMed ID, or DOI for studies outside MEDLINE; the same key `scripts/05` uses |
+| `first_author`, `year`, `disease` | study identity, for reading the table without a lookup |
+| `fulltext_availability` | `yes`, `no_fulltext_in_pmc`, `no_pmc_record` — which of the three reasons applies |
+| `reference_standard_named` | `yes` / `no`; empty when the full text could not be read |
+| `reference_standard_quote` | the sentence naming the diagnostic criteria, verbatim |
+| `autopsy_confirmed` | `yes` / `no`; `yes` requires the quote to mention neuropathological confirmation |
+| `blinding_stated` | `yes` / `not_stated` |
+| `blinding_quote` | the sentence stating blinding to the index test, verbatim |
+| `source` | where the full text was read from |
+
+A flag and its quote must agree: `scripts/08` fails if a `yes` carries no quote, or a quote is recorded for a study whose full text was not retrievable.
+
+## `results/tables/quadas2_assessment.csv`
+
+One row per assessed study, seven domains, each as a verdict plus the reason that produced it (`..._reason`). Verdicts are `low`, `high`, `unclear` or `unrated`. `unclear` means the question was asked and the source does not answer it; `unrated` means it was not asked. No domain is currently `unrated`, and `scripts/08` fails if one becomes so again. Also carries `n_estimates` and `n_estimates_eligible` per study.
+
+## `results/tables/quadas2_summary.json`
+
+Domain counts, the studies assessed, and two narrative fields computed from the record rather than typed: `full_text_pass_*` (how many full texts were retrievable, how many name criteria, how many confirm by autopsy, how many state blinding) and `eligibility_circularity_*` (how much of the uniform patient-selection verdict follows from this review's own eligibility rule, with the excluded contrasts counted). `scripts/08` checks the numbers in the prose against the record, so the text cannot outlive the data.
+
+## `results/tables/bivariate_input_estimates.csv`
+
+The 2×2 tables entering the bivariate model, reconstructed from published proportions: `sensitivity`, `specificity`, `n_cases`, `n_controls`, `continuity_corrected` (whether the 0.5 correction was applied to an empty cell) and `in_primary_analysis` (whether this estimate is the one kept for its study).
+
+## `results/tables/bivariate_summary.csv`
+
+One row per analysis (primary, one estimate per study; secondary, every eligible estimate): summary sensitivity and specificity with 95% intervals, the between-study standard deviations `tau_*` and their correlation `rho_between`, the diagnostic odds ratio, the two likelihood ratios, and `converged`.
+
+## `results/tables/bivariate_model.json`
+
+The fitted parameters, the estimator's self-test on 400 simulated studies (true value, fitted value, absolute error, tolerance, pass flag for each of the five parameters), and the reconstruction caveat in both languages. `scripts/08` fails if any self-test component reports a failure.
+
+## `results/tables/grade_certainty.json`
+
+The GRADE assessment: the declared thresholds that decide each downgrade, one entry per domain with its steps, judgement and stated reason, the total steps, the resulting certainty, and the summary of findings. Changing a threshold and rerunning changes the verdict — that is the point of storing them.
+
+## `results/tables/grade_summary_of_findings.csv`
+
+One row per pre-test probability: expected true and false positives and negatives per 1000 people tested, plus the resulting predictive values. Counts are not rounded to integers, because rounding three probabilities to whole people hides that they are expectations.
+
+## `results/tables/mimic_dosing_feasibility.csv`
+
+One row per species and dosing interval: `species`, `param_id` (the kinetic-table row the decay constant came from), `half_life_hours`, `dosing_interval_hours`, `peak_over_average` and `fraction_of_interval_above_half_peak`. No free parameter and no assumed dose enter: the dose cancels out of the peak-to-average ratio.
+
+## `results/tables/mimic_dosing_feasibility.json`
+
+The same calculation with the comparisons that use it: each species' decay constant and its `param_id`, the daily-dosing comparison against the median-stability reference (penalty, equivalent interval, fold stabilisation required), and the stated assumption that the delivered mimic is cleared at the endogenous rate — which is why the output is a required fold stabilisation rather than a verdict on feasibility.
+
+## `results/figures/`
+
+Every figure exists twice, `<name>.en.png` and `<name>.pt-BR.png`. Both are drawn by the same code from the same arrays in the same run; only the label text differs.
+
 ## Conventions
 
 - Proportions are stored as proportions (0.82), not percentages (82%).

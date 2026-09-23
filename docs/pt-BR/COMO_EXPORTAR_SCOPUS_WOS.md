@@ -65,7 +65,9 @@ O **resumo é obrigatório**: a triagem o lê. Sem ele, o registro entra no flux
 
 5. Salve os dois arquivos, um por braço. Sugestão de nome: `scopus_AD.csv` e `scopus_PD.csv`.
 
-## Passo 3 — Web of Science (se tiver acesso)
+## Passo 3 — Web of Science (esta é a que ainda falta)
+
+A Scopus já foi buscada e ingerida nos dois braços. A Web of Science **não**, e ela é a última lacuna declarada da busca. O `webofscience.com` foi tentado a partir deste ambiente e está inalcançável pela mesma razão da Scopus: só responde a uma sessão institucional autenticada. Nada mais está travando — o caminho de ingestão, a desduplicação e os reprocessamentos seguintes estão todos prontos e testados.
 
 Em **Advanced Search**, campo `TS=` (Topic):
 
@@ -80,19 +82,22 @@ TS=( ( microRNA OR miRNA OR microRNAs OR miRNAs )
 
 Com **Timespan 2015–2026**. Troque `Alzheimer` por `Parkinson` no segundo braço.
 
-Exporte como **Tab-delimited file** ou **RIS**, incluindo *Full Record*.
+Exporte como **Tab-delimited file** ou **RIS**, incluindo *Full Record*. Sugestão de nome: `wos_AD.txt` e `wos_PD.txt`. Exporte o conjunto inteiro de resultados, não a primeira página: uma exportação truncada em 500 ou 1000 registros enviesaria o corpus em silêncio, e nada adiante consegue detectar isso.
 
 ## Passo 4 — Enviar os arquivos
 
 Envie os arquivos exportados. O pipeline então roda:
 
 ```bash
-python scripts/09_ingest_scopus_wos.py --scopus scopus_AD.csv --arm AD
-python scripts/09_ingest_scopus_wos.py --scopus scopus_PD.csv --arm PD
+python scripts/09_ingest_scopus_wos.py --wos wos_AD.txt --arm AD
+python scripts/09_ingest_scopus_wos.py --wos wos_PD.txt --arm PD
 python scripts/04_screening.py
 python scripts/10_build_screening_corpus.py
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
+python scripts/14_quadas2_risk_of_bias.py
+python scripts/15_bivariate_srocc.py
+python scripts/16_grade_certainty.py
 python scripts/08_verify_consistency.py
 ```
 
@@ -102,8 +107,10 @@ O script `09` deduplica os novos registros contra o corpus do PubMed por DOI, Pu
 
 Três coisas, todas para melhor:
 
-1. A frase "Scopus e Web of Science não foram consultadas" sai da seção de Métodos e da lista de limitações, substituída pelas contagens reais.
+1. A frase "a Web of Science não foi consultada" sai da seção de Métodos e da lista de limitações, substituída pelas contagens reais. Hoje ela é a única limitação de base que resta.
 2. O fluxograma PRISMA passa a ter as três bases, com números rastreáveis.
 3. Qualquer estudo novo que reporte AUC e tamanhos de grupo entra na meta-análise, e as estimativas agregadas são recalculadas — inclusive, possivelmente, mudando os valores já publicados. O script `08` garante que a tabela de extração, as contagens PRISMA e as tabelas de resultado não fiquem defasadas entre si.
+
+Uma quarta coisa muda e é fácil de não notar: todo estudo novo entra também no QUADAS-2, no modelo bivariado e na classificação GRADE, então a certeza da evidência é recalculada junto. Se a Web of Science trouxer estudos com confirmação neuropatológica ou cegamento declarado, o rebaixamento por risco de viés pode se mover.
 
 Vale dizer com franqueza: se os novos registros trouxerem estimativas com desempenho sistematicamente diferente, as conclusões podem se deslocar. É esse o ponto de completar a busca — e não haveria sentido em fazê-la se o resultado já estivesse decidido.

@@ -19,7 +19,8 @@ Dois corpos de trabalho convivem aqui:
 |---|---|---|
 | **Bibliométrica** | Mineração do corpus PubMed, extração de miRNAs, PCA, clusterização, rede miRNA–doença, modelos EDO exploratórios dos eixos miR-29/BACE1/Aβ e miR-7/SNCA/α-sinucleína | `01`, `02` |
 | **Meta-analítica** | Busca sistemática PICO, triagem PRISMA, extração de texto completo, meta-análise de efeitos aleatórios de AUC, panorama de translação clínica | `03`–`11` |
-| **Mecanística** | Modelos EDO dos dois eixos construídos sobre medidas cinéticas publicadas; figuras estruturais renderizadas a partir de coordenadas depositadas | `12`, `13` |
+| **Mecanística** | Modelos EDO dos dois eixos construídos sobre medidas cinéticas publicadas; figuras estruturais renderizadas a partir de coordenadas depositadas; viabilidade de dosagem a partir de constantes de decaimento medidas | `12`, `13`, `17` |
+| **Apreciação crítica** | Risco de viés QUADAS-2, síntese bivariada de sensibilidade e especificidade, certeza da evidência GRADE | `14`–`16` |
 
 A camada meta-analítica existe para responder a uma pergunta que a monografia de origem levantou sobre si mesma: frequência bibliométrica e validação experimental não são fontes independentes de evidência, porque os miRNAs mais estudados acumulam as duas. A acurácia diagnóstica agregada é externa a esse laço.
 
@@ -34,13 +35,15 @@ A camada meta-analítica existe para responder a uma pergunta que a monografia d
 | Estimativas extraídas | 76 (51 elegíveis, 41 agregáveis) |
 | Estudos independentes agregados | 20 |
 | Data da busca | 10 de setembro de 2026 |
+| Estudos avaliados com QUADAS-2 | 28 |
+| Certeza da evidência (GRADE) | Muito baixa |
 
 As estimativas agregadas estão em `results/tables/meta_analysis_pooled_auc.csv`, as entradas por estimativa em `results/tables/meta_analysis_input_estimates.csv`, e as análises de sensibilidade a agrupamento em `results/tables/sensitivity_single_mirna.csv`. Todo valor extraído é rastreável até a frase verbatim de sua fonte em `data/extracted/diagnostic_accuracy_extraction.csv`.
 
 A interpretação pertence ao manuscrito, não a este repositório. Duas coisas, porém, pertencem aqui, porque são propriedades dos dados e não do argumento:
 
 - **Estimativas de um mesmo estudo são correlacionadas.** Um estudo contribui com oito estimativas e outro com seis, e o modelo de efeitos aleatórios trata cada uma como independente. Por isso o `scripts/05` também reagrega uma-estimativa-por-estudo e deixando-um-estudo-de-fora, e a distância entre elas faz parte do resultado.
-- **Três defeitos foram encontrados e corrigidos neste pipeline, e cada um mudou um número.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
+- **Cinco defeitos foram encontrados e corrigidos neste pipeline, e cada um mudou um número.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
 
 ## Estrutura do repositório
 
@@ -74,13 +77,17 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 12_ode_models_calibrated.py                # Modelos EDO sobre constantes cinéticas publicadas
 │   ├── 13_structure_figures.py                    # Figuras PyMOL a partir de estruturas depositadas
 │   ├── 14_quadas2_risk_of_bias.py                 # QUADAS-2, julgamentos derivados por regra
-│   └── 15_bivariate_srocc.py                      # Modelo bivariado de Reitsma + ROC sumária
+│   ├── 15_bivariate_srocc.py                      # Modelo bivariado de Reitsma + ROC sumária
+│   ├── 16_grade_certainty.py                      # Certeza GRADE + resumo de achados por 1000
+│   ├── 17_mimic_dosing_feasibility.py             # O que a dosagem repetida custa a um mimético instável
+│   └── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, PRISMA-DTA checklist, Scopus/WoS export
 │   └── pt-BR/                         # Métodos, dicionário de dados, checklist PRISMA-DTA, exportação
 ├── results/
-│   ├── figures/                       # Forest plot, funnel plot, atenção-vs-acurácia, visão geral das EDOs,
-│   │                                  #   structures/ (renderizações PyMOL)
+│   ├── figures/                       # Forest plot, funnel plot, atenção-vs-acurácia, SROC, QUADAS-2, GRADE,
+│   │                                  #   dosagem e visão geral das EDOs — cada uma duas vezes, .en.png e
+│   │                                  #   .pt-BR.png; structures/ (renderizações PyMOL)
 │   └── tables/                        # Estimativas agregadas, entradas, sensibilidade, correlações, auditoria
 └── requirements.txt
 ```
@@ -104,10 +111,12 @@ python scripts/07_clinical_translation_landscape.py
 python scripts/11_attention_finding_audit.py
 python scripts/14_quadas2_risk_of_bias.py
 python scripts/15_bivariate_srocc.py
+python scripts/16_grade_certainty.py               # exige que o 14 e o 15 já tenham rodado
 python scripts/08_verify_consistency.py           # precisa passar antes de versionar
 
 # Camada mecanística, offline
 python scripts/12_ode_models_calibrated.py
+python scripts/17_mimic_dosing_feasibility.py
 pip install pymol-open-source                     # só é necessário para o scripts/13
 python scripts/13_structure_figures.py
 ```
@@ -126,7 +135,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1374 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1637 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -135,7 +144,7 @@ Os textos completos **não** são redistribuídos aqui — apenas os pontos de d
 
 ## Correções
 
-Três defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
+Cinco defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
 
 | Defeito | Efeito | Corrigido em |
 |---|---|---|
@@ -149,22 +158,23 @@ O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula
 
 ## Limitações conhecidas
 
-- A Web of Science não foi consultada. A cobertura é simétrica entre as doenças, mas tem profundidade de duas bases.
+- **A Web of Science não foi consultada.** A cobertura é simétrica entre as doenças, mas tem profundidade de duas bases. Como a Scopus, a Web of Science não pode ser consultada por API a partir deste ambiente — exige autenticação institucional — então o caminho de ingestão está pronto e à espera de uma exportação: as consultas dos dois braços estão em `docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md`, e `python scripts/09_ingest_scopus_wos.py --wos <export.csv> --arm AD` mescla e desduplica o resultado contra todo braço já ingerido.
 - A extração se restringe a textos completos de acesso aberto e a resumos, o que pode selecionar um subconjunto não aleatório da literatura; quatro estudos do braço PD estavam com acesso restrito de modo que só uma AUC de modelo combinado pôde ser lida.
 - 34 dos 41 erros-padrão ponderados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
 - A heterogeneidade é alta (I² até 97%) e as estimativas dentro dos estudos são correlacionadas, o que também torna o teste de Egger pouco confiável aqui.
 - A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho tem pouco poder nos dois sentidos.
 - **A revisão não foi registrada e não tem protocolo prospectivo.** A busca, as regras de elegibilidade e as decisões de triagem estão congeladas no repositório conforme aplicadas, o que as torna auditáveis mas não pré-especificadas. Ver `docs/pt-BR/CHECKLIST_PRISMA_DTA.md`, item 5.
 - **A triagem não teve segundo revisor independente**, e não existe estatística de concordância.
-- **Dois dos quatro domínios de risco de viés do QUADAS-2 estão não avaliados**, não julgados: a extração não capturou padrão de referência, cegamento nem fluxo de pacientes. Fechá-los exige uma segunda passagem pelos textos completos.
+- **Os quatro domínios de risco de viés do QUADAS-2 estão agora avaliados**, os dois últimos por uma segunda passagem pelos textos completos (`data/extracted/quadas2_study_level.csv`). O que essa passagem encontrou é, em si, uma limitação desta literatura: dos 22 estudos com texto completo recuperável, **um** tem confirmação neuropatológica do diagnóstico, **um** declara que o diagnóstico foi cego ao teste índice e **nenhum** traz fluxograma STARD. Seis estudos não têm texto completo recuperável e ficam incertos por essa razão declarada.
 - **Toda estimativa do pool primário é um contraste caso-versus-controle-saudável**, o desenho que o QUADAS-2 aponta como inflador de acurácia. Isso é em parte por construção, já que a regra de elegibilidade exigia esse contraste; 13 estimativas de 9 estudos com contraste de diagnóstico diferencial, prodrômico ou intradoença foram excluídas por não casarem com o PICO.
-- **A certeza da evidência não foi classificada.** O GRADE para acurácia diagnóstica não foi aplicado.
-- No ponto de operação sumário bivariado, as razões de verossimilhança são 2,9 positiva e 0,28 negativa. Uma AUC agrupada perto de 0,78 soa melhor que o ponto de operação de onde vem.
+- **A certeza da evidência é muito baixa** (GRADE para acurácia diagnóstica): seis passos de rebaixamento a partir de *alta*, por risco de viés (−2), inconsistência (−2, I² = 95,7%), evidência indireta (−1) e viés de publicação (−1). Com probabilidade pré-teste de 5%, o ponto de operação sumário chama cerca de 301 pessoas de positivas a cada 1000, e 261 delas estão erradas (VPP 0,13). Todo limiar por trás desses julgamentos é uma constante nomeada no `scripts/16`, que pode ser movida e rodada de novo.
+- No ponto de operação sumário bivariado (9 estudos, sensibilidade 0,80, especificidade 0,72), as razões de verossimilhança são 2,9 positiva e 0,28 negativa. Uma AUC agrupada perto de 0,78 soa melhor que o ponto de operação de onde vem. As tabelas 2×2 por trás dele são reconstruídas a partir de proporções e tamanhos de grupo publicados, porque os artigos-fonte não reportam contagens.
 - Os modelos EDO do `scripts/02` usam parâmetros ilustrativos e não calibrados e ficam aqui só como parte da monografia original. Foram substituídos pelo `scripts/12`.
 - O `scripts/12` usa constantes medidas onde elas existem, mas elas vêm de sistemas diferentes (LCR humano, células HEK, neurônios de rato e camundongo, SH-SY5Y, fibroblastos). Dois parâmetros nunca foram medidos para esses genes e ficam livres, declarados e varridos numa faixa, sem ajuste. O decaimento de mRNA era o terceiro até a tabela suplementar do Tushev ser lida; agora é medido por gene. As constantes de agregação do Aβ42 não podem ser separadas umas das outras com os dados publicados (linha K037), e a nucleação da α-sinucleína em pH ácido só é relatada de forma qualitativa (K042). Essas constantes ficam fixadas em valores ilustrativos declarados. Por isso, o tamanho da chave de pH da α-sinucleína não é resultado: na varredura do `scripts/12` ele vai de cerca de 500 a cerca de 14.000 vezes. Só a direção é.
 - O número mais nítido do modelo, um nível de monômero de Aβ 1,41 vez maior na DA, é fixado analiticamente pelas taxas de produção e depuração de Mawuenyega et al. 2010 e não depende de nenhum parâmetro livre. Ele reescreve essa medida em forma de modelo; não é uma predição independente.
 - A comparação entre a dose de miR-29 que o modelo pede e a queda que Hébert et al. mediram atravessa sistemas: um estado estacionário num modelo de cérebro humano contra uma transfecção transitória de linhagem de neuroblastoma. Ela responde se a intervenção exigida é maior ou menor que uma já alcançada em células, e nada além disso.
 - As figuras estruturais são ilustração. Não testam nada. As resoluções vêm de critérios diferentes (6CU7 FSC 0,5; 5OQV FSC 0,143) e não são diretamente comparáveis.
+- O `scripts/17` supõe que um mimético entregue seja eliminado na mesma taxa de primeira ordem da espécie endógena. Um mimético quimicamente estabilizado não seria, e é exatamente por isso que a saída dele é um fator de estabilização **necessário** (20× para o miR-7 tolerar dose diária) e não um veredito de viabilidade. O cálculo não tem parâmetro livre — a dose se cancela na razão entre pico e média — mas é uma afirmação sobre farmacocinética em abstrato, não sobre um veículo de entrega ou tecido em particular.
 
 ## Integridade científica e uso de IA
 

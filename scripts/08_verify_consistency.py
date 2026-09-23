@@ -73,6 +73,18 @@ def main():
         if not ok:
             fails.append(msg)
 
+    # EN | A claim about the run itself - "N checks pass" in the README - cannot be a
+    #      check, because counting it changes the number it asserts. claim() records a
+    #      failure the same way but leaves the counter alone, so the number the README
+    #      quotes stays the number of checks over data and results.
+    # PT | Uma afirmacao sobre a propria execucao - "N verificacoes passam" no README -
+    #      nao pode ser uma verificacao, porque conta-la muda o numero que ela afirma. O
+    #      claim() registra falha do mesmo jeito mas nao mexe no contador, entao o numero
+    #      citado no README continua sendo o de verificacoes sobre dados e resultados.
+    def claim(ok, msg):
+        if not ok:
+            fails.append(msg)
+
     ext = list(csv.DictReader(open(EXTRACTION, encoding="utf-8")))
     flow = json.load(open(FLOW, encoding="utf-8"))
     pooled = list(csv.DictReader(open(POOLED, encoding="utf-8")))
@@ -671,6 +683,47 @@ def main():
                             "rob_reference_standard", "rob_flow_timing")),
               "QUADAS-2: a risk-of-bias domain is unrated again")
 
+        # EN | A narrative string is the part of an output that silently goes stale: the
+        #      counts get recomputed on every run, the prose does not. Require that no
+        #      text in the summary announces unrated domains while the counts say none
+        #      are unrated, and that the counts in the narrative match the record.
+        # PT | Uma string narrativa e a parte da saida que envelhece em silencio: as
+        #      contagens sao recalculadas a cada execucao, a prosa nao. Exige que nenhum
+        #      texto do resumo anuncie dominios nao avaliados enquanto as contagens dizem
+        #      que nao ha, e que os numeros da narrativa batam com o registro.
+        qsum = json.load(open(QUADAS_SUMMARY, encoding="utf-8"))
+        n_unrated = sum(d.get("unrated", 0) for d in qsum["domain_summary"].values())
+        prose = " ".join(v for v in qsum.values() if isinstance(v, str))
+        if n_unrated == 0:
+            check("UNRATED" not in prose and "NAO AVALIADOS" not in prose,
+                  "QUADAS-2: the summary still announces unrated domains, but no domain "
+                  "is unrated; the prose outlived the numbers")
+        sl_assessed = [by_sl[r["study_id"]] for r in quadas if r["study_id"] in by_sl]
+        counted = {
+            "fulltext": sum(1 for r in sl_assessed if r["fulltext_availability"] == "yes"),
+            "named": sum(1 for r in sl_assessed if r["reference_standard_named"] == "yes"),
+            "autopsy": sum(1 for r in sl_assessed if r["autopsy_confirmed"] == "yes"),
+            "blinded": sum(1 for r in sl_assessed if r["blinding_stated"] == "yes"),
+        }
+        check(counted["fulltext"] == 22 and counted["named"] == 13
+              and counted["autopsy"] == 1 and counted["blinded"] == 1,
+              f"QUADAS-2 full-text pass: the study-level record changed {counted}; the "
+              "documentation quotes 22 full texts, 13 naming criteria, 1 autopsy-confirmed "
+              "and 1 stating blinding")
+        n_assessed = qsum["studies_assessed"]
+        for phrase in (f"{counted['fulltext']} of {n_assessed} studies",
+                       f"{counted['named']} name the diagnostic criteria",
+                       f"{counted['autopsy']} has neuropathological confirmation",
+                       f"None of the {counted['fulltext']} reports a STARD flow diagram"):
+            check(phrase in qsum["full_text_pass_en"],
+                  f"QUADAS-2 narrative (en) no longer says {phrase!r}")
+        for phrase in (f"{counted['fulltext']} dos {n_assessed} estudos",
+                       f"{counted['named']} nomeiam os criterios",
+                       f"{counted['autopsy']} tem confirmacao neuropatologica",
+                       f"Nenhum dos {counted['fulltext']} traz fluxograma"):
+            check(phrase in qsum["full_text_pass_pt"],
+                  f"QUADAS-2 narrative (pt) no longer says {phrase!r}")
+
     # --- 8c. Bivariate model ------------------------------------------------
     # EN | Recompute the derived diagnostic measures from the summary point, and require
     #      that the estimator passed its own recovery test on simulated data.
@@ -821,6 +874,47 @@ def main():
           "trials: the zero-in-AD/PD claim no longer matches the data")
     check(len(trials["therapeutic_trials_all_indications"]) > 0,
           "trials: therapeutic trial list is empty")
+
+    # --- 10. The README has to describe the repository it ships with ------
+    # EN | Two numbers in the README are claims about this file and about the corrections
+    #      table below them, and both were found stale once: the check count said 1374
+    #      while 1627 checks ran, and the prose said three defects above a table of five.
+    #      A count that is asserted in prose and computed nowhere is a count that drifts,
+    #      so both are recomputed here and the README is required to agree.
+    # PT | Dois numeros do README sao afirmacoes sobre este arquivo e sobre a tabela de
+    #      correcoes logo abaixo deles, e os dois ja foram encontrados desatualizados: a
+    #      contagem de verificacoes dizia 1374 enquanto 1627 rodavam, e o texto dizia tres
+    #      defeitos acima de uma tabela de cinco. Um numero afirmado em prosa e calculado
+    #      em lugar nenhum e um numero que deriva, entao ambos sao recalculados aqui e o
+    #      README tem de concordar.
+    readmes = [("README.md", "| Defect | Effect | Fixed in |",
+                "{n} checks currently pass.",
+                ("Five", "defects in this pipeline were found")),
+               ("README.pt-BR.md", "| Defeito | Efeito | Corrigido em |",
+                "Atualmente {n} verificacoes passam.",
+                ("Cinco", "defeitos deste pipeline foram encontrados"))]
+    spelled = {3: ("Three", "Tres"), 4: ("Four", "Quatro"), 5: ("Five", "Cinco"),
+               6: ("Six", "Seis"), 7: ("Seven", "Sete"), 8: ("Eight", "Oito")}
+    for idx, (name, header, count_claim, _) in enumerate(readmes):
+        try:
+            text = open(name, encoding="utf-8").read()
+        except FileNotFoundError:
+            continue
+        # EN/PT: the corrections table runs from its header to the first blank line
+        body = text.split(header, 1)[1].split("\n\n", 1)[0] if header in text else ""
+        rows = [ln for ln in body.splitlines()
+                if ln.startswith("| ") and not ln.startswith("|---")]
+        claim(len(rows) > 0, f"{name}: the corrections table was not found")
+        word = spelled.get(len(rows), ("?", "?"))[idx]
+        claim(word.lower() in text.lower(),
+              f"{name}: the corrections table has {len(rows)} rows, so the prose above it "
+              f"should say {word.lower()}, and it does not")
+        # EN/PT: the asserted check count is a claim about this very run
+        stated = count_claim.format(n=checks)
+        stated_alt = stated.replace("verificacoes", "verificações")
+        claim(stated in text or stated_alt in text,
+              f"{name}: the README claims a different number of checks than the "
+              f"{checks} that just ran")
 
     print(f"Checks run / verificacoes: {checks}")
     if fails:

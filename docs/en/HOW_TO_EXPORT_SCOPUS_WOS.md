@@ -65,7 +65,9 @@ The **abstract is mandatory**: screening reads it. Without it a record still ent
 
 5. Save one file per arm. Suggested names: `scopus_AD.csv` and `scopus_PD.csv`.
 
-## Step 3 — Web of Science (if you have access)
+## Step 3 — Web of Science (this is the one still missing)
+
+Scopus has been searched and ingested for both arms. Web of Science has **not**, and it is the last declared gap in the search. `webofscience.com` was tried from this environment and is unreachable for the same reason Scopus is: it answers only to an authenticated institutional session. Nothing else is blocking it — the ingest path, the deduplication and the downstream reruns are all in place and tested.
 
 In **Advanced Search**, using the `TS=` (Topic) field:
 
@@ -80,19 +82,22 @@ TS=( ( microRNA OR miRNA OR microRNAs OR miRNAs )
 
 With **Timespan 2015–2026**. Swap `Alzheimer` for `Parkinson` in the second arm.
 
-Export as a **Tab-delimited file** or **RIS**, including *Full Record*.
+Export as a **Tab-delimited file** or **RIS**, including *Full Record*. Suggested names: `wos_AD.txt` and `wos_PD.txt`. Export the whole result set, not the first page: an export truncated at 500 or 1000 records would silently bias the corpus, and nothing downstream can detect that.
 
 ## Step 4 — Send the files
 
 Send the exported files. The pipeline then runs:
 
 ```bash
-python scripts/09_ingest_scopus_wos.py --scopus scopus_AD.csv --arm AD
-python scripts/09_ingest_scopus_wos.py --scopus scopus_PD.csv --arm PD
+python scripts/09_ingest_scopus_wos.py --wos wos_AD.txt --arm AD
+python scripts/09_ingest_scopus_wos.py --wos wos_PD.txt --arm PD
 python scripts/04_screening.py
 python scripts/10_build_screening_corpus.py
 python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
+python scripts/14_quadas2_risk_of_bias.py
+python scripts/15_bivariate_srocc.py
+python scripts/16_grade_certainty.py
 python scripts/08_verify_consistency.py
 ```
 
@@ -102,8 +107,10 @@ Script `09` deduplicates the incoming records against the PubMed corpus by DOI, 
 
 Three things, all of them improvements:
 
-1. The sentence "Scopus and Web of Science were not searched" leaves the Methods section and the limitations list, replaced by real counts.
+1. The sentence "Web of Science was not searched" leaves the Methods section and the limitations list, replaced by real counts. It is currently the only database limitation left.
 2. The PRISMA flow diagram covers three databases, with traceable numbers.
 3. Any new study reporting an AUC with group sizes enters the meta-analysis, and the pooled estimates are recomputed — possibly changing the published values. Script `08` makes sure the extraction table, the PRISMA counts and the result tables do not fall out of step with one another.
+
+A fourth thing changes that is easy to miss: any new study enters QUADAS-2, the bivariate model and the GRADE rating as well, so the certainty of evidence is recomputed too. If Web of Science surfaces studies with neuropathological confirmation or a stated blinding, the risk-of-bias downgrade can move.
 
 Worth saying plainly: if the new records bring estimates that perform systematically differently, the conclusions may shift. That is the point of completing the search — there would be no reason to run it if the answer were already settled.

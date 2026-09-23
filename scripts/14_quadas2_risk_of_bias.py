@@ -18,24 +18,29 @@ EN | How the judgements are made, and what that costs. Every judgement here is D
      RULE from a field recorded in data/extracted/diagnostic_accuracy_extraction.csv. No
      judgement is typed in by hand, so the assessment is reproducible and can be argued
      with: disagree with a rule and you can change one function and rerun.
-     The price is that two of the four risk of bias domains cannot be judged at all. The
-     extraction was built to capture accuracy estimates and their source sentences; it did
-     not record the reference standard, blinding, or patient flow. Those domains are
-     reported as UNRATED rather than guessed, and closing them needs a second pass over
-     the full texts. Saying "unclear" would imply the studies were checked and found
-     ambiguous. They were not checked, and the output says so in a separate category.
+     Two of the four risk of bias domains could not be judged from the accuracy extraction
+     alone, because that table was built to capture estimates and their source sentences
+     and records nothing about the reference standard, blinding or patient flow. They were
+     closed by a second pass over the full texts, recorded study by study in
+     data/extracted/quadas2_study_level.csv with the sentence each answer was read from.
+     22 of the 28 studies have a retrievable full text; the other six are UNCLEAR for the
+     honest reason that the report could not be read, not because it was read and found
+     ambiguous. No domain is UNRATED any more, and the category is kept in the code so
+     that a future domain added without evidence cannot masquerade as a judgement.
 PT | Como os julgamentos sao feitos, e o que isso custa. Todo julgamento aqui e DERIVADO
      POR REGRA de um campo registrado em
      data/extracted/diagnostic_accuracy_extraction.csv. Nenhum e digitado a mao, entao a
      avaliacao e reprodutivel e pode ser contestada: discorde de uma regra, mude uma
      funcao e rode de novo.
-     O preco e que dois dos quatro dominios de risco de vies nao podem ser julgados. A
-     extracao foi feita para capturar estimativas de acuracia e suas frases de origem; ela
-     nao registrou padrao de referencia, cegamento nem fluxo de pacientes. Esses dominios
-     saem como NAO AVALIADOS em vez de chutados, e fecha-los exige uma segunda passagem
-     pelos textos completos. Dizer "incerto" daria a entender que os estudos foram
-     conferidos e ficaram ambiguos. Nao foram conferidos, e a saida diz isso numa
-     categoria separada.
+     Dois dos quatro dominios de risco de vies nao podiam ser julgados so pela extracao de
+     acuracia, porque aquela tabela foi feita para capturar estimativas e suas frases de
+     origem e nao registra padrao de referencia, cegamento nem fluxo de pacientes. Foram
+     fechados por uma segunda passagem pelos textos completos, registrada estudo a estudo
+     em data/extracted/quadas2_study_level.csv com a frase de onde cada resposta saiu.
+     22 dos 28 estudos tem texto completo recuperavel; os outros seis ficam UNCLEAR pela
+     razao honesta de que o relato nao pode ser lido, e nao porque foi lido e ficou
+     ambiguo. Nenhum dominio esta mais NAO AVALIADO, e a categoria permanece no codigo
+     para que um dominio futuro sem evidencia nao possa se passar por julgamento.
 
     python scripts/14_quadas2_risk_of_bias.py
 
@@ -412,6 +417,18 @@ def main():
                             if r["eligible_primary_pool"] != "yes"
                             and r["comparison_class"] != "case_vs_healthy_control"})
 
+    # EN | Count the full-text pass itself, so the narrative below is computed from the
+    #      record rather than typed from memory and left to go stale.
+    # PT | Conta a propria passagem pelos textos completos, para que a narrativa abaixo
+    #      seja calculada a partir do registro e nao digitada de memoria e envelhecida.
+    assessed_ids = {r["study_id"] for r in assessment}
+    sl_rows = [v for k, v in study_level.items() if k in assessed_ids]
+    n_studies = len(assessment)
+    n_fulltext = sum(1 for r in sl_rows if r["fulltext_availability"] == "yes")
+    n_named = sum(1 for r in sl_rows if r["reference_standard_named"] == "yes")
+    n_autopsy = sum(1 for r in sl_rows if r["autopsy_confirmed"] == "yes")
+    n_blind = sum(1 for r in sl_rows if r["blinding_stated"] == "yes")
+
     summary = OrderedDict()
     for key in DOMAINS:
         c = Counter(r[key] for r in assessment)
@@ -447,16 +464,25 @@ def main():
          "PICO, nao faltam nele. A leitura honesta e que as estimativas agrupadas respondem "
          "a uma pergunta mais facil que a clinica, e sao limites superiores por isso."),
         ("excluded_non_case_control_estimates", dict(excluded_contrasts)),
-        ("unrated_domains_en",
-         "The reference standard and flow-and-timing domains are UNRATED, not unclear: "
-         "the extraction did not capture which diagnostic criteria each study used, "
-         "whether diagnosis was blind to the miRNA result, or how patients flowed through "
-         "the study. Rating them requires a second pass over the full texts."),
-        ("unrated_domains_pt",
-         "Os dominios de padrao de referencia e de fluxo e tempo estao NAO AVALIADOS, nao "
-         "incertos: a extracao nao capturou quais criterios diagnosticos cada estudo usou, "
-         "se o diagnostico foi cego ao resultado do miRNA, nem como os pacientes fluiram "
-         "pelo estudo. Avalia-los exige uma segunda passagem pelos textos completos."),
+        ("full_text_pass_en",
+         f"The reference standard and flow-and-timing domains were closed by reading the "
+         f"full texts, not by inference: {n_fulltext} of {n_studies} studies have a "
+         f"retrievable full text, {n_named} name the diagnostic criteria they applied, "
+         f"{n_autopsy} has neuropathological confirmation, and {n_blind} states that "
+         f"diagnosis was blind to the index test. None of the {n_fulltext} reports a STARD "
+         f"flow diagram, which is why flow and timing is unclear for every study rather "
+         f"than high or low. The six studies without a retrievable full text are unclear "
+         f"because the report could not be read, and the record says which reason applies "
+         f"to which study."),
+        ("full_text_pass_pt",
+         f"Os dominios de padrao de referencia e de fluxo e tempo foram fechados lendo os "
+         f"textos completos, nao por inferencia: {n_fulltext} dos {n_studies} estudos tem "
+         f"texto completo recuperavel, {n_named} nomeiam os criterios diagnosticos que "
+         f"aplicaram, {n_autopsy} tem confirmacao neuropatologica e {n_blind} declara que o "
+         f"diagnostico foi cego ao teste indice. Nenhum dos {n_fulltext} traz fluxograma "
+         f"STARD, e por isso fluxo e tempo fica incerto em todos os estudos em vez de alto "
+         f"ou baixo. Os seis estudos sem texto completo recuperavel ficam incertos porque o "
+         f"relato nao pode ser lido, e o registro diz qual razao vale para qual estudo."),
     ])
     with open(f"{TAB_DIR}/quadas2_summary.json", "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=1)
