@@ -72,10 +72,12 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 10_build_screening_corpus.py               # Monta o corpus, reconstrói as contagens de menção
 │   ├── 11_attention_finding_audit.py              # Decompõe o que deslocou a correlação de atenção
 │   ├── 12_ode_models_calibrated.py                # Modelos EDO sobre constantes cinéticas publicadas
-│   └── 13_structure_figures.py                    # Figuras PyMOL a partir de estruturas depositadas
+│   ├── 13_structure_figures.py                    # Figuras PyMOL a partir de estruturas depositadas
+│   ├── 14_quadas2_risk_of_bias.py                 # QUADAS-2, julgamentos derivados por regra
+│   └── 15_bivariate_srocc.py                      # Modelo bivariado de Reitsma + ROC sumária
 ├── docs/
-│   ├── en/                            # Methods, data dictionary, how to export Scopus/WoS
-│   └── pt-BR/                         # Métodos, dicionário de dados, como exportar Scopus/WoS
+│   ├── en/                            # Methods, data dictionary, PRISMA-DTA checklist, Scopus/WoS export
+│   └── pt-BR/                         # Métodos, dicionário de dados, checklist PRISMA-DTA, exportação
 ├── results/
 │   ├── figures/                       # Forest plot, funnel plot, atenção-vs-acurácia, visão geral das EDOs,
 │   │                                  #   structures/ (renderizações PyMOL)
@@ -100,6 +102,8 @@ python scripts/05_meta_analysis.py
 python scripts/06_citation_vs_performance.py
 python scripts/07_clinical_translation_landscape.py
 python scripts/11_attention_finding_audit.py
+python scripts/14_quadas2_risk_of_bias.py
+python scripts/15_bivariate_srocc.py
 python scripts/08_verify_consistency.py           # precisa passar antes de versionar
 
 # Camada mecanística, offline
@@ -122,7 +126,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 930 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1374 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -150,6 +154,12 @@ O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula
 - 34 dos 41 erros-padrão ponderados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
 - A heterogeneidade é alta (I² até 97%) e as estimativas dentro dos estudos são correlacionadas, o que também torna o teste de Egger pouco confiável aqui.
 - A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho tem pouco poder nos dois sentidos.
+- **A revisão não foi registrada e não tem protocolo prospectivo.** A busca, as regras de elegibilidade e as decisões de triagem estão congeladas no repositório conforme aplicadas, o que as torna auditáveis mas não pré-especificadas. Ver `docs/pt-BR/CHECKLIST_PRISMA_DTA.md`, item 5.
+- **A triagem não teve segundo revisor independente**, e não existe estatística de concordância.
+- **Dois dos quatro domínios de risco de viés do QUADAS-2 estão não avaliados**, não julgados: a extração não capturou padrão de referência, cegamento nem fluxo de pacientes. Fechá-los exige uma segunda passagem pelos textos completos.
+- **Toda estimativa do pool primário é um contraste caso-versus-controle-saudável**, o desenho que o QUADAS-2 aponta como inflador de acurácia. Isso é em parte por construção, já que a regra de elegibilidade exigia esse contraste; 13 estimativas de 9 estudos com contraste de diagnóstico diferencial, prodrômico ou intradoença foram excluídas por não casarem com o PICO.
+- **A certeza da evidência não foi classificada.** O GRADE para acurácia diagnóstica não foi aplicado.
+- No ponto de operação sumário bivariado, as razões de verossimilhança são 2,9 positiva e 0,28 negativa. Uma AUC agrupada perto de 0,78 soa melhor que o ponto de operação de onde vem.
 - Os modelos EDO do `scripts/02` usam parâmetros ilustrativos e não calibrados e ficam aqui só como parte da monografia original. Foram substituídos pelo `scripts/12`.
 - O `scripts/12` usa constantes medidas onde elas existem, mas elas vêm de sistemas diferentes (LCR humano, células HEK, neurônios de rato e camundongo, SH-SY5Y, fibroblastos). Dois parâmetros nunca foram medidos para esses genes e ficam livres, declarados e varridos numa faixa, sem ajuste. O decaimento de mRNA era o terceiro até a tabela suplementar do Tushev ser lida; agora é medido por gene. As constantes de agregação do Aβ42 não podem ser separadas umas das outras com os dados publicados (linha K037), e a nucleação da α-sinucleína em pH ácido só é relatada de forma qualitativa (K042). Essas constantes ficam fixadas em valores ilustrativos declarados. Por isso, o tamanho da chave de pH da α-sinucleína não é resultado: na varredura do `scripts/12` ele vai de cerca de 500 a cerca de 14.000 vezes. Só a direção é.
 - O número mais nítido do modelo, um nível de monômero de Aβ 1,41 vez maior na DA, é fixado analiticamente pelas taxas de produção e depuração de Mawuenyega et al. 2010 e não depende de nenhum parâmetro livre. Ele reescreve essa medida em forma de modelo; não é uma predição independente.
