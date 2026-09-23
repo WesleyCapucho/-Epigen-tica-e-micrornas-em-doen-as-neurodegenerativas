@@ -1,0 +1,85 @@
+{
+ "model": "bivariate random effects (Reitsma et al., J Clin Epidemiol 2005;58:982-990)",
+ "estimator_self_test": {
+  "mu_sens": {
+   "true": 1.5163,
+   "fitted": 1.5072,
+   "abs_error": 0.0091,
+   "tolerance": 0.15,
+   "pass_": true
+  },
+  "mu_spec": {
+   "true": 1.046,
+   "fitted": 1.0039,
+   "abs_error": 0.0421,
+   "tolerance": 0.15,
+   "pass_": true
+  },
+  "tau_sens": {
+   "true": 0.45,
+   "fitted": 0.4433,
+   "abs_error": 0.0067,
+   "tolerance": 0.15,
+   "pass_": true
+  },
+  "tau_spec": {
+   "true": 0.55,
+   "fitted": 0.5574,
+   "abs_error": 0.0074,
+   "tolerance": 0.15,
+   "pass_": true
+  },
+  "rho": {
+   "true": -0.4,
+   "fitted": -0.4282,
+   "abs_error": 0.0282,
+   "tolerance": 0.25,
+   "pass_": true
+  }
+ },
+ "primary": {
+  "analysis": "one estimate per study | uma estimativa por estudo",
+  "k_estimates": 9,
+  "n_studies": 9,
+  "summary_sensitivity": 0.796,
+  "sensitivity_ci_low": 0.6859,
+  "sensitivity_ci_high": 0.8745,
+  "summary_specificity": 0.7249,
+  "specificity_ci_low": 0.6142,
+  "specificity_ci_high": 0.8134,
+  "tau_sensitivity": 0.8175,
+  "tau_specificity": 0.6669,
+  "rho_between": -0.7222,
+  "diagnostic_odds_ratio": 10.279,
+  "positive_likelihood_ratio": 2.893,
+  "negative_likelihood_ratio": 0.281,
+  "converged": true
+ },
+ "secondary": {
+  "analysis": "every eligible estimate | toda estimativa elegivel",
+  "k_estimates": 18,
+  "n_studies": 9,
+  "summary_sensitivity": 0.7659,
+  "sensitivity_ci_low": 0.6895,
+  "sensitivity_ci_high": 0.8282,
+  "summary_specificity": 0.7798,
+  "specificity_ci_low": 0.716,
+  "specificity_ci_high": 0.8326,
+  "tau_sensitivity": 0.7777,
+  "tau_specificity": 0.6196,
+  "rho_between": -0.4928,
+  "diagnostic_odds_ratio": 11.585,
+  "positive_likelihood_ratio": 3.478,
+  "negative_likelihood_ratio": 0.3,
+  "converged": true
+ },
+ "fitted_parameters_primary": {
+  "mu_sens": 1.3613373491351493,
+  "mu_spec": 0.9687203044424318,
+  "tau_sens": 0.8174546495651628,
+  "tau_spec": 0.6669137283349472,
+  "rho": -0.7222084376833889
+ },
+ "note_en": "The 2x2 tables are reconstructed by multiplying published sensitivity and specificity by the published group sizes and rounding, because the source articles report proportions rather than counts. With nine studies and five parameters the between-study terms (tau, rho) are weakly identified and should not be interpreted on their own; the summary operating point is what this analysis supports. Every included contrast is case versus healthy control, so these are upper bounds in the same sense as the pooled AUC.",
+ "note_pt": "As tabelas 2x2 sao reconstruidas multiplicando sensibilidade e especificidade publicadas pelos tamanhos de grupo publicados e arredondando, porque os artigos-fonte reportam proporcoes e nao contagens. Com nove estudos e cinco parametros, os termos entre estudos (tau, rho) sao fracamente identificados e nao devem ser interpretados sozinhos; o ponto sumario de operacao e o que esta analise sustenta. Todo contraste incluido e caso versus controle saudavel, entao sao limites superiores no mesmo sentido que a AUC agrupada."
+}

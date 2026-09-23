@@ -1,0 +1,59 @@
+{
+ "instrument": "QUADAS-2 (Whiting et al., Ann Intern Med 2011;155:529-536)",
+ "studies_assessed": 28,
+ "scope": "studies contributing at least one estimate to the primary pool",
+ "judgements_derived_by_rule_from": "data/extracted/diagnostic_accuracy_extraction.csv",
+ "domain_summary": {
+  "rob_patient_selection": {
+   "high": 28,
+   "unclear": 0,
+   "low": 0,
+   "unrated": 0
+  },
+  "rob_index_test": {
+   "high": 27,
+   "unclear": 1,
+   "low": 0,
+   "unrated": 0
+  },
+  "rob_reference_standard": {
+   "high": 0,
+   "unclear": 0,
+   "low": 0,
+   "unrated": 28
+  },
+  "rob_flow_timing": {
+   "high": 0,
+   "unclear": 0,
+   "low": 0,
+   "unrated": 28
+  },
+  "app_patient_selection": {
+   "high": 28,
+   "unclear": 0,
+   "low": 0,
+   "unrated": 0
+  },
+  "app_index_test": {
+   "high": 0,
+   "unclear": 0,
+   "low": 28,
+   "unrated": 0
+  },
+  "app_reference_standard": {
+   "high": 0,
+   "unclear": 0,
+   "low": 0,
+   "unrated": 28
+  }
+ },
+ "eligibility_circularity_en": "Every study assessed is high risk and high concern for patient selection because every eligible estimate is a case-versus-healthy-control contrast. That is partly by construction: the review's eligibility rule required that contrast, and 13 estimates from 9 studies were excluded for using another one ({'differential_diagnosis': 4, 'within_disease': 3, 'prodromal_vs_control': 6}). The clinically relevant comparisons - this disease against its mimics, and prodromal against control - exist in the literature and were set aside by the PICO, not missing from it. The honest reading is that the pooled estimates answer an easier question than the clinical one, and are upper bounds for that reason.",
+ "eligibility_circularity_pt": "Todo estudo avaliado e de alto risco e alta preocupacao em selecao de pacientes porque toda estimativa elegivel e um contraste caso-versus-controle-saudavel. Isso e em parte por construcao: a regra de elegibilidade da revisao exigiu esse contraste, e 13 estimativas de 9 estudos foram excluidas por usarem outro ({'differential_diagnosis': 4, 'within_disease': 3, 'prodromal_vs_control': 6}). As comparacoes clinicamente relevantes - esta doenca contra seus imitadores, e prodromico contra controle - existem na literatura e foram postas de lado pelo PICO, nao faltam nele. A leitura honesta e que as estimativas agrupadas respondem a uma pergunta mais facil que a clinica, e sao limites superiores por isso.",
+ "excluded_non_case_control_estimates": {
+  "differential_diagnosis": 4,
+  "within_disease": 3,
+  "prodromal_vs_control": 6
+ },
+ "unrated_domains_en": "The reference standard and flow-and-timing domains are UNRATED, not unclear: the extraction did not capture which diagnostic criteria each study used, whether diagnosis was blind to the miRNA result, or how patients flowed through the study. Rating them requires a second pass over the full texts.",
+ "unrated_domains_pt": "Os dominios de padrao de referencia e de fluxo e tempo estao NAO AVALIADOS, nao incertos: a extracao nao capturou quais criterios diagnosticos cada estudo usou, se o diagnostico foi cego ao resultado do miRNA, nem como os pacientes fluiram pelo estudo. Avalia-los exige uma segunda passagem pelos textos completos."
+}

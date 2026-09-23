@@ -1,0 +1,39 @@
+# Checklist PRISMA-DTA
+
+🇬🇧 English version: [../en/PRISMA_DTA_CHECKLIST.md](../en/PRISMA_DTA_CHECKLIST.md)
+
+---
+
+Checklist de relato para revisoes sistematicas de acuracia de teste diagnostico (McInnes MDF, Moher D, Thombs BD, et al. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: the PRISMA-DTA statement. *JAMA.* 2018;319(4):388-396).
+
+Cada item diz onde e atendido neste repositorio, ou diz com todas as letras que nao e. Tres itens nao sao atendidos, e vem listados primeiro para nao ficarem enterrados: a revisao **nao foi registrada e nao tem protocolo prospectivo** (item 5), a **certeza da evidencia nao foi classificada** (item 15) e dois dominios do QUADAS-2 estao **nao avaliados** em vez de julgados (itens 11 e 18). Um quarto e parcial: a triagem **nao teve segundo revisor independente** (item 9).
+
+| # | Secao | Item | Situacao | Onde |
+|---|---|---|---|---|
+| 1 | Title | Identificar o relato como revisao sistematica de acuracia de teste diagnostico. | No manuscrito | No manuscrito, mantido fora deste repositorio. |
+| 2 | Abstract | Resumo estruturado seguindo o PRISMA-DTA for Abstracts. | No manuscrito | No manuscrito. |
+| 3 | Introduction | Descrever a justificativa no contexto do que ja se sabe. | No manuscrito | No manuscrito; o pano de fundo quantitativo esta em docs/pt-BR/METODOS.md. |
+| 4 | Introduction | Enunciar a pergunta com participantes, teste indice e condicao alvo. | Atendido | docs/pt-BR/METODOS.md secao 1; o PICO esta congelado em data/raw/systematic_review_2026/search_strategy.json. |
+| 5 | Methods | Indicar se existe protocolo e dar o numero de registro. | **Nao atendido** | Nenhum protocolo prospectivo foi escrito e a revisao NAO foi registrada no PROSPERO nem em outro lugar. A estrategia de busca, as regras de elegibilidade e as decisoes de triagem foram congeladas no repositorio conforme aplicadas, o que torna o processo auditavel mas nao pre-especificado. O leitor deve tratar as regras de elegibilidade como passiveis de terem sido moldadas pelos dados. Isto e declarado e nao remediado: registrar agora seria retrospectivo, e apresentar como protocolo seria falso. |
+| 6 | Methods | Especificar criterios de elegibilidade e como os estudos foram agrupados. | Atendido | docs/pt-BR/METODOS.md secao 3; toda decisao esta em data/raw/systematic_review_2026/screening_decisions.csv, e toda estimativa excluida traz um exclusion_reason na tabela de extracao. |
+| 7 | Methods | Especificar todas as fontes de informacao e a data da ultima busca. | Parcialmente atendido | PubMed/MEDLINE e Scopus, os dois bracos, ultima busca em 10 de setembro de 2026 (docs/pt-BR/METODOS.md secao 2). A Web of Science NAO foi buscada; e limitacao de cobertura, nao omissao do relato. |
+| 8 | Methods | Apresentar a estrategia de busca completa de ao menos uma base. | Atendido | data/raw/systematic_review_2026/search_strategy.json guarda as consultas executadas e as contagens que retornaram; docs/pt-BR/COMO_EXPORTAR_SCOPUS_WOS.md guarda as consultas do Scopus verbatim. |
+| 9 | Methods | Declarar o processo de selecao, incluindo quantos revisores triaram. | Parcialmente atendido | A triagem foi baseada em regras e e totalmente reprodutivel (scripts/04), depois conferida contra textos completos por uma pessoa. NAO houve segundo triador independente nem estatistica de concordancia. Triagem por revisor unico e fonte reconhecida de erro e fica declarada aqui. |
+| 10 | Methods | Declarar o processo de coleta e os itens de dado buscados. | Atendido | docs/pt-BR/DICIONARIO_DE_DADOS.md documenta cada coluna; cada celula numerica traz a frase de onde foi lida. |
+| 11 | Methods | Descrever os metodos de avaliacao de risco de vies e aplicabilidade. | Parcialmente atendido | QUADAS-2 (scripts/14), com cada julgamento derivado de uma regra declarada sobre um campo registrado. Dois dos quatro dominios de risco de vies - padrao de referencia, e fluxo e tempo - saem como NAO AVALIADOS porque a extracao nao capturou criterios diagnosticos, cegamento nem fluxo de pacientes. Avalia-los exige segunda passagem pelos textos completos. |
+| 12 | Methods | Declarar as medidas de acuracia usadas. | Atendido | AUC como medida primaria, por ser o que a maioria dos estudos-fonte reporta; sensibilidade e especificidade no modelo bivariado onde uma 2x2 completa pode ser reconstruida. |
+| 13 | Methods | Descrever os metodos de sintese e como a heterogeneidade foi tratada. | Atendido | Efeitos aleatorios de DerSimonian-Laird no logito da AUC (scripts/05) e modelo bivariado de Reitsma nos logitos de sensibilidade e especificidade (scripts/15). Heterogeneidade reportada como tau ao quadrado, Q e I ao quadrado, e e alta. |
+| 14 | Methods | Descrever metodos de avaliacao de vies de relato. | Atendido | Regressao de Egger em cada subgrupo, reportada junto do agrupado; funnel plot em results/figures/funnel_plot_auc.png. |
+| 15 | Methods | Descrever metodos de avaliacao da certeza da evidencia. | **Nao atendido** | O GRADE para acuracia diagnostica nao foi aplicado. Os elementos que o alimentariam estao presentes - risco de vies, inconsistencia, indireticidade pelos desenhos caso-controle, imprecisao e vies de publicacao - mas nao foram combinados numa classificacao GRADE. |
+| 16 | Results | Dar os numeros de estudos triados, avaliados e incluidos, com fluxograma. | Atendido | data/processed/prisma_flow.json, recalculado e conferido pelo scripts/08. |
+| 17 | Results | Citar cada estudo incluido e apresentar suas caracteristicas. | Atendido | data/extracted/diagnostic_accuracy_extraction.csv, uma linha por estimativa com coorte, biofluido, plataforma e tamanhos de grupo. |
+| 18 | Results | Apresentar a avaliacao de risco de vies de cada estudo. | Parcialmente atendido | results/tables/quadas2_assessment.csv, uma linha por estudo com a razao de cada julgamento; figura-resumo em results/figures/quadas2_summary.png. Dois dominios nao avaliados, como no item 11. |
+| 19 | Results | Reportar resultados de acuracia de cada estudo, idealmente como tabelas 2x2. | Parcialmente atendido | results/tables/bivariate_input_estimates.csv da a 2x2 reconstruida de cada estimativa que sustenta uma. Os artigos-fonte reportam proporcoes e nao contagens, entao as tabelas sao reconstruidas por multiplicacao e arredondamento, e o arquivo diz isso. |
+| 20 | Results | Apresentar as sinteses, com intervalos de confianca e heterogeneidade. | Atendido | results/tables/meta_analysis_pooled_auc.csv e results/tables/bivariate_summary.csv; forest plot e ROC sumaria em results/figures/. |
+| 21 | Results | Apresentar os resultados da avaliacao de vies de relato. | Atendido | Intercepto e p de Egger por subgrupo na tabela agrupada; os dois sao significativos nas analises global e de Parkinson. |
+| 22 | Results | Apresentar os resultados de analises de sensibilidade. | Atendido | results/tables/sensitivity_single_mirna.csv: uma estimativa por estudo e deixar-um-de-fora; results/tables/attention_correlation_audit.csv decompoe um defeito corrigido. |
+| 23 | Discussion | Resumir os achados principais e sua certeza. | No manuscrito | No manuscrito. O repositorio fornece os numeros e as ressalvas de cada um. |
+| 24 | Discussion | Discutir limitacoes da evidencia e do processo de revisao. | Atendido | Secoes 'Limitacoes conhecidas' e 'Correcoes' do README, que registra tres defeitos encontrados depois de resultados produzidos e o que cada um mudou. |
+| 25 | Discussion | Discutir implicacoes para pratica e pesquisa. | No manuscrito | No manuscrito. |
+| 26 | Other | Declarar fontes de financiamento e o papel dos financiadores. | No manuscrito | No manuscrito. |
+| 27 | Other | Declarar conflitos de interesse e disponibilidade de dados. | Atendido | Este repositorio e a declaracao de disponibilidade de dados: dados brutos, scripts, tabelas e figuras, com todo valor extraido rastreavel a uma frase-fonte verbatim. |
