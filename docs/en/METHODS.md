@@ -81,7 +81,7 @@ For every estimate the following were captured where stated: miRNA (or panel com
 
 ### Eligibility for the primary pool
 
-An estimate enters the primary pool only if it is a **case-versus-control contrast in a defined AD or PD population**, measuring **one or more miRNAs and nothing else**. Of 76 extracted estimates, **51** qualified. The 25 that did not are retained in the table with an explicit `exclusion_reason`:
+An estimate enters the primary pool only if it is a **case-versus-control contrast in a defined AD or PD population**, measuring **one or more miRNAs and nothing else**. Of 79 extracted estimates, **51** qualified. The 28 that did not are retained in the table with an explicit `exclusion_reason`:
 
 | Reason | Example |
 |---|---|

@@ -138,7 +138,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 
 - **Every number came from a real source.** PubMed records were pulled from the NCBI E-utilities API; accuracy values were read from open-access full texts in PubMed Central or from the abstract when no full text was reachable. Nothing was simulated, estimated to fill a gap, or carried over from a secondary citation.
 - **Every extracted value stores its source sentence.** `diagnostic_accuracy_extraction.csv` carries a `verbatim_quote` column with the exact wording supporting each AUC, sensitivity and specificity, plus PMID and DOI.
-- **Values that could not be resolved unambiguously were kept and flagged, not quietly dropped.** 25 of the 76 extracted rows are marked `eligible_primary_pool = no` with an explicit `exclusion_reason`.
+- **Values that could not be resolved unambiguously were kept and flagged, not quietly dropped.** 28 of the 79 extracted rows are marked `eligible_primary_pool = no` with an explicit `exclusion_reason`.
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
@@ -151,7 +151,7 @@ Full texts are **not** redistributed here — only extracted data points and the
 
 ## Corrections
 
-Ten defects in this pipeline were found after results had already been produced. Each is fixed, and each changed a reported number. They are listed here rather than quietly patched, because a reproducibility package that hides its own corrections is not one.
+Eleven defects in this pipeline were found after results had already been produced. Each is fixed, and each changed a reported number. They are listed here rather than quietly patched, because a reproducibility package that hides its own corrections is not one.
 
 | Defect | Effect | Fixed in |
 |---|---|---|

@@ -81,7 +81,7 @@ Para cada estimativa foram capturados, quando declarados: miRNA (ou composição
 
 ### Elegibilidade para o pool primário
 
-Uma estimativa entra no pool primário apenas se for um **contraste caso-versus-controle em população definida de AD ou PD**, medindo **um ou mais miRNAs e nada além disso**. Das 76 estimativas extraídas, **51** qualificaram. As 25 restantes permanecem na tabela com um `exclusion_reason` explícito:
+Uma estimativa entra no pool primário apenas se for um **contraste caso-versus-controle em população definida de AD ou PD**, medindo **um ou mais miRNAs e nada além disso**. Das 79 estimativas extraídas, **51** qualificaram. As 28 restantes permanecem na tabela com um `exclusion_reason` explícito:
 
 | Motivo | Exemplo |
 |---|---|
