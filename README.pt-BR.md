@@ -7,6 +7,8 @@
 **Autor:** Wesley Felipe Capucho
 Universidade Federal de São Paulo (UNIFESP) — Especialização em Fisiologia e Fisiopatologia Humana aplicada às Ciências da Saúde.
 
+**Registro:** Esta revisão sistemática tem registro retrospectivo no OSF Registries: [https://doi.org/10.17605/OSF.IO/NJ8A5](https://doi.org/10.17605/OSF.IO/NJ8A5).
+
 ---
 
 ## O que é este repositório

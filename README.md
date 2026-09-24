@@ -7,6 +7,8 @@
 **Author:** Wesley Felipe Capucho
 Universidade Federal de São Paulo (UNIFESP) — Specialisation in Human Physiology and Pathophysiology applied to Health Sciences.
 
+**Registration:** This systematic review is retrospectively registered on OSF Registries: [https://doi.org/10.17605/OSF.IO/NJ8A5](https://doi.org/10.17605/OSF.IO/NJ8A5).
+
 ---
 
 ## What this repository is
