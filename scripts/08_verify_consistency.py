@@ -39,6 +39,7 @@ TUSHEV = "data/raw/kinetics_2026/tushev_2018_table_S1.xls"
 ODE_RESULTS = "results/tables/ode_calibrated_results.json"
 EXTRACTION_JSON = "data/extracted/diagnostic_accuracy_extraction.json"
 FLOW = "data/processed/prisma_flow.json"
+SEARCH_STRATEGY = "data/raw/systematic_review_2026/search_strategy.json"
 POOLED = "results/tables/meta_analysis_pooled_auc.csv"
 INPUTS = "results/tables/meta_analysis_input_estimates.csv"
 SENS = "results/tables/sensitivity_single_mirna.csv"
@@ -172,6 +173,40 @@ def main():
                                              + ident["scopus_PD_overlapping_scopus_AD_arm"]
                                              + ident["scopus_PD_records_new"]),
           "PRISMA Scopus PD arm arithmetic does not add up")
+
+    # EN | The per-arm PubMed counts have to add up to the deduplicated total, AND each
+    #      count has to equal the number of PMIDs actually archived - not the number the
+    #      live esearch reported. These silently diverged once: esearch reported 168 for
+    #      the AD arm, but only 167 PMIDs were ever fetched and archived (a transient
+    #      E-utilities gap), and every downstream document quoted the unarchived 168 for
+    #      weeks because nothing compared the documented count to the archived list.
+    # PT | As contagens do PubMed por braco tem de somar ao total deduplicado, E cada
+    #      contagem tem de ser igual ao numero de PMIDs de fato arquivados - nao ao numero
+    #      que o esearch ao vivo reportou. Isso divergiu em silencio uma vez: o esearch
+    #      reportou 168 para o braco AD, mas so 167 PMIDs foram efetivamente obtidos e
+    #      arquivados (uma falha transitoria da API E-utilities), e todo documento
+    #      posterior citou o 168 nao arquivado por semanas porque nada comparava a
+    #      contagem documentada com a lista arquivada.
+    try:
+        strat = json.load(open(SEARCH_STRATEGY, encoding="utf-8"))
+    except FileNotFoundError:
+        strat = None
+    if strat is not None:
+        ad_pmids = set(strat["searches"]["AD_diagnostic_accuracy"]["pmids"])
+        pd_pmids = set(strat["searches"]["PD_diagnostic_accuracy"]["pmids"])
+        check(ident["pubmed_records_AD_arm"] == len(ad_pmids),
+              f"PRISMA pubmed_records_AD_arm={ident['pubmed_records_AD_arm']} but "
+              f"search_strategy.json archives {len(ad_pmids)} PMIDs for that arm")
+        check(ident["pubmed_records_PD_arm"] == len(pd_pmids),
+              f"PRISMA pubmed_records_PD_arm={ident['pubmed_records_PD_arm']} but "
+              f"search_strategy.json archives {len(pd_pmids)} PMIDs for that arm")
+        check(ident["pubmed_records_in_both_arms"] == len(ad_pmids & pd_pmids),
+              "PRISMA pubmed_records_in_both_arms disagrees with the archived PMID sets")
+        check(ident["pubmed_records_after_deduplication"] == len(ad_pmids | pd_pmids),
+              "PRISMA pubmed_records_after_deduplication disagrees with the archived PMID sets")
+    check(ident["pubmed_records_AD_arm"] + ident["pubmed_records_PD_arm"]
+          - ident["pubmed_records_in_both_arms"] == ident["pubmed_records_after_deduplication"],
+          "PRISMA PubMed arm arithmetic does not add up")
 
     # --- 4. Every poolable estimate is an eligible extracted estimate ------
     ext_by_id = {r["record_id"]: r for r in ext}

@@ -43,7 +43,7 @@ Pooled estimates live in `results/tables/meta_analysis_pooled_auc.csv`, the per-
 Interpretation belongs in the manuscript, not here. Two things do belong here, because they are properties of the data rather than of the argument:
 
 - **Estimates within a study are correlated.** One study contributes eight estimates and another six, and the random-effects model treats each as independent. `scripts/05` therefore also re-pools one-estimate-per-study and leave-one-study-out, and the spread between them is part of the result.
-- **Ten defects were found and corrected in this pipeline.** They are recorded in `data/processed/prisma_flow.json` and in the header comments of the scripts that carry the fix. See *Corrections* below.
+- **Eleven defects were found and corrected in this pipeline.** They are recorded in `data/processed/prisma_flow.json` and in the header comments of the scripts that carry the fix. See *Corrections* below.
 
 ## Repository layout
 
@@ -142,7 +142,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1651 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1656 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -165,6 +165,7 @@ Ten defects in this pipeline were found after results had already been produced.
 | `scripts/09` named its output from `--arm` alone and excluded it from deduplication | Reusing a label across databases silently replaced the earlier arm; ingesting Web of Science as `--arm AD` would have deleted 248 Scopus records | `scripts/09` |
 | `scripts/04` read the corpus as PubMed-shaped only, and overwrote `prisma_flow.json` wholesale | It crashed on the first imported record, and had it not crashed it would have replaced the curated PRISMA record with five keys | `scripts/04` |
 | `scripts/10` counted every imported record as Scopus | With Web of Science ingested this would have put a false per-database count in the methods | `scripts/10` |
+| The AD-arm PubMed search reported 168 records, but only 167 were ever fetched and archived; every document quoted the unarchived 168 | The AD-arm count, and the methods text quoting it, disagreed with the actual archived PMIDs; found while auditing the OSF registration text against the repository | `scripts/03` output, `data/processed/prisma_flow.json` |
 
 `scripts/11_attention_finding_audit.py` quantifies the second of these: it recomputes the attention–performance correlation under each combination of inputs and separates the contribution of the bug from that of the new data.
 

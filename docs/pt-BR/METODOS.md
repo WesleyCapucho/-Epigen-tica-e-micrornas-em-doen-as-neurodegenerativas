@@ -30,7 +30,7 @@ AND (ROC OR "area under the curve" OR AUC OR sensitivity
      OR specificity OR "diagnostic accuracy" OR "diagnostic value")
 ```
 
-Retornos: **168 registros** (braço AD) e **97 registros** (braço PD); **234 registros únicos** após deduplicação, dos quais **30** foram recuperados pelos dois braços. As strings exatas submetidas, as traduções da query pelo PubMed e os PMIDs recuperados estão em `data/raw/systematic_review_2026/search_strategy.json`; o `scripts/03_systematic_search.py` reexecuta as buscas.
+Retornos: a busca inicial reportou 168 registros correspondentes para o braço AD, mas apenas **167** puderam de fato ser obtidos e arquivados (um PMID se perdeu por uma falha transitória de busca na API E-utilities e fica excluído de toda contagem posterior); **97 registros** (braço PD); **234 registros únicos** após deduplicação, dos quais **30** foram recuperados pelos dois braços. As strings exatas submetidas, as traduções da query pelo PubMed e os PMIDs recuperados estão em `data/raw/systematic_review_2026/search_strategy.json`; o `scripts/03_systematic_search.py` reexecuta as buscas.
 
 Como o PubMed cresce diariamente, uma reexecução posterior retornará mais registros do que as contagens congeladas acima. Isso é comportamento esperado, não inconsistência: o arquivo de estratégia arquivado é a referência dos números reportados.
 

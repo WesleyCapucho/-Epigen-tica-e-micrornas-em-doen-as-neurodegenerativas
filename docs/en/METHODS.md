@@ -30,7 +30,7 @@ AND (ROC OR "area under the curve" OR AUC OR sensitivity
      OR specificity OR "diagnostic accuracy" OR "diagnostic value")
 ```
 
-Returns: **168 records** (AD arm) and **97 records** (PD arm); **234 unique records** after deduplication, of which **30** were retrieved by both arms. The exact submitted strings, the PubMed query translations and the retrieved PMIDs are stored in `data/raw/systematic_review_2026/search_strategy.json`; `scripts/03_systematic_search.py` re-runs the searches.
+Returns: the initial query reported 168 matching records for the AD arm, but only **167** could actually be fetched and archived (one PMID was lost to a transient E-utilities fetch gap and is excluded from every downstream count); **97 records** (PD arm); **234 unique records** after deduplication, of which **30** were retrieved by both arms. The exact submitted strings, the PubMed query translations and the retrieved PMIDs are stored in `data/raw/systematic_review_2026/search_strategy.json`; `scripts/03_systematic_search.py` re-runs the searches.
 
 Because PubMed grows daily, a later re-run will return more records than the frozen counts above. That is expected behaviour, not an inconsistency: the archived strategy file is what the reported numbers refer to.
 

@@ -2,7 +2,7 @@
  "generated_on": "2026-09-10",
  "source": "PubMed/MEDLINE via NCBI E-utilities; Scopus and Web of Science via authenticated export",
  "identification": {
-  "pubmed_records_AD_arm": 168,
+  "pubmed_records_AD_arm": 167,
   "pubmed_records_PD_arm": 97,
   "pubmed_records_after_deduplication": 234,
   "pubmed_records_in_both_arms": 30,
@@ -25,7 +25,9 @@
   "wos_PD_records_new": 9,
   "wos_records_new_total": 27,
   "wos_note_en": "Web of Science was searched on 23 September 2026 under institutional authentication and exported in full-record form, because it cannot be queried by API from this project. The AD arm returned 187 records and the PD arm 108; 27 of those 295 were not already in the PubMed or Scopus corpus. The search date is later than the 10 September 2026 date of the other two databases, and is reported as its own date rather than folded into theirs.",
-  "wos_note_pt": "A Web of Science foi buscada em 23 de setembro de 2026 sob autenticacao institucional e exportada em registro completo, porque nao pode ser consultada por API a partir deste projeto. O braco AD retornou 187 registros e o braco PD 108; 27 desses 295 ainda nao estavam no corpus do PubMed ou da Scopus. A data da busca e posterior a de 10 de setembro de 2026 das outras duas bases, e e reportada como data propria em vez de fundida a delas."
+  "wos_note_pt": "A Web of Science foi buscada em 23 de setembro de 2026 sob autenticacao institucional e exportada em registro completo, porque nao pode ser consultada por API a partir deste projeto. O braco AD retornou 187 registros e o braco PD 108; 27 desses 295 ainda nao estavam no corpus do PubMed ou da Scopus. A data da busca e posterior a de 10 de setembro de 2026 das outras duas bases, e e reportada como data propria em vez de fundida a delas.",
+  "pubmed_note_en": "The initial PubMed esearch reported 168 matching records for the AD arm, but only 167 unique PMIDs were successfully fetched and archived (one could not be retrieved because of a transient E-utilities fetch gap); every count in this review uses the 167 actually archived, not the 168 initially reported. See data/raw/systematic_review_2026/search_strategy.json for the detail.",
+  "pubmed_note_pt": "A busca inicial (esearch) do PubMed reportou 168 registros correspondentes para o braco AD, mas apenas 167 PMIDs unicos foram efetivamente obtidos e arquivados (um nao pode ser recuperado por uma falha transitoria de busca na API E-utilities); toda contagem nesta revisao usa os 167 de fato arquivados, e nao os 168 inicialmente reportados. Ver data/raw/systematic_review_2026/search_strategy.json para o detalhe."
  },
  "screening": {
   "pubmed_records_screened": 234,
