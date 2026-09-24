@@ -4,7 +4,7 @@
 
 > 🇬🇧 **English version: [README.md](README.md)**
 
-**Autor:** Wesley Felipe Capucho · **Orientadora:** Profa. Dra. Roberta Sessa Stilhano Yamaguchi
+**Autor:** Wesley Felipe Capucho
 Universidade Federal de São Paulo (UNIFESP) — Especialização em Fisiologia e Fisiopatologia Humana aplicada às Ciências da Saúde.
 
 ---

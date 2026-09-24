@@ -4,7 +4,7 @@
 
 > 🇧🇷 **Versão em português: [README.pt-BR.md](README.pt-BR.md)**
 
-**Author:** Wesley Felipe Capucho · **Supervisor:** Prof. Dr. Roberta Sessa Stilhano Yamaguchi
+**Author:** Wesley Felipe Capucho
 Universidade Federal de São Paulo (UNIFESP) — Specialisation in Human Physiology and Pathophysiology applied to Health Sciences.
 
 ---
