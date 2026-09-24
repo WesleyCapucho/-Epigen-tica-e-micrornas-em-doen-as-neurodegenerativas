@@ -1001,6 +1001,20 @@ def main():
         fp = f"results/figures/graphical_abstract.{lang}.png"
         claim(os.path.isfile(fp), f"graphical abstract: {fp} is missing")
 
+    # EN | The PRISMA flow diagram and the key-equations panel are illustration built
+    #      from numbers (the flow diagram) or code (the equations) that scripts/08
+    #      already checks elsewhere, so the only thing left to confirm here is that
+    #      both language versions were actually produced.
+    # PT | O fluxograma PRISMA e o painel de equacoes-chave sao ilustracao construida a
+    #      partir de numeros (o fluxograma) ou codigo (as equacoes) que o scripts/08 ja
+    #      confere em outro lugar, entao o que resta confirmar aqui e so que as duas
+    #      versoes de idioma foram de fato produzidas.
+    for lang in ("en", "pt-BR"):
+        fp = f"results/figures/prisma_flow_diagram.{lang}.png"
+        claim(os.path.isfile(fp), f"PRISMA flow diagram: {fp} is missing")
+        fp = f"results/figures/key_equations.{lang}.png"
+        claim(os.path.isfile(fp), f"key equations panel: {fp} is missing")
+
     # --- 8f. The corpus holds each article once ----------------------------
     # EN | Deduplication happens in scripts/09 and is easy to break silently: reading the
     #      DOI under one spelling while the corpus stores it under another leaves the

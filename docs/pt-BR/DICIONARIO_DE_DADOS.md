@@ -229,6 +229,14 @@ Toda figura existe duas vezes, `<nome>.en.png` e `<nome>.pt-BR.png`. As duas sã
 
 Os quatro renders do `scripts/13` compostos numa figura só, com os fatos que acompanham (PDB id, método, resolução, resíduos da díade catalítica, número e espaçamento dos protofilamentos) tirados do `structure_figure_provenance.json`, não redigitados. Nenhum render novo, nenhuma afirmação nova - só o layout e o agrupamento são novos.
 
+## `results/figures/prisma_flow_diagram.*.png`
+
+O fluxograma PRISMA 2020, desenhado pelo `scripts/21_prisma_flow_diagram.py` a partir de `data/processed/prisma_flow.json` e, para a única contagem que não está lá (estudos que contribuem uma estimativa elegível), recalculado diretamente de `diagnostic_accuracy_extraction.csv` no momento do desenho.
+
+## `results/figures/key_equations.*.png`
+
+Uma figura de seis painéis tipografando as equações que `scripts/05_meta_analysis.py` e `scripts/15_bivariate_srocc.py` de fato avaliam (transformação logito, erro-padrão de Hanley-McNeil, agregação de DerSimonian-Laird, regressão de Egger, o modelo bivariado e a conversão de IC para erro-padrão), cada uma legendada com a função e a citação de onde vem. Produzida pelo `scripts/22_key_equations_figure.py`.
+
 ## Convenções
 
 - Proporções são armazenadas como proporções (0,82), não como percentuais (82%).

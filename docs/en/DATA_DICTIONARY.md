@@ -229,6 +229,14 @@ Every figure exists twice, `<name>.en.png` and `<name>.pt-BR.png`. Both are draw
 
 The four `scripts/13` renders composited into one figure, with the accompanying facts (PDB id, method, resolution, catalytic dyad residues, protofilament count and spacing) pulled from `structure_figure_provenance.json` rather than retyped. No new render, no new claim - only the layout and the grouping are new.
 
+## `results/figures/prisma_flow_diagram.*.png`
+
+The PRISMA 2020 flow diagram, drawn by `scripts/21_prisma_flow_diagram.py` from `data/processed/prisma_flow.json` and, for the one count not stored there (studies contributing an eligible estimate), recomputed directly from `diagnostic_accuracy_extraction.csv` at draw time.
+
+## `results/figures/key_equations.*.png`
+
+A six-panel figure typesetting the equations `scripts/05_meta_analysis.py` and `scripts/15_bivariate_srocc.py` actually evaluate (logit transform, Hanley-McNeil standard error, DerSimonian-Laird pooling, Egger's regression, the bivariate model, and the CI-to-SE conversion), each captioned with the function and citation it comes from. Produced by `scripts/22_key_equations_figure.py`.
+
 ## Conventions
 
 - Proportions are stored as proportions (0.82), not percentages (82%).
