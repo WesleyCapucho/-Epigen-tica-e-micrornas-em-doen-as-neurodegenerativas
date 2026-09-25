@@ -33,7 +33,7 @@ Each item says where it is met in this repository, or says plainly that it is no
 | 21 | Results | Present the results of any reporting bias assessment. | Met | Egger intercept and p value per subgroup in the pooled table; both are significant in the overall and Parkinson analyses. |
 | 22 | Results | Present the results of any sensitivity analyses. | Met | results/tables/sensitivity_single_mirna.csv: one estimate per study and leave-one-study-out; results/tables/attention_correlation_audit.csv decomposes a corrected defect. |
 | 23 | Discussion | Summarise the main findings and their certainty. | In the manuscript | In the manuscript. The repository supplies the numbers, the caveats attached to each, and the GRADE rating that qualifies them (results/tables/grade_certainty.json). |
-| 24 | Discussion | Discuss limitations of the evidence and of the review process. | Met | README 'Known limitations' and README 'Corrections', which records the five defects found after results had been produced and what each changed. |
+| 24 | Discussion | Discuss limitations of the evidence and of the review process. | Met | README 'Known limitations' and README 'Corrections', which records the twelve defects found after results had been produced and what each changed. |
 | 25 | Discussion | Discuss implications for practice and research. | In the manuscript | In the manuscript. |
 | 26 | Other | Declare sources of funding and the role of funders. | In the manuscript | In the manuscript. |
 | 27 | Other | Declare competing interests and state data availability. | Met | This repository is the data availability statement: raw data, scripts, tables and figures, with every extracted value traceable to a verbatim source sentence. |

@@ -45,7 +45,7 @@ As estimativas agregadas estão em `results/tables/meta_analysis_pooled_auc.csv`
 A interpretação pertence ao manuscrito, não a este repositório. Duas coisas, porém, pertencem aqui, porque são propriedades dos dados e não do argumento:
 
 - **Estimativas de um mesmo estudo são correlacionadas.** Um estudo contribui com oito estimativas e outro com seis, e o modelo de efeitos aleatórios trata cada uma como independente. Por isso o `scripts/05` também reagrega uma-estimativa-por-estudo e deixando-um-estudo-de-fora, e a distância entre elas faz parte do resultado.
-- **Onze defeitos foram encontrados e corrigidos neste pipeline.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
+- **Doze defeitos foram encontrados e corrigidos neste pipeline.** Estão registrados em `data/processed/prisma_flow.json` e nos comentários de cabeçalho dos scripts que carregam a correção. Ver *Correções* abaixo.
 
 ## Estrutura do repositório
 
@@ -144,7 +144,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1656 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1735 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -153,7 +153,7 @@ Os textos completos **não** são redistribuídos aqui — apenas os pontos de d
 
 ## Correções
 
-Onze defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
+Doze defeitos deste pipeline foram encontrados depois que resultados já haviam sido produzidos. Cada um está corrigido, e cada um mudou um número reportado. Estão listados aqui em vez de silenciosamente remendados, porque um pacote de reprodutibilidade que esconde as próprias correções não é um.
 
 | Defeito | Efeito | Corrigido em |
 |---|---|---|
@@ -168,6 +168,7 @@ Onze defeitos deste pipeline foram encontrados depois que resultados já haviam 
 | O `scripts/04` lia o corpus como se fosse só do PubMed, e sobrescrevia o `prisma_flow.json` inteiro | Quebrava no primeiro registro importado, e se não quebrasse teria substituído o registro PRISMA curado por cinco chaves | `scripts/04` |
 | O `scripts/10` contava todo registro importado como Scopus | Com a Web of Science ingerida, isso poria uma contagem por base falsa nos métodos | `scripts/10` |
 | A busca do braço AD no PubMed reportou 168 registros, mas só 167 foram de fato obtidos e arquivados; todo documento citava o 168 não arquivado | A contagem do braço AD, e o texto de métodos que a citava, discordavam dos PMIDs de fato arquivados; achado ao auditar o texto do registro OSF contra o repositório | saída do `scripts/03`, `data/processed/prisma_flow.json` |
+| `first_author` guardava um texto de espaço reservado (`(Turk J Biochem)`, `(APMIS)`) em vez de um nome, em duas linhas acrescentadas só pelo Scopus | Passou despercebido por toda checagem existente, já que nenhuma lia `first_author`, até montar uma tabela de citação por estudo para o manuscrito revelar o problema | `data/extracted/diagnostic_accuracy_extraction.csv`, `scripts/08` |
 
 O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula a correlação atenção–desempenho sob cada combinação de entradas e separa a contribuição do defeito da contribuição dos dados novos.
 

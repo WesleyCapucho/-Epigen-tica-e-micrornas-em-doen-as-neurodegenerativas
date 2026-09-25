@@ -139,6 +139,18 @@ def main():
             if r[f]:
                 check(0.0 < float(r[f]) <= 1.0,
                       f"extraction {r['record_id']}: {f} should be a proportion, not a percentage")
+        # EN | A placeholder such as "(Turk J Biochem)" once stood in for a first author
+        #      name on a Scopus-only row (E045): non-fatal to every check above, since
+        #      none of them reads first_author, so it went unnoticed until the manuscript
+        #      review built a per-study citation table from this column. A real name
+        #      never starts with "(".
+        # PT | Um marcador de posicao como "(Turk J Biochem)" ja substituiu o nome de um
+        #      primeiro autor numa linha so-Scopus (E045): inofensivo para toda checagem
+        #      acima, pois nenhuma delas le first_author, entao passou despercebido ate a
+        #      revisao do manuscrito montar uma tabela de citacao por estudo a partir
+        #      dessa coluna. Um nome real nunca comeca com "(".
+        check(bool(r["first_author"]) and not r["first_author"].startswith("("),
+              f"extraction {r['record_id']}: first_author looks like a placeholder, not a name: {r['first_author']!r}")
 
     # --- 2. The JSON mirror matches the CSV --------------------------------
     try:
