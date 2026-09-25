@@ -225,7 +225,7 @@ def main():
         for s in ("top", "right"):
             ax.spines[s].set_visible(False)
         fig.tight_layout()
-        fig.savefig(fig_path(FIG_DIR, "citation_frequency_vs_auc", lang), dpi=300,
+        fig.savefig(fig_path(FIG_DIR, "citation_frequency_vs_auc", lang), dpi=600,
                     bbox_inches="tight")
         plt.close(fig)
     print(f"\nEN: table -> {TAB_DIR}/citation_frequency_vs_auc.csv | figure -> {FIG_DIR}")

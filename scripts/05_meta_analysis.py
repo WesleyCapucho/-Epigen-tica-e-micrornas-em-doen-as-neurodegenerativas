@@ -383,7 +383,7 @@ def forest_plot(pool, lang):
     for s in ("top", "right", "left"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
-    fig.savefig(fig_path(FIG_DIR, "forest_plot_auc", lang), dpi=300, bbox_inches="tight")
+    fig.savefig(fig_path(FIG_DIR, "forest_plot_auc", lang), dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -417,7 +417,7 @@ def funnel_plot(pool, lang):
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
-    fig.savefig(fig_path(FIG_DIR, "funnel_plot_auc", lang), dpi=300, bbox_inches="tight")
+    fig.savefig(fig_path(FIG_DIR, "funnel_plot_auc", lang), dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 

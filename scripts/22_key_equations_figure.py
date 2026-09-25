@@ -93,7 +93,7 @@ def plot(path, lang):
              "scripts/05_meta_analysis.py — se_from_ci()"))
 
     plt.tight_layout(rect=[0, 0, 1, 0.965])
-    fig.savefig(path, dpi=220, facecolor="white")
+    fig.savefig(path, dpi=600, facecolor="white")
     plt.close(fig)
 
 

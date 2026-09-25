@@ -245,7 +245,7 @@ def plot(sof, certainty, path, lang):
                    "O que o teste agrupado faz com 1000 pessoas\n"
                    f"Certeza da evidência pelo GRADE: {cert}"), fontsize=11)
     fig.tight_layout()
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 

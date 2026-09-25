@@ -363,7 +363,7 @@ def plot(fit, meta, primary, path, lang):
     ax.legend(loc="lower right", fontsize=8, frameon=False)
     ax.grid(alpha=0.25)
     fig.tight_layout()
-    fig.savefig(path, dpi=200)
+    fig.savefig(path, dpi=600)
     plt.close(fig)
 
 

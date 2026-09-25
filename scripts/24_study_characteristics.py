@@ -150,7 +150,7 @@ def plot(rows, path, lang):
                    "Composition of the 51 estimates eligible for the primary pool",
                    "Composição das 51 estimativas elegíveis para o pool primário"),
                  fontsize=11, y=1.03)
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 

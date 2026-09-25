@@ -128,7 +128,7 @@ def plot(pooled, path, lang):
     ax.spines[["top", "right", "left"]].set_visible(False)
     ax.tick_params(left=False)
     fig.tight_layout()
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 

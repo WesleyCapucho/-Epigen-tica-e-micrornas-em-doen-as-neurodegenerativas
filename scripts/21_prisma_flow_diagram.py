@@ -173,7 +173,7 @@ def plot(flow, path, lang):
 
     ax.set_title(tr(lang, "PRISMA 2020 flow diagram", "Fluxograma PRISMA 2020"),
                  fontsize=13, weight="bold", pad=14)
-    fig.savefig(path, dpi=220, facecolor="white", bbox_inches="tight")
+    fig.savefig(path, dpi=600, facecolor="white", bbox_inches="tight")
     plt.close(fig)
 
 

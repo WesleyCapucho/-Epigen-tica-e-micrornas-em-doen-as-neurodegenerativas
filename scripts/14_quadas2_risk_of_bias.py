@@ -380,7 +380,7 @@ def plot(assessment, path, lang):
               bbox_to_anchor=(0.5, -0.32), ncol=len(present), fontsize=8, frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 
