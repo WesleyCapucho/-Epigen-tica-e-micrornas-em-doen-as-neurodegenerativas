@@ -34,6 +34,7 @@ from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from adjustText import adjust_text
 
 COUNTS = "data/raw/systematic_review_2026/mirna_mention_counts.csv"
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
@@ -195,13 +196,23 @@ def main():
         ax.scatter(x[~is_elig], y[~is_elig], s=68, facecolor="none",
                    edgecolor="#3B6EA5", linewidth=1.4, zorder=3,
                    label=t(lang, "flagged out", "sinalizada fora"))
-        for i, (_, r_) in enumerate(merged.iterrows()):
-            # EN/PT: alternate label side to reduce overlap in the dense region
-            dx, ha = (7, "left") if i % 2 == 0 else (-7, "right")
-            ax.annotate(r_["family"],
-                        (r_["n_articles_mentioning"], r_["mean_auc"]),
-                        textcoords="offset points", xytext=(dx, 4),
-                        ha=ha, fontsize=7.4)
+        # EN | Label positions are relaxed by adjust_text (Hunter, 2007 style repulsion),
+        #      not left to a fixed left/right alternation: the corpus has a dense cluster
+        #      of miRNAs mentioned zero or once, and a fixed rule left several of those
+        #      labels stacked on top of each other. adjust_text moves labels away from
+        #      each other and from the points themselves, and draws a thin leader line
+        #      wherever a label had to move far from its point.
+        # PT | As posicoes dos rotulos sao relaxadas pelo adjust_text (repulsao ao estilo
+        #      Hunter, 2007), nao por uma alternancia fixa esquerda/direita: o corpus tem
+        #      um aglomerado denso de miRNAs mencionados zero ou uma vez, e uma regra fixa
+        #      deixava varios desses rotulos empilhados um sobre o outro. O adjust_text
+        #      afasta os rotulos entre si e dos proprios pontos, e desenha uma linha fina
+        #      sempre que um rotulo precisou se afastar muito do seu ponto.
+        texts = [ax.text(r_["n_articles_mentioning"], r_["mean_auc"], r_["family"],
+                          fontsize=7.4, ha="center", va="center")
+                 for _, r_ in merged.iterrows()]
+        adjust_text(texts, x=x, y=y, ax=ax,
+                    arrowprops=dict(arrowstyle="-", color="#9a9a96", lw=0.6))
         ax.axhline(0.80, color="#B3541E", ls="--", lw=1.2, zorder=2)
         ax.text(ax.get_xlim()[1], 0.803, "AUC = 0.80", ha="right", fontsize=8, color="#B3541E")
         ax.set_xlabel(t(lang, "Articles mentioning the miRNA in the screened corpus",

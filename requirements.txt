@@ -14,6 +14,7 @@ numpy>=1.26
 scipy>=1.11
 pandas>=2.0
 matplotlib>=3.8
+adjustText>=1.0   # EN/PT: label placement in scripts/06's attention-vs-accuracy scatter
 
 # EN | Structure figures (scripts/13) | PT | Figuras estruturais (scripts/13)
 # pymol-open-source>=3.0  (install separately: pip install pymol-open-source)
