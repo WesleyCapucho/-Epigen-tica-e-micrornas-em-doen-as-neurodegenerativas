@@ -237,6 +237,14 @@ The PRISMA 2020 flow diagram, drawn by `scripts/21_prisma_flow_diagram.py` from 
 
 A six-panel figure typesetting the equations `scripts/05_meta_analysis.py` and `scripts/15_bivariate_srocc.py` actually evaluate (logit transform, Hanley-McNeil standard error, DerSimonian-Laird pooling, Egger's regression, the bivariate model, and the CI-to-SE conversion), each captioned with the function and citation it comes from. Produced by `scripts/22_key_equations_figure.py`.
 
+## `results/figures/subgroup_summary_forest.*.png`
+
+A point-range ("summary forest") chart of the five core pooled-AUC subgroups already reported in Table 1 (overall, AD, PD, single microRNA, multi-microRNA panel), each point and its 95% CI read live from `results/tables/meta_analysis_pooled_auc.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots all 41 pooled estimates rather than five subgroup summaries.
+
+## `results/figures/study_characteristics.*.png`
+
+Two donuts (by disease, by marker type) and one ranked bar (by biofluid) summarising the composition of the 51 estimates eligible for the primary pool, aggregated at draw time from `data/extracted/diagnostic_accuracy_extraction.csv` filtered to `eligible_primary_pool == "yes"`. Produced by `scripts/24_study_characteristics.py`; the same 51-estimate counts are tabulated in full, with two further breakdowns (quantification method, cohort stage), in Supplementary Table S1.
+
 ## Conventions
 
 - Proportions are stored as proportions (0.82), not percentages (82%).

@@ -31,6 +31,7 @@ import json
 import math
 import re
 import sys
+from collections import Counter
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 KINETICS = "data/extracted/kinetic_parameters.csv"
@@ -171,6 +172,32 @@ def main():
     check(elig["estimates_eligible_for_primary_pool"] ==
           sum(1 for r in ext if r["eligible_primary_pool"] == "yes"),
           "PRISMA estimates_eligible_for_primary_pool disagrees with the table")
+
+    # EN | The disease and marker-type split of the 51 eligible estimates is stated in
+    #      the manuscript's section 3.2 prose (17 AD / 34 PD, 38 single / 13 panel) and,
+    #      since Figure 3 (scripts/24_study_characteristics.py) drew that same split as a
+    #      donut chart, is now something a reader can see at a glance rather than only
+    #      read in a sentence. A chart is a claim like any other, so it is checked like
+    #      one: both counts are recomputed here from the extraction table and would fail
+    #      loudly if the figure and the prose ever disagreed with each other or with the
+    #      table both are drawn from.
+    # PT | O detalhamento por doenca e por tipo de marcador das 51 estimativas elegiveis
+    #      esta na prosa da secao 3.2 do manuscrito (17 DA / 34 DP, 38 isolado / 13
+    #      painel) e, como a Figura 3 (scripts/24_study_characteristics.py) desenhou essa
+    #      mesma divisao como grafico de rosca, agora e algo que o leitor ve num relance
+    #      em vez de so ler numa frase. Um grafico e uma afirmacao como qualquer outra,
+    #      entao e conferido como uma: as duas contagens sao recalculadas aqui a partir da
+    #      tabela de extracao e falhariam alto se a figura e a prosa algum dia
+    #      discordassem entre si ou da tabela da qual as duas vem.
+    elig_rows = [r for r in ext if r["eligible_primary_pool"] == "yes"]
+    disease_counts = Counter(r["disease"] for r in elig_rows)
+    marker_counts = Counter(r["marker_type"] for r in elig_rows)
+    check(disease_counts["AD"] == 17 and disease_counts["PD"] == 34,
+          f"eligible disease split is {dict(disease_counts)}, expected AD=17/PD=34 "
+          "(manuscript section 3.2 and Figure 3)")
+    check(marker_counts["single_miRNA"] == 38 and marker_counts["multi_miRNA_panel"] == 13,
+          f"eligible marker-type split is {dict(marker_counts)}, expected single=38/panel=13 "
+          "(manuscript section 3.2 and Figure 3)")
     check(incl["estimates_with_estimable_standard_error"] == len(inputs),
           f"PRISMA poolable={incl['estimates_with_estimable_standard_error']} but inputs table has {len(inputs)}")
     check(incl["independent_studies"] == len({study_id(r) for r in inputs}),
@@ -1026,6 +1053,23 @@ def main():
         claim(os.path.isfile(fp), f"PRISMA flow diagram: {fp} is missing")
         fp = f"results/figures/key_equations.{lang}.png"
         claim(os.path.isfile(fp), f"key equations panel: {fp} is missing")
+
+    # EN | The study-characteristics donut/bar figure and the subgroup-summary point-range
+    #      figure are illustration built from counts (study_characteristics) or from
+    #      results/tables/meta_analysis_pooled_auc.csv (subgroup_summary_forest) that this
+    #      script already checks above and in the meta-analysis section below, so the
+    #      only thing left to confirm here is that both language versions exist.
+    # PT | A figura de rosca/barra de caracteristicas dos estudos e a figura de resumo dos
+    #      subgrupos em ponto-e-intervalo sao ilustracao construida a partir de contagens
+    #      (study_characteristics) ou de results/tables/meta_analysis_pooled_auc.csv
+    #      (subgroup_summary_forest) que este script ja confere acima e na secao de
+    #      meta-analise abaixo, entao o que resta confirmar aqui e so que as duas versoes
+    #      de idioma existem.
+    for lang in ("en", "pt-BR"):
+        fp = f"results/figures/study_characteristics.{lang}.png"
+        claim(os.path.isfile(fp), f"study characteristics figure: {fp} is missing")
+        fp = f"results/figures/subgroup_summary_forest.{lang}.png"
+        claim(os.path.isfile(fp), f"subgroup summary forest figure: {fp} is missing")
 
     # --- 8f. The corpus holds each article once ----------------------------
     # EN | Deduplication happens in scripts/09 and is easy to break silently: reading the

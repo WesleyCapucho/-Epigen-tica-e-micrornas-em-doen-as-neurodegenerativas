@@ -237,6 +237,14 @@ O fluxograma PRISMA 2020, desenhado pelo `scripts/21_prisma_flow_diagram.py` a p
 
 Uma figura de seis painéis tipografando as equações que `scripts/05_meta_analysis.py` e `scripts/15_bivariate_srocc.py` de fato avaliam (transformação logito, erro-padrão de Hanley-McNeil, agregação de DerSimonian-Laird, regressão de Egger, o modelo bivariado e a conversão de IC para erro-padrão), cada uma legendada com a função e a citação de onde vem. Produzida pelo `scripts/22_key_equations_figure.py`.
 
+## `results/figures/subgroup_summary_forest.*.png`
+
+Um gráfico de ponto-e-intervalo ("forest de resumo") dos cinco subgrupos centrais de AUC agrupada já reportados na Tabela 1 (global, DA, DP, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% lidos diretamente de `results/tables/meta_analysis_pooled_auc.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota as 41 estimativas agrupadas individualmente em vez de cinco resumos de subgrupo.
+
+## `results/figures/study_characteristics.*.png`
+
+Dois donuts (por doença, por tipo de marcador) e uma barra ranqueada (por biofluido) resumindo a composição das 51 estimativas elegíveis para o pool primário, agregados no momento do desenho a partir de `data/extracted/diagnostic_accuracy_extraction.csv` filtrado por `eligible_primary_pool == "yes"`. Produzida pelo `scripts/24_study_characteristics.py`; as mesmas 51 estimativas são tabuladas por completo, com mais dois detalhamentos (método de quantificação, estágio de coorte), na Tabela Suplementar S1.
+
 ## Convenções
 
 - Proporções são armazenadas como proporções (0,82), não como percentuais (82%).
