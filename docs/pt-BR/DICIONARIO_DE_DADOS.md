@@ -77,17 +77,34 @@ Um arquivo por braço de base ingerido, nomeado pelo rótulo `--arm`: `AD` e `PD
 
 Amostra bibliométrica da camada da monografia original, obtida ao vivo da API do NCBI em 10/09/2026. O `manifest.json` registra a query exata, a data de acesso, o número real total de registros correspondentes no PubMed e uma declaração explícita de não fabricação.
 
-## `results/tables/meta_analysis_pooled_auc.csv`
+## `results/tables/meta_analysis_pooled_auc_primary.csv`
+
+A análise PRIMÁRIA: cada estudo colapsado a uma estimativa por subgrupo primeiro (combinação de efeito fixo das próprias linhas qualificadas do estudo), agregado entre estudos com tau-quadrado de Paule-Mandel. DA e DP são linhas primárias separadas; a linha combinada DA+DP é rotulada SECONDARY.
 
 | Coluna | Descrição |
 |---|---|
-| `subgroup` | Qual subconjunto foi agregado |
-| `k_estimates` | Número de estimativas agregadas |
-| `n_studies` | Número de estudos independentes que as forneceram |
-| `pooled_auc`, `ci_low`, `ci_high` | AUC agregada por efeitos aleatórios, retrotransformada do logito |
-| `tau2_logit` | Variância entre estudos na escala logito |
-| `I2_percent`, `Q`, `df`, `p_heterogeneity` | Estatísticas de heterogeneidade |
-| `egger_intercept`, `egger_p` | Teste de Egger para efeitos de estudos pequenos |
+| `subgroup` | Qual subconjunto foi agregado (PRIMARY 1 = DA, PRIMARY 2 = DP, SECONDARY = DA+DP combinado) |
+| `n_studies` | Estudos independentes contribuindo (igual a k após o colapso uma-por-estudo) |
+| `n_estimates_collapsed` | Linhas brutas de extração colapsadas nesses estudos |
+| `n_studies_with_multiple_estimates` | Quantos desses estudos tinham mais de uma linha qualificada |
+| `pooled_auc` | AUC agregada por efeitos aleatórios, retrotransformada do logito |
+| `ci_low_wald`, `ci_high_wald` | IC 95% de Wald padrão |
+| `ci_low_hk`, `ci_high_hk` | IC 95% de Hartung-Knapp-Sidik-Jonkman (o reportado no texto e nas figuras) |
+| `pi_low`, `pi_high` | Intervalo de predição a 95% (só k >= 3) |
+| `tau2_PM` | Variância entre estudos de Paule-Mandel na escala logito |
+| `I2_percent`, `Q`, `df`, `p_heterogeneity` | Estatísticas de heterogeneidade (Q de DerSimonian-Laird, reportado independentemente de qual tau-quadrado alimenta a estimativa agregada) |
+
+## `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`
+
+A análise antes reportada como primária: cada linha qualificada tratada como observação independente, agregada com tau-quadrado de DerSimonian-Laird. Mantida como checagem de sensibilidade rotulada sobre a escolha de unidade de análise acima. Mesmo esquema de colunas da tabela pré-existente (`subgroup`, `k_estimates`, `n_studies`, `pooled_auc`, `ci_low`, `ci_high`, `tau2_logit`, `I2_percent`, `Q`, `df`, `p_heterogeneity`, `egger_intercept`, `egger_p`).
+
+## `results/tables/meta_analysis_variance_source_comparison.csv`
+
+Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (34 das 41 estimativas) de fato muda a resposta versus quão poucos estudos (2 para DA, 4 para DP) reportaram seu próprio intervalo.
+
+## `results/tables/subgroup_difference_test.csv`
+
+Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 gl), calculado sobre as linhas primárias uma-por-estudo, dentro de DA, dentro de DP e combinado.
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
@@ -239,7 +256,7 @@ Uma figura de seis painéis tipografando as equações que `scripts/05_meta_anal
 
 ## `results/figures/subgroup_summary_forest.*.png`
 
-Um gráfico de ponto-e-intervalo ("forest de resumo") dos cinco subgrupos centrais de AUC agrupada já reportados na Tabela 1 (global, DA, DP, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% lidos diretamente de `results/tables/meta_analysis_pooled_auc.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota as 41 estimativas agrupadas individualmente em vez de cinco resumos de subgrupo.
+Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de AUC agrupada reportados na Tabela 1 (DA primário, DP primário, DA+DP combinado secundário, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% de Hartung-Knapp lidos diretamente de `results/tables/meta_analysis_pooled_auc_primary.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota as 41 estimativas individuais em vez de cinco resumos de subgrupo.
 
 ## `results/figures/study_characteristics.*.png`
 

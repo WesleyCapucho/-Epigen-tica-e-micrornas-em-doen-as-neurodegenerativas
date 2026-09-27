@@ -12,18 +12,46 @@ EN | Input : data/extracted/diagnostic_accuracy_extraction.csv
 PT | Entrada: data/extracted/diagnostic_accuracy_extraction.csv
      Saida  : results/tables/*.csv, results/figures/*.png
 
-EN | Method. Standard errors come from the reported 95% CI when the source
-     article published one, otherwise from Hanley & McNeil (1982) using the
-     case and control group sizes. AUCs are pooled on the logit scale with the
-     DerSimonian & Laird (1986) random-effects estimator and back-transformed.
-     Heterogeneity is reported as Cochran's Q, tau-squared and I-squared;
-     small-study effects are assessed with Egger's regression test.
-PT | Metodo. Os erros-padrao vem do IC 95% publicado quando o artigo-fonte o
-     reporta; caso contrario, sao calculados por Hanley & McNeil (1982) a partir
-     dos tamanhos dos grupos caso e controle. As AUCs sao agregadas na escala
-     logito pelo estimador de efeitos aleatorios de DerSimonian & Laird (1986) e
-     retrotransformadas. A heterogeneidade e reportada como Q de Cochran, tau^2
-     e I^2; efeitos de estudos pequenos sao avaliados pelo teste de Egger.
+EN | Unit of analysis. Twenty of the studies contributing to the primary pool
+     supply more than one qualifying estimate each. Pooling all 41 estimates as
+     if they were 41 independent observations understates the true uncertainty
+     and lets a single well-instrumented cohort outweigh a study that
+     contributes only one estimate. The PRIMARY analysis therefore collapses
+     each study to one estimate per subgroup first, by fixed-effect
+     (inverse-variance) combination of that study's own qualifying rows on the
+     logit scale, and only then pools across studies with the between-study
+     random-effects model. The estimate that treats every row as independent is
+     kept and reported as a labelled sensitivity analysis, never as the headline
+     number.
+PT | Unidade de analise. Vinte dos estudos que contribuem ao pool primario
+     fornecem mais de uma estimativa qualificada cada. Agregar as 41 estimativas
+     como se fossem 41 observacoes independentes subestima a incerteza real e
+     deixa uma coorte bem instrumentada pesar mais que um estudo que contribui
+     so uma estimativa. A analise PRIMARIA portanto colapsa cada estudo a uma
+     estimativa por subgrupo primeiro, por combinacao de efeito fixo
+     (inverso-variancia) das proprias linhas qualificadas do estudo na escala
+     logito, e so entao agrega entre estudos com o modelo de efeitos aleatorios
+     entre-estudos. A estimativa que trata cada linha como independente e
+     mantida e reportada como analise de sensibilidade rotulada, nunca como o
+     numero principal.
+
+EN | Heterogeneity estimator. DerSimonian & Laird (1986) tau-squared is known to
+     be biased downward at the small-to-moderate k seen in every subgroup here.
+     Paule & Mandel (1982) is reported as the primary tau-squared estimator
+     (an iterative, unbiased-equation estimator very close to REML in practice,
+     and exactly solvable here without a general-purpose optimizer), with
+     Hartung-Knapp-Sidik-Jonkman (2001) confidence intervals and a prediction
+     interval for every pooled estimate with k >= 3. DerSimonian-Laird is kept
+     as a labelled sensitivity check, not the primary tau-squared.
+PT | Estimador de heterogeneidade. O tau-quadrado de DerSimonian & Laird (1986)
+     e sabidamente enviesado para baixo no k pequeno a moderado visto em todo
+     subgrupo aqui. Paule & Mandel (1982) e reportado como estimador primario de
+     tau-quadrado (um estimador iterativo, de equacao nao-enviesada, muito
+     proximo do REML na pratica, e resolvivel aqui exatamente sem otimizador de
+     proposito geral), com intervalos de confianca de Hartung-Knapp-Sidik-Jonkman
+     (2001) e um intervalo de predicao para toda estimativa agregada com k >= 3.
+     DerSimonian-Laird e mantido como checagem de sensibilidade rotulada, nao
+     como o tau-quadrado primario.
 
 EN | No value is simulated: every AUC, sample size and confidence interval comes
      from the extraction table, which stores the verbatim sentence of the source.
@@ -35,7 +63,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from scipy import stats
+from scipy import stats, optimize
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -81,33 +109,118 @@ def inv_logit(x):
 
 
 # --------------------------------------------------------------------------
-# EN | DerSimonian-Laird random-effects pooling
-# PT | Agregacao por efeitos aleatorios de DerSimonian-Laird
+# EN | Heterogeneity (tau-squared) estimators
+# PT | Estimadores de heterogeneidade (tau-quadrado)
 # --------------------------------------------------------------------------
-def dersimonian_laird(y, v):
+def dl_tau2(y, v):
+    """EN/PT: DerSimonian & Laird (1986) moment estimator of tau-squared."""
     y, v = np.asarray(y, float), np.asarray(v, float)
     k = len(y)
-    if k == 0:
-        return None
     w = 1.0 / v
     y_fixed = np.sum(w * y) / np.sum(w)
     Q = float(np.sum(w * (y - y_fixed) ** 2))
     df = k - 1
-    if df > 0:
-        c = np.sum(w) - np.sum(w ** 2) / np.sum(w)
-        tau2 = max(0.0, (Q - df) / c) if c > 0 else 0.0
-        I2 = max(0.0, (Q - df) / Q * 100) if Q > 0 else 0.0
-        p_Q = 1 - stats.chi2.cdf(Q, df)
-    else:
-        tau2, I2, p_Q = 0.0, 0.0, np.nan
+    if df <= 0:
+        return 0.0, Q, df
+    c = np.sum(w) - np.sum(w ** 2) / np.sum(w)
+    tau2 = max(0.0, (Q - df) / c) if c > 0 else 0.0
+    return tau2, Q, df
 
-    w_star = 1.0 / (v + tau2)
-    est = float(np.sum(w_star * y) / np.sum(w_star))
-    se = float(np.sqrt(1.0 / np.sum(w_star)))
-    return dict(k=k, estimate=est, se=se,
-                ci_low=est - 1.959964 * se, ci_high=est + 1.959964 * se,
-                Q=Q, df=df, p_Q=p_Q, tau2=tau2, I2=I2,
-                z=est / se, p=2 * (1 - stats.norm.cdf(abs(est / se))))
+
+def paule_mandel_tau2(y, v):
+    """
+    EN | Paule & Mandel (1982) estimator: the tau-squared root of
+         Q(tau2) = sum_i w_i(tau2) * (y_i - theta_hat(tau2))^2 = k - 1,
+         where w_i(tau2) = 1/(v_i + tau2). Q(tau2) is monotonically
+         non-increasing in tau2 (from Q(0) = the fixed-effect Q down to 0 as
+         tau2 -> infinity), so the root is found by bisection, which cannot
+         diverge or overshoot the way a Newton step can.
+    PT | Estimador de Paule & Mandel (1982): a raiz em tau-quadrado de
+         Q(tau2) = soma_i w_i(tau2) * (y_i - theta_hat(tau2))^2 = k - 1,
+         onde w_i(tau2) = 1/(v_i + tau2). Q(tau2) e monotonicamente
+         nao-crescente em tau2 (de Q(0) = o Q de efeito fixo ate 0 quando
+         tau2 -> infinito), entao a raiz e achada por bissecao, que nao pode
+         divergir nem ultrapassar como um passo de Newton pode.
+    """
+    y, v = np.asarray(y, float), np.asarray(v, float)
+    k = len(y)
+    if k < 2:
+        return 0.0
+
+    def q_minus_target(tau2):
+        w = 1.0 / (v + tau2)
+        theta = np.sum(w * y) / np.sum(w)
+        return float(np.sum(w * (y - theta) ** 2)) - (k - 1)
+
+    q0 = q_minus_target(0.0)
+    if q0 <= 0:
+        return 0.0
+    hi = max(np.var(y, ddof=1), np.max(v)) * 4 + 1.0
+    tries = 0
+    while q_minus_target(hi) > 0 and tries < 60:
+        hi *= 2
+        tries += 1
+    try:
+        tau2 = optimize.brentq(q_minus_target, 0.0, hi, xtol=1e-10, maxiter=200)
+    except ValueError:
+        tau2, _, _ = dl_tau2(y, v)
+    return max(0.0, float(tau2))
+
+
+# --------------------------------------------------------------------------
+# EN | Unified random-effects pooling: DL Q/I2 always reported for
+#      heterogeneity description; tau2_method selects which tau-squared
+#      feeds the pooled estimate, its Wald CI, its Hartung-Knapp-Sidik-Jonkman
+#      CI, and its prediction interval.
+# PT | Agregacao unificada de efeitos aleatorios: Q/I2 de DL sempre reportados
+#      para descrever heterogeneidade; tau2_method escolhe qual tau-quadrado
+#      alimenta a estimativa agregada, seu IC de Wald, seu IC de
+#      Hartung-Knapp-Sidik-Jonkman e seu intervalo de predicao.
+# --------------------------------------------------------------------------
+def pool_re(y, v, tau2_method="PM"):
+    y, v = np.asarray(y, float), np.asarray(v, float)
+    k = len(y)
+    if k == 0:
+        return None
+
+    tau2_dl, Q, df = dl_tau2(y, v)
+    I2 = max(0.0, (Q - df) / Q * 100) if (df > 0 and Q > 0) else 0.0
+    p_Q = 1 - stats.chi2.cdf(Q, df) if df > 0 else np.nan
+
+    if tau2_method == "PM" and k >= 2:
+        tau2 = paule_mandel_tau2(y, v)
+    else:
+        tau2 = tau2_dl
+
+    w = 1.0 / (v + tau2)
+    theta = float(np.sum(w * y) / np.sum(w))
+    se_wald = float(np.sqrt(1.0 / np.sum(w)))
+    ci_low_wald = theta - 1.959964 * se_wald
+    ci_high_wald = theta + 1.959964 * se_wald
+
+    if k >= 2:
+        q_stat = float(np.sum(w * (y - theta) ** 2) / (k - 1))
+        se_hk = float(np.sqrt(q_stat / np.sum(w)))
+        tcrit = stats.t.ppf(0.975, k - 1)
+        ci_low_hk = theta - tcrit * se_hk
+        ci_high_hk = theta + tcrit * se_hk
+    else:
+        se_hk = np.nan
+        ci_low_hk = ci_high_hk = np.nan
+
+    if k >= 3:
+        tcrit_pi = stats.t.ppf(0.975, k - 2)
+        pi_low = theta - tcrit_pi * np.sqrt(tau2 + se_wald ** 2)
+        pi_high = theta + tcrit_pi * np.sqrt(tau2 + se_wald ** 2)
+    else:
+        pi_low = pi_high = np.nan
+
+    return dict(k=k, estimate=theta, se=se_wald,
+                ci_low=ci_low_wald, ci_high=ci_high_wald,
+                se_hk=se_hk, ci_low_hk=ci_low_hk, ci_high_hk=ci_high_hk,
+                pi_low=pi_low, pi_high=pi_high,
+                Q=Q, df=df, p_Q=p_Q, tau2=tau2, tau2_dl=tau2_dl, I2=I2,
+                tau2_method=tau2_method)
 
 
 def egger_test(y, se):
@@ -122,15 +235,82 @@ def egger_test(y, se):
                 slope=res.slope, n=len(y))
 
 
-def summarise(label, sub):
-    """EN/PT: pool one subset and return a tidy row."""
+# --------------------------------------------------------------------------
+# EN | Collapse multiple qualifying estimates from the same study, within a
+#      subgroup, to a single logit-AUC and variance by fixed-effect
+#      (inverse-variance) combination. A study with one qualifying estimate
+#      passes through unchanged.
+# PT | Colapsa multiplas estimativas qualificadas do mesmo estudo, dentro de
+#      um subgrupo, a um unico logito-AUC e variancia por combinacao de
+#      efeito fixo (inverso-variancia). Um estudo com uma estimativa
+#      qualificada passa sem alteracao.
+# --------------------------------------------------------------------------
+def collapse_one_per_study(sub):
+    sub = sub.dropna(subset=["auc", "se_auc"]).copy()
+    if len(sub) == 0:
+        return sub.assign(y=[], v=[])
+    sub["y"] = logit(sub["auc"].values)
+    sub["se_y"] = sub["se_auc"].values / (sub["auc"].values * (1 - sub["auc"].values))
+    sub["v"] = sub["se_y"] ** 2
+
+    rows = []
+    for sid, g in sub.groupby("study_id"):
+        if len(g) == 1:
+            rows.append(dict(study_id=sid, y=g["y"].iloc[0], v=g["v"].iloc[0],
+                             n_rows_collapsed=1))
+        else:
+            w = 1.0 / g["v"].values
+            y_fe = float(np.sum(w * g["y"].values) / np.sum(w))
+            v_fe = float(1.0 / np.sum(w))
+            rows.append(dict(study_id=sid, y=y_fe, v=v_fe,
+                             n_rows_collapsed=len(g)))
+    return pd.DataFrame(rows)
+
+
+def summarise_primary(label, sub):
+    """
+    EN/PT: primary analysis for one subgroup - collapse to one estimate per
+    study (fixed-effect within study), then pool between studies with
+    Paule-Mandel tau2, reporting the Wald, Hartung-Knapp and prediction
+    intervals side by side.
+    """
+    coll = collapse_one_per_study(sub)
+    if len(coll) == 0:
+        return None
+    r = pool_re(coll["y"].values, coll["v"].values, tau2_method="PM")
+    if r is None:
+        return None
+    n_multi = int((coll["n_rows_collapsed"] > 1).sum())
+    return {
+        "subgroup": label,
+        "n_studies": r["k"],
+        "n_estimates_collapsed": int(sub.dropna(subset=["auc", "se_auc"]).shape[0]),
+        "n_studies_with_multiple_estimates": n_multi,
+        "pooled_auc": round(inv_logit(r["estimate"]), 4),
+        "ci_low_wald": round(inv_logit(r["ci_low"]), 4),
+        "ci_high_wald": round(inv_logit(r["ci_high"]), 4),
+        "ci_low_hk": round(inv_logit(r["ci_low_hk"]), 4) if not np.isnan(r["ci_low_hk"]) else "",
+        "ci_high_hk": round(inv_logit(r["ci_high_hk"]), 4) if not np.isnan(r["ci_high_hk"]) else "",
+        "pi_low": round(inv_logit(r["pi_low"]), 4) if not np.isnan(r["pi_low"]) else "",
+        "pi_high": round(inv_logit(r["pi_high"]), 4) if not np.isnan(r["pi_high"]) else "",
+        "tau2_PM": round(r["tau2"], 4),
+        "I2_percent": round(r["I2"], 1),
+        "Q": round(r["Q"], 2),
+        "df": r["df"],
+        "p_heterogeneity": round(r["p_Q"], 4) if not np.isnan(r["p_Q"]) else "",
+    }
+
+
+def summarise_sensitivity_every_estimate(label, sub):
+    """EN/PT: the every-row-independent DerSimonian-Laird pool, kept as a
+    labelled sensitivity analysis (this was the primary analysis before the
+    unit-of-analysis correction)."""
     sub = sub.dropna(subset=["auc", "se_auc"])
     if len(sub) == 0:
         return None
     y = logit(sub["auc"].values)
-    # EN: delta method for the SE on the logit scale | PT: metodo delta
     se_y = sub["se_auc"].values / (sub["auc"].values * (1 - sub["auc"].values))
-    r = dersimonian_laird(y, se_y ** 2)
+    r = pool_re(y, se_y ** 2, tau2_method="DL")
     if r is None:
         return None
     eg = egger_test(y, se_y)
@@ -151,6 +331,51 @@ def summarise(label, sub):
     }
 
 
+def subgroup_difference_test(sub_a, sub_b, label):
+    """
+    EN | Test for subgroup differences (Borenstein et al., 2009, ch.19): pool
+         all rows of both subgroups combined to get Q_all, pool each subgroup
+         separately to get Q_a and Q_b, then Q_between = Q_all - Q_a - Q_b
+         with 1 df. Computed on the one-per-study collapsed rows, matching the
+         primary analysis.
+    PT | Teste para diferenca entre subgrupos (Borenstein et al., 2009, cap.19):
+         agrega todas as linhas dos dois subgrupos juntas para obter Q_all,
+         agrega cada subgrupo separadamente para obter Q_a e Q_b, entao
+         Q_between = Q_all - Q_a - Q_b com 1 gl. Calculado sobre as linhas
+         colapsadas uma-por-estudo, igual a analise primaria.
+    """
+    coll_a = collapse_one_per_study(sub_a)
+    coll_b = collapse_one_per_study(sub_b)
+    if len(coll_a) < 2 or len(coll_b) < 2:
+        return None
+    y_all = np.concatenate([coll_a["y"].values, coll_b["y"].values])
+    v_all = np.concatenate([coll_a["v"].values, coll_b["v"].values])
+    _, Q_all, _ = dl_tau2(y_all, v_all)
+    _, Q_a, _ = dl_tau2(coll_a["y"].values, coll_a["v"].values)
+    _, Q_b, _ = dl_tau2(coll_b["y"].values, coll_b["v"].values)
+    q_between = Q_all - Q_a - Q_b
+    p_value = 1 - stats.chi2.cdf(q_between, 1) if q_between >= 0 else np.nan
+    return dict(comparison=label, n_studies_a=len(coll_a), n_studies_b=len(coll_b),
+                Q_between=round(q_between, 3), df=1,
+                p_value=round(p_value, 4) if not np.isnan(p_value) else "")
+
+
+def variance_source_comparison(label, sub):
+    """
+    EN/PT: compares the pooled AUC using only estimates with a directly
+    reported CI/SE against the full pool that also includes Hanley-McNeil
+    reconstructed variances, both on the one-per-study primary basis.
+    """
+    reported = sub[sub["se_source"] == "reported_95CI"]
+    out = []
+    for tag, s in [("reported_only | somente_reportado", reported),
+                   ("full (reported + reconstructed) | completo (reportado + reconstruido)", sub)]:
+        r = summarise_primary(f"{label} - {tag}", s)
+        if r:
+            out.append(r)
+    return out
+
+
 def main():
     os.makedirs(TAB_DIR, exist_ok=True)
     os.makedirs(FIG_DIR, exist_ok=True)
@@ -160,24 +385,12 @@ def main():
               "sensitivity", "specificity"]:
         df[c] = pd.to_numeric(df[c], errors="coerce")
 
-    # EN: CI-derived SE first, Hanley-McNeil as fallback, and record which
-    # PT: EP do IC primeiro, Hanley-McNeil como alternativa, registrando a fonte
     se_ci = df.apply(lambda r: se_from_ci(r["auc_ci_low"], r["auc_ci_high"]), axis=1)
     se_hm = df.apply(lambda r: se_hanley_mcneil(r["auc"], r["n_cases"], r["n_controls"]), axis=1)
     df["se_auc"] = se_ci.where(se_ci.notna(), se_hm)
     df["se_source"] = np.where(se_ci.notna(), "reported_95CI",
                                np.where(se_hm.notna(), "Hanley-McNeil", "not_estimable"))
 
-    # EN | A study is identified by its PMID when it has one and by its DOI
-    #      otherwise. Counting on PMID alone silently dropped every study
-    #      published outside MEDLINE - four of them arrived with the Scopus
-    #      arms - and understated how many independent studies contribute.
-    # PT | Um estudo e identificado pelo PMID quando existe e pelo DOI caso
-    #      contrario. Contar so pelo PMID descartava em silencio todo estudo
-    #      publicado fora do MEDLINE - quatro deles vieram com os bracos do
-    #      Scopus - e subestimava quantos estudos independentes contribuem.
-    # EN/PT: pandas reads a numeric PMID column as float, so 28137310 would
-    #        become "28137310.0"; strip the decimal tail before using it as an id.
     pmid_txt = (df["pmid"].astype(str).str.strip()
                 .str.replace(r"\.0$", "", regex=True)
                 .replace({"": np.nan, "nan": np.nan, "None": np.nan}))
@@ -195,38 +408,91 @@ def main():
     print(f"SE source / origem do EP                   : "
           f"{dict(pool['se_source'].value_counts())}")
 
-    rows = []
-    rows.append(summarise("Overall (all eligible) | Global", pool))
-    for d in ["AD", "PD"]:
-        rows.append(summarise(f"{d} - all markers | todos marcadores",
-                              pool[pool["disease"] == d]))
+    # EN | PRIMARY analysis: AD and PD are separate primary subgroups; the
+    #      pooled AD+PD figure is reported as a secondary, exploratory summary.
+    # PT | Analise PRIMARIA: AD e PD sao subgrupos primarios separados; a
+    #      cifra agregada AD+PD e reportada como resumo secundario, exploratorio.
+    primary_rows = []
+    primary_rows.append(summarise_primary("AD - all markers | todos marcadores (PRIMARY 1)",
+                                          pool[pool["disease"] == "AD"]))
+    primary_rows.append(summarise_primary("PD - all markers | todos marcadores (PRIMARY 2)",
+                                          pool[pool["disease"] == "PD"]))
+    primary_rows.append(summarise_primary("Overall AD+PD (all eligible) | Global (SECONDARY)",
+                                          pool))
     for mt, lab in [("single_miRNA", "single miRNA | miRNA isolado"),
                     ("multi_miRNA_panel", "multi-miRNA panel | painel multi-miRNA")]:
-        rows.append(summarise(f"All - {lab}", pool[pool["marker_type"] == mt]))
+        primary_rows.append(summarise_primary(f"All - {lab}", pool[pool["marker_type"] == mt]))
         for d in ["AD", "PD"]:
-            rows.append(summarise(f"{d} - {lab}",
-                                  pool[(pool["disease"] == d) & (pool["marker_type"] == mt)]))
-    # EN | Biofluid subgroups need at least 3 estimates AND at least 3
-    #      independent studies. The estimate-only rule produced a
-    #      "serum_neuronal_EV" subgroup of 8 estimates that all came from one
-    #      cohort: a within-study spread reported as if it were between-study
-    #      evidence, with a meaningless heterogeneity and Egger statistic.
-    # PT | Subgrupos de biofluido exigem ao menos 3 estimativas E ao menos 3
-    #      estudos independentes. A regra so por estimativas produzia um
-    #      subgrupo "serum_neuronal_EV" de 8 estimativas vindas de uma unica
-    #      coorte: dispersao intraestudo reportada como se fosse evidencia
-    #      entre estudos, com heterogeneidade e Egger sem sentido.
+            primary_rows.append(summarise_primary(
+                f"{d} - {lab}", pool[(pool["disease"] == d) & (pool["marker_type"] == mt)]))
     for bf, sub in pool.groupby("biofluid"):
         if len(sub) >= 3 and sub["study_id"].nunique() >= 3:
-            rows.append(summarise(f"Biofluid | Biofluido - {bf}", sub))
+            primary_rows.append(summarise_primary(f"Biofluid | Biofluido - {bf}", sub))
 
-    res = pd.DataFrame([r for r in rows if r])
-    res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc.csv", index=False)
+    primary_res = pd.DataFrame([r for r in primary_rows if r])
+    primary_res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc_primary.csv", index=False)
 
     print("\n" + "=" * 78)
-    print("EN | Pooled AUC (random effects) | PT | AUC agregada (efeitos aleatorios)")
+    print("EN | PRIMARY: one estimate per study, Paule-Mandel tau2, HKSJ CI")
+    print("PT | PRIMARIA: uma estimativa por estudo, tau2 de Paule-Mandel, IC HKSJ")
     print("=" * 78)
-    print(res.to_string(index=False))
+    print(primary_res.to_string(index=False))
+
+    # EN | SENSITIVITY: every row treated as independent, DerSimonian-Laird -
+    #      this was the review's previous primary analysis.
+    # PT | SENSIBILIDADE: cada linha tratada como independente, DerSimonian-Laird
+    #      - esta era a analise primaria anterior da revisao.
+    sens_rows = []
+    sens_rows.append(summarise_sensitivity_every_estimate("Overall (all eligible) | Global", pool))
+    for d in ["AD", "PD"]:
+        sens_rows.append(summarise_sensitivity_every_estimate(
+            f"{d} - all markers | todos marcadores", pool[pool["disease"] == d]))
+    for mt, lab in [("single_miRNA", "single miRNA | miRNA isolado"),
+                    ("multi_miRNA_panel", "multi-miRNA panel | painel multi-miRNA")]:
+        sens_rows.append(summarise_sensitivity_every_estimate(
+            f"All - {lab}", pool[pool["marker_type"] == mt]))
+        for d in ["AD", "PD"]:
+            sens_rows.append(summarise_sensitivity_every_estimate(
+                f"{d} - {lab}", pool[(pool["disease"] == d) & (pool["marker_type"] == mt)]))
+    for bf, sub in pool.groupby("biofluid"):
+        if len(sub) >= 3 and sub["study_id"].nunique() >= 3:
+            sens_rows.append(summarise_sensitivity_every_estimate(f"Biofluid | Biofluido - {bf}", sub))
+    sens_res = pd.DataFrame([r for r in sens_rows if r])
+    sens_res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc_sensitivity_every_estimate.csv", index=False)
+
+    # EN | Variance-source comparison for the two primary outcomes.
+    # PT | Comparacao de origem de variancia para os dois desfechos primarios.
+    varsrc_rows = []
+    varsrc_rows += variance_source_comparison("AD - all markers", pool[pool["disease"] == "AD"])
+    varsrc_rows += variance_source_comparison("PD - all markers", pool[pool["disease"] == "PD"])
+    varsrc_res = pd.DataFrame([r for r in varsrc_rows if r])
+    varsrc_res.to_csv(f"{TAB_DIR}/meta_analysis_variance_source_comparison.csv", index=False)
+    print("\n" + "=" * 78)
+    print("EN | Variance source: reported-only vs full (+ reconstructed)")
+    print("PT | Origem da variancia: so-reportado vs completo (+ reconstruido)")
+    print("=" * 78)
+    print(varsrc_res.to_string(index=False))
+
+    # EN | Formal test for subgroup differences: panel vs single, within each
+    #      disease and combined, on the one-per-study primary basis.
+    # PT | Teste formal para diferenca entre subgrupos: painel vs isolado,
+    #      dentro de cada doenca e combinado, na base primaria uma-por-estudo.
+    diff_rows = []
+    for d in ["AD", "PD", None]:
+        base = pool if d is None else pool[pool["disease"] == d]
+        single = base[base["marker_type"] == "single_miRNA"]
+        panel = base[base["marker_type"] == "multi_miRNA_panel"]
+        label = "panel vs single | painel vs isolado" + (f" - {d}" if d else " - combined | combinado")
+        r = subgroup_difference_test(single, panel, label)
+        if r:
+            diff_rows.append(r)
+    diff_res = pd.DataFrame(diff_rows)
+    diff_res.to_csv(f"{TAB_DIR}/subgroup_difference_test.csv", index=False)
+    print("\n" + "=" * 78)
+    print("EN | Test for subgroup differences (Borenstein et al. 2009, ch.19)")
+    print("PT | Teste para diferenca entre subgrupos (Borenstein et al. 2009, cap.19)")
+    print("=" * 78)
+    print(diff_res.to_string(index=False))
 
     pool_out = pool[["record_id", "pmid", "doi", "first_author", "year", "disease",
                      "biofluid", "marker_type", "marker", "cohort_stage", "n_cases",
@@ -245,70 +511,59 @@ def main():
 
 def sensitivity_analyses(pool):
     """
-    EN | Test whether the headline single-miRNA estimate depends on any one
-         study, and on the fact that several studies contribute many estimates.
-    PT | Testa se a estimativa principal de miRNA isolado depende de um unico
-         estudo e do fato de varios estudos contribuirem com muitas estimativas.
-
-    EN | The primary pool treats every estimate as one observation, but eight
-         of them come from a single cohort. That is a real dependence, and the
-         honest response is to measure how much it moves the answer rather than
-         to assert that it does not. Two checks are run: one estimate per study
-         (the study median AUC), and leave-one-study-out.
-    PT | O pool primario trata cada estimativa como uma observacao, mas oito
-         vem de uma unica coorte. Isso e uma dependencia real, e a resposta
-         honesta e medir quanto ela desloca o resultado, e nao afirmar que nao
-         desloca. Duas checagens: uma estimativa por estudo (mediana da AUC do
-         estudo) e deixar-um-estudo-de-fora.
+    EN | Test whether the single-miRNA estimate depends on any one study,
+         beyond the one-per-study collapse already applied in the primary
+         analysis: leave-one-study-out on the collapsed rows.
+    PT | Testa se a estimativa de miRNA isolado depende de um unico estudo,
+         alem do colapso uma-por-estudo ja aplicado na analise primaria:
+         deixar-um-estudo-de-fora sobre as linhas colapsadas.
     """
     single = pool[pool["marker_type"] == "single_miRNA"].dropna(subset=["auc", "se_auc"])
     if single["study_id"].nunique() < 3:
         return
 
+    coll = collapse_one_per_study(single)
     out = []
-    base = _pooled_auc(single)
-    out.append(dict(analysis="primary (every estimate) | primaria (toda estimativa)",
-                    k_estimates=base[3], n_studies=int(single["study_id"].nunique()),
-                    pooled_auc=round(base[0], 4), ci_low=round(base[1], 4),
-                    ci_high=round(base[2], 4), I2_percent=round(base[4], 1)))
+    base = pool_re(coll["y"].values, coll["v"].values, tau2_method="PM")
+    out.append(dict(analysis="primary (one per study) | primaria (uma por estudo)",
+                    k_estimates=base["k"], n_studies=base["k"],
+                    pooled_auc=round(inv_logit(base["estimate"]), 4),
+                    ci_low=round(inv_logit(base["ci_low_hk"]), 4) if not np.isnan(base["ci_low_hk"]) else "",
+                    ci_high=round(inv_logit(base["ci_high_hk"]), 4) if not np.isnan(base["ci_high_hk"]) else "",
+                    I2_percent=round(base["I2"], 1)))
 
-    # EN/PT: one row per study, at the study's median AUC and median SE
-    agg = (single.groupby("study_id")
-                 .agg(auc=("auc", "median"), se_auc=("se_auc", "median"))
-                 .reset_index())
-    one = _pooled_auc(agg)
-    out.append(dict(analysis="one estimate per study | uma estimativa por estudo",
-                    k_estimates=one[3], n_studies=len(agg),
-                    pooled_auc=round(one[0], 4), ci_low=round(one[1], 4),
-                    ci_high=round(one[2], 4), I2_percent=round(one[4], 1)))
-
-    for sid in sorted(single["study_id"].unique()):
-        sub = single[single["study_id"] != sid]
-        r = _pooled_auc(sub)
-        if not r:
+    for sid in sorted(coll["study_id"].unique()):
+        sub = coll[coll["study_id"] != sid]
+        if len(sub) < 2:
             continue
+        r = pool_re(sub["y"].values, sub["v"].values, tau2_method="PM")
         who = single[single["study_id"] == sid].iloc[0]
         out.append(dict(analysis=f"leave out | sem {who['first_author']} {who['year']} ({sid})",
-                        k_estimates=r[3], n_studies=int(sub["study_id"].nunique()),
-                        pooled_auc=round(r[0], 4), ci_low=round(r[1], 4),
-                        ci_high=round(r[2], 4), I2_percent=round(r[4], 1)))
+                        k_estimates=r["k"], n_studies=r["k"],
+                        pooled_auc=round(inv_logit(r["estimate"]), 4),
+                        ci_low=round(inv_logit(r["ci_low_hk"]), 4) if not np.isnan(r["ci_low_hk"]) else "",
+                        ci_high=round(inv_logit(r["ci_high_hk"]), 4) if not np.isnan(r["ci_high_hk"]) else "",
+                        I2_percent=round(r["I2"], 1)))
 
     sens = pd.DataFrame(out)
     sens.to_csv(f"{TAB_DIR}/sensitivity_single_mirna.csv", index=False)
     print("\n" + "=" * 78)
-    print("EN | Sensitivity of the single-miRNA pool | PT | Sensibilidade do pool de miRNA isolado")
+    print("EN | Leave-one-study-out, single-miRNA (one-per-study basis)")
+    print("PT | Deixar-um-estudo-de-fora, miRNA isolado (base uma-por-estudo)")
     print("=" * 78)
     print(sens.to_string(index=False))
 
 
 def _pooled_auc(sub):
-    """EN/PT: pooled AUC and CI for a subset, on the back-transformed scale."""
+    """EN/PT: pooled AUC and CI (DL, every-row) for the forest/funnel plots,
+    which display every individual estimate and therefore keep the
+    every-row summary diamond for visual continuity with the raw data shown."""
     sub = sub.dropna(subset=["auc", "se_auc"])
     if len(sub) == 0:
         return None
     y = logit(sub["auc"].values)
     se_y = sub["se_auc"].values / (sub["auc"].values * (1 - sub["auc"].values))
-    r = dersimonian_laird(y, se_y ** 2)
+    r = pool_re(y, se_y ** 2, tau2_method="DL")
     if not r:
         return None
     return (inv_logit(r["estimate"]), inv_logit(r["ci_low"]),
@@ -317,9 +572,13 @@ def _pooled_auc(sub):
 
 def forest_plot(pool, lang):
     """EN | Forest plot of every estimate, grouped by disease and marker type,
-           with a DerSimonian-Laird summary diamond for each block.
+           with a DerSimonian-Laird summary diamond for each block (the
+           every-row view; the primary, one-per-study pooled figures are in
+           Table 1 and results/tables/meta_analysis_pooled_auc_primary.csv).
        PT | Forest plot de cada estimativa, agrupada por doenca e tipo de
-           marcador, com losango-resumo de DerSimonian-Laird por bloco."""
+           marcador, com losango-resumo de DerSimonian-Laird por bloco (a
+           visao por linha; as cifras primarias, uma-por-estudo, estao na
+           Tabela 1 e em results/tables/meta_analysis_pooled_auc_primary.csv)."""
     colors = {"AD": "#3B6EA5", "PD": "#B3541E", "mixed_neurodegenerative": "#777777"}
     blocks = []
     for dis in ["AD", "PD"]:
@@ -363,7 +622,7 @@ def forest_plot(pool, lang):
             ax.plot([lo, hi], [y, y], color="#222222", lw=2.0, zorder=4)
             ax.scatter([est], [y], marker="D", s=80, color="#222222", zorder=5)
             ytick_pos.append(y)
-            ytick_lab.append(f"Pooled | Agregado  (k={k}, I²={i2:.0f}%)")
+            ytick_lab.append(f"Pooled (every row) | Agregado (por linha)  (k={k}, I²={i2:.0f}%)")
 
     ax.axvline(0.5, color="#999999", ls="--", lw=1, zorder=1)
     ax.axvline(0.8, color="#cccccc", ls=":", lw=1, zorder=1)
@@ -374,9 +633,9 @@ def forest_plot(pool, lang):
     ax.tick_params(axis="y", length=0)
     ax.set_xlabel(t(lang,
                     "AUC (95% CI).  Square = single miRNA;  diamond = panel;  "
-                    "black diamond = random-effects summary",
+                    "black diamond = random-effects summary, every row",
                     "AUC (IC 95%).  Quadrado = miRNA isolado;  losango = painel;  "
-                    "losango preto = resumo de efeitos aleatórios"), fontsize=8.4)
+                    "losango preto = resumo de efeitos aleatórios, por linha"), fontsize=8.4)
     ax.set_title(t(lang, "Diagnostic accuracy of circulating miRNAs in AD and PD",
                    "Acurácia diagnóstica de miRNAs circulantes na DA e na DP"),
                  fontsize=11.5)
@@ -391,7 +650,7 @@ def funnel_plot(pool, lang):
     """EN/PT: funnel plot on the logit(AUC) scale to inspect small-study effects."""
     y = logit(pool["auc"].values)
     se = pool["se_auc"].values / (pool["auc"].values * (1 - pool["auc"].values))
-    r = dersimonian_laird(y, se ** 2)
+    r = pool_re(y, se ** 2, tau2_method="DL")
 
     fig, ax = plt.subplots(figsize=(6.4, 5.4))
     colors = {"AD": "#3B6EA5", "PD": "#B3541E", "mixed_neurodegenerative": "#777777"}

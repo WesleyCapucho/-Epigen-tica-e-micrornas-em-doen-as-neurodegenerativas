@@ -40,7 +40,7 @@ The meta-analytic layer exists to answer a question the source monograph raised 
 | Studies appraised with QUADAS-2 | 28 |
 | Certainty of evidence (GRADE) | Very low |
 
-Pooled estimates live in `results/tables/meta_analysis_pooled_auc.csv`, the per-estimate inputs in `results/tables/meta_analysis_input_estimates.csv`, and the clustering sensitivity analyses in `results/tables/sensitivity_single_mirna.csv`. Every extracted value is traceable to a verbatim sentence from its source in `data/extracted/diagnostic_accuracy_extraction.csv`.
+Primary pooled estimates (one estimate per study, Paule-Mandel tau-squared, Hartung-Knapp CIs, AD and PD as separate primary outcomes) live in `results/tables/meta_analysis_pooled_auc_primary.csv`; the every-row DerSimonian-Laird analysis this replaced as the headline number is kept as a labelled sensitivity check in `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`. Per-estimate inputs are in `results/tables/meta_analysis_input_estimates.csv`, and the leave-one-study-out sensitivity analysis in `results/tables/sensitivity_single_mirna.csv`. Every extracted value is traceable to a verbatim sentence from its source in `data/extracted/diagnostic_accuracy_extraction.csv`.
 
 Interpretation belongs in the manuscript, not here. Two things do belong here, because they are properties of the data rather than of the argument:
 
@@ -144,7 +144,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1737 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1795 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.

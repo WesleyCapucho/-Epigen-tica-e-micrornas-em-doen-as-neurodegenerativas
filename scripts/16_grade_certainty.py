@@ -66,7 +66,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
 
 QUADAS = "results/tables/quadas2_assessment.csv"
-POOLED = "results/tables/meta_analysis_pooled_auc.csv"
+POOLED_PRIMARY = "results/tables/meta_analysis_pooled_auc_primary.csv"
+POOLED_SENS = "results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv"
 BIVARIATE = "results/tables/bivariate_summary.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
@@ -150,34 +151,37 @@ def rate_inconsistency(pooled_row):
     return steps, f"I2 = {i2:.1f}% across the pooled estimates"
 
 
-def rate_imprecision(biv_row):
+def rate_imprecision(primary_row):
     """
-    EN | GRADE domain 4, judged on the width of the confidence interval around the summary
-         operating point, because that is the quantity a reader would act on.
-    PT | Dominio 4 do GRADE, julgado pela largura do intervalo de confianca em torno do
-         ponto sumario de operacao, porque e essa a grandeza sobre a qual se agiria.
+    EN | GRADE domain 4, judged on the width of the Hartung-Knapp-Sidik-Jonkman 95%
+         confidence interval around the disease's primary pooled AUC (one estimate per
+         study), because that is the quantity a reader would act on.
+    PT | Dominio 4 do GRADE, julgado pela largura do intervalo de confianca de
+         Hartung-Knapp-Sidik-Jonkman a 95% em torno da AUC agrupada primaria da doenca
+         (uma estimativa por estudo), porque e essa a grandeza sobre a qual se agiria.
     """
-    widths = {
-        "sensitivity": float(biv_row["sensitivity_ci_high"]) - float(biv_row["sensitivity_ci_low"]),
-        "specificity": float(biv_row["specificity_ci_high"]) - float(biv_row["specificity_ci_low"]),
-    }
-    worst = max(widths.values())
-    if worst >= THRESHOLDS["imprecision_very_serious_ci_width"]:
+    lo, hi = primary_row["ci_low_hk"], primary_row["ci_high_hk"]
+    width = (float(hi) - float(lo)) if (lo not in ("", None) and hi not in ("", None)) else float("nan")
+    if width != width:  # NaN
+        return 0, "confidence interval not estimable at this k; imprecision not rated from it"
+    if width >= THRESHOLDS["imprecision_very_serious_ci_width"]:
         steps = 2
-    elif worst >= THRESHOLDS["imprecision_serious_ci_width"]:
+    elif width >= THRESHOLDS["imprecision_serious_ci_width"]:
         steps = 1
     else:
         steps = 0
-    return steps, (f"widest 95% interval around the summary point is "
-                   f"{worst:.3f} (sensitivity {widths['sensitivity']:.3f}, "
-                   f"specificity {widths['specificity']:.3f})")
+    return steps, (f"95% Hartung-Knapp interval around the primary pooled AUC spans "
+                   f"{width:.3f} ({float(lo):.3f}-{float(hi):.3f})")
 
 
-def rate_publication_bias(pooled_row):
-    p = float(pooled_row["egger_p"])
+def rate_publication_bias(sens_row):
+    p_raw = sens_row["egger_p"]
+    if p_raw in ("", None):
+        return 0, "Egger test not estimable at this k"
+    p = float(p_raw)
     steps = 1 if p < THRESHOLDS["publication_bias_egger_p"] else 0
     verdict = "strongly suspected" if steps else "not detected"
-    return steps, f"Egger test p = {p:.4g} on the pooled estimates, {verdict}"
+    return steps, f"Egger test p = {p:.4g} on the every-estimate sensitivity pool, {verdict}"
 
 
 def summary_of_findings(sens, spec, prevalence):
@@ -201,7 +205,7 @@ def summary_of_findings(sens, spec, prevalence):
     ])
 
 
-def plot(sof, certainty, path, lang):
+def plot(sof, subtitle, path, lang):
     """EN/PT: what the test does to 1000 people, at each pre-test probability."""
     fig, axes = plt.subplots(1, len(sof), figsize=(3.5 * len(sof), 4.4), sharey=True)
     if len(sof) == 1:
@@ -237,60 +241,105 @@ def plot(sof, certainty, path, lang):
     handles = [plt.Rectangle((0, 0), 1, 1, color=c) for _, c, _ in keys]
     fig.legend(handles, [lab for _, _, lab in keys], loc="lower center",
                ncol=2, fontsize=8.5, frameon=False, bbox_to_anchor=(0.5, -0.08))
-    cert = {"high": t(lang, "high", "alta"), "moderate": t(lang, "moderate", "moderada"),
-            "low": t(lang, "low", "baixa"), "very low": t(lang, "very low", "muito baixa")}[certainty]
     fig.suptitle(t(lang,
-                   "What the pooled test does to 1000 people\n"
-                   f"GRADE certainty of evidence: {cert}",
-                   "O que o teste agrupado faz com 1000 pessoas\n"
-                   f"Certeza da evidência pelo GRADE: {cert}"), fontsize=11)
+                   "What the pooled bivariate operating point implies for 1000 people\n"
+                   f"{subtitle}",
+                   "O que o ponto de operação bivariado agrupado implica para 1000 pessoas\n"
+                   f"{subtitle}"), fontsize=11)
     fig.tight_layout()
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 
-def main():
-    os.makedirs(TAB_DIR, exist_ok=True)
-    os.makedirs(FIG_DIR, exist_ok=True)
-    for f in (QUADAS, POOLED, BIVARIATE):
-        if not os.path.exists(f):
-            sys.exit(f"EN/PT: missing {f}; run scripts/05, 14 and 15 first")
-
-    quadas = list(csv.DictReader(open(QUADAS, encoding="utf-8")))
-    pooled = list(csv.DictReader(open(POOLED, encoding="utf-8")))
-    biv = list(csv.DictReader(open(BIVARIATE, encoding="utf-8")))
-    overall = next(r for r in pooled if r["subgroup"].startswith("Overall"))
-    primary = next(r for r in biv if r["analysis"].startswith("one estimate per study"))
+def rate_disease(disease, quadas_all, primary_rows, sens_rows):
+    """
+    EN | Full GRADE rating for one disease's primary outcome (the one-per-study
+         pooled AUC), so that AD and PD - two biologically and diagnostically
+         distinct primary outcomes - each get their own certainty rating rather
+         than sharing one verdict built from the combined AD+PD pool.
+    PT | Classificacao GRADE completa para o desfecho primario de uma doenca (a
+         AUC agrupada uma-por-estudo), para que AD e PD - dois desfechos
+         diagnosticos e biologicamente distintos - recebam cada um sua propria
+         classificacao de certeza, em vez de compartilhar um veredito construido
+         a partir do pool combinado AD+PD.
+    """
+    quadas = [r for r in quadas_all if r["disease"] == disease]
+    primary_row = next(r for r in primary_rows
+                       if r["subgroup"].startswith(f"{disease} - all markers"))
+    sens_row = next(r for r in sens_rows
+                    if r["subgroup"] == f"{disease} - all markers | todos marcadores")
 
     domains = OrderedDict()
     for name, (steps, why) in [
         ("risk_of_bias", rate_risk_of_bias(quadas)),
         ("indirectness", rate_indirectness(quadas)),
-        ("inconsistency", rate_inconsistency(overall)),
-        ("imprecision", rate_imprecision(primary)),
-        ("publication_bias", rate_publication_bias(overall)),
+        ("inconsistency", rate_inconsistency(primary_row)),
+        ("imprecision", rate_imprecision(primary_row)),
+        ("publication_bias", rate_publication_bias(sens_row)),
     ]:
         en, pt = downgrade(steps)
         domains[name] = OrderedDict([("downgrade_steps", steps), ("judgement_en", en),
                                      ("judgement_pt", pt), ("reason", why)])
-
     total = sum(d["downgrade_steps"] for d in domains.values())
     idx = max(0, len(LEVELS) - 1 - total)
     certainty = LEVELS[idx]
+    return domains, total, certainty, primary_row
 
-    sof = [summary_of_findings(float(primary["summary_sensitivity"]),
-                               float(primary["summary_specificity"]), p)
+
+def main():
+    os.makedirs(TAB_DIR, exist_ok=True)
+    os.makedirs(FIG_DIR, exist_ok=True)
+    for f in (QUADAS, POOLED_PRIMARY, POOLED_SENS, BIVARIATE):
+        if not os.path.exists(f):
+            sys.exit(f"EN/PT: missing {f}; run scripts/05, 14 and 15 first")
+
+    quadas = list(csv.DictReader(open(QUADAS, encoding="utf-8")))
+    primary_rows = list(csv.DictReader(open(POOLED_PRIMARY, encoding="utf-8")))
+    sens_rows = list(csv.DictReader(open(POOLED_SENS, encoding="utf-8")))
+    biv = list(csv.DictReader(open(BIVARIATE, encoding="utf-8")))
+    biv_primary = next(r for r in biv if r["analysis"].startswith("one estimate per study"))
+
+    results = OrderedDict()
+    for disease in ["AD", "PD"]:
+        domains, total, certainty, primary_row = rate_disease(
+            disease, quadas, primary_rows, sens_rows)
+        results[disease] = OrderedDict([
+            ("domains", domains), ("total_downgrade_steps", total),
+            ("certainty_of_evidence", certainty),
+            ("primary_pooled_auc", float(primary_row["pooled_auc"])),
+            ("primary_auc_ci_hk", [primary_row["ci_low_hk"], primary_row["ci_high_hk"]]),
+        ])
+
+    # EN | The bivariate sensitivity/specificity summary-of-findings table stays
+    #      a single, combined AD+PD exploratory analysis: only 9 independent
+    #      studies contribute a paired sensitivity and specificity, splitting
+    #      that by disease would leave too few studies per disease to fit or
+    #      interpret the bivariate model. It is reported as an exploratory
+    #      complement to the two disease-specific AUC-based GRADE ratings
+    #      above, not as their source.
+    # PT | A tabela de resumo de achados de sensibilidade/especificidade
+    #      bivariada permanece uma unica analise exploratoria combinada AD+PD:
+    #      so 9 estudos independentes contribuem um par de sensibilidade e
+    #      especificidade, separar por doenca deixaria poucos estudos por
+    #      doenca para ajustar ou interpretar o modelo bivariado. E reportada
+    #      como complemento exploratorio as duas classificacoes GRADE
+    #      especificas por doenca acima, nao como fonte delas.
+    sof = [summary_of_findings(float(biv_primary["summary_sensitivity"]),
+                               float(biv_primary["summary_specificity"]), p)
            for p in PREVALENCES]
 
     print("=" * 78)
-    print("EN | GRADE certainty of evidence | PT | Certeza da evidencia pelo GRADE")
+    print("EN | GRADE certainty of evidence, by disease | PT | Certeza GRADE, por doenca")
     print("=" * 78)
-    print(f"  starting certainty for accuracy studies : high")
-    for name, d in domains.items():
-        print(f"  {name:18s} -{d['downgrade_steps']}  {d['judgement_en']:13s} {d['reason']}")
-    print(f"  total downgrade steps                   : {total}")
-    print(f"  CERTAINTY OF EVIDENCE                   : {certainty.upper()}")
-    print("\n  Summary of findings, per 1000 people tested:")
+    for disease, r in results.items():
+        print(f"\n  {disease} (primary pooled AUC {r['primary_pooled_auc']:.3f}, "
+              f"HK 95% CI {r['primary_auc_ci_hk'][0]}-{r['primary_auc_ci_hk'][1]}):")
+        for name, d in r["domains"].items():
+            print(f"    {name:18s} -{d['downgrade_steps']}  {d['judgement_en']:13s} {d['reason']}")
+        print(f"    total downgrade steps : {r['total_downgrade_steps']}")
+        print(f"    CERTAINTY OF EVIDENCE : {r['certainty_of_evidence'].upper()}")
+
+    print("\n  Exploratory combined AD+PD summary of findings, per 1000 people tested:")
     for row in sof:
         print(f"    pre-test {row['pre_test_probability']:.0%}: "
               f"TP {row['true_positives_per_1000']:6.1f}  FN {row['false_negatives_per_1000']:6.1f}  "
@@ -307,41 +356,54 @@ def main():
                        "J Clin Epidemiol 2020;122:129-141 and 142-152)"),
         ("starting_certainty", "high"),
         ("thresholds", THRESHOLDS),
-        ("domains", domains),
-        ("total_downgrade_steps", total),
-        ("certainty_of_evidence", certainty),
-        ("summary_sensitivity", float(primary["summary_sensitivity"])),
-        ("summary_specificity", float(primary["summary_specificity"])),
+        ("by_disease", results),
+        ("bivariate_summary_of_findings_scope",
+         "exploratory, AD and PD combined, 9 independent studies with a paired "
+         "sensitivity and specificity; not disease-specific and not the basis "
+         "for either disease's GRADE rating above"),
+        ("bivariate_summary_sensitivity", float(biv_primary["summary_sensitivity"])),
+        ("bivariate_summary_specificity", float(biv_primary["summary_specificity"])),
         ("summary_of_findings", sof),
         ("reading_en",
-         "Certainty is very low, and the five domains that put it there are not "
-         "independent afflictions of a few weak studies: every pooled estimate comes from "
-         "a case-versus-healthy-control design with a threshold chosen in the same sample, "
-         "heterogeneity is near total, and the funnel is asymmetric. The summary of "
-         "findings is the part to quote. At a pre-test probability of 5%, the order of a "
-         "screening setting, the pooled test returns 301 positives per 1000 people tested, "
-         "of which 261 are false: 40 real cases found at the cost of 261 people sent for "
-         "unnecessary further work-up, a positive predictive value of 0.13. The test is "
-         "better at ruling out than ruling in, with a negative predictive value of 0.99 at "
-         "that prevalence, and that asymmetry is the honest way to describe it."),
+         "AD and PD are rated separately because they are different diagnostic "
+         "questions with different evidence bases (10 studies each in the primary "
+         "AUC pool), and a single combined verdict would obscure that PD's "
+         "evidence is both larger and far more heterogeneous (I2 98.9% versus "
+         "AD's 76.8%). Both ratings are very low to low, driven by the same "
+         "structural facts: every study is a case-versus-healthy-control design, "
+         "the threshold was set in the same sample it was evaluated in, and "
+         "heterogeneity is high to extreme. The combined bivariate summary of "
+         "findings below is a secondary, exploratory illustration of what a "
+         "pooled operating point would imply clinically, drawn from only 9 "
+         "studies, and should not be read as a validated clinical accuracy for "
+         "either disease individually."),
         ("reading_pt",
-         "A certeza e muito baixa, e os cinco dominios que a levaram ate la nao sao males "
-         "independentes de alguns estudos fracos: toda estimativa agrupada vem de um "
-         "desenho caso-versus-controle-saudavel com limiar escolhido na mesma amostra, a "
-         "heterogeneidade e quase total e o funil e assimetrico. A tabela de resumo de "
-         "achados e a parte a citar. Numa probabilidade pre-teste de 5%, a ordem de um "
-         "cenario de rastreio, o teste agrupado devolve 301 positivos por 1000 pessoas "
-         "testadas, dos quais 261 sao falsos: 40 casos reais encontrados ao custo de 261 "
-         "pessoas encaminhadas para investigacao desnecessaria, um valor preditivo positivo "
-         "de 0,13. O teste e melhor para descartar que para confirmar, com valor preditivo "
-         "negativo de 0,99 nessa prevalencia, e essa assimetria e o jeito honesto de "
-         "descreve-lo."),
+         "AD e PD sao classificadas separadamente porque sao perguntas "
+         "diagnosticas diferentes com bases de evidencia diferentes (10 estudos "
+         "cada uma no pool primario de AUC), e um veredito unico combinado "
+         "esconderia que a evidencia de PD e ao mesmo tempo maior e muito mais "
+         "heterogenea (I2 98,9% contra 76,8% de AD). As duas classificacoes vao "
+         "de muito baixa a baixa, guiadas pelos mesmos fatos estruturais: todo "
+         "estudo e um desenho caso-versus-controle-saudavel, o limiar foi "
+         "fixado na mesma amostra em que foi avaliado, e a heterogeneidade e "
+         "alta a extrema. A tabela de resumo de achados bivariada combinada "
+         "abaixo e uma ilustracao secundaria e exploratoria do que um ponto de "
+         "operacao agrupado implicaria clinicamente, tirada de apenas 9 "
+         "estudos, e nao deve ser lida como uma acuracia clinica validada para "
+         "nenhuma das duas doencas isoladamente."),
     ])
     with open(f"{TAB_DIR}/grade_certainty.json", "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=1)
 
+    ad_cert = results["AD"]["certainty_of_evidence"]
+    pd_cert = results["PD"]["certainty_of_evidence"]
     for lang in LANGS:
-        plot(sof, certainty, fig_path(FIG_DIR, "grade_summary_of_findings", lang), lang)
+        subtitle = t(lang,
+                     f"exploratory, AD+PD combined (9 studies) · AD AUC certainty: {ad_cert} · "
+                     f"PD AUC certainty: {pd_cert}",
+                     f"exploratório, DA+DP combinado (9 estudos) · certeza AUC DA: {ad_cert} · "
+                     f"certeza AUC DP: {pd_cert}")
+        plot(sof, subtitle, fig_path(FIG_DIR, "grade_summary_of_findings", lang), lang)
 
     print(f"\nEN/PT -> {TAB_DIR}/grade_summary_of_findings.csv")
     print(f"EN/PT -> {TAB_DIR}/grade_certainty.json")

@@ -41,7 +41,9 @@ ODE_RESULTS = "results/tables/ode_calibrated_results.json"
 EXTRACTION_JSON = "data/extracted/diagnostic_accuracy_extraction.json"
 FLOW = "data/processed/prisma_flow.json"
 SEARCH_STRATEGY = "data/raw/systematic_review_2026/search_strategy.json"
-POOLED = "results/tables/meta_analysis_pooled_auc.csv"
+POOLED_PRIMARY = "results/tables/meta_analysis_pooled_auc_primary.csv"
+POOLED = "results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv"
+SUBGROUP_DIFF = "results/tables/subgroup_difference_test.csv"
 INPUTS = "results/tables/meta_analysis_input_estimates.csv"
 SENS = "results/tables/sensitivity_single_mirna.csv"
 CITED = "results/tables/citation_frequency_vs_auc.csv"
@@ -92,6 +94,8 @@ def main():
     ext = list(csv.DictReader(open(EXTRACTION, encoding="utf-8")))
     flow = json.load(open(FLOW, encoding="utf-8"))
     pooled = list(csv.DictReader(open(POOLED, encoding="utf-8")))
+    pooled_primary = list(csv.DictReader(open(POOLED_PRIMARY, encoding="utf-8")))
+    subgroup_diff = list(csv.DictReader(open(SUBGROUP_DIFF, encoding="utf-8")))
     inputs = list(csv.DictReader(open(INPUTS, encoding="utf-8")))
     sens = list(csv.DictReader(open(SENS, encoding="utf-8")))
     cited = list(csv.DictReader(open(CITED, encoding="utf-8")))
@@ -301,19 +305,60 @@ def main():
             check(int(r["n_studies"]) >= 3,
                   f"pooled [{r['subgroup']}]: biofluid subgroup with fewer than 3 studies")
 
-    # --- 6. Sensitivity analysis agrees with the primary pool --------------
+    # --- 6. Leave-one-out sensitivity agrees with the PRIMARY (one-per-study) pool
+    by_sub_primary = {r["subgroup"]: r for r in pooled_primary}
     primary = [r for r in sens if r["analysis"].startswith("primary")]
     check(len(primary) == 1, "sensitivity: primary row missing")
-    if primary and "All - single miRNA | miRNA isolado" in by_sub:
-        p, m = primary[0], by_sub["All - single miRNA | miRNA isolado"]
+    single_primary_key = "All - single miRNA | miRNA isolado"
+    if primary and single_primary_key in by_sub_primary:
+        p, m = primary[0], by_sub_primary[single_primary_key]
         check(abs(float(p["pooled_auc"]) - float(m["pooled_auc"])) < 5e-4,
-              "sensitivity: primary row disagrees with the pooled single-miRNA estimate")
-        check(int(p["k_estimates"]) == int(m["k_estimates"]),
-              "sensitivity: primary k disagrees with the pooled table")
-    one_per = [r for r in sens if r["analysis"].startswith("one estimate per study")]
-    if one_per:
-        check(int(one_per[0]["k_estimates"]) == int(one_per[0]["n_studies"]),
-              "sensitivity: one-per-study row must have k equal to the study count")
+              "sensitivity: leave-one-out primary row disagrees with the PRIMARY "
+              "(one-per-study) single-miRNA estimate")
+        check(int(p["k_estimates"]) == int(p["n_studies"]),
+              "sensitivity: leave-one-out primary row must have k equal to the study count "
+              "(it is already collapsed one-per-study)")
+
+    # --- 6b. PRIMARY (one-per-study) table is internally coherent -----------
+    # EN | The primary table is what the manuscript now reports as the headline AD and PD
+    #      estimates, so it gets the same coherence checks the every-estimate table always
+    #      had, plus a check that a study's own collapsed AUC always sits between the
+    #      logit-scale extremes implied by its raw rows (guards against a collapsing bug
+    #      producing an out-of-range fixed-effect combination).
+    # PT | A tabela primaria e o que o manuscrito agora reporta como as estimativas
+    #      principais de DA e DP, entao recebe as mesmas checagens de coerencia que a
+    #      tabela por-linha sempre teve, mais uma checagem de que a AUC colapsada de um
+    #      estudo sempre fica entre os extremos na escala logito implicados por suas
+    #      linhas brutas (protege contra um bug de colapso que produza uma combinacao de
+    #      efeito fixo fora do intervalo).
+    for r in pooled_primary:
+        est = float(r["pooled_auc"])
+        check(0.0 < est < 1.0, f"primary [{r['subgroup']}]: pooled AUC leaves (0,1)")
+        if r["ci_low_hk"] not in ("", None) and r["ci_high_hk"] not in ("", None):
+            lo, hi = float(r["ci_low_hk"]), float(r["ci_high_hk"])
+            check(lo < est < hi,
+                  f"primary [{r['subgroup']}]: estimate outside its own Hartung-Knapp interval")
+        check(int(r["n_estimates_collapsed"]) >= int(r["n_studies"]),
+              f"primary [{r['subgroup']}]: more studies than estimates collapsed")
+        check(0.0 <= float(r["I2_percent"]) <= 100.0,
+              f"primary [{r['subgroup']}]: I2 out of range")
+
+    ad_primary = by_sub_primary.get("AD - all markers | todos marcadores (PRIMARY 1)")
+    pd_primary = by_sub_primary.get("PD - all markers | todos marcadores (PRIMARY 2)")
+    combined_secondary = by_sub_primary.get("Overall AD+PD (all eligible) | Global (SECONDARY)")
+    check(ad_primary is not None and pd_primary is not None and combined_secondary is not None,
+          "primary: AD, PD or combined-secondary row missing")
+    if ad_primary and pd_primary and combined_secondary:
+        check(int(ad_primary["n_studies"]) + int(pd_primary["n_studies"])
+              == int(combined_secondary["n_studies"]),
+              "primary: AD studies + PD studies should equal the combined secondary's study count")
+
+    # --- 6c. Subgroup-difference test rests on the same primary rows --------
+    check(len(subgroup_diff) == 3, f"subgroup difference: expected 3 comparisons, found {len(subgroup_diff)}")
+    for r in subgroup_diff:
+        check(int(r["df"]) == 1, f"subgroup difference [{r['comparison']}]: df should be 1")
+        check(float(r["Q_between"]) >= 0,
+              f"subgroup difference [{r['comparison']}]: Q_between should not be negative")
 
     # --- 7. Mention counts cover the corpus the AUCs came from -------------
     fam_counts = {r["family"]: int(r["n_articles_mentioning_family"]) for r in counts}
@@ -865,28 +910,39 @@ def main():
         th = gr["thresholds"]
         dom = ["rob_patient_selection", "rob_index_test",
                "rob_reference_standard", "rob_flow_timing"]
-        n = len(quadas)
-        high_rob = sum(1 for r in quadas if any(r[d] == "high" for d in dom))
-        expect = 2 if high_rob / n >= th["risk_of_bias_very_serious_fraction"] else (
-                 1 if high_rob / n >= th["risk_of_bias_serious_fraction"] else 0)
-        check(gr["domains"]["risk_of_bias"]["downgrade_steps"] == expect,
-              f"GRADE risk of bias: {gr['domains']['risk_of_bias']['downgrade_steps']} steps "
-              f"but {high_rob}/{n} high-risk studies imply {expect}")
-        i2 = float(next(r for r in pooled if r["subgroup"].startswith("Overall"))["I2_percent"])
-        expect = 2 if i2 >= th["inconsistency_very_serious_i2"] else (
-                 1 if i2 >= th["inconsistency_serious_i2"] else 0)
-        check(gr["domains"]["inconsistency"]["downgrade_steps"] == expect,
-              f"GRADE inconsistency: I2 {i2} implies {expect} steps")
-        total = sum(d["downgrade_steps"] for d in gr["domains"].values())
-        check(total == gr["total_downgrade_steps"], "GRADE: the downgrade steps do not sum")
         levels = ["very low", "low", "moderate", "high"]
-        check(gr["certainty_of_evidence"] == levels[max(0, len(levels) - 1 - total)],
-              f"GRADE: {total} steps from high does not give {gr['certainty_of_evidence']!r}")
-        se_, sp_ = gr["summary_sensitivity"], gr["summary_specificity"]
+        for disease in ["AD", "PD"]:
+            gr_d = gr["by_disease"][disease]
+            quadas_d = [r for r in quadas if r["disease"] == disease]
+            n = len(quadas_d)
+            high_rob = sum(1 for r in quadas_d if any(r[d] == "high" for d in dom))
+            expect = 2 if high_rob / n >= th["risk_of_bias_very_serious_fraction"] else (
+                     1 if high_rob / n >= th["risk_of_bias_serious_fraction"] else 0)
+            check(gr_d["domains"]["risk_of_bias"]["downgrade_steps"] == expect,
+                  f"GRADE {disease} risk of bias: "
+                  f"{gr_d['domains']['risk_of_bias']['downgrade_steps']} steps "
+                  f"but {high_rob}/{n} high-risk studies imply {expect}")
+            primary_row = next(r for r in pooled_primary
+                               if r["subgroup"].startswith(f"{disease} - all markers"))
+            i2 = float(primary_row["I2_percent"])
+            expect = 2 if i2 >= th["inconsistency_very_serious_i2"] else (
+                     1 if i2 >= th["inconsistency_serious_i2"] else 0)
+            check(gr_d["domains"]["inconsistency"]["downgrade_steps"] == expect,
+                  f"GRADE {disease} inconsistency: I2 {i2} implies {expect} steps")
+            total = sum(d["downgrade_steps"] for d in gr_d["domains"].values())
+            check(total == gr_d["total_downgrade_steps"],
+                  f"GRADE {disease}: the downgrade steps do not sum")
+            check(gr_d["certainty_of_evidence"] == levels[max(0, len(levels) - 1 - total)],
+                  f"GRADE {disease}: {total} steps from high does not give "
+                  f"{gr_d['certainty_of_evidence']!r}")
+            check(abs(gr_d["primary_pooled_auc"] - float(primary_row["pooled_auc"])) < 1e-9,
+                  f"GRADE {disease}: primary_pooled_auc does not match the primary table")
+
+        se_, sp_ = gr["bivariate_summary_sensitivity"], gr["bivariate_summary_specificity"]
         primary_biv = next(r for r in biv if r["analysis"].startswith("one estimate per study"))
         check(abs(se_ - float(primary_biv["summary_sensitivity"])) < 1e-9
               and abs(sp_ - float(primary_biv["summary_specificity"])) < 1e-9,
-              "GRADE: the operating point does not match the bivariate primary analysis")
+              "GRADE: the bivariate operating point does not match the bivariate primary analysis")
         for row in gr["summary_of_findings"]:
             p_ = row["pre_test_probability"]
             d_, h_ = 1000.0 * p_, 1000.0 * (1 - p_)
@@ -1056,12 +1112,12 @@ def main():
 
     # EN | The study-characteristics donut/bar figure and the subgroup-summary point-range
     #      figure are illustration built from counts (study_characteristics) or from
-    #      results/tables/meta_analysis_pooled_auc.csv (subgroup_summary_forest) that this
-    #      script already checks above and in the meta-analysis section below, so the
-    #      only thing left to confirm here is that both language versions exist.
+    #      results/tables/meta_analysis_pooled_auc_primary.csv (subgroup_summary_forest)
+    #      that this script already checks above and in the meta-analysis section below,
+    #      so the only thing left to confirm here is that both language versions exist.
     # PT | A figura de rosca/barra de caracteristicas dos estudos e a figura de resumo dos
     #      subgrupos em ponto-e-intervalo sao ilustracao construida a partir de contagens
-    #      (study_characteristics) ou de results/tables/meta_analysis_pooled_auc.csv
+    #      (study_characteristics) ou de results/tables/meta_analysis_pooled_auc_primary.csv
     #      (subgroup_summary_forest) que este script ja confere acima e na secao de
     #      meta-analise abaixo, entao o que resta confirmar aqui e so que as duas versoes
     #      de idioma existem.

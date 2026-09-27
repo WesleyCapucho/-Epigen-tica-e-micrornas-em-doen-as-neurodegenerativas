@@ -77,17 +77,34 @@ One file per ingested database arm, named from the `--arm` label: `AD` and `PD` 
 
 Bibliometric sample from the original monograph layer, pulled live from the NCBI API on 2026-09-10. `manifest.json` records the exact query, access date, the real total number of matching records in PubMed, and an explicit no-fabrication statement.
 
-## `results/tables/meta_analysis_pooled_auc.csv`
+## `results/tables/meta_analysis_pooled_auc_primary.csv`
+
+The PRIMARY analysis: every study collapsed to one estimate per subgroup first (fixed-effect combination of that study's own qualifying rows), pooled between studies with Paule-Mandel tau-squared. AD and PD are separate primary rows; the combined AD+PD row is labelled SECONDARY.
 
 | Column | Description |
 |---|---|
-| `subgroup` | Which subset was pooled |
-| `k_estimates` | Number of estimates pooled |
-| `n_studies` | Number of independent studies contributing them |
-| `pooled_auc`, `ci_low`, `ci_high` | Random-effects pooled AUC, back-transformed from logit |
-| `tau2_logit` | Between-study variance on the logit scale |
-| `I2_percent`, `Q`, `df`, `p_heterogeneity` | Heterogeneity statistics |
-| `egger_intercept`, `egger_p` | Egger test for small-study effects |
+| `subgroup` | Which subset was pooled (PRIMARY 1 = AD, PRIMARY 2 = PD, SECONDARY = AD+PD combined) |
+| `n_studies` | Independent studies contributing (equals k after one-per-study collapsing) |
+| `n_estimates_collapsed` | Raw extraction rows collapsed into those studies |
+| `n_studies_with_multiple_estimates` | How many of those studies had more than one qualifying row |
+| `pooled_auc` | Random-effects pooled AUC, back-transformed from logit |
+| `ci_low_wald`, `ci_high_wald` | Standard Wald 95% CI |
+| `ci_low_hk`, `ci_high_hk` | Hartung-Knapp-Sidik-Jonkman 95% CI (the one reported in text and figures) |
+| `pi_low`, `pi_high` | 95% prediction interval (k >= 3 only) |
+| `tau2_PM` | Paule-Mandel between-study variance on the logit scale |
+| `I2_percent`, `Q`, `df`, `p_heterogeneity` | Heterogeneity statistics (Q from DerSimonian-Laird, reported regardless of which tau-squared feeds the pooled estimate) |
+
+## `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`
+
+The analysis that was previously reported as primary: every qualifying row treated as an independent observation, pooled with DerSimonian-Laird tau-squared. Kept as a labelled sensitivity check on the unit-of-analysis choice above. Same column schema as the pre-existing table (`subgroup`, `k_estimates`, `n_studies`, `pooled_auc`, `ci_low`, `ci_high`, `tau2_logit`, `I2_percent`, `Q`, `df`, `p_heterogeneity`, `egger_intercept`, `egger_p`).
+
+## `results/tables/meta_analysis_variance_source_comparison.csv`
+
+For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (34 of 41 estimates) actually changes the answer versus how few studies (2 for AD, 4 for PD) reported their own interval.
+
+## `results/tables/subgroup_difference_test.csv`
+
+Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 df), computed on the one-per-study primary rows, within AD, within PD, and combined.
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
@@ -239,7 +256,7 @@ A six-panel figure typesetting the equations `scripts/05_meta_analysis.py` and `
 
 ## `results/figures/subgroup_summary_forest.*.png`
 
-A point-range ("summary forest") chart of the five core pooled-AUC subgroups already reported in Table 1 (overall, AD, PD, single microRNA, multi-microRNA panel), each point and its 95% CI read live from `results/tables/meta_analysis_pooled_auc.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots all 41 pooled estimates rather than five subgroup summaries.
+A point-range ("summary forest") chart of the core pooled-AUC subgroups reported in Table 1 (AD primary, PD primary, AD+PD combined secondary, single microRNA, multi-microRNA panel), each point and its 95% Hartung-Knapp CI read live from `results/tables/meta_analysis_pooled_auc_primary.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots all 41 individual estimates rather than five subgroup summaries.
 
 ## `results/figures/study_characteristics.*.png`
 
