@@ -787,6 +787,40 @@ def main():
               f"QUADAS-2 reference_standard_type: counted {ref_type_counts}, "
               f"manuscript (section 3.3/4.3) states {expect_ref_types}")
 
+        # EN | The manuscript also reports where each study's positivity threshold came
+        #      from (section 3.3): 27 of 28 studies chose and evaluated the cut-off in the
+        #      same sample, 1 evaluated a threshold set in an independent sample. This is
+        #      the identical cohort_stage-based rule rob_index_test already applies
+        #      (derived-in-sample beats cross-validated beats externally-validated beats
+        #      not-determinable), only relabelled, so it must never disagree with the
+        #      rob_index_test HIGH/UNCLEAR counts checked above.
+        # PT | O manuscrito tambem reporta de onde veio o limiar de positividade de cada
+        #      estudo (secao 3.3): 27 dos 28 estudos escolheram e avaliaram o ponto de
+        #      corte na mesma amostra, 1 avaliou um limiar definido numa amostra
+        #      independente. E a mesma regra baseada em cohort_stage que rob_index_test ja
+        #      aplica (derivado-na-amostra vence validado-cruzado vence
+        #      validado-externamente vence nao-determinavel), so renomeada, entao nunca
+        #      pode discordar das contagens HIGH/UNCLEAR de rob_index_test conferidas
+        #      acima.
+        allowed_threshold_sources = {"derived_and_evaluated_same_sample",
+                                     "cross_validated_within_sample",
+                                     "externally_validated", "not_determinable"}
+        threshold_source_counts = {}
+        for r in quadas:
+            ts = r.get("threshold_source", "")
+            check(ts in allowed_threshold_sources,
+                  f"QUADAS-2 {r['study_id']}: unexpected threshold_source {ts!r}")
+            threshold_source_counts[ts] = threshold_source_counts.get(ts, 0) + 1
+        expect_threshold_sources = {"derived_and_evaluated_same_sample": 27,
+                                    "externally_validated": 1}
+        check(threshold_source_counts == expect_threshold_sources,
+              f"QUADAS-2 threshold_source: counted {threshold_source_counts}, "
+              f"manuscript (section 3.3) states {expect_threshold_sources}")
+        check(threshold_source_counts.get("derived_and_evaluated_same_sample", 0)
+              == sum(1 for r in quadas if r["rob_index_test"] == "high"),
+              "QUADAS-2: threshold_source derived_and_evaluated_same_sample count "
+              "disagrees with rob_index_test HIGH count")
+
     # EN | The study-level record behind the reference-standard and flow domains. A
     #      verdict of LOW or HIGH there rests on a quoted sentence, so the quote has to be
     #      present, and the flags derived from it have to agree with it.

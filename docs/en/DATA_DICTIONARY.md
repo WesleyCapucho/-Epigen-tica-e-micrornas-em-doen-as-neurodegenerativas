@@ -192,7 +192,7 @@ A flag and its quote must agree: `scripts/08` fails if a `yes` carries no quote,
 
 ## `results/tables/quadas2_assessment.csv`
 
-One row per assessed study, seven domains, each as a verdict plus the reason that produced it (`..._reason`). Verdicts are `low`, `high`, `unclear` or `unrated`. `unclear` means the question was asked and the source does not answer it; `unrated` means it was not asked. No domain is currently `unrated`, and `scripts/08` fails if one becomes so again. Also carries `n_estimates` and `n_estimates_eligible` per study.
+One row per assessed study, seven domains, each as a verdict plus the reason that produced it (`..._reason`). Verdicts are `low`, `high`, `unclear` or `unrated`. `unclear` means the question was asked and the source does not answer it; `unrated` means it was not asked. No domain is currently `unrated`, and `scripts/08` fails if one becomes so again. Also carries `n_estimates` and `n_estimates_eligible` per study, plus two finer, rule-derived classifications that do not change any of the seven verdicts: `reference_standard_type` (`neuropathological`, `biomarker_confirmed`, `clinical_criteria_named`, `unclear_not_named` or `unclear_fulltext_unavailable`, read from the same `reference_standard_quote` field `rob_reference_standard` uses) and `threshold_source` (`derived_and_evaluated_same_sample`, `cross_validated_within_sample`, `externally_validated` or `not_determinable`, the same `cohort_stage` set `rob_index_test` uses, relabelled).
 
 ## `results/tables/quadas2_summary.json`
 

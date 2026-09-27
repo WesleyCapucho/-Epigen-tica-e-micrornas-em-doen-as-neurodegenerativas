@@ -356,6 +356,38 @@ def reference_standard_type(sl):
     return "unclear_not_named"
 
 
+def threshold_source(rows):
+    """
+    EN | The same cohort_stage set that rob_index_test already reads, relabelled with
+         the vocabulary a reader who thinks in terms of "was the cut-off prespecified,
+         Youden/ROC-derived, or externally validated" expects, so the manuscript can
+         report the distribution in those terms without inventing a second data source.
+         Follows the identical priority order as rob_index_test (derived-in-sample beats
+         cross-validated beats externally-validated beats not-determinable) so the two
+         never disagree about which category a study falls into; only the label differs.
+         Does not change any QUADAS-2 verdict; that logic is left untouched in
+         rob_index_test.
+    PT | O mesmo conjunto de cohort_stage que rob_index_test ja le, renomeado com o
+         vocabulario que um leitor que pensa em termos de "o ponto de corte foi
+         pre-especificado, derivado por Youden/ROC, ou validado externamente" espera,
+         para que o manuscrito reporte a distribuicao nesses termos sem inventar uma
+         segunda fonte de dado. Segue a mesma ordem de prioridade de rob_index_test
+         (derivado-na-amostra vence validado-cruzado vence validado-externamente vence
+         nao-determinavel), entao os dois nunca discordam sobre a categoria de um
+         estudo; so o rotulo muda. Nao muda nenhum veredito QUADAS-2; essa logica
+         permanece intocada em rob_index_test.
+    """
+    stages = {r["cohort_stage"] for r in rows}
+    derived = {"single", "discovery", "training"} & stages
+    if derived:
+        return "derived_and_evaluated_same_sample"
+    if "cross-validated" in stages:
+        return "cross_validated_within_sample"
+    if "validation" in stages:
+        return "externally_validated"
+    return "not_determinable"
+
+
 def assess(rows_by_study, study_level):
     out = []
     for sid, rows in sorted(rows_by_study.items()):
@@ -376,6 +408,7 @@ def assess(rows_by_study, study_level):
             rec[key] = verdict
             rec[key + "_reason"] = reason
         rec["reference_standard_type"] = reference_standard_type(sl)
+        rec["threshold_source"] = threshold_source(rows)
         out.append(rec)
     return out
 

@@ -192,7 +192,7 @@ Um sinalizador e sua citação precisam concordar: o `scripts/08` falha se um `y
 
 ## `results/tables/quadas2_assessment.csv`
 
-Uma linha por estudo avaliado, sete domínios, cada um como veredito mais a razão que o produziu (`..._reason`). Os vereditos são `low`, `high`, `unclear` ou `unrated`. `unclear` significa que a pergunta foi feita e a fonte não responde; `unrated` significa que ela não foi feita. Nenhum domínio está hoje como `unrated`, e o `scripts/08` falha se algum voltar a ficar. Traz também `n_estimates` e `n_estimates_eligible` por estudo.
+Uma linha por estudo avaliado, sete domínios, cada um como veredito mais a razão que o produziu (`..._reason`). Os vereditos são `low`, `high`, `unclear` ou `unrated`. `unclear` significa que a pergunta foi feita e a fonte não responde; `unrated` significa que ela não foi feita. Nenhum domínio está hoje como `unrated`, e o `scripts/08` falha se algum voltar a ficar. Traz também `n_estimates` e `n_estimates_eligible` por estudo, além de duas classificações mais finas e derivadas por regra que não mudam nenhum dos sete vereditos: `reference_standard_type` (`neuropathological`, `biomarker_confirmed`, `clinical_criteria_named`, `unclear_not_named` ou `unclear_fulltext_unavailable`, lida do mesmo campo `reference_standard_quote` que `rob_reference_standard` usa) e `threshold_source` (`derived_and_evaluated_same_sample`, `cross_validated_within_sample`, `externally_validated` ou `not_determinable`, o mesmo conjunto `cohort_stage` que `rob_index_test` usa, renomeado).
 
 ## `results/tables/quadas2_summary.json`
 
