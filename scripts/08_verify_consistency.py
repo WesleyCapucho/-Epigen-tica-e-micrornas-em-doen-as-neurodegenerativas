@@ -758,6 +758,35 @@ def main():
               f"QUADAS-2: the recorded eligibility circularity {qsum['excluded_non_case_control_estimates']} "
               f"disagrees with the extraction {excluded}")
 
+        # EN | The manuscript reports a finer reference-standard classification (section
+        #      3.3/4.3): 1 neuropathological, 1 biomarker-confirmed, 11 clinical-criteria-
+        #      named, 15 unclear (9 not named in a retrievable full text, 6 with no
+        #      retrievable full text at all). This is rule-derived in scripts/14 from the
+        #      same reference_standard_quote field rob_reference_standard already reads,
+        #      so it is checked here rather than trusted from the manuscript's own prose.
+        # PT | O manuscrito reporta uma classificacao mais fina de padrao de referencia
+        #      (secao 3.3/4.3): 1 neuropatologico, 1 confirmado por biomarcador, 11 com
+        #      criterio clinico nomeado, 15 incertos (9 nao nomeados em texto completo
+        #      recuperavel, 6 sem texto completo recuperavel algum). E derivado por regra
+        #      no scripts/14 a partir do mesmo campo reference_standard_quote que
+        #      rob_reference_standard ja le, entao e conferido aqui em vez de confiado na
+        #      propria prosa do manuscrito.
+        allowed_ref_types = {"neuropathological", "biomarker_confirmed",
+                             "clinical_criteria_named", "unclear_not_named",
+                             "unclear_fulltext_unavailable"}
+        ref_type_counts = {}
+        for r in quadas:
+            rt = r.get("reference_standard_type", "")
+            check(rt in allowed_ref_types,
+                  f"QUADAS-2 {r['study_id']}: unexpected reference_standard_type {rt!r}")
+            ref_type_counts[rt] = ref_type_counts.get(rt, 0) + 1
+        expect_ref_types = {"neuropathological": 1, "biomarker_confirmed": 1,
+                            "clinical_criteria_named": 11, "unclear_not_named": 9,
+                            "unclear_fulltext_unavailable": 6}
+        check(ref_type_counts == expect_ref_types,
+              f"QUADAS-2 reference_standard_type: counted {ref_type_counts}, "
+              f"manuscript (section 3.3/4.3) states {expect_ref_types}")
+
     # EN | The study-level record behind the reference-standard and flow domains. A
     #      verdict of LOW or HIGH there rests on a quoted sentence, so the quote has to be
     #      present, and the flags derived from it have to agree with it.

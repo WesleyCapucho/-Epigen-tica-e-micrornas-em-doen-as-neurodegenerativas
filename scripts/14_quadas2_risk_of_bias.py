@@ -312,6 +312,49 @@ RULES = OrderedDict([
 
 NEEDS_STUDY_LEVEL = {"rob_reference_standard", "rob_flow_timing", "app_reference_standard"}
 
+# EN | Keywords a reference-standard quote must contain, case-insensitively, to be
+#      classified as biomarker-confirmed rather than merely clinical-criteria-named:
+#      a molecular imaging or fluid biomarker used to confirm the diagnosis, not just a
+#      named clinical syndrome. Kept as an explicit, reviewable list rather than a
+#      judgement call made per study, so a reader who disagrees can change the list and
+#      re-run every study at once.
+# PT | Palavras-chave que uma citacao de padrao de referencia precisa conter, sem
+#      diferenciar maiusculas, para ser classificada como confirmada por biomarcador em
+#      vez de apenas nomeada por criterio clinico: um biomarcador de imagem molecular ou
+#      de fluido usado para confirmar o diagnostico, nao so uma sindrome clinica nomeada.
+#      Mantida como uma lista explicita e revisavel, nao um julgamento feito por estudo,
+#      para que um leitor que discorde possa mudar a lista e rodar de novo em todos os
+#      estudos de uma vez.
+BIOMARKER_KEYWORDS = ("pet", "aβ42/40", "aβ 42/40", "csf aβ", "amyloid",
+                      "florbetapir", "flortaucipir", "tau pet", "csf biomarker")
+
+
+def reference_standard_type(sl):
+    """
+    EN | A finer classification of the same reference_standard_quote field that
+         rob_reference_standard already reads, so the manuscript can report, alongside
+         the QUADAS-2 judgement, how many included studies confirmed diagnosis
+         neuropathologically, with a molecular biomarker, with named clinical criteria
+         alone, or not at all. Does not change any QUADAS-2 verdict; that logic is left
+         untouched in rob_reference_standard and app_reference_standard.
+    PT | Uma classificacao mais fina do mesmo campo reference_standard_quote que
+         rob_reference_standard ja le, para que o manuscrito reporte, ao lado do
+         julgamento QUADAS-2, quantos estudos incluidos confirmaram o diagnostico
+         neuropatologicamente, com biomarcador molecular, so com criterio clinico
+         nomeado, ou nao confirmaram. Nao muda nenhum veredito QUADAS-2; essa logica
+         permanece intocada em rob_reference_standard e app_reference_standard.
+    """
+    if not sl or sl["fulltext_availability"] != "yes":
+        return "unclear_fulltext_unavailable"
+    if sl["autopsy_confirmed"] == "yes":
+        return "neuropathological"
+    if sl["reference_standard_named"] == "yes":
+        quote = sl["reference_standard_quote"].lower()
+        if any(kw in quote for kw in BIOMARKER_KEYWORDS):
+            return "biomarker_confirmed"
+        return "clinical_criteria_named"
+    return "unclear_not_named"
+
 
 def assess(rows_by_study, study_level):
     out = []
@@ -332,6 +375,7 @@ def assess(rows_by_study, study_level):
             verdict, reason = (rule(rows, sl) if key in NEEDS_STUDY_LEVEL else rule(rows))
             rec[key] = verdict
             rec[key + "_reason"] = reason
+        rec["reference_standard_type"] = reference_standard_type(sl)
         out.append(rec)
     return out
 
