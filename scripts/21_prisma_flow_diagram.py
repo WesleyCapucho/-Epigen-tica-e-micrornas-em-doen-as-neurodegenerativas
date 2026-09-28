@@ -9,20 +9,20 @@ PT | O fluxograma PRISMA 2020, desenhado a partir de data/processed/prisma_flow.
      do desenho, entao o diagrama nao pode dizer um numero que a propria tabela PRISMA
      nao diz.
 
-EN | Why a new figure rather than reusing a table. The manuscript's own review found
-     the prose flow (587 unique records -> 356 primary studies -> 129 with an
-     extractable measure -> 47 full texts -> 45 studies / 89 estimates -> 58 eligible /
-     27 studies -> 39 pooled circulating / 18 studies, plus 3 CSF estimates reported
-     separately) hard to scan against the eleven-row subgroup table it was competing
-     with for space. This is the same numbers, laid out the way a systematic review's
-     readers expect to see them.
-PT | Por que uma figura nova em vez de reaproveitar uma tabela. A propria revisao do
-     manuscrito achou o fluxo em prosa (587 registros unicos -> 356 estudos primarios ->
-     129 com medida extraivel -> 47 textos completos -> 45 estudos / 89 estimativas ->
-     58 elegiveis / 27 estudos -> 39 circulantes agregados / 18 estudos, mais 3
-     estimativas de LCR reportadas a parte) dificil de acompanhar ao
-     lado da tabela de onze subgrupos com quem disputava espaco. Sao os mesmos numeros,
-     dispostos como o leitor de uma revisao sistematica espera ve-los.
+EN | Why a new figure rather than reusing a table. The prose flow (587 unique records ->
+     356 primary studies -> 129 with an accuracy statement in the abstract, plus a recall
+     check of the 227 without one -> 82 full texts -> 77 studies / 251 estimates -> 117
+     eligible / 47 studies -> 97 pooled circulating estimates / 37 studies, plus 3 CSF
+     estimates reported separately) is hard to scan in text. The numbers here are read from
+     data/processed/prisma_flow.json at draw time; the ones quoted in this docstring are
+     only a guide to the layout.
+PT | Por que uma figura nova em vez de reaproveitar uma tabela. O fluxo em prosa (587
+     registros unicos -> 356 estudos primarios -> 129 com afirmacao de acuracia no resumo,
+     mais uma verificacao de recall dos 227 sem ela -> 82 textos completos -> 77 estudos /
+     251 estimativas -> 117 elegiveis / 47 estudos -> 97 estimativas circulantes agregadas /
+     37 estudos, mais 3 estimativas de LCR reportadas a parte) e dificil de acompanhar em
+     texto. Os numeros aqui sao lidos de data/processed/prisma_flow.json no momento do
+     desenho; os citados neste docstring servem so de guia do layout.
 
     python scripts/21_prisma_flow_diagram.py
 """
@@ -114,20 +114,42 @@ def plot(flow, path, lang):
     n_extractable = (scr["pubmed_primary_reporting_auc_or_sens_spec"] + scr["scopus_primary_reporting_auc_or_sens_spec_total"]
                       + scr["wos_primary_reporting_auc_or_sens_spec_total"])
     box(ax, (col_l, y_primary), w_main, h, tr(lang,
-        f"Primary studies (n = {n_primary})\nreporting an extractable accuracy measure in title/abstract (n = {n_extractable})",
-        f"Estudos primarios (n = {n_primary})\nreportando medida de acuracia extraivel no titulo/resumo (n = {n_extractable})"),
+        f"Primary studies (n = {n_primary})\nreporting an accuracy measure in title/abstract (n = {n_extractable})",
+        f"Estudos primários (n = {n_primary})\nreportando medida de acurácia no título/resumo (n = {n_extractable})"),
         HUE_SCREEN)
+
+    # EN/PT: recall check of the records without an accuracy statement in the abstract
+    rc = elig["recall_check"]
+    n_abs_arm = elig["fulltext_retrieved"] - rc["fulltext_read"]
+    box(ax, (col_r, 55.5), w_side, 13.5, tr(lang,
+        f"Recall check of records with no\naccuracy statement in the abstract\n(n = {rc['records_without_accuracy_statement_in_abstract']})\n"
+        f"Plausible on title/abstract (n = {rc['judged_plausible_by_title_and_abstract']})\n"
+        f"No open full text, not assessed (n = {rc['no_open_fulltext']})\n"
+        f"Full text not retrievable (n = {rc['fulltext_not_retrievable']})\n"
+        f"Full texts read (n = {rc['fulltext_read']})",
+        f"Verificação de recall dos registros sem\nafirmação de acurácia no resumo\n(n = {rc['records_without_accuracy_statement_in_abstract']})\n"
+        f"Plausíveis por título/resumo (n = {rc['judged_plausible_by_title_and_abstract']})\n"
+        f"Sem texto completo aberto, não avaliados (n = {rc['no_open_fulltext']})\n"
+        f"Texto completo não recuperável (n = {rc['fulltext_not_retrievable']})\n"
+        f"Textos completos lidos (n = {rc['fulltext_read']})"),
+        HUE_SCREEN, fontsize=6.9)
+    arrow(ax, (col_l + w_main, y_primary + h / 2), (col_r, y_primary + h / 2))
+    ax.add_patch(FancyArrowPatch((col_r, 56.7), (col_l + w_main / 2, 56.7), arrowstyle="-|>",
+                                  mutation_scale=11, linewidth=1.2, color="#6b6a66",
+                                  shrinkA=0, shrinkB=0))
 
     # EN/PT: Eligibility
     y_elig = 46
     box(ax, (col_l, y_elig), w_main, h, tr(lang,
         f"Full texts retrieved and assessed for eligibility (n = {elig['fulltext_retrieved']})\n"
+        f"{n_abs_arm} from the abstract-based arm, {rc['fulltext_read']} from the recall check\n"
         f"{elig['studies_contributing_extracted_estimates']} studies contributed "
         f"{elig['extracted_estimates_total']} extracted estimates",
         f"Textos completos obtidos e avaliados quanto à elegibilidade (n = {elig['fulltext_retrieved']})\n"
+        f"{n_abs_arm} do braço de acurácia no resumo, {rc['fulltext_read']} da verificação de recall\n"
         f"{elig['studies_contributing_extracted_estimates']} estudos contribuíram "
         f"{elig['extracted_estimates_total']} estimativas extraídas"),
-        HUE_ELIG)
+        HUE_ELIG, fontsize=8.0)
     n_ineligible = elig["extracted_estimates_total"] - elig["estimates_eligible_for_primary_pool"]
     box(ax, (col_r, y_elig + 1.6), w_side, h - 3.2, tr(lang,
         f"Estimates excluded from\nprimary pool, reason recorded\n(n = {n_ineligible})",

@@ -48,3 +48,40 @@ def both(directory, stem, ext="png"):
     """EN/PT: iterate over (lang, path) for every language."""
     for lang in LANGS:
         yield lang, fig_path(directory, stem, lang, ext)
+
+
+def _install_vector_twin():
+    """
+    EN | Journals ask for vector artwork where possible. Every figure script saves a PNG
+         through Figure.savefig; this patch writes a PDF with embedded fonts next to each
+         PNG from the same figure object, so the two files cannot differ. It is installed
+         when this module is imported, which every figure script does.
+    PT | Periodicos pedem arte vetorial quando possivel. Todo script de figura grava um PNG
+         por Figure.savefig; este remendo grava um PDF com fontes embutidas ao lado de cada
+         PNG, a partir do mesmo objeto de figura, de modo que os dois arquivos nao diferem.
+         Instalado na importacao deste modulo, que todo script de figura faz.
+    """
+    try:
+        import matplotlib
+        from matplotlib.figure import Figure
+    except ImportError:
+        return
+    if getattr(Figure.savefig, "_vector_twin", False):
+        return
+    matplotlib.rcParams["pdf.fonttype"] = 42
+    original = Figure.savefig
+
+    def savefig(self, fname, *args, **kwargs):
+        result = original(self, fname, *args, **kwargs)
+        if isinstance(fname, str) and fname.lower().endswith(".png"):
+            kw = {k: v for k, v in kwargs.items() if k not in ("dpi", "format", "facecolor")}
+            if "facecolor" in kwargs:
+                kw["facecolor"] = kwargs["facecolor"]
+            original(self, fname[:-4] + ".pdf", *args, format="pdf", **kw)
+        return result
+
+    savefig._vector_twin = True
+    Figure.savefig = savefig
+
+
+_install_vector_twin()
