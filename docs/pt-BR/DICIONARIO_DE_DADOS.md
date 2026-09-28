@@ -68,6 +68,21 @@ Uma linha por estudo elegível (27), registrada na segunda passagem com citaçõ
 | `threshold_prespecified` | `no` para todo estudo com texto completo |
 | `key_quotes`, `note` | Frases de apoio, separadas por barra vertical; nota livre |
 
+## `data/extracted/molecular_evidence_map.csv`
+
+Uma linha por afirmação mecanística feita por um estudo dos pools primários (17 estudos, 21 linhas), lida do texto completo ou, em dois estudos, marcada como só resumo. Escrita à mão a partir dos textos completos em 2026-09-28 e lida pelo `scripts/27_molecular_evidence_map.py` (figura) e pelo `scripts/08` (checagem de cobertura).
+
+| Coluna | Valores |
+|---|---|
+| `study_id`, `first_author`, `year`, `disease` | Identificadores do estudo, com a mesma chave da auditoria de seleção |
+| `pooled_marker` | O marcador selecionado para o pool primário |
+| `mirna`, `target_or_pathway` | O(s) microRNA(s) a que a afirmação se refere e o alvo ou via proposto |
+| `biological_axis` | O eixo da doença a que a afirmação pertence; `none` quando não há afirmação |
+| `evidence_type` | `experimental_in_included_study`, `experimental_cited_from_authors_prior_work`, `literature_cited`, `in_silico_prediction`, `clinical_correlation`, `paired_brain_tissue`, `none_reported`, `none_reported_abstract_only` |
+| `model_system` | Linhagem celular, ensaio ou fonte de dados por trás da afirmação |
+| `source_quote` | Frase literal do texto completo (vazia só para `none_*`) |
+| `source`, `note` | Identificador PMC ou fonte do resumo; nota livre |
+
 ## `results/tables/ci_plausibility_check.csv`
 
 Toda linha extraída com IC reportado e tamanhos de grupo: o EP implícito no IC, o EP de Hanley-McNeil para a mesma AUC e grupos, a razão entre eles e se a linha fica abaixo de `CI_PLAUSIBILITY_RATIO` (0,5, `scripts/05`). Só as duas linhas de Li Y 2024 são sinalizadas (razões 0,049 e 0,056); toda outra razão fica entre 0,80 e 1,38.

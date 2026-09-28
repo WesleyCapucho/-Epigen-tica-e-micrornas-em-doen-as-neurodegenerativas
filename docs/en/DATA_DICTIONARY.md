@@ -68,6 +68,21 @@ One row per eligible study (27), recorded in the second full-text pass with shor
 | `threshold_prespecified` | `no` for every study with a full text |
 | `key_quotes`, `note` | Supporting sentences, pipe-separated; free-text note |
 
+## `data/extracted/molecular_evidence_map.csv`
+
+One row per mechanistic claim made by a study in the primary pools (17 studies, 21 rows), read from the full text or, for two studies, marked as abstract only. Written by hand from the full texts on 2026-09-28 and read by `scripts/27_molecular_evidence_map.py` (figure) and `scripts/08` (coverage check).
+
+| Column | Values |
+|---|---|
+| `study_id`, `first_author`, `year`, `disease` | Study identifiers, keyed like the selection audit |
+| `pooled_marker` | The marker selected for the primary pool |
+| `mirna`, `target_or_pathway` | The microRNA(s) the claim concerns and the proposed target or pathway |
+| `biological_axis` | The disease axis the claim belongs to; `none` when no claim is made |
+| `evidence_type` | `experimental_in_included_study`, `experimental_cited_from_authors_prior_work`, `literature_cited`, `in_silico_prediction`, `clinical_correlation`, `paired_brain_tissue`, `none_reported`, `none_reported_abstract_only` |
+| `model_system` | Cell line, assay or data source behind the claim |
+| `source_quote` | Verbatim sentence from the full text (empty only for `none_*`) |
+| `source`, `note` | PMC identifier or abstract source; free-text note |
+
 ## `results/tables/ci_plausibility_check.csv`
 
 Every extracted row with both a reported CI and group sizes: the SE implied by the CI, the Hanley-McNeil SE for the same AUC and group sizes, their ratio, and whether the row falls below `CI_PLAUSIBILITY_RATIO` (0.5, `scripts/05`). Only the two Li Y 2024 rows are flagged (ratios 0.049 and 0.056); every other ratio lies between 0.80 and 1.38.

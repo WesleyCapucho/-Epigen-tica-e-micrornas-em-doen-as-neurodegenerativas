@@ -1425,6 +1425,31 @@ def main():
             if w:
                 check(abs(sum(w) - 100.0) < 0.3, f"panel audit: {d} weights sum to {sum(w)}, not 100")
 
+    # --- 9e. Molecular evidence map --------------------------------------------
+    # EN | Every pooled study must appear in the map, no study outside the pool may,
+    #      and every claim other than "none reported" must carry its source sentence.
+    # PT | Todo estudo agregado deve aparecer no mapa, nenhum fora do pool pode, e toda
+    #      afirmacao que nao seja "nenhuma relatada" precisa trazer sua frase-fonte.
+    try:
+        mmap = list(csv.DictReader(open("data/extracted/molecular_evidence_map.csv", encoding="utf-8")))
+        sel_ = list(csv.DictReader(open("results/tables/one_estimate_per_study_selection_audit.csv", encoding="utf-8")))
+    except FileNotFoundError:
+        mmap = sel_ = None
+        claim(False, "molecular evidence map or selection audit missing")
+    if mmap is not None:
+        tiers = {"experimental_in_included_study", "experimental_cited_from_authors_prior_work",
+                 "literature_cited", "in_silico_prediction", "clinical_correlation",
+                 "paired_brain_tissue", "none_reported", "none_reported_abstract_only"}
+        pooled_ids = {r["study_id"] for r in sel_}
+        mapped_ids = {r["study_id"] for r in mmap}
+        check(mapped_ids == pooled_ids,
+              f"molecular map covers {sorted(mapped_ids ^ pooled_ids)} differently from the pooled studies")
+        for r in mmap:
+            check(r["evidence_type"] in tiers, f"molecular map: unknown evidence_type {r['evidence_type']}")
+            if not r["evidence_type"].startswith("none"):
+                check(len(r["source_quote"].strip()) > 20,
+                      f"molecular map: {r['first_author']} {r['year']} claim has no source sentence")
+
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections
     #      table below them, and both were found stale once: the check count said 1374
