@@ -177,8 +177,7 @@ def plot(flow, path, lang):
         ax.text(0.05, y, tr(lang, en, pt), fontsize=9.5, weight="bold", color="#4a4a48",
                 rotation=90, va="center", ha="center")
 
-    ax.set_title(tr(lang, "PRISMA 2020 flow diagram", "Fluxograma PRISMA 2020"),
-                 fontsize=13, weight="bold", pad=14)
+    # Title omitted: the caption in the manuscript names the figure.
     fig.savefig(path, dpi=600, facecolor="white", bbox_inches="tight")
     plt.close(fig)
 

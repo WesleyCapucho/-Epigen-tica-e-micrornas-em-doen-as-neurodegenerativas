@@ -865,12 +865,14 @@ def main():
                       "does not mention neuropathological confirmation")
         # EN/PT: every reference-standard verdict must follow from the study-level record
         by_sl = {r["study_id"]: r for r in sl}
+        design_basis = {r["study_id"]: r["reference_standard_basis"] for r in
+                        csv.DictReader(open("data/extracted/study_design_preanalytics.csv", encoding="utf-8"))}
         for row in quadas:
             rec = by_sl.get(row["study_id"])
             if not rec:
                 continue
             v = row["rob_reference_standard"]
-            if rec["autopsy_confirmed"] == "yes" or rec["blinding_stated"] == "yes":
+            if rec["autopsy_confirmed"] == "yes" or design_basis.get(row["study_id"]) == "biomarker_supported":
                 check(v == "low", f"QUADAS-2 {row['study_id']}: expected low reference-standard risk")
             elif rec["fulltext_availability"] != "yes":
                 check(v == "unclear",

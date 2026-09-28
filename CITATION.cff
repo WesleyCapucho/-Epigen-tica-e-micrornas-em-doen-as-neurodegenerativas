@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results"
+type: dataset
+authors:
+  - family-names: Capucho
+    given-names: Wesley Felipe
+    orcid: "https://orcid.org/0009-0008-2495-8092"
+    affiliation: "Universidade Federal de São Paulo (UNIFESP)"
+repository-code: "https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas"
+identifiers:
+  - type: doi
+    value: "10.17605/OSF.IO/NJ8A5"
+    description: "OSF registration (retrospective)"
+date-released: "2026-09-28"
+keywords:
+  - microRNA
+  - Alzheimer's disease
+  - Parkinson's disease
+  - diagnostic accuracy
+  - meta-analysis

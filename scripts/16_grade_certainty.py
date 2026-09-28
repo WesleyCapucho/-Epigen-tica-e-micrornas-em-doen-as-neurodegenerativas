@@ -336,11 +336,7 @@ def plot(sof, subtitle, path, lang):
     handles = [plt.Rectangle((0, 0), 1, 1, color=c) for _, c, _ in keys]
     fig.legend(handles, [lab for _, _, lab in keys], loc="lower center",
                ncol=2, fontsize=8.5, frameon=False, bbox_to_anchor=(0.5, -0.08))
-    fig.suptitle(t(lang,
-                   "What the pooled bivariate operating point implies for 1000 people\n"
-                   f"{subtitle}",
-                   "O que o ponto de operação bivariado agrupado implica para 1000 pessoas\n"
-                   f"{subtitle}"), fontsize=11)
+    # Title omitted: the caption in the manuscript names the figure.
     fig.tight_layout()
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)

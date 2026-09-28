@@ -148,10 +148,7 @@ def plot(rows, path, lang):
     bar_counts = {biofluid_label[lbl_en]: cnt for lbl_en, cnt in biofluid_counts.items()}
     ranked_bar(ax3, bar_counts, lang)
 
-    fig.suptitle(t(lang,
-                   f"Composition of the {len(rows)} estimates eligible for the primary pool",
-                   f"Composição das {len(rows)} estimativas elegíveis para o pool primário"),
-                 fontsize=11, y=1.03)
+    # Title omitted: the caption in the manuscript names the figure.
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 

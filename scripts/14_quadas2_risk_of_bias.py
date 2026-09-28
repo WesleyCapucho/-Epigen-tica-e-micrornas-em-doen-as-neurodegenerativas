@@ -171,8 +171,10 @@ def rob_reference_standard(rows, sl):
          misclassify a known fraction of cases. A study that names accepted criteria has
          done what the field expects and still cannot be rated LOW on that ground alone,
          because the standard it used is imperfect and the accuracy estimates inherit its
-         error. Only neuropathological confirmation, or named criteria plus stated
-         blinding, clears the domain.
+         error. Only neuropathological confirmation, or confirmation by amyloid
+         biomarkers, clears the domain. A statement that laboratory staff were blind to
+         diagnosis concerns the index test, not the reference standard, and is recorded
+         but does not clear it.
     PT | Perguntas-sinal: o padrao de referencia provavelmente classifica corretamente a
          condicao alvo? foi interpretado sem conhecer o teste indice?
          As duas sao respondidas por data/extracted/quadas2_study_level.csv, que registra,
@@ -183,7 +185,9 @@ def rob_reference_standard(rows, sl):
          fracao conhecida dos casos. Um estudo que nomeia criterios aceitos fez o que o
          campo espera e ainda assim nao pode ser LOW so por isso, porque o padrao que usou
          e imperfeito e as estimativas de acuracia herdam o erro dele. So confirmacao
-         neuropatologica, ou criterios nomeados mais cegamento declarado, limpa o dominio.
+         neuropatologica, ou confirmacao por biomarcadores de amiloide, limpa o dominio. Uma
+         declaracao de que a equipe de laboratorio nao conhecia o diagnostico diz respeito
+         ao teste indice, nao ao padrao de referencia, e fica registrada sem limpar o dominio.
     """
     if not sl:
         return UNCLEAR, "no study-level record for this study [quadas2_study_level.csv]"
@@ -193,11 +197,9 @@ def rob_reference_standard(rows, sl):
     if sl["autopsy_confirmed"] == "yes":
         return LOW, "neuropathological confirmation of the target condition [reference_standard_quote]"
     if sl["reference_standard_named"] == "yes":
-        if sl["blinding_stated"] == "yes":
-            return LOW, ("named diagnostic criteria and stated blinding to the index test "
-                         "[reference_standard_quote, blinding_quote]")
         return UNCLEAR, ("named clinical diagnostic criteria, which misclassify a known "
-                         "fraction of AD and PD cases, and no statement of blinding "
+                         "fraction of AD and PD cases; whether the reference standard was "
+                         "read without knowledge of the index test is not stated "
                          "[reference_standard_quote]")
     return HIGH, ("the full text was read and names no diagnostic criteria for the target "
                   "condition [reference_standard_named=no]")
@@ -453,6 +455,10 @@ def assess(rows_by_study, study_level, design=None):
             verdict, reason = (rule(rows, sl) if key in NEEDS_STUDY_LEVEL else rule(rows))
             if key == "rob_index_test":
                 verdict, reason = index_test_leakage(verdict, reason, design.get(sid))
+            if (key == "rob_reference_standard" and sl and sl["fulltext_availability"] == "yes"
+                    and (design.get(sid) or {}).get("reference_standard_basis") == "biomarker_supported"):
+                verdict, reason = LOW, ("diagnosis confirmed by amyloid biomarkers, an objective "
+                                        "reference standard [reference_standard_quote]")
             rec[key] = verdict
             rec[key + "_reason"] = reason
         rec["reference_standard_type"] = reference_standard_type(sl)
@@ -490,8 +496,7 @@ def plot(assessment, path, lang):
     ax.set_xlabel(t(lang, f"per cent of studies  (n = {n})",
                     f"por cento dos estudos  (n = {n})"))
     ax.set_xlim(0, 100)
-    ax.set_title(t(lang, "QUADAS-2: risk of bias and applicability",
-                   "QUADAS-2: risco de viés e aplicabilidade"), fontsize=11)
+    # Title omitted: the caption in the manuscript names the figure.
     # EN | Only put a category in the legend if it is actually on the chart. A grey
     #      "Not assessed" key above a chart with no grey in it invites the reader to go
     #      looking for a bar that is not there.
@@ -605,19 +610,19 @@ def main():
          f"full texts, not by inference: {n_fulltext} of {n_studies} studies have a "
          f"retrievable full text, {n_named} name the diagnostic criteria they applied, "
          f"{n_autopsy} has neuropathological confirmation, and {n_blind} states that "
-         f"diagnosis was blind to the index test. None of the {n_fulltext} reports a STARD "
+         f"laboratory staff were blind to diagnosis. None of the {n_fulltext} reports a STARD "
          f"flow diagram, which is why flow and timing is unclear for every study rather "
-         f"than high or low. The six studies without a retrievable full text are unclear "
+         f"than high or low. The {n_studies - n_fulltext} studies without a retrievable full text are unclear "
          f"because the report could not be read, and the record says which reason applies "
          f"to which study."),
         ("full_text_pass_pt",
          f"Os dominios de padrao de referencia e de fluxo e tempo foram fechados lendo os "
          f"textos completos, nao por inferencia: {n_fulltext} dos {n_studies} estudos tem "
          f"texto completo recuperavel, {n_named} nomeiam os criterios diagnosticos que "
-         f"aplicaram, {n_autopsy} tem confirmacao neuropatologica e {n_blind} declara que o "
-         f"diagnostico foi cego ao teste indice. Nenhum dos {n_fulltext} traz fluxograma "
+         f"aplicaram, {n_autopsy} tem confirmacao neuropatologica e {n_blind} declara que a equipe de "
+         f"laboratorio nao conhecia o diagnostico. Nenhum dos {n_fulltext} traz fluxograma "
          f"STARD, e por isso fluxo e tempo fica incerto em todos os estudos em vez de alto "
-         f"ou baixo. Os seis estudos sem texto completo recuperavel ficam incertos porque o "
+         f"ou baixo. Os {n_studies - n_fulltext} estudos sem texto completo recuperavel ficam incertos porque o "
          f"relato nao pode ser lido, e o registro diz qual razao vale para qual estudo."),
     ])
     with open(f"{TAB_DIR}/quadas2_summary.json", "w", encoding="utf-8") as fh:

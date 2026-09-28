@@ -1,0 +1,16 @@
+{
+  "title": "Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results",
+  "upload_type": "dataset",
+  "description": "Search exports, extraction tables with the verbatim source sentence for every value, audit log, analysis and figure scripts, and result tables for a systematic review and meta-analysis of circulating microRNAs as diagnostic biomarkers in Alzheimer's disease and Parkinson's disease. Registered retrospectively on OSF (10.17605/OSF.IO/NJ8A5).",
+  "creators": [
+    {
+      "name": "Capucho, Wesley Felipe",
+      "affiliation": "Universidade Federal de São Paulo (UNIFESP)",
+      "orcid": "0009-0008-2495-8092"
+    }
+  ],
+  "keywords": ["microRNA", "Alzheimer's disease", "Parkinson's disease", "diagnostic accuracy", "meta-analysis"],
+  "related_identifiers": [
+    {"identifier": "10.17605/OSF.IO/NJ8A5", "relation": "isSupplementTo", "scheme": "doi"}
+  ]
+}

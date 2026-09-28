@@ -46,10 +46,7 @@ def panel(ax, title, eq_lines, source, title_color="#1F3864"):
 def plot(path, lang):
     fig, axes = plt.subplots(3, 2, figsize=(17, 12.5))
     fig.subplots_adjust(left=0.015, right=0.985, bottom=0.015, top=0.93, wspace=0.03, hspace=0.06)
-    fig.suptitle(tr(lang, "Key equations used in the synthesis",
-                     "Equações-chave usadas na síntese"),
-                 fontsize=16, weight="bold", y=0.99)
-
+    # Title omitted: the caption in the manuscript names the figure.
     panel(axes[0, 0],
           tr(lang, "1. Logit transform", "1. Transformação logito"),
           [r"$\mathrm{logit}(AUC) = \ln\dfrac{AUC}{1-AUC}$",

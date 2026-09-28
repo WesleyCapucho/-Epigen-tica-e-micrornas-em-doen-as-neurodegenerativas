@@ -900,9 +900,7 @@ def forest_plot(pool, lang):
                     "black diamond = random-effects summary, every row",
                     "AUC (IC 95%).  Quadrado = miRNA isolado;  losango = painel;  "
                     "losango preto = resumo de efeitos aleatórios, por linha"), fontsize=8.4)
-    ax.set_title(t(lang, "Diagnostic accuracy of circulating miRNAs in AD and PD",
-                   "Acurácia diagnóstica de miRNAs circulantes na DA e na DP"),
-                 fontsize=11.5)
+    # Title omitted: the caption in the manuscript names the figure.
     for s in ("top", "right", "left"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
@@ -934,8 +932,7 @@ def funnel_plot(pool, lang):
     ax.invert_yaxis()
     ax.set_xlabel("logit(AUC)")
     ax.set_ylabel(t(lang, "Standard error", "Erro-padrão"))
-    ax.set_title(t(lang, "Funnel plot: small-study effects",
-                   "Gráfico de funil: efeitos de estudos pequenos"), fontsize=10.5)
+    # Title omitted: the caption in the manuscript names the figure.
     ax.legend(fontsize=8, frameon=False)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)

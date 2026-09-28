@@ -124,9 +124,7 @@ def plot(pooled, path, lang):
     ax.set_xlim(0.35, 1.08)
     ax.set_xlabel(t(lang, "Primary pooled AUC (95% Hartung-Knapp CI)",
                    "AUC agrupada primária (IC 95% de Hartung-Knapp)"), fontsize=9)
-    ax.set_title(t(lang, "Pooled diagnostic accuracy, one estimate per study (Table 1)",
-                   "Acurácia diagnóstica agrupada, uma estimativa por estudo (Tabela 1)"),
-                 fontsize=10.5)
+    # Title omitted: the caption in the manuscript names the figure.
     for yb in section_breaks:
         ax.axhline(yb, color="#e3e3e0", lw=0.8, zorder=0)
     ax.spines[["top", "right", "left"]].set_visible(False)

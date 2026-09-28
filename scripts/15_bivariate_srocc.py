@@ -360,11 +360,7 @@ def plot(fit, meta, primary, path, lang):
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
     ax.set_xlabel(t(lang, "1 - specificity", "1 - especificidade"))
     ax.set_ylabel(t(lang, "sensitivity", "sensibilidade"))
-    ax.set_title(t(lang,
-                   "Bivariate summary ROC\n"
-                   f"{primary['n_studies']} studies, one estimate each",
-                   "ROC sumária bivariada\n"
-                   f"{primary['n_studies']} estudos, uma estimativa cada"), fontsize=10)
+    # Title omitted: the caption in the manuscript names the figure.
     ax.legend(loc="lower right", fontsize=8, frameon=False)
     ax.grid(alpha=0.25)
     fig.tight_layout()
