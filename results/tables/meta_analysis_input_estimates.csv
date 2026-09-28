@@ -32,8 +32,8 @@ E065,,10.3760/cma.j.issn.0254-9026.2024.01.005,Chen T,2024,PD,serum,multi_miRNA_
 E066,,10.3760/cma.j.cn371468-20200828-01692,Li J,2021,PD,serum,single_miRNA,miR-124,single,90.0,100.0,0.847,,,0.028951000457190144,Hanley-McNeil
 E067,,10.3760/cma.j.cn371468-20200828-01692,Li J,2021,PD,serum,single_miRNA,miR-494,single,90.0,100.0,0.76,,,0.03515361068348487,Hanley-McNeil
 E068,,10.3760/cma.j.cn371468-20200828-01692,Li J,2021,PD,serum,multi_miRNA_panel,miR-124 + miR-494,single,90.0,100.0,0.898,,,0.023889751648610392,Hanley-McNeil
-E080,32962113.0,10.3390/jcm9093016,Karaglani M,2020,AD,blood,multi_miRNA_panel,25-miRNA ridge biosignature (dataset 2),cross-validated,301.0,288.0,0.797,0.746,0.845,0.025255565918557682,reported_95CI
-E081,32962113.0,10.3390/jcm9093016,Karaglani M,2020,AD,blood,multi_miRNA_panel,"25-miRNA ridge biosignature (dataset 2, test split)",validation,84.0,73.0,0.807,,,0.03439739047678604,Hanley-McNeil
+E080,32962113.0,10.3390/jcm9093016,Karaglani M,2020,AD,serum,multi_miRNA_panel,25-miRNA ridge biosignature (dataset 2),cross-validated,301.0,288.0,0.797,0.746,0.845,0.025255565918557682,reported_95CI
+E081,32962113.0,10.3390/jcm9093016,Karaglani M,2020,AD,serum,multi_miRNA_panel,"25-miRNA ridge biosignature (dataset 2, test split)",validation,84.0,73.0,0.807,,,0.03439739047678604,Hanley-McNeil
 E082,38200052.0,10.1038/s41531-023-00628-4,Li Y,2024,PD,plasma_EV,multi_miRNA_panel,EV-miRNA SVM classifier,validation,21.0,25.0,0.916,0.911,0.921,0.04533559666260125,Hanley-McNeil (reported CI implausibly narrow)
 E083,32585840.0,10.3390/biom10060945,Oliveira SR,2020,PD,serum,single_miRNA,miR-155-5p,validation,17.0,14.0,0.85,,,0.06966730695155005,Hanley-McNeil
 E084,32585840.0,10.3390/biom10060945,Oliveira SR,2020,PD,serum,multi_miRNA_panel,miR-146a + miR-335-3p + miR-335-5p,single,37.0,34.0,0.72,,,0.06029928683698621,Hanley-McNeil
