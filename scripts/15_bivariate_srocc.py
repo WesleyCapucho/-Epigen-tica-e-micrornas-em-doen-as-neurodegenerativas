@@ -44,17 +44,19 @@ PT | O modelo. Para o estudo i com tabela 2x2 completa, o logito da sensibilidad
      parametros sao ajustados por maxima verossimilhanca e os erros-padrao vem de uma
      hessiana numerica da log-verossimilhanca negativa.
 
-EN | What this synthesis can and cannot carry. Nine studies for five parameters is at the
-     lower end of what the bivariate model tolerates, so the between-study terms are
+EN | What this synthesis can and cannot carry. A handful of studies for five parameters
+     (the exact count is printed at run time and stored in bivariate_summary.csv) is at
+     the lower end of what the bivariate model tolerates, so the between-study terms are
      poorly determined and the summary point is the part to read. The script therefore
      validates its own estimator against simulated data with known parameters before
      touching the real table, and refuses to report if the recovery test fails.
-PT | O que esta sintese aguenta e o que nao aguenta. Nove estudos para cinco parametros
-     esta no limite inferior do que o modelo bivariado tolera, entao os termos entre
-     estudos ficam mal determinados e o ponto sumario e a parte a ser lida. Por isso o
-     script valida o proprio estimador contra dados simulados de parametros conhecidos
-     antes de tocar na tabela real, e se recusa a reportar se o teste de recuperacao
-     falhar.
+PT | O que esta sintese aguenta e o que nao aguenta. Um punhado de estudos para cinco
+     parametros (a contagem exata e impressa em tempo de execucao e guardada em
+     bivariate_summary.csv) esta no limite inferior do que o modelo bivariado tolera,
+     entao os termos entre estudos ficam mal determinados e o ponto sumario e a parte a
+     ser lida. Por isso o script valida o proprio estimador contra dados simulados de
+     parametros conhecidos antes de tocar na tabela real, e se recusa a reportar se o
+     teste de recuperacao falhar.
 
     python scripts/15_bivariate_srocc.py
 
@@ -81,6 +83,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+import _study_selection as _sel
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 TAB_DIR = "results/tables"
@@ -244,27 +247,29 @@ def load_pairs():
     usable = [r for r in rows
               if r["eligible_primary_pool"] == "yes"
               and r["sensitivity"] and r["specificity"]
-              and r["n_cases"] and r["n_controls"]]
-    by_study = {}
-    for r in usable:
-        by_study.setdefault(study_id(r), []).append(r)
+              and r["n_cases"] and r["n_controls"]
+              and r["biofluid"] not in _sel.CSF_BIOFLUIDS]
 
-    # EN | One estimate per study, chosen as the one whose AUC is closest to that study's
-    #      median AUC. This matches the convention scripts/05 already uses for its
-    #      one-estimate-per-study sensitivity analysis, so the two syntheses describe the
-    #      same representative estimates rather than two different subsets.
-    # PT | Uma estimativa por estudo, a de AUC mais proxima da mediana daquele estudo. E a
-    #      mesma convencao que o scripts/05 ja usa na analise de sensibilidade de uma
-    #      estimativa por estudo, entao as duas sinteses descrevem as mesmas estimativas
-    #      representativas e nao dois subconjuntos diferentes.
-    chosen = []
-    for sid, rs in sorted(by_study.items()):
-        with_auc = [r for r in rs if r["auc"]]
-        pick = rs[0]
-        if with_auc:
-            med = float(np.median([float(r["auc"]) for r in with_auc]))
-            pick = min(with_auc, key=lambda r: abs(float(r["auc"]) - med))
-        chosen.append(pick)
+    # EN | One estimate per study, by the SAME pre-specified, AUC-blind
+    #      priority rule scripts/05_meta_analysis.py uses for its primary AUC
+    #      pool (see scripts/_study_selection.py): prefer an independent
+    #      validation-cohort row, then the study's own panel over its
+    #      component markers, then the larger combined sample size, then an
+    #      alphabetical tiebreak - never the estimate closest to (or highest
+    #      among) the study's own AUC values. Both syntheses therefore always
+    #      describe the same representative estimate per study.
+    # PT | Uma estimativa por estudo, pela MESMA regra de prioridade
+    #      pre-especificada e cega a AUC que scripts/05_meta_analysis.py usa
+    #      para seu pool primario de AUC (ver scripts/_study_selection.py):
+    #      preferir uma linha de coorte de validacao independente, depois o
+    #      painel proprio do estudo sobre seus marcadores componentes, depois
+    #      o maior tamanho amostral combinado, depois um desempate
+    #      alfabetico - nunca a estimativa mais proxima de (ou mais alta
+    #      entre) os proprios valores de AUC do estudo. As duas sinteses
+    #      portanto sempre descrevem a mesma estimativa representativa por
+    #      estudo.
+    selected = _sel.select_one_per_study_grouped(usable, study_id)
+    chosen = [sel for _sid, sel, _reason, _n in selected]
     return usable, chosen
 
 
@@ -429,19 +434,23 @@ def main():
                                    ("mu_sens", "mu_spec", "tau_sens", "tau_spec", "rho")},
         note_en=("The 2x2 tables are reconstructed by multiplying published sensitivity and "
                  "specificity by the published group sizes and rounding, because the source "
-                 "articles report proportions rather than counts. With nine studies and five "
-                 "parameters the between-study terms (tau, rho) are weakly identified and "
-                 "should not be interpreted on their own; the summary operating point is what "
-                 "this analysis supports. Every included contrast is case versus healthy "
-                 "control, so these are upper bounds in the same sense as the pooled AUC."),
+                 f"articles report proportions rather than counts. With {primary['n_studies']} "
+                 "studies and five parameters the between-study terms (tau, rho) are weakly "
+                 "identified and should not be interpreted on their own; the summary operating "
+                 "point is what this analysis supports. Every included contrast is case versus "
+                 "healthy control, so these are upper bounds in the same sense as the pooled "
+                 "AUC, and CSF studies are excluded, matching the circulating, blood-derived "
+                 "scope of the primary AUC pool in scripts/05_meta_analysis.py."),
         note_pt=("As tabelas 2x2 sao reconstruidas multiplicando sensibilidade e "
                  "especificidade publicadas pelos tamanhos de grupo publicados e "
-                 "arredondando, porque os artigos-fonte reportam proporcoes e nao contagens. "
-                 "Com nove estudos e cinco parametros, os termos entre estudos (tau, rho) sao "
-                 "fracamente identificados e nao devem ser interpretados sozinhos; o ponto "
-                 "sumario de operacao e o que esta analise sustenta. Todo contraste incluido e "
-                 "caso versus controle saudavel, entao sao limites superiores no mesmo sentido "
-                 "que a AUC agrupada."),
+                 f"arredondando, porque os artigos-fonte reportam proporcoes e nao contagens. "
+                 f"Com {primary['n_studies']} estudos e cinco parametros, os termos entre "
+                 "estudos (tau, rho) sao fracamente identificados e nao devem ser "
+                 "interpretados sozinhos; o ponto sumario de operacao e o que esta analise "
+                 "sustenta. Todo contraste incluido e caso versus controle saudavel, entao sao "
+                 "limites superiores no mesmo sentido que a AUC agrupada, e estudos de LCR sao "
+                 "excluidos, alinhado ao escopo circulante e derivado de sangue do pool "
+                 "primario de AUC em scripts/05_meta_analysis.py."),
     )
     with open(f"{TAB_DIR}/bivariate_model.json", "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=1)

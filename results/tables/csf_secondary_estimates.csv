@@ -1,0 +1,3 @@
+record_id,pmid,doi,first_author,year,disease,marker_type,marker,n_cases,n_controls,auc,auc_ci_low,auc_ci_high
+E036,27814298.0,10.3233/JAD-160835,Lusardi TA,2017,AD,multi_miRNA_panel,3-miRNA combination,50.0,49.0,0.8,,
+E039,29707120.0,10.18632/oncotarget.24736,Dos Santos MCT,2018,PD,multi_miRNA_panel,miRNA panel (Model A),40.0,40.0,0.82,,

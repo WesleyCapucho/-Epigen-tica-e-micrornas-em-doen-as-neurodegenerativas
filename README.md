@@ -34,13 +34,13 @@ The meta-analytic layer exists to answer a question the source monograph raised 
 | Unique records | 587 |
 | Full texts read | 47 |
 | Studies contributing estimates | 45 |
-| Extracted estimates | 79 (51 eligible, 41 poolable) |
-| Independent studies pooled | 20 |
+| Extracted estimates | 79 (51 eligible, 41 poolable: 39 circulating + 2 cerebrospinal fluid, held out of pooling) |
+| Independent studies pooled (primary, circulating) | 18 |
 | Search date | 10 September 2026 (PubMed, Scopus); 23 September 2026 (Web of Science) |
 | Studies appraised with QUADAS-2 | 28 |
 | Certainty of evidence (GRADE) | Very low |
 
-Primary pooled estimates (one estimate per study, Paule-Mandel tau-squared, Hartung-Knapp CIs, AD and PD as separate primary outcomes) live in `results/tables/meta_analysis_pooled_auc_primary.csv`; the every-row DerSimonian-Laird analysis this replaced as the headline number is kept as a labelled sensitivity check in `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`. Per-estimate inputs are in `results/tables/meta_analysis_input_estimates.csv`, and the leave-one-study-out sensitivity analysis in `results/tables/sensitivity_single_mirna.csv`. Every extracted value is traceable to a verbatim sentence from its source in `data/extracted/diagnostic_accuracy_extraction.csv`.
+Primary pooled estimates (one pre-specified, AUC-blind estimate per circulating study, Paule-Mandel tau-squared, modified Hartung-Knapp CIs, AD and PD as separate primary outcomes; two cerebrospinal-fluid studies held out and reported separately) live in `results/tables/meta_analysis_pooled_auc_primary.csv`; the every-row DerSimonian-Laird analysis this replaced as the headline number is kept as a labelled sensitivity check in `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`. Per-estimate inputs are in `results/tables/meta_analysis_input_estimates.csv`, and the leave-one-study-out sensitivity analysis in `results/tables/sensitivity_single_mirna.csv`. Every extracted value is traceable to a verbatim sentence from its source in `data/extracted/diagnostic_accuracy_extraction.csv`.
 
 Interpretation belongs in the manuscript, not here. Two things do belong here, because they are properties of the data rather than of the argument:
 
@@ -144,7 +144,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1854 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 1846 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -176,7 +176,7 @@ Twelve defects in this pipeline were found after results had already been produc
 
 - **Web of Science has now been searched**, on 23 September 2026, under institutional authentication and thirteen days later than the other two databases — which is reported as its own search date rather than folded into theirs. It returned 295 records across the two arms, of which **27 were new**, and **none of them entered the primary pool**: one measures a long non-coding RNA rather than a microRNA, one measures post-mortem cortex rather than a circulating biofluid, and the one record that does match the PICO reports its AUC only as the inequality "AUC>0.90" and has no DOI, no PubMed ID and no reachable full text to confirm a value. All three are recorded in the extraction table with their exclusion reasons (E077–E079) rather than dropped. The pooled estimates, the bivariate operating point, the QUADAS-2 table and the GRADE rating are byte-identical before and after.
 - Extraction is restricted to open-access full texts and abstracts, which may select a non-random subset of the literature; four Parkinson-arm studies were access-restricted such that only a combined-model AUC could be read.
-- 34 of the 41 weighted standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval.
+- 32 of the 39 pooled circulating standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval.
 - Heterogeneity is high (I² up to 97%) and estimates within studies are correlated, which also makes Egger's test unreliable here.
 - Most miRNAs contribute a single study, so the attention-vs-performance analysis is underpowered in both directions.
 - **The review was not registered and has no prospective protocol.** The search, eligibility rules and screening decisions are frozen in the repository as applied, which makes them auditable but not pre-specified. See `docs/en/PRISMA_DTA_CHECKLIST.md`, item 5.

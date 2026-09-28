@@ -1,0 +1,19 @@
+study_id,y,v,n_candidate_estimates,disease,biofluid,selected_marker,selected_marker_type,selected_cohort_stage,selected_auc,first_author,year,selection_reason
+10.3760/cma.j.cn371468-20200828-01692,2.175197255017929,0.06802526668771902,3,PD,serum,miR-124 + miR-494,multi_miRNA_panel,single,0.898,Li J,2021,own multi-miRNA panel preferred over component markers | painel multi-miRNA proprio preferido sobre marcadores componentes
+10.3760/cma.j.issn.0254-9026.2024.01.005,2.3383031755961254,0.13923068380113732,3,PD,serum,miR-124 + miR-1976,multi_miRNA_panel,single,0.912,Chen T,2024,own multi-miRNA panel preferred over component markers | painel multi-miRNA proprio preferido sobre marcadores componentes
+28137310,1.5163474893680882,0.17600458298838909,1,AD,serum,miR-501-3p,single_miRNA,single,0.82,Hara N,2017,only qualifying estimate | unica estimativa qualificada
+31591382,1.5856272637403817,0.1701083669307072,1,AD,blood,3 miRNA + 3 piRNA signature,multi_miRNA_panel,discovery,0.83,Jain G,2019,only qualifying estimate | unica estimativa qualificada
+32585840,0.4895482253187058,0.1851362112008779,6,PD,serum,miR-146a-5p,single_miRNA,validation,0.62,Oliveira SR,2020,independent validation cohort | coorte de validacao independente; alphabetically first marker name (nominal tiebreak) | nome do marcador alfabeticamente primeiro (desempate nominal)
+32955460,1.2083112059245342,0.08352051057444951,1,AD,plasma,5 trending miRNAs,multi_miRNA_panel,single,0.77,Sandau US,2020,only qualifying estimate | unica estimativa qualificada
+32962113,3.6635616461296454,0.9271077803726202,1,AD,blood,3-miRNA biosignature,multi_miRNA_panel,single,0.975,Karaglani M,2020,only qualifying estimate | unica estimativa qualificada
+33129241,1.0986122886681098,0.19235743680188128,1,AD,whole_blood,miR-661,single_miRNA,single,0.75,Hojati Z,2020,only qualifying estimate | unica estimativa qualificada
+33416118,1.0355993208393754,0.22811069859959346,1,PD,plasma,miR-34a-5p,single_miRNA,single,0.738,Grossi I,2020,only qualifying estimate | unica estimativa qualificada
+34042273,2.1113349054557897,0.05264059721938242,1,AD,serum,miR-202,single_miRNA,single,0.892,Dong LH,2021,only qualifying estimate | unica estimativa qualificada
+35655754,0.536509218500686,0.03828168913921526,2,PD,plasma,miR-153,single_miRNA,single,0.631,Wu L,2022,alphabetically first marker name (nominal tiebreak) | nome do marcador alfabeticamente primeiro (desempate nominal)
+37483339,0.4641575586823115,0.05672880460917541,8,PD,serum_neuronal_EV,miR-181a-5p,single_miRNA,single,0.614,Aguilar MA,2023,alphabetically first marker name (nominal tiebreak) | nome do marcador alfabeticamente primeiro (desempate nominal)
+38172670,0.4899726951622523,0.02695132819167292,2,PD,serum,miR-1247-5p,single_miRNA,single,0.6201,Liang J,2024,alphabetically first marker name (nominal tiebreak) | nome do marcador alfabeticamente primeiro (desempate nominal)
+38200052,2.4022668644598673,0.0005504844349408977,1,PD,plasma_EV,EV-miRNA SVM classifier,multi_miRNA_panel,training,0.917,Li Y,2024,only qualifying estimate | unica estimativa qualificada
+38618193,1.180290319682377,0.04927998853231219,2,AD,serum_exosome,miR-125b-1-3p,single_miRNA,validation,0.765,Duan X,2024,independent validation cohort | coorte de validacao independente; alphabetically first marker name (nominal tiebreak) | nome do marcador alfabeticamente primeiro (desempate nominal)
+41373032,1.2715034200231854,0.4565096121613531,1,PD,plasma,miR-101,single_miRNA,single,0.781,Omura T,2025,only qualifying estimate | unica estimativa qualificada
+41836608,1.1526795099383855,0.11812318129294234,1,AD,plasma_neuronal_EV,miR-132-3p,single_miRNA,single,0.76,Yang SJ,2026,only qualifying estimate | unica estimativa qualificada
+42389429,2.556365613770146,0.07768346608762465,3,AD,serum,7-miRNA panel,multi_miRNA_panel,validation,0.928,Qin Q,2026,independent validation cohort | coorte de validacao independente

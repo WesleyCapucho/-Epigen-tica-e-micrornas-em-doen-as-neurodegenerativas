@@ -79,36 +79,44 @@ Bibliometric sample from the original monograph layer, pulled live from the NCBI
 
 ## `results/tables/meta_analysis_pooled_auc_primary.csv`
 
-The PRIMARY analysis: every study collapsed to one estimate per subgroup first (fixed-effect combination of that study's own qualifying rows), pooled between studies with Paule-Mandel tau-squared. AD and PD are separate primary rows; the combined AD+PD row is labelled SECONDARY.
+The PRIMARY analysis, circulating (blood-derived) studies only: every study reduced to one estimate per subgroup first, by a fixed, AUC-blind priority rule (see `scripts/_study_selection.py`: prefer an independent validation-cohort row, then the study's own multi-miRNA panel over its component markers, then the larger combined sample size, then an alphabetical tiebreak), pooled between studies with Paule-Mandel tau-squared. AD and PD are separate primary rows; the combined AD+PD row is labelled SECONDARY. The two cerebrospinal-fluid studies are never in this table; see `results/tables/csf_secondary_estimates.csv`.
 
 | Column | Description |
 |---|---|
 | `subgroup` | Which subset was pooled (PRIMARY 1 = AD, PRIMARY 2 = PD, SECONDARY = AD+PD combined) |
-| `n_studies` | Independent studies contributing (equals k after one-per-study collapsing) |
-| `n_estimates_collapsed` | Raw extraction rows collapsed into those studies |
-| `n_studies_with_multiple_estimates` | How many of those studies had more than one qualifying row |
+| `n_studies` | Independent studies contributing (equals k after one-per-study selection) |
+| `n_estimates_collapsed` | Sum of each contributing study's own candidate-row count (see `one_estimate_per_study_selection_audit.csv`) |
+| `n_studies_with_multiple_estimates` | How many of those studies had more than one qualifying row to choose from |
 | `pooled_auc` | Random-effects pooled AUC, back-transformed from logit |
 | `ci_low_wald`, `ci_high_wald` | Standard Wald 95% CI |
-| `ci_low_hk`, `ci_high_hk` | Hartung-Knapp-Sidik-Jonkman 95% CI (the one reported in text and figures) |
+| `ci_low_hk`, `ci_high_hk` | modified Hartung-Knapp (mHK) 95% CI (the one reported in text and figures) |
 | `pi_low`, `pi_high` | 95% prediction interval (k >= 3 only) |
 | `tau2_PM` | Paule-Mandel between-study variance on the logit scale |
 | `I2_percent`, `Q`, `df`, `p_heterogeneity` | Heterogeneity statistics (Q from DerSimonian-Laird, reported regardless of which tau-squared feeds the pooled estimate) |
 
+## `results/tables/one_estimate_per_study_selection_audit.csv`
+
+One row per circulating study in the primary pool: which estimate the pre-specified, AUC-blind priority rule selected, and the exact reason it won (`selection_reason`), so the choice can be checked against the raw extraction table and was never made by picking the highest AUC.
+
+## `results/tables/csf_secondary_estimates.csv`
+
+The two cerebrospinal-fluid estimates (one AD, one PD) held out of every pooled AUC because CSF is not a peripheral circulating biofluid (section 2.2 of the manuscript). With one study per disease there is nothing to pool, so these are reported narratively in the manuscript rather than meta-analysed.
+
 ## `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`
 
-The analysis that was previously reported as primary: every qualifying row treated as an independent observation, pooled with DerSimonian-Laird tau-squared. Kept as a labelled sensitivity check on the unit-of-analysis choice above. Same column schema as the pre-existing table (`subgroup`, `k_estimates`, `n_studies`, `pooled_auc`, `ci_low`, `ci_high`, `tau2_logit`, `I2_percent`, `Q`, `df`, `p_heterogeneity`, `egger_intercept`, `egger_p`).
+The analysis that was previously reported as primary: every qualifying circulating row treated as an independent observation, pooled with DerSimonian-Laird tau-squared. Kept as a labelled sensitivity check on the unit-of-analysis choice above. Same column schema as the pre-existing table (`subgroup`, `k_estimates`, `n_studies`, `pooled_auc`, `ci_low`, `ci_high`, `tau2_logit`, `I2_percent`, `Q`, `df`, `p_heterogeneity`, `egger_intercept`, `egger_p`).
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (34 of 41 estimates) actually changes the answer versus how few studies (2 for AD, 4 for PD) reported their own interval.
+For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (32 of 39 circulating estimates) actually changes the answer versus how few studies (2 for AD, 4 for PD) reported their own interval.
 
 ## `results/tables/subgroup_difference_test.csv`
 
-Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 df), computed on the one-per-study primary rows, within AD, within PD, and combined.
+Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 df), computed on the one-per-study primary rows, within AD, within PD, and combined. Valid only because the one-estimate-per-study selection assigns every study to exactly one marker type, so the two groups compared are disjoint by construction; see the docstring of `subgroup_difference_test` in `scripts/05_meta_analysis.py`.
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
-The 24 poolable estimates with the standard error used for each and, critically, `se_source` — `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes.
+The 39 poolable circulating estimates with the standard error used for each and, critically, `se_source` — `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes.
 
 ## `results/tables/citation_frequency_vs_auc.csv`
 
@@ -256,7 +264,7 @@ A six-panel figure typesetting the equations `scripts/05_meta_analysis.py` and `
 
 ## `results/figures/subgroup_summary_forest.*.png`
 
-A point-range ("summary forest") chart of the core pooled-AUC subgroups reported in Table 1 (AD primary, PD primary, AD+PD combined secondary, single microRNA, multi-microRNA panel), each point and its 95% Hartung-Knapp CI read live from `results/tables/meta_analysis_pooled_auc_primary.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots all 41 individual estimates rather than five subgroup summaries.
+A point-range ("summary forest") chart of the core pooled-AUC subgroups reported in Table 1 (AD primary, PD primary, AD+PD combined secondary, single microRNA, multi-microRNA panel), each point and its 95% modified Hartung-Knapp (mHK) CI read live from `results/tables/meta_analysis_pooled_auc_primary.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots all 39 individual circulating estimates rather than five subgroup summaries.
 
 ## `results/figures/study_characteristics.*.png`
 

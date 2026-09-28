@@ -72,10 +72,14 @@
   "wos_note_pt": "Os tres candidatos da Web of Science foram julgados contra o PICO e nenhum entrou no pool primario: um mede um RNA longo nao codificante e nao um microRNA (E077), um mede cortex pre-frontal post-mortem e nao um biofluido circulante (E078), e um - o unico registro que casa com o PICO em populacao, biofluido e teste indice - reporta a AUC apenas como a desigualdade 'AUC>0,90' e nao tem DOI, nem PubMed ID, nem texto completo alcancavel para confirmar um valor (E079). Os tres ficam registrados na tabela de extracao com suas razoes de exclusao, em vez de descartados, para que o braco possa ser auditado."
  },
  "included_in_meta_analysis": {
-  "estimates_with_estimable_standard_error": 41,
-  "independent_studies": 20,
+  "estimates_with_estimable_standard_error": 39,
+  "independent_studies": 18,
+  "csf_estimates_secondary_not_pooled": 2,
+  "csf_studies_secondary_not_pooled": 2,
   "note_en": "The study count is now keyed on PMID when a study has one and on DOI otherwise. Keying on PMID alone had silently merged the studies published outside MEDLINE, four of which arrived with the Scopus arms, and understated the study total.",
-  "note_pt": "A contagem de estudos passa a usar o PMID quando existe e o DOI caso contrario. Usar so o PMID fundia em silencio os estudos publicados fora do MEDLINE, quatro deles vindos dos bracos do Scopus, e subestimava o total."
+  "note_pt": "A contagem de estudos passa a usar o PMID quando existe e o DOI caso contrario. Usar so o PMID fundia em silencio os estudos publicados fora do MEDLINE, quatro deles vindos dos bracos do Scopus, e subestimava o total.",
+  "csf_note_en": "Of the 41 estimates with an estimable standard error, 2 (one AD, one PD; Lusardi et al. 2017 and Dos Santos et al. 2018) measure a cerebrospinal-fluid panel rather than a peripheral, circulating biofluid. They are screened, risk-of-bias-rated and GRADE-rated alongside the rest of the corpus, but are never pooled with the blood-derived estimates and are reported narratively as a secondary, non-pooled observation (results/tables/csf_secondary_estimates.csv). The 39/18 figures here are the circulating, primary-pool counts the title and pooled AUCs refer to.",
+  "csf_note_pt": "Das 41 estimativas com erro-padrao estimavel, 2 (uma de AD, uma de PD; Lusardi et al. 2017 e Dos Santos et al. 2018) medem um painel de liquido cefalorraquidiano em vez de um biofluido periferico circulante. Sao triadas, avaliadas quanto a risco de vies e GRADE junto ao resto do corpus, mas nunca agregadas com as estimativas derivadas de sangue, e sao reportadas narrativamente como observacao secundaria, nao agregada (results/tables/csf_secondary_estimates.csv). Os numeros 39/18 aqui sao as contagens do pool primario circulante a que o titulo e as AUCs agregadas se referem."
  },
  "note_en": "Counts are computed from the screening table in this repository, not transcribed by hand.",
  "note_pt": "As contagens sao calculadas a partir da tabela de triagem deste repositorio, nao transcritas manualmente.",

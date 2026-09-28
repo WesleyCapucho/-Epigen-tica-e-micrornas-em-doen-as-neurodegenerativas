@@ -12,35 +12,84 @@ EN | Input : data/extracted/diagnostic_accuracy_extraction.csv
 PT | Entrada: data/extracted/diagnostic_accuracy_extraction.csv
      Saida  : results/tables/*.csv, results/figures/*.png
 
-EN | Unit of analysis. Twenty of the studies contributing to the primary pool
-     supply more than one qualifying estimate each. Pooling all 41 estimates as
-     if they were 41 independent observations understates the true uncertainty
-     and lets a single well-instrumented cohort outweigh a study that
-     contributes only one estimate. The PRIMARY analysis therefore collapses
-     each study to one estimate per subgroup first, by fixed-effect
-     (inverse-variance) combination of that study's own qualifying rows on the
-     logit scale, and only then pools across studies with the between-study
-     random-effects model. The estimate that treats every row as independent is
-     kept and reported as a labelled sensitivity analysis, never as the headline
-     number.
-PT | Unidade de analise. Vinte dos estudos que contribuem ao pool primario
-     fornecem mais de uma estimativa qualificada cada. Agregar as 41 estimativas
-     como se fossem 41 observacoes independentes subestima a incerteza real e
-     deixa uma coorte bem instrumentada pesar mais que um estudo que contribui
-     so uma estimativa. A analise PRIMARIA portanto colapsa cada estudo a uma
-     estimativa por subgrupo primeiro, por combinacao de efeito fixo
-     (inverso-variancia) das proprias linhas qualificadas do estudo na escala
-     logito, e so entao agrega entre estudos com o modelo de efeitos aleatorios
-     entre-estudos. A estimativa que trata cada linha como independente e
-     mantida e reportada como analise de sensibilidade rotulada, nunca como o
-     numero principal.
+EN | Unit of analysis. Eight of the 20 studies with an estimable variance
+     supply more than one qualifying estimate each, and those estimates
+     typically come from the same participants (e.g. a single microRNA and a
+     panel that contains it, measured in one cohort), so they are correlated.
+     A within-study fixed-effect (inverse-variance) combination assumes they
+     are independent and therefore understates the true uncertainty of the
+     combined estimate; it does not resolve the dependence, only relabels it.
+     The PRIMARY analysis instead selects exactly ONE estimate per study by a
+     rule fixed in advance and blind to the estimate's own AUC: (1) prefer a
+     row evaluated in an independent validation cohort (cohort_stage ==
+     "validation") over one derived and evaluated in the same sample; (2)
+     within the surviving tier, prefer the study's own multi-microRNA panel
+     over its component single markers, since the panel is the study's
+     integrative, composite result rather than one candidate among several;
+     (3) if still tied, prefer the row with the larger combined case+control
+     sample size; (4) if still tied, take the alphabetically first marker
+     name, a purely nominal, content-free tiebreak. Every selection is written
+     to results/tables/one_estimate_per_study_selection_audit.csv with the
+     reason it won, so the choice is auditable and was never made by picking
+     the largest AUC. Only after this one-row-per-study reduction are studies
+     pooled across with the between-study random-effects model. The estimate
+     that treats every row as independent is kept and reported as a labelled
+     sensitivity analysis, never as the headline number.
+PT | Unidade de analise. Oito dos 20 estudos com variancia estimavel fornecem
+     mais de uma estimativa qualificada cada, e essas estimativas tipicamente
+     vem dos mesmos participantes (ex.: um microRNA isolado e um painel que o
+     contem, medidos numa mesma coorte), portanto sao correlacionadas. Uma
+     combinacao de efeito fixo (inverso-variancia) dentro do estudo assume que
+     sao independentes e por isso subestima a incerteza real da estimativa
+     combinada; isso nao resolve a dependencia, apenas a rotula de outro jeito.
+     A analise PRIMARIA em vez disso seleciona exatamente UMA estimativa por
+     estudo por uma regra fixada de antemao e cega ao valor da propria AUC:
+     (1) preferir uma linha avaliada numa coorte de validacao independente
+     (cohort_stage == "validation") sobre uma derivada e avaliada na mesma
+     amostra; (2) dentro do nivel remanescente, preferir o painel
+     multi-miRNA do proprio estudo sobre seus marcadores isolados
+     componentes, pois o painel e o resultado integrativo e composto do
+     estudo, nao um candidato entre varios; (3) se ainda empatado, preferir a
+     linha com maior tamanho amostral combinado (casos+controles); (4) se
+     ainda empatado, tomar o nome do marcador alfabeticamente primeiro, um
+     desempate puramente nominal, sem conteudo. Toda selecao e escrita em
+     results/tables/one_estimate_per_study_selection_audit.csv com o motivo da
+     escolha, para que ela seja auditavel e nunca tenha sido feita escolhendo
+     a maior AUC. So apos essa reducao a uma-linha-por-estudo os estudos sao
+     agregados entre si com o modelo de efeitos aleatorios entre-estudos. A
+     estimativa que trata cada linha como independente e mantida e reportada
+     como analise de sensibilidade rotulada, nunca como o numero principal.
+
+EN | Scope of the primary pool: circulating (blood-derived) versus CSF. The
+     eligibility criteria admit a small number of cerebrospinal-fluid (CSF)
+     studies alongside the blood-derived biofluids the title and research
+     question concern, because they were captured by the same search and
+     screened, risk-of-bias-rated and GRADE-rated alongside the rest of the
+     corpus. CSF is not a peripheral, minimally invasive circulating biofluid
+     in the sense plasma, serum or whole blood are, so the PRIMARY pooled AUC
+     never mixes a CSF row with a blood-derived one: CSF studies are held out
+     of every pooled estimate and reported narratively, on their own, as a
+     secondary, non-pooled observation (k=1 per disease, so there is nothing
+     to pool).
+PT | Escopo do pool primario: circulante (derivado de sangue) versus LCR. Os
+     criterios de elegibilidade admitem um pequeno numero de estudos de
+     liquido cefalorraquidiano (LCR) ao lado dos biofluidos derivados de
+     sangue que o titulo e a pergunta de pesquisa tratam, porque foram
+     capturados pela mesma busca e triados, avaliados quanto a risco de vies e
+     GRADE junto ao resto do corpus. O LCR nao e um biofluido circulante
+     periferico e minimamente invasivo no sentido em que plasma, soro ou
+     sangue total sao, entao a AUC agregada PRIMARIA nunca mistura uma linha
+     de LCR com uma derivada de sangue: estudos de LCR ficam fora de toda
+     estimativa agregada e sao reportados narrativamente, isoladamente, como
+     uma observacao secundaria, nao agregada (k=1 por doenca, entao nao ha o
+     que agregar).
 
 EN | Heterogeneity estimator. DerSimonian & Laird (1986) tau-squared is known to
      be biased downward at the small-to-moderate k seen in every subgroup here.
      Paule & Mandel (1982) is reported as the primary tau-squared estimator
      (an iterative, unbiased-equation estimator very close to REML in practice,
      and exactly solvable here without a general-purpose optimizer), with
-     Hartung-Knapp-Sidik-Jonkman (2001) confidence intervals and a prediction
+     modified Hartung-Knapp (mHK) confidence intervals, Paule-Mandel tau-squared and a prediction
      interval for every pooled estimate with k >= 3. DerSimonian-Laird is kept
      as a labelled sensitivity check, not the primary tau-squared.
 PT | Estimador de heterogeneidade. O tau-quadrado de DerSimonian & Laird (1986)
@@ -48,7 +97,7 @@ PT | Estimador de heterogeneidade. O tau-quadrado de DerSimonian & Laird (1986)
      subgrupo aqui. Paule & Mandel (1982) e reportado como estimador primario de
      tau-quadrado (um estimador iterativo, de equacao nao-enviesada, muito
      proximo do REML na pratica, e resolvivel aqui exatamente sem otimizador de
-     proposito geral), com intervalos de confianca de Hartung-Knapp-Sidik-Jonkman
+     proposito geral), com intervalos de confianca de Hartung-Knapp modificado (mHK), tau-quadrado de Paule-Mandel
      (2001) e um intervalo de predicao para toda estimativa agregada com k >= 3.
      DerSimonian-Laird e mantido como checagem de sensibilidade rotulada, nao
      como o tau-quadrado primario.
@@ -74,6 +123,19 @@ FIG_DIR = "results/figures"
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+import _study_selection as _sel
+
+# EN | Cerebrospinal-fluid biofluid codes (shared with 15_bivariate_srocc.py
+#      via _study_selection.py), held out of every pooled ("primary" or
+#      sensitivity) AUC and reported only as a narrative, non-pooled
+#      secondary observation - see the "Scope of the primary pool" docstring
+#      further down.
+# PT | Codigos de biofluido de liquido cefalorraquidiano (compartilhados com
+#      15_bivariate_srocc.py via _study_selection.py), fora de toda AUC
+#      agregada (analise "primaria" ou de sensibilidade) e reportados apenas
+#      como uma observacao narrativa secundaria, nao agregada - ver a
+#      docstring "Scope of the primary pool" mais abaixo.
+CSF_BIOFLUIDS = _sel.CSF_BIOFLUIDS
 
 
 # --------------------------------------------------------------------------
@@ -170,12 +232,51 @@ def paule_mandel_tau2(y, v):
 # --------------------------------------------------------------------------
 # EN | Unified random-effects pooling: DL Q/I2 always reported for
 #      heterogeneity description; tau2_method selects which tau-squared
-#      feeds the pooled estimate, its Wald CI, its Hartung-Knapp-Sidik-Jonkman
-#      CI, and its prediction interval.
+#      feeds the pooled estimate, its Wald CI, its Hartung-Knapp CI, and its
+#      prediction interval.
+#
+#      Naming. What is computed below is the Hartung & Knapp (2001) t-based
+#      confidence interval - a refined variance estimator (q_stat/sum(w))
+#      combined with a t(k-1) reference distribution - paired with
+#      Paule-Mandel (1982) as the tau-squared estimator that sets the
+#      weights. This is NOT "Hartung-Knapp-Sidik-Jonkman (HKSJ)": Sidik and
+#      Jonkman (2002) is a distinct tau-squared ESTIMATOR (unrelated to the
+#      Paule-Mandel one used here), and pairing the HK interval with it is a
+#      different, specific combination this review does not use. Calling
+#      every HK-type interval "HKSJ" regardless of which tau-squared feeds it
+#      is a common but imprecise habit; this review names the method it
+#      actually ran. The modification of IntHout et al. (2014) - flooring the
+#      HK standard error at the conventional (Wald) one, se_hk = max(se_hk,
+#      se_wald) - is applied, because the un-floored HK interval is known to
+#      sometimes come out narrower than the standard random-effects interval
+#      when between-study heterogeneity is small, which is anti-conservative;
+#      flooring it never happens the other way round. The method reported
+#      throughout is therefore the "modified Hartung-Knapp (mHK) interval,
+#      Paule-Mandel tau-squared".
 # PT | Agregacao unificada de efeitos aleatorios: Q/I2 de DL sempre reportados
 #      para descrever heterogeneidade; tau2_method escolhe qual tau-quadrado
 #      alimenta a estimativa agregada, seu IC de Wald, seu IC de
-#      Hartung-Knapp-Sidik-Jonkman e seu intervalo de predicao.
+#      Hartung-Knapp e seu intervalo de predicao.
+#
+#      Nomenclatura. O que e calculado abaixo e o intervalo de confianca-t de
+#      Hartung & Knapp (2001) - um estimador de variancia refinado
+#      (q_stat/soma(w)) combinado com uma distribuicao de referencia t(k-1) -
+#      pareado com Paule-Mandel (1982) como o estimador de tau-quadrado que
+#      define os pesos. Isso NAO e "Hartung-Knapp-Sidik-Jonkman (HKSJ)": Sidik
+#      e Jonkman (2002) e um ESTIMADOR de tau-quadrado distinto (nao
+#      relacionado ao de Paule-Mandel usado aqui), e parear o intervalo HK com
+#      ele e uma combinacao diferente e especifica que esta revisao nao usa.
+#      Chamar todo intervalo tipo-HK de "HKSJ" independente de qual
+#      tau-quadrado o alimenta e um habito comum mas impreciso; esta revisao
+#      nomeia o metodo que de fato rodou. A modificacao de IntHout et al.
+#      (2014) - colocar um piso no erro-padrao HK no erro-padrao convencional
+#      (de Wald), se_hk = max(se_hk, se_wald) - e aplicada, porque o intervalo
+#      HK sem piso e sabidamente as vezes mais estreito que o intervalo
+#      convencional de efeitos aleatorios quando a heterogeneidade
+#      entre-estudos e pequena, o que e anticonservador; colocar o piso nunca
+#      acontece ao contrario. O metodo reportado ao longo do texto e portanto
+#      o "intervalo de Hartung-Knapp modificado (mHK), tau-quadrado de
+#      Paule-Mandel".
 # --------------------------------------------------------------------------
 def pool_re(y, v, tau2_method="PM"):
     y, v = np.asarray(y, float), np.asarray(v, float)
@@ -201,6 +302,7 @@ def pool_re(y, v, tau2_method="PM"):
     if k >= 2:
         q_stat = float(np.sum(w * (y - theta) ** 2) / (k - 1))
         se_hk = float(np.sqrt(q_stat / np.sum(w)))
+        se_hk = max(se_hk, se_wald)  # EN/PT: IntHout et al. (2014) floor - see docstring above
         tcrit = stats.t.ppf(0.975, k - 1)
         ci_low_hk = theta - tcrit * se_hk
         ci_high_hk = theta + tcrit * se_hk
@@ -236,16 +338,27 @@ def egger_test(y, se):
 
 
 # --------------------------------------------------------------------------
-# EN | Collapse multiple qualifying estimates from the same study, within a
-#      subgroup, to a single logit-AUC and variance by fixed-effect
-#      (inverse-variance) combination. A study with one qualifying estimate
-#      passes through unchanged.
-# PT | Colapsa multiplas estimativas qualificadas do mesmo estudo, dentro de
-#      um subgrupo, a um unico logito-AUC e variancia por combinacao de
-#      efeito fixo (inverso-variancia). Um estudo com uma estimativa
-#      qualificada passa sem alteracao.
+# EN | Select exactly one estimate per study, within a subgroup, by the fixed,
+#      AUC-blind priority rule in scripts/_study_selection.py (imported below
+#      as _sel), the single implementation this rule has anywhere in the
+#      review - scripts/15_bivariate_srocc.py calls the same function, so the
+#      AUC-based and the sensitivity/specificity-based syntheses can never
+#      silently pick a different representative estimate for the same study.
+#      Replaces the earlier fixed-effect within-study combination, which
+#      assumed independence between same-study estimates that are typically
+#      measured in the same participants and therefore correlated.
+# PT | Seleciona exatamente uma estimativa por estudo, dentro de um subgrupo,
+#      pela regra de prioridade fixa e cega a AUC em
+#      scripts/_study_selection.py (importada abaixo como _sel), a unica
+#      implementacao dessa regra em toda a revisao - scripts/15_bivariate_srocc.py
+#      chama a mesma funcao, entao as sinteses baseadas em AUC e em
+#      sensibilidade/especificidade nunca podem escolher em silencio uma
+#      estimativa representativa diferente para o mesmo estudo. Substitui a
+#      combinacao anterior de efeito fixo dentro do estudo, que assumia
+#      independencia entre estimativas do mesmo estudo tipicamente medidas
+#      nos mesmos participantes e portanto correlacionadas.
 # --------------------------------------------------------------------------
-def collapse_one_per_study(sub):
+def select_one_per_study(sub):
     sub = sub.dropna(subset=["auc", "se_auc"]).copy()
     if len(sub) == 0:
         return sub.assign(y=[], v=[])
@@ -255,36 +368,51 @@ def collapse_one_per_study(sub):
 
     rows = []
     for sid, g in sub.groupby("study_id"):
-        if len(g) == 1:
-            rows.append(dict(study_id=sid, y=g["y"].iloc[0], v=g["v"].iloc[0],
-                             n_rows_collapsed=1))
-        else:
-            w = 1.0 / g["v"].values
-            y_fe = float(np.sum(w * g["y"].values) / np.sum(w))
-            v_fe = float(1.0 / np.sum(w))
-            rows.append(dict(study_id=sid, y=y_fe, v=v_fe,
-                             n_rows_collapsed=len(g)))
+        candidates = g.to_dict("records")
+        picked, reason, n_candidates = _sel.select_one_per_study(candidates)
+        rows.append(dict(study_id=sid, y=picked["y"], v=picked["v"],
+                         n_candidate_estimates=n_candidates,
+                         disease=picked["disease"], biofluid=picked["biofluid"],
+                         selected_marker=picked["marker"], selected_marker_type=picked["marker_type"],
+                         selected_cohort_stage=picked["cohort_stage"], selected_auc=picked["auc"],
+                         first_author=picked["first_author"], year=picked["year"],
+                         selection_reason=reason))
     return pd.DataFrame(rows)
 
 
-def summarise_primary(label, sub):
+def summarise_from_selection(label, coll):
     """
-    EN/PT: primary analysis for one subgroup - collapse to one estimate per
-    study (fixed-effect within study), then pool between studies with
-    Paule-Mandel tau2, reporting the Wald, Hartung-Knapp and prediction
-    intervals side by side.
+    EN | Pool an already one-row-per-study selection (see
+         select_one_per_study) with Paule-Mandel tau2, reporting the Wald,
+         Hartung-Knapp and prediction intervals side by side. Marker-type and
+         biofluid subgroups MUST be built by filtering the output of one
+         selection made over the whole disjoint candidate set first, never by
+         pre-filtering raw rows by marker_type/biofluid and selecting again
+         within each filter - the latter lets a study with both a single-miRNA
+         and a panel candidate contribute to both subgroups, double-counting
+         it and invalidating the independence the subgroup-difference test
+         (Borenstein et al., ch.19) assumes.
+    PT | Agrega uma selecao ja uma-linha-por-estudo (ver select_one_per_study)
+         com tau2 de Paule-Mandel, reportando os intervalos de Wald,
+         Hartung-Knapp e predicao lado a lado. Subgrupos de tipo de marcador e
+         biofluido DEVEM ser construidos filtrando a saida de uma selecao
+         feita sobre todo o conjunto de candidatos disjunto primeiro, nunca
+         pre-filtrando linhas brutas por marker_type/biofluido e selecionando
+         de novo dentro de cada filtro - isso deixaria um estudo com um
+         candidato single-miRNA E um candidato painel contribuir para os dois
+         subgrupos, contando-o em dobro e invalidando a independencia que o
+         teste de diferenca entre subgrupos (Borenstein et al., cap.19) supoe.
     """
-    coll = collapse_one_per_study(sub)
     if len(coll) == 0:
         return None
     r = pool_re(coll["y"].values, coll["v"].values, tau2_method="PM")
     if r is None:
         return None
-    n_multi = int((coll["n_rows_collapsed"] > 1).sum())
+    n_multi = int((coll["n_candidate_estimates"] > 1).sum())
     return {
         "subgroup": label,
         "n_studies": r["k"],
-        "n_estimates_collapsed": int(sub.dropna(subset=["auc", "se_auc"]).shape[0]),
+        "n_estimates_collapsed": int(coll["n_candidate_estimates"].sum()),
         "n_studies_with_multiple_estimates": n_multi,
         "pooled_auc": round(inv_logit(r["estimate"]), 4),
         "ci_low_wald": round(inv_logit(r["ci_low"]), 4),
@@ -299,6 +427,14 @@ def summarise_primary(label, sub):
         "df": r["df"],
         "p_heterogeneity": round(r["p_Q"], 4) if not np.isnan(r["p_Q"]) else "",
     }
+
+
+def summarise_primary(label, sub):
+    """EN/PT: convenience wrapper - selects one estimate per study from raw
+    rows, then pools. Safe to use only when `sub` was filtered by a variable
+    that partitions studies (disease, se_source), never by marker_type or
+    biofluid (see summarise_from_selection)."""
+    return summarise_from_selection(label, select_one_per_study(sub))
 
 
 def summarise_sensitivity_every_estimate(label, sub):
@@ -331,23 +467,34 @@ def summarise_sensitivity_every_estimate(label, sub):
     }
 
 
-def subgroup_difference_test(sub_a, sub_b, label):
+def subgroup_difference_test(coll_a, coll_b, label):
     """
     EN | Test for subgroup differences (Borenstein et al., 2009, ch.19): pool
          all rows of both subgroups combined to get Q_all, pool each subgroup
          separately to get Q_a and Q_b, then Q_between = Q_all - Q_a - Q_b
-         with 1 df. Computed on the one-per-study collapsed rows, matching the
-         primary analysis.
+         with 1 df. Takes two already one-row-per-study selections that must
+         be disjoint in study_id (produced by filtering a single global
+         select_one_per_study() call, never by independently re-selecting
+         within two overlapping marker-type/biofluid filters - see
+         summarise_from_selection). With disjoint sets this is a standard,
+         valid test of independent subgroups; it is not otherwise.
     PT | Teste para diferenca entre subgrupos (Borenstein et al., 2009, cap.19):
          agrega todas as linhas dos dois subgrupos juntas para obter Q_all,
          agrega cada subgrupo separadamente para obter Q_a e Q_b, entao
-         Q_between = Q_all - Q_a - Q_b com 1 gl. Calculado sobre as linhas
-         colapsadas uma-por-estudo, igual a analise primaria.
+         Q_between = Q_all - Q_a - Q_b com 1 gl. Recebe duas selecoes ja
+         uma-linha-por-estudo que devem ser disjuntas em study_id (produzidas
+         filtrando uma unica chamada global de select_one_per_study(), nunca
+         selecionando de novo, independentemente, dentro de dois filtros de
+         tipo-de-marcador/biofluido que se sobrepoem - ver
+         summarise_from_selection). Com conjuntos disjuntos este e um teste
+         valido e padrao de subgrupos independentes; do contrario, nao e.
     """
-    coll_a = collapse_one_per_study(sub_a)
-    coll_b = collapse_one_per_study(sub_b)
     if len(coll_a) < 2 or len(coll_b) < 2:
         return None
+    overlap = set(coll_a["study_id"]) & set(coll_b["study_id"])
+    if overlap:
+        raise ValueError(f"subgroup_difference_test: {label} - non-disjoint study_id {overlap}, "
+                          f"the two subgroups must be built by filtering one shared selection")
     y_all = np.concatenate([coll_a["y"].values, coll_b["y"].values])
     v_all = np.concatenate([coll_a["v"].values, coll_b["v"].values])
     _, Q_all, _ = dl_tau2(y_all, v_all)
@@ -396,45 +543,85 @@ def main():
                 .replace({"": np.nan, "nan": np.nan, "None": np.nan}))
     df["study_id"] = pmid_txt.fillna(df["doi"].astype(str).str.strip().str.lower())
 
-    pool = df[(df["eligible_primary_pool"] == "yes") & df["se_auc"].notna()].copy()
+    elig = df[df["eligible_primary_pool"] == "yes"].copy()
+    poolable = elig[elig["se_auc"].notna()].copy()
+    is_csf = poolable["biofluid"].isin(CSF_BIOFLUIDS)
+    pool_csf = poolable[is_csf].copy()
+    pool = poolable[~is_csf].copy()
 
     print("=" * 78)
     print("EN | Meta-analysis input | PT | Entrada da meta-analise")
     print("=" * 78)
-    print(f"Extracted rows / linhas extraidas          : {len(df)}")
-    print(f"Eligible rows / linhas elegiveis           : {(df['eligible_primary_pool']=='yes').sum()}")
-    print(f"Poolable (SE estimable) / com EP estimavel : {len(pool)}")
-    print(f"Independent studies / estudos independentes: {pool['study_id'].nunique()}")
-    print(f"SE source / origem do EP                   : "
+    print(f"Extracted rows / linhas extraidas               : {len(df)}")
+    print(f"Eligible rows (systematic review) / elegiveis    : {len(elig)}")
+    print(f"Poolable (SE estimable) / com EP estimavel       : {len(poolable)}")
+    print(f"  of which CSF (secondary, not pooled) / das quais LCR (secundario, nao agregado): {len(pool_csf)}")
+    print(f"  of which circulating (PRIMARY) / das quais circulante (PRIMARIA)              : {len(pool)}")
+    print(f"Independent studies, circulating pool / estudos independentes, pool circulante: {pool['study_id'].nunique()}")
+    print(f"SE source / origem do EP                        : "
           f"{dict(pool['se_source'].value_counts())}")
+
+    # EN | CSF secondary/exploratory note: k=1 study per disease, so nothing
+    #      is pooled - report each study's own estimate narratively.
+    # PT | Nota secundaria/exploratoria de LCR: k=1 estudo por doenca, entao
+    #      nada e agregado - reporta a estimativa do proprio estudo, narrativamente.
+    csf_out = pool_csf[["record_id", "pmid", "doi", "first_author", "year", "disease",
+                        "marker_type", "marker", "n_cases", "n_controls", "auc",
+                        "auc_ci_low", "auc_ci_high"]].copy()
+    csf_out.to_csv(f"{TAB_DIR}/csf_secondary_estimates.csv", index=False)
+    print("\n" + "=" * 78)
+    print("EN | CSF - secondary/exploratory, held out of every pooled estimate")
+    print("PT | LCR - secundario/exploratorio, fora de toda estimativa agregada")
+    print("=" * 78)
+    print(csf_out.to_string(index=False))
+
+    # EN | One global, disease-agnostic selection of one estimate per study
+    #      (see select_one_per_study docstring at top of file). AD and PD
+    #      subgroups, and marker-type/biofluid subgroups, are all built by
+    #      FILTERING this single selection, never by re-selecting within a
+    #      pre-filtered set of raw rows - the latter would let a study with
+    #      both a single-miRNA and a panel candidate contribute to both
+    #      marker-type subgroups (see summarise_from_selection docstring).
+    # PT | Uma unica selecao global, cega a doenca, de uma estimativa por
+    #      estudo (ver docstring de select_one_per_study no topo do arquivo).
+    #      Subgrupos de AD e PD, e de tipo-de-marcador/biofluido, sao todos
+    #      construidos FILTRANDO essa selecao unica, nunca reselecionando
+    #      dentro de um conjunto de linhas brutas pre-filtrado - isso deixaria
+    #      um estudo com um candidato single-miRNA E um candidato painel
+    #      contribuir para os dois subgrupos de tipo-de-marcador (ver
+    #      docstring de summarise_from_selection).
+    sel_all = select_one_per_study(pool)
+    sel_all.to_csv(f"{TAB_DIR}/one_estimate_per_study_selection_audit.csv", index=False)
 
     # EN | PRIMARY analysis: AD and PD are separate primary subgroups; the
     #      pooled AD+PD figure is reported as a secondary, exploratory summary.
     # PT | Analise PRIMARIA: AD e PD sao subgrupos primarios separados; a
     #      cifra agregada AD+PD e reportada como resumo secundario, exploratorio.
     primary_rows = []
-    primary_rows.append(summarise_primary("AD - all markers | todos marcadores (PRIMARY 1)",
-                                          pool[pool["disease"] == "AD"]))
-    primary_rows.append(summarise_primary("PD - all markers | todos marcadores (PRIMARY 2)",
-                                          pool[pool["disease"] == "PD"]))
-    primary_rows.append(summarise_primary("Overall AD+PD (all eligible) | Global (SECONDARY)",
-                                          pool))
+    primary_rows.append(summarise_from_selection(
+        "AD - all markers | todos marcadores (PRIMARY 1)", sel_all[sel_all["disease"] == "AD"]))
+    primary_rows.append(summarise_from_selection(
+        "PD - all markers | todos marcadores (PRIMARY 2)", sel_all[sel_all["disease"] == "PD"]))
+    primary_rows.append(summarise_from_selection(
+        "Overall AD+PD (all eligible) | Global (SECONDARY)", sel_all))
     for mt, lab in [("single_miRNA", "single miRNA | miRNA isolado"),
                     ("multi_miRNA_panel", "multi-miRNA panel | painel multi-miRNA")]:
-        primary_rows.append(summarise_primary(f"All - {lab}", pool[pool["marker_type"] == mt]))
+        primary_rows.append(summarise_from_selection(
+            f"All - {lab}", sel_all[sel_all["selected_marker_type"] == mt]))
         for d in ["AD", "PD"]:
-            primary_rows.append(summarise_primary(
-                f"{d} - {lab}", pool[(pool["disease"] == d) & (pool["marker_type"] == mt)]))
-    for bf, sub in pool.groupby("biofluid"):
-        if len(sub) >= 3 and sub["study_id"].nunique() >= 3:
-            primary_rows.append(summarise_primary(f"Biofluid | Biofluido - {bf}", sub))
+            primary_rows.append(summarise_from_selection(
+                f"{d} - {lab}",
+                sel_all[(sel_all["disease"] == d) & (sel_all["selected_marker_type"] == mt)]))
+    for bf, sub in sel_all.groupby("biofluid"):
+        if len(sub) >= 3:
+            primary_rows.append(summarise_from_selection(f"Biofluid | Biofluido - {bf}", sub))
 
     primary_res = pd.DataFrame([r for r in primary_rows if r])
     primary_res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc_primary.csv", index=False)
 
     print("\n" + "=" * 78)
-    print("EN | PRIMARY: one estimate per study, Paule-Mandel tau2, HKSJ CI")
-    print("PT | PRIMARIA: uma estimativa por estudo, tau2 de Paule-Mandel, IC HKSJ")
+    print("EN | PRIMARY: one pre-specified, AUC-blind estimate per study, Paule-Mandel tau2, modified HK (mHK) CI")
+    print("PT | PRIMARIA: uma estimativa pre-especificada e cega a AUC por estudo, tau2 de Paule-Mandel, IC mHK")
     print("=" * 78)
     print(primary_res.to_string(index=False))
 
@@ -479,9 +666,9 @@ def main():
     #      dentro de cada doenca e combinado, na base primaria uma-por-estudo.
     diff_rows = []
     for d in ["AD", "PD", None]:
-        base = pool if d is None else pool[pool["disease"] == d]
-        single = base[base["marker_type"] == "single_miRNA"]
-        panel = base[base["marker_type"] == "multi_miRNA_panel"]
+        base = sel_all if d is None else sel_all[sel_all["disease"] == d]
+        single = base[base["selected_marker_type"] == "single_miRNA"]
+        panel = base[base["selected_marker_type"] == "multi_miRNA_panel"]
         label = "panel vs single | painel vs isolado" + (f" - {d}" if d else " - combined | combinado")
         r = subgroup_difference_test(single, panel, label)
         if r:
@@ -500,7 +687,7 @@ def main():
                      "se_source"]].copy()
     pool_out.to_csv(f"{TAB_DIR}/meta_analysis_input_estimates.csv", index=False)
 
-    sensitivity_analyses(pool)
+    sensitivity_analyses(sel_all)
 
     for lang in LANGS:
         forest_plot(pool, lang)
@@ -509,20 +696,27 @@ def main():
     print(f"PT: tabelas -> {TAB_DIR} | figuras -> {FIG_DIR}")
 
 
-def sensitivity_analyses(pool):
+def sensitivity_analyses(sel_all):
     """
     EN | Test whether the single-miRNA estimate depends on any one study,
-         beyond the one-per-study collapse already applied in the primary
-         analysis: leave-one-study-out on the collapsed rows.
+         beyond the one-per-study selection already applied in the primary
+         analysis: leave-one-study-out on the selected rows. Takes the single
+         global selection (see select_one_per_study), filtered to the studies
+         whose selected estimate is a single microRNA - never a fresh
+         selection over marker_type-pre-filtered raw rows (see
+         summarise_from_selection).
     PT | Testa se a estimativa de miRNA isolado depende de um unico estudo,
-         alem do colapso uma-por-estudo ja aplicado na analise primaria:
-         deixar-um-estudo-de-fora sobre as linhas colapsadas.
+         alem da selecao uma-por-estudo ja aplicada na analise primaria:
+         deixar-um-estudo-de-fora sobre as linhas selecionadas. Recebe a
+         selecao global unica (ver select_one_per_study), filtrada aos
+         estudos cuja estimativa selecionada e um microRNA isolado - nunca
+         uma nova selecao sobre linhas brutas pre-filtradas por marker_type
+         (ver summarise_from_selection).
     """
-    single = pool[pool["marker_type"] == "single_miRNA"].dropna(subset=["auc", "se_auc"])
-    if single["study_id"].nunique() < 3:
+    coll = sel_all[sel_all["selected_marker_type"] == "single_miRNA"]
+    if coll["study_id"].nunique() < 3:
         return
 
-    coll = collapse_one_per_study(single)
     out = []
     base = pool_re(coll["y"].values, coll["v"].values, tau2_method="PM")
     out.append(dict(analysis="primary (one per study) | primaria (uma por estudo)",
@@ -537,7 +731,7 @@ def sensitivity_analyses(pool):
         if len(sub) < 2:
             continue
         r = pool_re(sub["y"].values, sub["v"].values, tau2_method="PM")
-        who = single[single["study_id"] == sid].iloc[0]
+        who = coll[coll["study_id"] == sid].iloc[0]
         out.append(dict(analysis=f"leave out | sem {who['first_author']} {who['year']} ({sid})",
                         k_estimates=r["k"], n_studies=r["k"],
                         pooled_auc=round(inv_logit(r["estimate"]), 4),

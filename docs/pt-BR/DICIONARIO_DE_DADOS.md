@@ -79,36 +79,44 @@ Amostra bibliométrica da camada da monografia original, obtida ao vivo da API d
 
 ## `results/tables/meta_analysis_pooled_auc_primary.csv`
 
-A análise PRIMÁRIA: cada estudo colapsado a uma estimativa por subgrupo primeiro (combinação de efeito fixo das próprias linhas qualificadas do estudo), agregado entre estudos com tau-quadrado de Paule-Mandel. DA e DP são linhas primárias separadas; a linha combinada DA+DP é rotulada SECONDARY.
+A análise PRIMÁRIA, somente estudos circulantes (derivados de sangue): cada estudo reduzido a uma estimativa por subgrupo primeiro, por uma regra de prioridade fixa e cega à AUC (ver `scripts/_study_selection.py`: preferir uma linha de coorte de validação independente, depois o painel multi-miRNA próprio do estudo sobre seus marcadores componentes, depois o maior tamanho amostral combinado, depois um desempate alfabético), agregado entre estudos com tau-quadrado de Paule-Mandel. DA e DP são linhas primárias separadas; a linha combinada DA+DP é rotulada SECONDARY. Os dois estudos de líquido cefalorraquidiano nunca aparecem nesta tabela; ver `results/tables/csf_secondary_estimates.csv`.
 
 | Coluna | Descrição |
 |---|---|
 | `subgroup` | Qual subconjunto foi agregado (PRIMARY 1 = DA, PRIMARY 2 = DP, SECONDARY = DA+DP combinado) |
-| `n_studies` | Estudos independentes contribuindo (igual a k após o colapso uma-por-estudo) |
-| `n_estimates_collapsed` | Linhas brutas de extração colapsadas nesses estudos |
-| `n_studies_with_multiple_estimates` | Quantos desses estudos tinham mais de uma linha qualificada |
+| `n_studies` | Estudos independentes contribuindo (igual a k após a seleção uma-por-estudo) |
+| `n_estimates_collapsed` | Soma da contagem de linhas candidatas de cada estudo contribuinte (ver `one_estimate_per_study_selection_audit.csv`) |
+| `n_studies_with_multiple_estimates` | Quantos desses estudos tinham mais de uma linha qualificada para escolher |
 | `pooled_auc` | AUC agregada por efeitos aleatórios, retrotransformada do logito |
 | `ci_low_wald`, `ci_high_wald` | IC 95% de Wald padrão |
-| `ci_low_hk`, `ci_high_hk` | IC 95% de Hartung-Knapp-Sidik-Jonkman (o reportado no texto e nas figuras) |
+| `ci_low_hk`, `ci_high_hk` | IC 95% de Hartung-Knapp modificado (mHK) (o reportado no texto e nas figuras) |
 | `pi_low`, `pi_high` | Intervalo de predição a 95% (só k >= 3) |
 | `tau2_PM` | Variância entre estudos de Paule-Mandel na escala logito |
 | `I2_percent`, `Q`, `df`, `p_heterogeneity` | Estatísticas de heterogeneidade (Q de DerSimonian-Laird, reportado independentemente de qual tau-quadrado alimenta a estimativa agregada) |
 
+## `results/tables/one_estimate_per_study_selection_audit.csv`
+
+Uma linha por estudo circulante no pool primário: qual estimativa a regra de prioridade pré-especificada e cega à AUC selecionou, e o motivo exato da escolha (`selection_reason`), para que a escolha possa ser conferida contra a tabela de extração bruta e nunca tenha sido feita escolhendo a maior AUC.
+
+## `results/tables/csf_secondary_estimates.csv`
+
+As duas estimativas de líquido cefalorraquidiano (uma de DA, uma de DP) fora de toda AUC agregada porque o LCR não é um biofluido circulante periférico (seção 2.2 do manuscrito). Com um estudo por doença não há o que agregar, então são reportadas narrativamente no manuscrito em vez de meta-analisadas.
+
 ## `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`
 
-A análise antes reportada como primária: cada linha qualificada tratada como observação independente, agregada com tau-quadrado de DerSimonian-Laird. Mantida como checagem de sensibilidade rotulada sobre a escolha de unidade de análise acima. Mesmo esquema de colunas da tabela pré-existente (`subgroup`, `k_estimates`, `n_studies`, `pooled_auc`, `ci_low`, `ci_high`, `tau2_logit`, `I2_percent`, `Q`, `df`, `p_heterogeneity`, `egger_intercept`, `egger_p`).
+A análise antes reportada como primária: cada linha circulante qualificada tratada como observação independente, agregada com tau-quadrado de DerSimonian-Laird. Mantida como checagem de sensibilidade rotulada sobre a escolha de unidade de análise acima. Mesmo esquema de colunas da tabela pré-existente (`subgroup`, `k_estimates`, `n_studies`, `pooled_auc`, `ci_low`, `ci_high`, `tau2_logit`, `I2_percent`, `Q`, `df`, `p_heterogeneity`, `egger_intercept`, `egger_p`).
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (34 das 41 estimativas) de fato muda a resposta versus quão poucos estudos (2 para DA, 4 para DP) reportaram seu próprio intervalo.
+Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (32 das 39 estimativas circulantes) de fato muda a resposta versus quão poucos estudos (2 para DA, 4 para DP) reportaram seu próprio intervalo.
 
 ## `results/tables/subgroup_difference_test.csv`
 
-Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 gl), calculado sobre as linhas primárias uma-por-estudo, dentro de DA, dentro de DP e combinado.
+Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 gl), calculado sobre as linhas primárias uma-por-estudo, dentro de DA, dentro de DP e combinado. Válido apenas porque a seleção uma-estimativa-por-estudo atribui cada estudo a exatamente um tipo de marcador, então os dois grupos comparados são disjuntos por construção; ver a docstring de `subgroup_difference_test` em `scripts/05_meta_analysis.py`.
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
-As 24 estimativas agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source` — `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo.
+As 39 estimativas circulantes agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source` — `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo.
 
 ## `results/tables/citation_frequency_vs_auc.csv`
 
@@ -256,7 +264,7 @@ Uma figura de seis painéis tipografando as equações que `scripts/05_meta_anal
 
 ## `results/figures/subgroup_summary_forest.*.png`
 
-Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de AUC agrupada reportados na Tabela 1 (DA primário, DP primário, DA+DP combinado secundário, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% de Hartung-Knapp lidos diretamente de `results/tables/meta_analysis_pooled_auc_primary.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota as 41 estimativas individuais em vez de cinco resumos de subgrupo.
+Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de AUC agrupada reportados na Tabela 1 (DA primário, DP primário, DA+DP combinado secundário, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% de Hartung-Knapp modificado (mHK) lidos diretamente de `results/tables/meta_analysis_pooled_auc_primary.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota as 39 estimativas circulantes individuais em vez de cinco resumos de subgrupo.
 
 ## `results/figures/study_characteristics.*.png`
 

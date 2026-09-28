@@ -34,13 +34,13 @@ A camada meta-analítica existe para responder a uma pergunta que a monografia d
 | Registros únicos | 587 |
 | Textos completos lidos | 47 |
 | Estudos que contribuem com estimativas | 45 |
-| Estimativas extraídas | 79 (51 elegíveis, 41 agregáveis) |
-| Estudos independentes agregados | 20 |
+| Estimativas extraídas | 79 (51 elegíveis, 41 agregáveis: 39 circulantes + 2 de líquido cefalorraquidiano, fora do pool) |
+| Estudos independentes agregados (primário, circulante) | 18 |
 | Data da busca | 10 de setembro de 2026 (PubMed, Scopus); 23 de setembro de 2026 (Web of Science) |
 | Estudos avaliados com QUADAS-2 | 28 |
 | Certeza da evidência (GRADE) | Muito baixa |
 
-As estimativas agregadas primárias (uma estimativa por estudo, tau-quadrado de Paule-Mandel, ICs de Hartung-Knapp, DA e DP como desfechos primários separados) estão em `results/tables/meta_analysis_pooled_auc_primary.csv`; a análise por-linha de DerSimonian-Laird que isso substituiu como número principal é mantida como checagem de sensibilidade rotulada em `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`. As entradas por estimativa estão em `results/tables/meta_analysis_input_estimates.csv`, e a análise de sensibilidade deixar-um-estudo-de-fora em `results/tables/sensitivity_single_mirna.csv`. Todo valor extraído é rastreável até a frase verbatim de sua fonte em `data/extracted/diagnostic_accuracy_extraction.csv`.
+As estimativas agregadas primárias (uma estimativa pré-especificada e cega à AUC por estudo circulante, tau-quadrado de Paule-Mandel, ICs de Hartung-Knapp modificado, DA e DP como desfechos primários separados; dois estudos de líquido cefalorraquidiano ficam fora e são reportados à parte) estão em `results/tables/meta_analysis_pooled_auc_primary.csv`; a análise por-linha de DerSimonian-Laird que isso substituiu como número principal é mantida como checagem de sensibilidade rotulada em `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`. As entradas por estimativa estão em `results/tables/meta_analysis_input_estimates.csv`, e a análise de sensibilidade deixar-um-estudo-de-fora em `results/tables/sensitivity_single_mirna.csv`. Todo valor extraído é rastreável até a frase verbatim de sua fonte em `data/extracted/diagnostic_accuracy_extraction.csv`.
 
 A interpretação pertence ao manuscrito, não a este repositório. Duas coisas, porém, pertencem aqui, porque são propriedades dos dados e não do argumento:
 
@@ -144,7 +144,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1854 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 1846 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -176,7 +176,7 @@ O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula
 
 - **A Web of Science já foi consultada**, em 23 de setembro de 2026, sob autenticação institucional e treze dias depois das outras duas bases — o que é reportado como data própria de busca, e não fundido às delas. Ela retornou 295 registros nos dois braços, dos quais **27 eram novos**, e **nenhum deles entrou no pool primário**: um mede um RNA longo não codificante e não um microRNA, um mede córtex post-mortem e não um biofluido circulante, e o único registro que casa com o PICO reporta a AUC apenas como a desigualdade "AUC>0,90" e não tem DOI, nem PubMed ID, nem texto completo alcançável para confirmar um valor. Os três ficam registrados na tabela de extração com suas razões de exclusão (E077–E079), em vez de descartados. As estimativas agregadas, o ponto de operação bivariado, a tabela QUADAS-2 e a classificação GRADE são idênticos byte a byte antes e depois.
 - A extração se restringe a textos completos de acesso aberto e a resumos, o que pode selecionar um subconjunto não aleatório da literatura; quatro estudos do braço PD estavam com acesso restrito de modo que só uma AUC de modelo combinado pôde ser lida.
-- 34 dos 41 erros-padrão ponderados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
+- 32 dos 39 erros-padrão circulantes agregados são reconstruídos por Hanley–McNeil, e não retirados de intervalo publicado.
 - A heterogeneidade é alta (I² até 97%) e as estimativas dentro dos estudos são correlacionadas, o que também torna o teste de Egger pouco confiável aqui.
 - A maioria dos miRNAs contribui com um único estudo, então a análise de atenção versus desempenho tem pouco poder nos dois sentidos.
 - **A revisão não foi registrada e não tem protocolo prospectivo.** A busca, as regras de elegibilidade e as decisões de triagem estão congeladas no repositório conforme aplicadas, o que as torna auditáveis mas não pré-especificadas. Ver `docs/pt-BR/CHECKLIST_PRISMA_DTA.md`, item 5.

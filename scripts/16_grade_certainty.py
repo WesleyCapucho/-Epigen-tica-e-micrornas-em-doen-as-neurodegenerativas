@@ -69,6 +69,7 @@ QUADAS = "results/tables/quadas2_assessment.csv"
 POOLED_PRIMARY = "results/tables/meta_analysis_pooled_auc_primary.csv"
 POOLED_SENS = "results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv"
 BIVARIATE = "results/tables/bivariate_summary.csv"
+SELECTION_AUDIT = "results/tables/one_estimate_per_study_selection_audit.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
 
@@ -126,10 +127,34 @@ def rate_indirectness(quadas):
          the evidence address the question the review asks? Here it does not, because
          every pooled contrast is patients against healthy people rather than against the
          conditions a clinician must rule out.
+
+         This is not the same fact as risk_of_bias's patient-selection downgrade, even
+         though both trace back to the case-versus-healthy-control design, and rating
+         both is not double-counting one reason twice. Risk of bias asks whether the
+         design threatens the INTERNAL VALIDITY of the accuracy estimate the studies
+         report for their own case-versus-control comparison (selection effects that
+         inflate apparent separation between groups); indirectness asks whether that
+         comparison, however validly estimated, answers the EXTERNAL question this
+         review poses (discriminating diagnostically uncertain patients, not healthy
+         volunteers). A single design choice can be a genuine, independent threat to
+         both, and GRADE guidance for diagnostic test accuracy treats a case-control
+         design exactly this way (Schunemann et al. 2020, part 1).
     PT | Dominio 2 do GRADE. A metade de aplicabilidade do QUADAS-2 responde direto: a
          evidencia trata da pergunta que a revisao faz? Aqui nao trata, porque todo
          contraste agrupado e paciente contra pessoa saudavel e nao contra as condicoes
          que o clinico precisa descartar.
+
+         Isso nao e o mesmo fato do rebaixamento de selecao de pacientes do risk_of_bias,
+         mesmo que ambos remontem ao desenho caso-versus-controle-saudavel, e avaliar os
+         dois nao e contar o mesmo motivo duas vezes. Risco de vies pergunta se o desenho
+         ameaca a VALIDADE INTERNA da estimativa de acuracia que os estudos reportam para
+         sua propria comparacao caso-versus-controle (efeitos de selecao que inflam a
+         separacao aparente entre os grupos); indiretividade pergunta se essa comparacao,
+         por mais validamente estimada que seja, responde a pergunta EXTERNA que esta
+         revisao coloca (discriminar pacientes com incerteza diagnostica, nao voluntarios
+         saudaveis). Uma unica escolha de desenho pode ser uma ameaca genuina e
+         independente a ambas, e a orientacao do GRADE para acuracia de teste diagnostico
+         trata exatamente assim um desenho caso-controle (Schunemann et al. 2020, parte 1).
     """
     n = len(quadas)
     high = sum(1 for r in quadas if r["app_patient_selection"] == "high")
@@ -153,12 +178,34 @@ def rate_inconsistency(pooled_row):
 
 def rate_imprecision(primary_row):
     """
-    EN | GRADE domain 4, judged on the width of the Hartung-Knapp-Sidik-Jonkman 95%
+    EN | GRADE domain 4, judged on the width of the modified Hartung-Knapp (mHK) 95%
          confidence interval around the disease's primary pooled AUC (one estimate per
-         study), because that is the quantity a reader would act on.
+         study), because that is the quantity a reader would act on. The 0.20/0.40
+         AUC-width thresholds in THRESHOLDS are not a validated, literature-derived
+         minimal clinically important difference for a microRNA test; they are this
+         review's own stated cutoff for "a difference in AUC wide enough that two
+         readers could reasonably disagree about whether the test is useful", applied
+         identically to both diseases so the judgement is reproducible rather than
+         calibrated after seeing the result. The number of contributing studies and the
+         95% prediction interval - the wider range a new study's true AUC would be
+         expected to fall in - are reported alongside the CI width for the same
+         judgement, since a narrow confidence interval built from few studies with an
+         even wider prediction interval is a different, weaker kind of precision than a
+         narrow interval built from many consistent studies.
     PT | Dominio 4 do GRADE, julgado pela largura do intervalo de confianca de
-         Hartung-Knapp-Sidik-Jonkman a 95% em torno da AUC agrupada primaria da doenca
-         (uma estimativa por estudo), porque e essa a grandeza sobre a qual se agiria.
+         Hartung-Knapp modificado (mHK) a 95% em torno da AUC agrupada primaria da doenca
+         (uma estimativa por estudo), porque e essa a grandeza sobre a qual se agiria. Os
+         limiares de largura de AUC 0,20/0,40 em THRESHOLDS nao sao uma diferenca minima
+         clinicamente importante validada e derivada da literatura para um teste de
+         microRNA; sao o limiar proprio e declarado desta revisao para "uma diferenca de
+         AUC larga o bastante para que dois leitores pudessem razoavelmente discordar se
+         o teste e util", aplicado identicamente as duas doencas para que o julgamento
+         seja reproduzivel e nao calibrado apos ver o resultado. O numero de estudos
+         contribuintes e o intervalo de predicao a 95% - a faixa mais larga em que a AUC
+         verdadeira de um novo estudo cairia - sao reportados junto a largura do IC para
+         o mesmo julgamento, ja que um IC estreito construido de poucos estudos com um
+         intervalo de predicao ainda mais largo e um tipo de precisao diferente, mais
+         fraco, do que um IC estreito construido de muitos estudos consistentes.
     """
     lo, hi = primary_row["ci_low_hk"], primary_row["ci_high_hk"]
     width = (float(hi) - float(lo)) if (lo not in ("", None) and hi not in ("", None)) else float("nan")
@@ -170,17 +217,39 @@ def rate_imprecision(primary_row):
         steps = 1
     else:
         steps = 0
-    return steps, (f"95% Hartung-Knapp interval around the primary pooled AUC spans "
-                   f"{width:.3f} ({float(lo):.3f}-{float(hi):.3f})")
+    pi_lo, pi_hi = primary_row.get("pi_low"), primary_row.get("pi_high")
+    pi_txt = (f"; 95% prediction interval {float(pi_lo):.3f}-{float(pi_hi):.3f}"
+              if pi_lo not in ("", None) and pi_hi not in ("", None) else "")
+    return steps, (f"95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC "
+                   f"({int(primary_row['n_studies'])} studies) spans "
+                   f"{width:.3f} ({float(lo):.3f}-{float(hi):.3f}){pi_txt}")
 
 
 def rate_publication_bias(sens_row):
+    """
+    EN | GRADE domain 5. A significant Egger intercept is evidence of
+         small-study effects (funnel-plot asymmetry), which is necessary but
+         not sufficient for publication/dissemination bias specifically:
+         heterogeneity, true differences correlated with study size, and
+         chance can all produce the same asymmetry. The judgement below is
+         phrased accordingly, as small-study effects rather than as a
+         confirmed verdict on publication bias as such.
+    PT | Dominio 5 do GRADE. Um intercepto de Egger significativo e evidencia
+         de efeitos de estudos pequenos (assimetria do funil), o que e
+         necessario mas nao suficiente para vies de publicacao/disseminacao
+         especificamente: heterogeneidade, diferencas reais correlacionadas
+         com o tamanho do estudo, e o acaso tambem podem produzir a mesma
+         assimetria. O julgamento abaixo e formulado de acordo, como efeitos
+         de estudos pequenos e nao como um veredito confirmado sobre vies de
+         publicacao em si.
+    """
     p_raw = sens_row["egger_p"]
     if p_raw in ("", None):
         return 0, "Egger test not estimable at this k"
     p = float(p_raw)
     steps = 1 if p < THRESHOLDS["publication_bias_egger_p"] else 0
-    verdict = "strongly suspected" if steps else "not detected"
+    verdict = ("small-study effects detected (not itself proof of publication bias)"
+               if steps else "no small-study effects detected")
     return steps, f"Egger test p = {p:.4g} on the every-estimate sensitivity pool, {verdict}"
 
 
@@ -263,6 +332,20 @@ def rate_disease(disease, quadas_all, primary_rows, sens_rows):
          classificacao de certeza, em vez de compartilhar um veredito construido
          a partir do pool combinado AD+PD.
     """
+    # EN | quadas_all is already restricted, by the caller, to the studies in
+    #      the circulating PRIMARY pool - the same studies the pooled AUC
+    #      being GRADEd here is built from. Rating risk of bias/indirectness
+    #      from the full 14-study QUADAS-2 set per disease (which includes
+    #      one CSF study per disease never entering this pooled estimate)
+    #      would rate a body of evidence one domain-step wider than the
+    #      number this GRADE table actually certifies.
+    # PT | quadas_all ja vem restrito, por quem chama, aos estudos do pool
+    #      PRIMARIO circulante - os mesmos estudos de que a AUC agrupada aqui
+    #      classificada e construida. Avaliar risco de vies/indiretividade a
+    #      partir do conjunto QUADAS-2 completo de 14 estudos por doenca
+    #      (que inclui um estudo de LCR por doenca que nunca entra nesta
+    #      estimativa agregada) avaliaria um corpo de evidencia um passo mais
+    #      largo do que o que esta tabela GRADE de fato certifica.
     quadas = [r for r in quadas_all if r["disease"] == disease]
     primary_row = next(r for r in primary_rows
                        if r["subgroup"].startswith(f"{disease} - all markers"))
@@ -289,15 +372,32 @@ def rate_disease(disease, quadas_all, primary_rows, sens_rows):
 def main():
     os.makedirs(TAB_DIR, exist_ok=True)
     os.makedirs(FIG_DIR, exist_ok=True)
-    for f in (QUADAS, POOLED_PRIMARY, POOLED_SENS, BIVARIATE):
+    for f in (QUADAS, POOLED_PRIMARY, POOLED_SENS, BIVARIATE, SELECTION_AUDIT):
         if not os.path.exists(f):
             sys.exit(f"EN/PT: missing {f}; run scripts/05, 14 and 15 first")
 
-    quadas = list(csv.DictReader(open(QUADAS, encoding="utf-8")))
+    quadas_all = list(csv.DictReader(open(QUADAS, encoding="utf-8")))
     primary_rows = list(csv.DictReader(open(POOLED_PRIMARY, encoding="utf-8")))
     sens_rows = list(csv.DictReader(open(POOLED_SENS, encoding="utf-8")))
     biv = list(csv.DictReader(open(BIVARIATE, encoding="utf-8")))
     biv_primary = next(r for r in biv if r["analysis"].startswith("one estimate per study"))
+
+    # EN | Restrict the QUADAS-2 table to the studies that are actually in the
+    #      circulating primary pool (drops the one CSF study per disease that
+    #      is screened/QUADAS-2/GRADE-rated alongside the corpus but never
+    #      pooled - see the "Scope of the primary pool" docstring in
+    #      scripts/05_meta_analysis.py), so risk-of-bias and indirectness are
+    #      rated over the same studies inconsistency/imprecision already are.
+    # PT | Restringe a tabela QUADAS-2 aos estudos que de fato estao no pool
+    #      primario circulante (descarta o estudo de LCR por doenca que e
+    #      triado/avaliado por QUADAS-2/GRADE junto ao corpus mas nunca
+    #      agregado - ver a docstring "Scope of the primary pool" em
+    #      scripts/05_meta_analysis.py), para que risco de vies e
+    #      indiretividade sejam avaliados sobre os mesmos estudos que
+    #      inconsistencia/imprecisao ja sao.
+    primary_pool_study_ids = {r["study_id"] for r in
+                              csv.DictReader(open(SELECTION_AUDIT, encoding="utf-8"))}
+    quadas = [r for r in quadas_all if r["study_id"] in primary_pool_study_ids]
 
     results = OrderedDict()
     for disease in ["AD", "PD"]:
@@ -308,6 +408,7 @@ def main():
             ("certainty_of_evidence", certainty),
             ("primary_pooled_auc", float(primary_row["pooled_auc"])),
             ("primary_auc_ci_hk", [primary_row["ci_low_hk"], primary_row["ci_high_hk"]]),
+            ("primary_row_n_studies", int(primary_row["n_studies"])),
         ])
 
     # EN | The bivariate sensitivity/specificity summary-of-findings table stays
@@ -351,6 +452,11 @@ def main():
         w.writeheader()
         w.writerows(sof)
 
+    n_ad = results["AD"]["primary_row_n_studies"]
+    n_pd = results["PD"]["primary_row_n_studies"]
+    i2_ad = results["AD"]["domains"]["inconsistency"]["reason"].split("= ")[1].split("%")[0]
+    i2_pd = results["PD"]["domains"]["inconsistency"]["reason"].split("= ")[1].split("%")[0]
+
     payload = OrderedDict([
         ("instrument", "GRADE for diagnostic test accuracy (Schunemann et al., "
                        "J Clin Epidemiol 2020;122:129-141 and 142-152)"),
@@ -358,37 +464,38 @@ def main():
         ("thresholds", THRESHOLDS),
         ("by_disease", results),
         ("bivariate_summary_of_findings_scope",
-         "exploratory, AD and PD combined, 9 independent studies with a paired "
-         "sensitivity and specificity; not disease-specific and not the basis "
-         "for either disease's GRADE rating above"),
+         f"exploratory, AD and PD combined, {biv_primary['n_studies']} independent "
+         "studies with a paired sensitivity and specificity; not disease-specific "
+         "and not the basis for either disease's GRADE rating above"),
         ("bivariate_summary_sensitivity", float(biv_primary["summary_sensitivity"])),
         ("bivariate_summary_specificity", float(biv_primary["summary_specificity"])),
         ("summary_of_findings", sof),
         ("reading_en",
          "AD and PD are rated separately because they are different diagnostic "
-         "questions with different evidence bases (10 studies each in the primary "
-         "AUC pool), and a single combined verdict would obscure that PD's "
-         "evidence is both larger and far more heterogeneous (I2 98.9% versus "
-         "AD's 76.8%). Both ratings are very low to low, driven by the same "
-         "structural facts: every study is a case-versus-healthy-control design, "
-         "the threshold was set in the same sample it was evaluated in, and "
+         f"questions with different evidence bases ({n_ad} AD and {n_pd} PD studies "
+         "in the primary, circulating AUC pool), and a single combined verdict "
+         f"would obscure that PD's evidence is far more heterogeneous (I2 {i2_pd}% "
+         f"versus AD's {i2_ad}%). Both ratings are very low, "
+         "driven by the same structural facts: every study is a case-versus-healthy-control design, "
+         "the threshold was set in the same sample it was evaluated in for all but one study, and "
          "heterogeneity is high to extreme. The combined bivariate summary of "
          "findings below is a secondary, exploratory illustration of what a "
-         "pooled operating point would imply clinically, drawn from only 9 "
+         f"pooled operating point would imply clinically, drawn from only {biv_primary['n_studies']} "
          "studies, and should not be read as a validated clinical accuracy for "
          "either disease individually."),
         ("reading_pt",
          "AD e PD sao classificadas separadamente porque sao perguntas "
-         "diagnosticas diferentes com bases de evidencia diferentes (10 estudos "
-         "cada uma no pool primario de AUC), e um veredito unico combinado "
-         "esconderia que a evidencia de PD e ao mesmo tempo maior e muito mais "
-         "heterogenea (I2 98,9% contra 76,8% de AD). As duas classificacoes vao "
-         "de muito baixa a baixa, guiadas pelos mesmos fatos estruturais: todo "
+         "diagnosticas diferentes com bases de evidencia diferentes "
+         f"({n_ad} estudos de AD e {n_pd} de PD no pool "
+         "primario circulante de AUC), e um veredito unico combinado "
+         f"esconderia que a evidencia de PD e muito mais heterogenea (I2 "
+         f"{i2_pd}% contra {i2_ad}% de AD). As duas classificacoes "
+         "sao muito baixas, guiadas pelos mesmos fatos estruturais: todo "
          "estudo e um desenho caso-versus-controle-saudavel, o limiar foi "
-         "fixado na mesma amostra em que foi avaliado, e a heterogeneidade e "
+         "fixado na mesma amostra em que foi avaliado em todos os estudos menos um, e a heterogeneidade e "
          "alta a extrema. A tabela de resumo de achados bivariada combinada "
          "abaixo e uma ilustracao secundaria e exploratoria do que um ponto de "
-         "operacao agrupado implicaria clinicamente, tirada de apenas 9 "
+         f"operacao agrupado implicaria clinicamente, tirada de apenas {biv_primary['n_studies']} "
          "estudos, e nao deve ser lida como uma acuracia clinica validada para "
          "nenhuma das duas doencas isoladamente."),
     ])

@@ -15,7 +15,7 @@ EN | Why this exists. Table 1 already carries these numbers, but a table asks th
      AD and PD are each other's own primary outcome here (section 2.2), so they are
      drawn first and separately; the combined AD+PD figure is drawn as a labelled
      secondary summary, never averaged into the same row as either disease. This is
-     deliberately not a second forest plot of all 41 individual estimates - that plot
+     deliberately not a second forest plot of all 39 individual circulating estimates - that plot
      exists at the study level in Supplementary Figure S1.
 PT | Por que isto existe. A Tabela 1 ja traz estes numeros, mas uma tabela pede ao
      leitor para comparar varios digitos em linhas a olho. Um grafico de ponto-e-
@@ -25,7 +25,7 @@ PT | Por que isto existe. A Tabela 1 ja traz estes numeros, mas uma tabela pede 
      proprio desfecho primario aqui (secao 2.2), entao sao desenhadas primeiro e
      separadamente; a cifra combinada DA+DP e desenhada como resumo secundario
      rotulado, nunca fundida na mesma linha que qualquer doenca. Deliberadamente nao
-     e um segundo forest plot das 41 estimativas individuais - esse existe no nivel
+     e um segundo forest plot das 39 estimativas circulantes individuais - esse existe no nivel
      de estudo na Figura Suplementar S1.
 
 EN | Every number drawn is read from meta_analysis_pooled_auc_primary.csv at run
