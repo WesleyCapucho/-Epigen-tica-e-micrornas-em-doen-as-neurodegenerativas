@@ -23,7 +23,7 @@ EN | How the judgements are made, and what that costs. Every judgement here is D
      and records nothing about the reference standard, blinding or patient flow. They were
      closed by a second pass over the full texts, recorded study by study in
      data/extracted/quadas2_study_level.csv with the sentence each answer was read from.
-     22 of the 28 studies have a retrievable full text; the other six are UNCLEAR for the
+     22 of the 27 studies have a retrievable full text; the other five are UNCLEAR for the
      honest reason that the report could not be read, not because it was read and found
      ambiguous. No domain is UNRATED any more, and the category is kept in the code so
      that a future domain added without evidence cannot masquerade as a judgement.
@@ -37,7 +37,7 @@ PT | Como os julgamentos sao feitos, e o que isso custa. Todo julgamento aqui e 
      origem e nao registra padrao de referencia, cegamento nem fluxo de pacientes. Foram
      fechados por uma segunda passagem pelos textos completos, registrada estudo a estudo
      em data/extracted/quadas2_study_level.csv com a frase de onde cada resposta saiu.
-     22 dos 28 estudos tem texto completo recuperavel; os outros seis ficam UNCLEAR pela
+     22 dos 27 estudos tem texto completo recuperavel; os outros cinco ficam UNCLEAR pela
      razao honesta de que o relato nao pode ser lido, e nao porque foi lido e ficou
      ambiguo. Nenhum dominio esta mais NAO AVALIADO, e a categoria permanece no codigo
      para que um dominio futuro sem evidencia nao possa se passar por julgamento.

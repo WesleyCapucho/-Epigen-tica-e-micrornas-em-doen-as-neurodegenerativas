@@ -70,7 +70,7 @@ One row per eligible study (27), recorded in the second full-text pass with shor
 
 ## `data/extracted/molecular_evidence_map.csv`
 
-One row per mechanistic claim made by a study in the primary pools (17 studies, 21 rows), read from the full text or, for two studies, marked as abstract only. Written by hand from the full texts on 2026-09-28 and read by `scripts/27_molecular_evidence_map.py` (figure) and `scripts/08` (coverage check).
+One row per mechanistic claim made by a study in the primary pools (18 studies, 24 rows), read from the full text or, for two studies, marked as abstract only. Written by hand from the full texts on 2026-09-28 and read by `scripts/27_molecular_evidence_map.py` (figure) and `scripts/08` (coverage check).
 
 | Column | Values |
 |---|---|
@@ -163,7 +163,7 @@ The analysis that was previously reported as primary: every qualifying circulati
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (29 of 38 circulating estimates) actually changes the answer versus how few studies (2 for AD, 3 for PD) reported a usable interval of their own.
+For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (30 of 39 circulating estimates) actually changes the answer versus how few studies (2 for AD, 3 for PD) reported a usable interval of their own.
 
 ## `results/tables/subgroup_difference_test.csv`
 
@@ -171,7 +171,7 @@ Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 1
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
-The 38 poolable circulating estimates with the standard error used for each and, critically, `se_source`: `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes, and `Hanley-McNeil (reported CI implausibly narrow)` when a published interval was set aside by the plausibility rule (see `ci_plausibility_check.csv`).
+The 39 poolable circulating estimates with the standard error used for each and, critically, `se_source`: `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes, and `Hanley-McNeil (reported CI implausibly narrow)` when a published interval was set aside by the plausibility rule (see `ci_plausibility_check.csv`).
 
 ## `results/tables/arithmetic_audit.csv`
 

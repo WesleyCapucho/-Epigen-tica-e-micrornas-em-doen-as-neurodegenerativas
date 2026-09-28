@@ -32,10 +32,10 @@ The meta-analytic layer exists to answer a question the source monograph raised 
 |---|---|
 | Databases searched | PubMed/MEDLINE, Scopus, Web of Science (both disease arms) |
 | Unique records | 587 |
-| Full texts read | 47 |
+| Full texts read | 48 |
 | Studies contributing estimates | 45 |
-| Extracted estimates | 89 (58 eligible, 41 poolable: 38 circulating + 3 cerebrospinal fluid, held out of pooling) |
-| Independent studies pooled (primary, circulating) | 17 (8 AD, 9 PD) |
+| Extracted estimates | 89 (58 eligible, 42 poolable: 39 circulating + 3 cerebrospinal fluid, held out of pooling) |
+| Independent studies pooled (primary, circulating) | 18 (9 AD, 9 PD) |
 | Search date | 10 September 2026 (PubMed, Scopus); 23 September 2026 (Web of Science) |
 | Studies appraised with QUADAS-2 | 27 |
 | Certainty of evidence (GRADE) | Very low |
@@ -153,7 +153,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 2396 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 2420 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -186,7 +186,7 @@ Thirteen defects in this pipeline were found after results had already been prod
 
 - **Web of Science has now been searched**, on 23 September 2026, under institutional authentication and thirteen days later than the other two databases — which is reported as its own search date rather than folded into theirs. It returned 295 records across the two arms, of which **27 were new**, and **none of them entered the primary pool**: one measures a long non-coding RNA rather than a microRNA, one measures post-mortem cortex rather than a circulating biofluid, and the one record that does match the PICO reports its AUC only as the inequality "AUC>0.90" and has no DOI, no PubMed ID and no reachable full text to confirm a value. All three are recorded in the extraction table with their exclusion reasons (E077–E079) rather than dropped. The pooled estimates, the bivariate operating point, the QUADAS-2 table and the GRADE rating are byte-identical before and after.
 - Extraction is restricted to open-access full texts and abstracts, which may select a non-random subset of the literature; four Parkinson-arm studies were access-restricted such that only a combined-model AUC could be read.
-- 29 of the 38 pooled circulating standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval; two of those replace a published interval about 18 to 20 times narrower than sampling at the stated group sizes allows (Li Y 2024; `results/tables/ci_plausibility_check.csv`).
+- 30 of the 39 pooled circulating standard errors are reconstructed by Hanley–McNeil rather than taken from a published interval; two of those replace a published interval about 18 to 20 times narrower than sampling at the stated group sizes allows (Li Y 2024; `results/tables/ci_plausibility_check.csv`).
 - Heterogeneity is high (I² 70.7% in AD, 85.8% in PD) and every disease pool has fewer than ten studies, which makes Egger's test unreliable here; it is reported but no longer drives a GRADE downgrade.
 - Most miRNAs contribute a single study, so the attention-vs-performance analysis is underpowered in both directions.
 - **The review was not registered and has no prospective protocol.** The search, eligibility rules and screening decisions are frozen in the repository as applied, which makes them auditable but not pre-specified. See `docs/en/PRISMA_DTA_CHECKLIST.md`, item 5.

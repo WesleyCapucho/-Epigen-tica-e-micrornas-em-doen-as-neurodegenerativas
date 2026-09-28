@@ -1,4 +1,4 @@
 pre_test_probability,true_positives_per_1000,false_negatives_per_1000,true_negatives_per_1000,false_positives_per_1000,positive_predictive_value,negative_predictive_value
-0.05,37.7,12.3,751.3,198.7,0.1593,0.9838
-0.2,150.6,49.4,632.6,167.4,0.4737,0.9276
-0.5,376.6,123.4,395.4,104.6,0.7826,0.7621
+0.05,37.8,12.2,751.2,198.8,0.1596,0.984
+0.2,151.0,49.0,632.6,167.4,0.4743,0.9282
+0.5,377.6,122.4,395.3,104.7,0.783,0.7636

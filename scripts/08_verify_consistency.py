@@ -759,15 +759,15 @@ def main():
               f"disagrees with the extraction {excluded}")
 
         # EN | The manuscript reports a finer reference-standard classification (section
-        #      3.3/4.3): 1 neuropathological, 1 biomarker-confirmed, 11 clinical-criteria-
-        #      named, 15 unclear (9 not named in a retrievable full text, 6 with no
+        #      3.3/4.3): 1 neuropathological, 1 biomarker-confirmed, 13 clinical-criteria-
+        #      named, 12 unclear (7 not named in a retrievable full text, 5 with no
         #      retrievable full text at all). This is rule-derived in scripts/14 from the
         #      same reference_standard_quote field rob_reference_standard already reads,
         #      so it is checked here rather than trusted from the manuscript's own prose.
         # PT | O manuscrito reporta uma classificacao mais fina de padrao de referencia
-        #      (secao 3.3/4.3): 1 neuropatologico, 1 confirmado por biomarcador, 11 com
-        #      criterio clinico nomeado, 15 incertos (9 nao nomeados em texto completo
-        #      recuperavel, 6 sem texto completo recuperavel algum). E derivado por regra
+        #      (secao 3.3/4.3): 1 neuropatologico, 1 confirmado por biomarcador, 13 com
+        #      criterio clinico nomeado, 12 incertos (7 nao nomeados em texto completo
+        #      recuperavel, 5 sem texto completo recuperavel algum). E derivado por regra
         #      no scripts/14 a partir do mesmo campo reference_standard_quote que
         #      rob_reference_standard ja le, entao e conferido aqui em vez de confiado na
         #      propria prosa do manuscrito.
@@ -781,8 +781,8 @@ def main():
                   f"QUADAS-2 {r['study_id']}: unexpected reference_standard_type {rt!r}")
             ref_type_counts[rt] = ref_type_counts.get(rt, 0) + 1
         expect_ref_types = {"neuropathological": 1, "biomarker_confirmed": 1,
-                            "clinical_criteria_named": 12, "unclear_not_named": 7,
-                            "unclear_fulltext_unavailable": 6}
+                            "clinical_criteria_named": 13, "unclear_not_named": 7,
+                            "unclear_fulltext_unavailable": 5}
         check(ref_type_counts == expect_ref_types,
               f"QUADAS-2 reference_standard_type: counted {ref_type_counts}, "
               f"manuscript (section 3.3/4.3) states {expect_ref_types}")
@@ -909,10 +909,10 @@ def main():
             "autopsy": sum(1 for r in sl_assessed if r["autopsy_confirmed"] == "yes"),
             "blinded": sum(1 for r in sl_assessed if r["blinding_stated"] == "yes"),
         }
-        check(counted["fulltext"] == 21 and counted["named"] == 14
+        check(counted["fulltext"] == 22 and counted["named"] == 15
               and counted["autopsy"] == 1 and counted["blinded"] == 1,
               f"QUADAS-2 full-text pass: the study-level record changed {counted}; the "
-              "documentation quotes 21 full texts, 14 naming criteria, 1 autopsy-confirmed "
+              "documentation quotes 22 full texts, 15 naming criteria, 1 autopsy-confirmed "
               "and 1 stating blinding")
         n_assessed = qsum["studies_assessed"]
         for phrase in (f"{counted['fulltext']} of {n_assessed} studies",

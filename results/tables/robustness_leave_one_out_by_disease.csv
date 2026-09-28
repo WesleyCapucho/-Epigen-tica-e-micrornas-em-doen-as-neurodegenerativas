@@ -1,13 +1,14 @@
 disease,left_out,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent
-AD,none (primary),8,0.8329,0.7653,0.884,70.7
-AD,Hara N 2017 (miR-501-3p),7,0.834,0.7525,0.8924,74.8
-AD,Hojati Z 2020 (miR-661),7,0.8395,0.766,0.8932,73.2
-AD,"Karaglani M 2020 (25-miRNA ridge biosignature (dataset 2, test split))",7,0.8365,0.7549,0.8947,73.9
-AD,Dong LH 2021 (miR-202),7,0.8213,0.7433,0.8794,67.6
-AD,Zhang M 2021 (miR-128),7,0.8328,0.7485,0.8928,74.9
-AD,Duan X 2024 (miR-125b-1-3p),7,0.8425,0.7685,0.896,68.6
-AD,Qin Q 2026 (7-miRNA panel),7,0.816,0.7612,0.8605,47.1
-AD,Yang SJ 2026 (miR-132-3p),7,0.8404,0.7663,0.8943,72.6
+AD,none (primary),9,0.8391,0.7819,0.8835,68.9
+AD,Hara N 2017 (miR-501-3p),8,0.8406,0.7742,0.8902,72.6
+AD,Hojati Z 2020 (miR-661),8,0.845,0.7849,0.8907,70.8
+AD,"Karaglani M 2020 (25-miRNA ridge biosignature (dataset 2, test split))",8,0.843,0.7769,0.8922,71.3
+AD,Dong LH 2021 (miR-202),8,0.8302,0.765,0.8801,67.3
+AD,Zhang M 2021 (miR-128),8,0.8399,0.7714,0.8907,72.6
+AD,Duan X 2024 (miR-125b-1-3p),8,0.8481,0.7885,0.8933,65.1
+AD,Miao Y 2026 (miR-384-5p),8,0.8329,0.7653,0.884,70.7
+AD,Qin Q 2026 (7-miRNA panel),8,0.8255,0.776,0.866,51.9
+AD,Yang SJ 2026 (miR-132-3p),8,0.846,0.7857,0.8917,70.0
 PD,none (primary),9,0.787,0.6647,0.8732,85.8
 PD,Grossi I 2020 (miR-34a-5p),8,0.7931,0.6525,0.8867,87.6
 PD,Oliveira SR 2020 (miR-146a-5p),8,0.803,0.6758,0.8886,87.2

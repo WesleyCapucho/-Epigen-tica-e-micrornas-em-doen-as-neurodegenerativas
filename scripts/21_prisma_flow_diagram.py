@@ -12,14 +12,14 @@ PT | O fluxograma PRISMA 2020, desenhado a partir de data/processed/prisma_flow.
 EN | Why a new figure rather than reusing a table. The manuscript's own review found
      the prose flow (587 unique records -> 356 primary studies -> 129 with an
      extractable measure -> 47 full texts -> 45 studies / 89 estimates -> 58 eligible /
-     27 studies -> 38 pooled circulating / 17 studies, plus 3 CSF estimates reported
+     27 studies -> 39 pooled circulating / 18 studies, plus 3 CSF estimates reported
      separately) hard to scan against the eleven-row subgroup table it was competing
      with for space. This is the same numbers, laid out the way a systematic review's
      readers expect to see them.
 PT | Por que uma figura nova em vez de reaproveitar uma tabela. A propria revisao do
      manuscrito achou o fluxo em prosa (587 registros unicos -> 356 estudos primarios ->
      129 com medida extraivel -> 47 textos completos -> 45 estudos / 89 estimativas ->
-     58 elegiveis / 27 estudos -> 38 circulantes agregados / 17 estudos, mais 3
+     58 elegiveis / 27 estudos -> 39 circulantes agregados / 18 estudos, mais 3
      estimativas de LCR reportadas a parte) dificil de acompanhar ao
      lado da tabela de onze subgrupos com quem disputava espaco. Sao os mesmos numeros,
      dispostos como o leitor de uma revisao sistematica espera ve-los.

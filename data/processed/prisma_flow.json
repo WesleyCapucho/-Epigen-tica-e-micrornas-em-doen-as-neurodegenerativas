@@ -59,7 +59,7 @@
   "wos_primary_reporting_auc_or_sens_spec_total": 3
  },
  "eligibility_fulltext": {
-  "fulltext_retrieved": 47,
+  "fulltext_retrieved": 48,
   "studies_contributing_extracted_estimates": 45,
   "extracted_estimates_total": 89,
   "estimates_added_from_scopus": 34,
@@ -71,11 +71,13 @@
   "wos_note_en": "All three Web of Science candidates were adjudicated against the PICO and none entered the primary pool: one measures a long non-coding RNA rather than a microRNA (E077), one measures post-mortem prefrontal cortex rather than a circulating biofluid (E078), and one - the only record matching the PICO on population, biofluid and index test - reports its AUC only as the inequality 'AUC>0.90' and has no DOI, no PubMed ID and no reachable full text to confirm a value (E079). All three are recorded in the extraction table with their exclusion reasons rather than dropped, so the arm can be audited.",
   "wos_note_pt": "Os tres candidatos da Web of Science foram julgados contra o PICO e nenhum entrou no pool primario: um mede um RNA longo nao codificante e nao um microRNA (E077), um mede cortex pre-frontal post-mortem e nao um biofluido circulante (E078), e um - o unico registro que casa com o PICO em populacao, biofluido e teste indice - reporta a AUC apenas como a desigualdade 'AUC>0,90' e nao tem DOI, nem PubMed ID, nem texto completo alcancavel para confirmar um valor (E079). Os tres ficam registrados na tabela de extracao com suas razoes de exclusao, em vez de descartados, para que o braco possa ser auditado.",
   "fulltext_second_pass_en": "On 2026-09-28 every eligible study with a PubMed Central full text (22) was re-read end to end. The pass added 10 estimates the first pass had missed (E080-E089: 6 case-versus-control, 4 differential-diagnosis or composite-comparator), filled missing group sizes for 5 studies, corrected the biofluid of 4 studies (two AD studies previously coded as blood measured CSF), and moved one study out of the eligible set (Jain et al. 2019: a CSF-exosome miRNA+piRNA signature against mixed psychiatric/neurological controls). Every change is logged, with the source sentence, in data/extracted/extraction_audit_log.csv.",
-  "fulltext_second_pass_pt": "Em 2026-09-28 todo estudo elegivel com texto completo no PubMed Central (22) foi relido do inicio ao fim. A passagem acrescentou 10 estimativas que a primeira havia perdido (E080-E089: 6 caso-versus-controle, 4 de diagnostico diferencial ou comparador composto), preencheu tamanhos de grupo ausentes em 5 estudos, corrigiu o biofluido de 4 estudos (dois estudos de AD antes codificados como sangue mediam LCR) e retirou um estudo do conjunto elegivel (Jain et al. 2019: assinatura miRNA+piRNA em exossomos de LCR contra controles psiquiatricos/neurologicos mistos). Toda mudanca esta registrada, com a frase-fonte, em data/extracted/extraction_audit_log.csv."
+  "fulltext_second_pass_pt": "Em 2026-09-28 todo estudo elegivel com texto completo no PubMed Central (22) foi relido do inicio ao fim. A passagem acrescentou 10 estimativas que a primeira havia perdido (E080-E089: 6 caso-versus-controle, 4 de diagnostico diferencial ou comparador composto), preencheu tamanhos de grupo ausentes em 5 estudos, corrigiu o biofluido de 4 estudos (dois estudos de AD antes codificados como sangue mediam LCR) e retirou um estudo do conjunto elegivel (Jain et al. 2019: assinatura miRNA+piRNA em exossomos de LCR contra controles psiquiatricos/neurologicos mistos). Toda mudanca esta registrada, com a frase-fonte, em data/extracted/extraction_audit_log.csv.",
+  "publisher_fulltext_note_en": "Miao et al. 2026 (Turk J Biochem) has no PubMed record. Its open-access publisher full text was supplied and read on 2026-09-28, which gave the group sizes (100 AD, 96 controls) missing from the Scopus abstract and moved the study into the primary pool (18 studies, 39 estimates).",
+  "publisher_fulltext_note_pt": "Miao et al. 2026 (Turk J Biochem) nao tem registro no PubMed. O texto completo aberto da editora foi fornecido e lido em 2026-09-28, o que trouxe os tamanhos de grupo (100 AD, 96 controles) ausentes do resumo do Scopus e levou o estudo ao pool primario (18 estudos, 39 estimativas)."
  },
  "included_in_meta_analysis": {
-  "estimates_with_estimable_standard_error": 38,
-  "independent_studies": 17,
+  "estimates_with_estimable_standard_error": 39,
+  "independent_studies": 18,
   "csf_estimates_secondary_not_pooled": 3,
   "csf_studies_secondary_not_pooled": 3,
   "note_en": "The study count is now keyed on PMID when a study has one and on DOI otherwise. Keying on PMID alone had silently merged the studies published outside MEDLINE, four of which arrived with the Scopus arms, and understated the study total.",

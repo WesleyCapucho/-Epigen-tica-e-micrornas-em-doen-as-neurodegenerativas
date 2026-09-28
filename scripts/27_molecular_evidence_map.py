@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-EN | Molecular evidence map for the 17 studies in the primary, circulating pools: for
+EN | Molecular evidence map for the 18 studies in the primary, circulating pools: for
      every pooled study, what kind of evidence the study itself offers that its marker
      sits on a disease pathway, from an experiment done in the paper down to nothing at
      all. Read from data/extracted/molecular_evidence_map.csv, which stores one row per
      claim with the verbatim sentence it was read from.
-PT | Mapa de evidencia molecular para os 17 estudos dos pools primarios circulantes:
+PT | Mapa de evidencia molecular para os 18 estudos dos pools primarios circulantes:
      para cada estudo agregado, que tipo de evidencia o proprio estudo oferece de que seu
      marcador esta numa via da doenca, de um experimento feito no artigo ate nenhuma.
      Lido de data/extracted/molecular_evidence_map.csv, que guarda uma linha por

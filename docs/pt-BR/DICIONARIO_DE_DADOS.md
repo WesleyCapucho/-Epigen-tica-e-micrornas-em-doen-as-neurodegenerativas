@@ -70,7 +70,7 @@ Uma linha por estudo elegível (27), registrada na segunda passagem com citaçõ
 
 ## `data/extracted/molecular_evidence_map.csv`
 
-Uma linha por afirmação mecanística feita por um estudo dos pools primários (17 estudos, 21 linhas), lida do texto completo ou, em dois estudos, marcada como só resumo. Escrita à mão a partir dos textos completos em 2026-09-28 e lida pelo `scripts/27_molecular_evidence_map.py` (figura) e pelo `scripts/08` (checagem de cobertura).
+Uma linha por afirmação mecanística feita por um estudo dos pools primários (18 estudos, 24 linhas), lida do texto completo ou, em dois estudos, marcada como só resumo. Escrita à mão a partir dos textos completos em 2026-09-28 e lida pelo `scripts/27_molecular_evidence_map.py` (figura) e pelo `scripts/08` (checagem de cobertura).
 
 | Coluna | Valores |
 |---|---|
@@ -163,7 +163,7 @@ A análise antes reportada como primária: cada linha circulante qualificada tra
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (29 das 38 estimativas circulantes) de fato muda a resposta versus quão poucos estudos (2 para DA, 3 para DP) reportaram um intervalo próprio utilizável.
+Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (30 das 39 estimativas circulantes) de fato muda a resposta versus quão poucos estudos (2 para DA, 3 para DP) reportaram um intervalo próprio utilizável.
 
 ## `results/tables/subgroup_difference_test.csv`
 
@@ -171,7 +171,7 @@ Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
-As 38 estimativas circulantes agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source`: `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo, e `Hanley-McNeil (reported CI implausibly narrow)` quando um intervalo publicado foi posto de lado pela regra de plausibilidade (ver `ci_plausibility_check.csv`).
+As 39 estimativas circulantes agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source`: `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo, e `Hanley-McNeil (reported CI implausibly narrow)` quando um intervalo publicado foi posto de lado pela regra de plausibilidade (ver `ci_plausibility_check.csv`).
 
 ## `results/tables/arithmetic_audit.csv`
 

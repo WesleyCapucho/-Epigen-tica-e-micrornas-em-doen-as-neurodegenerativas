@@ -1,5 +1,5 @@
 subgroup,n_studies,n_estimates_collapsed,n_studies_with_multiple_estimates,pooled_auc,ci_low_wald,ci_high_wald,ci_low_hk,ci_high_hk,pi_low,pi_high,tau2_PM,I2_percent,Q,df,p_heterogeneity,egger_intercept_one_per_study,egger_p_one_per_study
 AD - all markers - reported_only | somente_reportado,2,5,2,0.8743,0.6847,0.957,0.0037,0.9999,,,0.6555,92.8,13.85,1,0.0002,,
-AD - all markers - full (reported + reconstructed) | completo (reportado + reconstruido),8,15,3,0.8329,0.7781,0.8764,0.7653,0.884,0.6191,0.9386,0.1776,70.7,23.89,7,0.0012,-0.832,0.0447
+AD - all markers - full (reported + reconstructed) | completo (reportado + reconstruido),9,16,3,0.8391,0.7913,0.8776,0.7819,0.8835,0.652,0.9355,0.161,68.9,25.75,8,0.0012,-1.005,0.0262
 PD - all markers - reported_only | somente_reportado,3,4,1,0.6506,0.5649,0.7276,0.4576,0.8043,0.0984,0.9695,0.016,11.4,2.26,2,0.3234,1.615,0.0828
 PD - all markers - full (reported + reconstructed) | completo (reportado + reconstruido),9,23,6,0.787,0.6852,0.8625,0.6647,0.8732,0.3861,0.956,0.4879,85.8,56.32,8,0.0,2.867,0.6597

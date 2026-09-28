@@ -5,6 +5,7 @@ E020,Wu L,2022,miR-153,yes,75,73,0.548,0.747,consistent_only_if_labels_swapped
 E021,Wu L,2022,miR-223,yes,75,73,0.685,0.88,consistent_only_if_labels_swapped
 E023,Omura T,2025,miR-101,yes,8,6,0.5,1.0,consistent
 E038,Zhang M,2021,miR-128 + clinical variables,no,117,106,0.939,0.875,not_integer_consistent_either_way
+E045,Miao Y,2026,miR-384-5p,yes,100,96,0.780,0.802,consistent
 E049,Wang T,2015,miR-107,no,116,81,0.983,0.827,consistent
 E051,Liang J,2024,miR-675-5p,yes,104,106,0.9327,0.3271,not_integer_consistent_either_way
 E052,Liang J,2024,miR-1247-5p,yes,104,106,0.4712,0.7642,consistent

@@ -42,8 +42,8 @@
   },
   "app_reference_standard": {
    "high": 0,
-   "unclear": 13,
-   "low": 14,
+   "unclear": 12,
+   "low": 15,
    "unrated": 0
   }
  },
@@ -54,6 +54,6 @@
   "within_disease": 3,
   "prodromal_vs_control": 6
  },
- "full_text_pass_en": "The reference standard and flow-and-timing domains were closed by reading the full texts, not by inference: 21 of 27 studies have a retrievable full text, 14 name the diagnostic criteria they applied, 1 has neuropathological confirmation, and 1 states that diagnosis was blind to the index test. None of the 21 reports a STARD flow diagram, which is why flow and timing is unclear for every study rather than high or low. The six studies without a retrievable full text are unclear because the report could not be read, and the record says which reason applies to which study.",
- "full_text_pass_pt": "Os dominios de padrao de referencia e de fluxo e tempo foram fechados lendo os textos completos, nao por inferencia: 21 dos 27 estudos tem texto completo recuperavel, 14 nomeiam os criterios diagnosticos que aplicaram, 1 tem confirmacao neuropatologica e 1 declara que o diagnostico foi cego ao teste indice. Nenhum dos 21 traz fluxograma STARD, e por isso fluxo e tempo fica incerto em todos os estudos em vez de alto ou baixo. Os seis estudos sem texto completo recuperavel ficam incertos porque o relato nao pode ser lido, e o registro diz qual razao vale para qual estudo."
+ "full_text_pass_en": "The reference standard and flow-and-timing domains were closed by reading the full texts, not by inference: 22 of 27 studies have a retrievable full text, 15 name the diagnostic criteria they applied, 1 has neuropathological confirmation, and 1 states that diagnosis was blind to the index test. None of the 22 reports a STARD flow diagram, which is why flow and timing is unclear for every study rather than high or low. The six studies without a retrievable full text are unclear because the report could not be read, and the record says which reason applies to which study.",
+ "full_text_pass_pt": "Os dominios de padrao de referencia e de fluxo e tempo foram fechados lendo os textos completos, nao por inferencia: 22 dos 27 estudos tem texto completo recuperavel, 15 nomeiam os criterios diagnosticos que aplicaram, 1 tem confirmacao neuropatologica e 1 declara que o diagnostico foi cego ao teste indice. Nenhum dos 22 traz fluxograma STARD, e por isso fluxo e tempo fica incerto em todos os estudos em vez de alto ou baixo. Os seis estudos sem texto completo recuperavel ficam incertos porque o relato nao pode ser lido, e o registro diz qual razao vale para qual estudo."
 }

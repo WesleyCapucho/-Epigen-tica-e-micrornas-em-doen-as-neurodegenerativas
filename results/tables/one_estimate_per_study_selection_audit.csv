@@ -1,4 +1,5 @@
 study_id,y,v,n_candidate_estimates,disease,biofluid,selected_marker,selected_marker_type,selected_cohort_stage,selected_auc,first_author,year,selection_reason
+10.1515/tjb-2025-0113,1.9643226369997655,0.054299615907515204,1,AD,serum,miR-384-5p,single_miRNA,single,0.877,Miao Y,2026,only qualifying estimate | unica estimativa qualificada
 10.3760/cma.j.cn371468-20200828-01692,2.175197255017929,0.06802526668771902,3,PD,serum,miR-124 + miR-494,multi_miRNA_panel,single,0.898,Li J,2021,own multi-miRNA panel preferred over component markers | painel multi-miRNA proprio preferido sobre marcadores componentes
 10.3760/cma.j.issn.0254-9026.2024.01.005,2.3383031755961254,0.13923068380113732,3,PD,serum,miR-124 + miR-1976,multi_miRNA_panel,single,0.912,Chen T,2024,own multi-miRNA panel preferred over component markers | painel multi-miRNA proprio preferido sobre marcadores componentes
 28137310,1.5163474893680882,0.1351636410889545,1,AD,serum,miR-501-3p,single_miRNA,validation,0.82,Hara N,2017,only qualifying estimate | unica estimativa qualificada
