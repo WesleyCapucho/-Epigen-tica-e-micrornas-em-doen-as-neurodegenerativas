@@ -37,6 +37,45 @@ The core dataset of the meta-analysis: one row per reported diagnostic-accuracy 
 
 **Reading rule.** No numeric cell in this file should be trusted without its `verbatim_quote`. If a quote does not support a value, the value is an error and should be reported as such.
 
+## `data/extracted/extraction_audit_log.csv`
+
+Every change the 28 September 2026 full-text second pass made to `diagnostic_accuracy_extraction.csv` and `quadas2_study_level.csv`, one row per field changed. `scripts/08` replays the log against the current tables and fails if a logged new value is no longer what the table holds.
+
+| Column | Description |
+|---|---|
+| `audit_pass` | Which pass made the change |
+| `record_id` | Extraction row (E###) or `study <id> (quadas2_study_level)` |
+| `first_author`, `year` | For reading |
+| `action` | `corrected`, `added` (a new row), `removed` (a study-level row) or `flagged` (kept as published, marked for a sensitivity analysis) |
+| `field`, `old_value`, `new_value` | The change itself |
+| `reason` | Why |
+| `source_quote` | The sentence from the full text that justifies the change |
+
+## `data/extracted/study_design_preanalytics.csv`
+
+One row per eligible study (27), recorded in the second full-text pass with short quotes from the source. Studies without a retrievable full text are `not_assessable_no_fulltext` in every design field rather than guessed. `scripts/08` checks every value against the closed vocabularies below.
+
+| Column | Values |
+|---|---|
+| `reference_standard_basis` | `clinical_criteria`, `biomarker_supported`, `neuropathological`, `not_reported` |
+| `sample_source` | free text (single-centre clinic, biobank, commercial biorepository, public dataset re-analysis, ...) |
+| `disease_stage` | `early`, `mixed`, `established`, `not_reported` |
+| `medication_status` | `drug_naive`, `treated`, `mixed`, `not_reported` |
+| `haemolysis_handling` | `measured_and_excluded`, `excluded_method_not_stated`, `procedural_only`, `not_reported`, `not_applicable_whole_blood` |
+| `normalization` | endogenous small RNA, endogenous miRNA, spike-in, combinations, sequencing library size, positive-control miRNAs, `none_raw_ct` |
+| `candidate_selection` | `a_priori_literature`, `separate_discovery_sample`, `training_split_only`, `same_sample_data_driven` |
+| `validation_design` | `none_single_sample`, `separate_discovery_then_roc_in_evaluation_sample`, `internal_resampling`, `random_split_holdout`, `independent_cohort_locked_model` |
+| `threshold_prespecified` | `no` for every study with a full text |
+| `key_quotes`, `note` | Supporting sentences, pipe-separated; free-text note |
+
+## `results/tables/ci_plausibility_check.csv`
+
+Every extracted row with both a reported CI and group sizes: the SE implied by the CI, the Hanley-McNeil SE for the same AUC and group sizes, their ratio, and whether the row falls below `CI_PLAUSIBILITY_RATIO` (0.5, `scripts/05`). Only the two Li Y 2024 rows are flagged (ratios 0.049 and 0.056); every other ratio lies between 0.80 and 1.38.
+
+## `results/tables/robustness_*.csv`, `panel_subgroup_audit.csv`, `sens_spec_label_check.csv`, `study_design_profile.csv`
+
+Written by `scripts/26_robustness_analyses.py`. `robustness_alternative_analyses.csv`: AD, PD, combined and panel/single pools under the primary rule, the marker-type-neutral rule and the reported intervals as published, with the panel-versus-single Q and p. `robustness_random_selection.csv`: median and 2.5th/97.5th percentiles of the pooled AUC and of the panel-versus-single p over 2,000 AUC-blind random selections (seed 20260928), with the fraction of draws below p = 0.05. `robustness_leave_one_out_by_disease.csv`: per-disease leave-one-study-out. `panel_subgroup_audit.csv`: each panel study's AUC, interval, n, SE source, weight and source. `sens_spec_label_check.csv`: whether published sensitivity and specificity are integer-consistent with the group sizes as labelled or only swapped. `robustness_bivariate_label_check.csv`: the bivariate model with and without studies flagged there. `study_design_profile.csv`: counts of each design value among pooled and among all eligible studies. `robustness_validation_split_exploratory.csv`: pooled AUC by whether the selected estimate came from a separate validation sample (descriptive only). `robustness_summary.json`: seed, number of draws, plausibility ratio, flagged studies.
+
 ## `data/raw/systematic_review_2026/search_strategy.json`
 
 Frozen record of the searches: for each arm, the query as submitted, PubMed's own query translation, the date filter, the total number of matching records on the search date, and the full list of retrieved PMIDs.
@@ -79,7 +118,7 @@ Bibliometric sample from the original monograph layer, pulled live from the NCBI
 
 ## `results/tables/meta_analysis_pooled_auc_primary.csv`
 
-The PRIMARY analysis, circulating (blood-derived) studies only: every study reduced to one estimate per subgroup first, by a fixed, AUC-blind priority rule (see `scripts/_study_selection.py`: prefer an independent validation-cohort row, then the study's own multi-miRNA panel over its component markers, then the larger combined sample size, then an alphabetical tiebreak), pooled between studies with Paule-Mandel tau-squared. AD and PD are separate primary rows; the combined AD+PD row is labelled SECONDARY. The two cerebrospinal-fluid studies are never in this table; see `results/tables/csf_secondary_estimates.csv`.
+The PRIMARY analysis, circulating (blood-derived) studies only: every study reduced to one estimate per subgroup first, by a fixed, AUC-blind priority rule (see `scripts/_study_selection.py`: prefer a row evaluated in a separate validation sample, then the study's own multi-miRNA panel over its component markers, then the larger combined sample size, then an alphabetical tiebreak), pooled between studies with Paule-Mandel tau-squared. AD and PD are separate primary rows; the combined AD+PD row is labelled SECONDARY. Cerebrospinal-fluid studies are never in this table; see `results/tables/csf_secondary_estimates.csv`.
 
 | Column | Description |
 |---|---|
@@ -93,6 +132,7 @@ The PRIMARY analysis, circulating (blood-derived) studies only: every study redu
 | `pi_low`, `pi_high` | 95% prediction interval (k >= 3 only) |
 | `tau2_PM` | Paule-Mandel between-study variance on the logit scale |
 | `I2_percent`, `Q`, `df`, `p_heterogeneity` | Heterogeneity statistics (Q from DerSimonian-Laird, reported regardless of which tau-squared feeds the pooled estimate) |
+| `egger_intercept_one_per_study`, `egger_p_one_per_study` | Egger's test on the one-per-study rows (k >= 3); exploratory, underpowered below ten studies |
 
 ## `results/tables/one_estimate_per_study_selection_audit.csv`
 
@@ -100,7 +140,7 @@ One row per circulating study in the primary pool: which estimate the pre-specif
 
 ## `results/tables/csf_secondary_estimates.csv`
 
-The two cerebrospinal-fluid estimates (one AD, one PD) held out of every pooled AUC because CSF is not a peripheral circulating biofluid (section 2.2 of the manuscript). With one study per disease there is nothing to pool, so these are reported narratively in the manuscript rather than meta-analysed.
+The SE-estimable cerebrospinal-fluid estimates (Lusardi 2017 and Sandau 2020 in AD, Marques 2016 in PD) held out of every pooled AUC because CSF is not a peripheral circulating biofluid. A fourth CSF study (Dos Santos 2018) reports its AUC on a test split of unreported size and has no estimable SE. They are reported narratively, not meta-analysed.
 
 ## `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`
 
@@ -108,7 +148,7 @@ The analysis that was previously reported as primary: every qualifying circulati
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (32 of 39 circulating estimates) actually changes the answer versus how few studies (2 for AD, 4 for PD) reported their own interval.
+For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (29 of 38 circulating estimates) actually changes the answer versus how few studies (2 for AD, 3 for PD) reported a usable interval of their own.
 
 ## `results/tables/subgroup_difference_test.csv`
 
@@ -116,11 +156,11 @@ Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 1
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
-The 39 poolable circulating estimates with the standard error used for each and, critically, `se_source` — `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes.
+The 38 poolable circulating estimates with the standard error used for each and, critically, `se_source`: `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes, and `Hanley-McNeil (reported CI implausibly narrow)` when a published interval was set aside by the plausibility rule (see `ci_plausibility_check.csv`).
 
 ## `results/tables/arithmetic_audit.csv`
 
-Every core sample-size and study count used anywhere in the manuscript's Methods, Results or Discussion (from the 587 identified records down to the 8 circulating studies in the bivariate synthesis), reconciled in one table by `scripts/25_arithmetic_audit.py`, which reads each figure live from the same tables and JSON the rest of the pipeline already produces and asserts that every subtotal named in `reconciles_as` actually sums to the row it names before writing the file. `scripts/08_verify_consistency.py` additionally recomputes a subset of these same figures independently, straight from the extraction table, and fails if they disagree. Reproduced as Supplementary Table S4, read live from this file rather than transcribed.
+Every core sample-size and study count used anywhere in the manuscript's Methods, Results or Discussion (from the 587 identified records down to the 11 circulating studies in the bivariate synthesis), reconciled in one table by `scripts/25_arithmetic_audit.py`, which reads each figure live from the same tables and JSON the rest of the pipeline already produces and asserts that every subtotal named in `reconciles_as` actually sums to the row it names before writing the file. `scripts/08_verify_consistency.py` additionally recomputes a subset of these same figures independently, straight from the extraction table, and fails if they disagree. Reproduced as Supplementary Table S4, read live from this file rather than transcribed.
 
 | Column | Description |
 |---|---|
@@ -211,7 +251,7 @@ A flag and its quote must agree: `scripts/08` fails if a `yes` carries no quote,
 
 ## `results/tables/quadas2_assessment.csv`
 
-One row per assessed study, seven domains, each as a verdict plus the reason that produced it (`..._reason`). Verdicts are `low`, `high`, `unclear` or `unrated`. `unclear` means the question was asked and the source does not answer it; `unrated` means it was not asked. No domain is currently `unrated`, and `scripts/08` fails if one becomes so again. Also carries `n_estimates` and `n_estimates_eligible` per study, plus two finer, rule-derived classifications that do not change any of the seven verdicts: `reference_standard_type` (`neuropathological`, `biomarker_confirmed`, `clinical_criteria_named`, `unclear_not_named` or `unclear_fulltext_unavailable`, read from the same `reference_standard_quote` field `rob_reference_standard` uses) and `threshold_source` (`derived_and_evaluated_same_sample`, `cross_validated_within_sample`, `externally_validated` or `not_determinable`, the same `cohort_stage` set `rob_index_test` uses, relabelled).
+One row per assessed study, seven domains, each as a verdict plus the reason that produced it (`..._reason`). Verdicts are `low`, `high`, `unclear` or `unrated`. `unclear` means the question was asked and the source does not answer it; `unrated` means it was not asked. No domain is currently `unrated`, and `scripts/08` fails if one becomes so again. Also carries `n_estimates` and `n_estimates_eligible` per study, plus two finer, rule-derived classifications that do not change any of the seven verdicts: `reference_standard_type` (`neuropathological`, `biomarker_confirmed`, `clinical_criteria_named`, `unclear_not_named` or `unclear_fulltext_unavailable`, read from the same `reference_standard_quote` field `rob_reference_standard` uses) and `threshold_source` (`derived_and_evaluated_same_sample`, `cross_validated_within_sample`, `evaluated_in_separate_sample` or `not_determinable`, the same `cohort_stage` set `rob_index_test` uses, relabelled; `evaluated_in_separate_sample` means the estimate comes from participants other than the derivation sample, not that a threshold was pre-specified or externally validated). `rob_index_test` is also set to `high` when `study_design_preanalytics.csv` records that the markers were chosen using the evaluation participants (`candidate_selection = same_sample_data_driven`); the reason text then names that file.
 
 ## `results/tables/quadas2_summary.json`
 
@@ -275,11 +315,11 @@ A six-panel figure typesetting the equations `scripts/05_meta_analysis.py` and `
 
 ## `results/figures/subgroup_summary_forest.*.png`
 
-A point-range ("summary forest") chart of the core pooled-AUC subgroups reported in Table 1 (AD primary, PD primary, AD+PD combined secondary, single microRNA, multi-microRNA panel), each point and its 95% modified Hartung-Knapp (mHK) CI read live from `results/tables/meta_analysis_pooled_auc_primary.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots all 39 individual circulating estimates rather than five subgroup summaries.
+A point-range ("summary forest") chart of the core pooled-AUC subgroups reported in Table 1 (AD primary, PD primary, AD+PD combined secondary, single microRNA, multi-microRNA panel), each point and its 95% modified Hartung-Knapp (mHK) CI read live from `results/tables/meta_analysis_pooled_auc_primary.csv`. Produced by `scripts/23_subgroup_summary_forest.py`; not a substitute for the individual-study forest plot (`forest_plot_auc.*.png`, Supplementary Figure S1), which plots every individual circulating estimate rather than five subgroup summaries.
 
 ## `results/figures/study_characteristics.*.png`
 
-Two donuts (by disease, by marker type) and one ranked bar (by biofluid) summarising the composition of the 51 estimates eligible for the primary pool, aggregated at draw time from `data/extracted/diagnostic_accuracy_extraction.csv` filtered to `eligible_primary_pool == "yes"`. Produced by `scripts/24_study_characteristics.py`; the same 51-estimate counts are tabulated in full, with two further breakdowns (quantification method, cohort stage), in Supplementary Table S1.
+Two donuts (by disease, by marker type) and one ranked bar (by biofluid) summarising the composition of the 58 estimates eligible for the primary pool, aggregated at draw time from `data/extracted/diagnostic_accuracy_extraction.csv` filtered to `eligible_primary_pool == "yes"`. Produced by `scripts/24_study_characteristics.py`; the same 58-estimate counts are tabulated in full, with two further breakdowns (quantification method, cohort stage), in Supplementary Table S1.
 
 ## Conventions
 

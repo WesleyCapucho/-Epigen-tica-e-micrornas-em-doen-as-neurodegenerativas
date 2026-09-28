@@ -37,6 +37,45 @@ O conjunto de dados central da meta-análise: uma linha por estimativa de acurá
 
 **Regra de leitura.** Nenhuma célula numérica deste arquivo deve ser considerada confiável sem sua `verbatim_quote`. Se a citação não sustenta um valor, o valor é um erro e deve ser reportado como tal.
 
+## `data/extracted/extraction_audit_log.csv`
+
+Toda mudança que a segunda passagem pelo texto completo, de 28 de setembro de 2026, fez em `diagnostic_accuracy_extraction.csv` e `quadas2_study_level.csv`, uma linha por campo alterado. O `scripts/08` reexecuta o log contra as tabelas atuais e falha se um valor novo registrado não for mais o que a tabela contém.
+
+| Coluna | Descrição |
+|---|---|
+| `audit_pass` | Qual passagem fez a mudança |
+| `record_id` | Linha da extração (E###) ou `study <id> (quadas2_study_level)` |
+| `first_author`, `year` | Para leitura |
+| `action` | `corrected`, `added` (linha nova), `removed` (linha por estudo) ou `flagged` (mantido como publicado, marcado para análise de sensibilidade) |
+| `field`, `old_value`, `new_value` | A mudança em si |
+| `reason` | Por quê |
+| `source_quote` | A frase do texto completo que justifica a mudança |
+
+## `data/extracted/study_design_preanalytics.csv`
+
+Uma linha por estudo elegível (27), registrada na segunda passagem com citações curtas da fonte. Estudos sem texto completo recuperável ficam `not_assessable_no_fulltext` em todo campo de desenho, em vez de adivinhados. O `scripts/08` confere todo valor contra os vocabulários fechados abaixo.
+
+| Coluna | Valores |
+|---|---|
+| `reference_standard_basis` | `clinical_criteria`, `biomarker_supported`, `neuropathological`, `not_reported` |
+| `sample_source` | texto livre (clínica de um centro, biobanco, biorrepositório comercial, reanálise de dados públicos, ...) |
+| `disease_stage` | `early`, `mixed`, `established`, `not_reported` |
+| `medication_status` | `drug_naive`, `treated`, `mixed`, `not_reported` |
+| `haemolysis_handling` | `measured_and_excluded`, `excluded_method_not_stated`, `procedural_only`, `not_reported`, `not_applicable_whole_blood` |
+| `normalization` | pequeno RNA endógeno, miRNA endógeno, spike-in, combinações, tamanho de biblioteca de sequenciamento, miRNAs de controle positivo, `none_raw_ct` |
+| `candidate_selection` | `a_priori_literature`, `separate_discovery_sample`, `training_split_only`, `same_sample_data_driven` |
+| `validation_design` | `none_single_sample`, `separate_discovery_then_roc_in_evaluation_sample`, `internal_resampling`, `random_split_holdout`, `independent_cohort_locked_model` |
+| `threshold_prespecified` | `no` para todo estudo com texto completo |
+| `key_quotes`, `note` | Frases de apoio, separadas por barra vertical; nota livre |
+
+## `results/tables/ci_plausibility_check.csv`
+
+Toda linha extraída com IC reportado e tamanhos de grupo: o EP implícito no IC, o EP de Hanley-McNeil para a mesma AUC e grupos, a razão entre eles e se a linha fica abaixo de `CI_PLAUSIBILITY_RATIO` (0,5, `scripts/05`). Só as duas linhas de Li Y 2024 são sinalizadas (razões 0,049 e 0,056); toda outra razão fica entre 0,80 e 1,38.
+
+## `results/tables/robustness_*.csv`, `panel_subgroup_audit.csv`, `sens_spec_label_check.csv`, `study_design_profile.csv`
+
+Gerados pelo `scripts/26_robustness_analyses.py`. `robustness_alternative_analyses.csv`: pools de DA, DP, combinado e painel/isolado sob a regra primária, a regra neutra quanto ao tipo de marcador e os intervalos como publicados, com Q e p de painel versus isolado. `robustness_random_selection.csv`: mediana e percentis 2,5/97,5 da AUC agregada e do p painel versus isolado em 2.000 seleções aleatórias cegas à AUC (semente 20260928), com a fração de sorteios abaixo de p = 0,05. `robustness_leave_one_out_by_disease.csv`: deixar-um-estudo-de-fora por doença. `panel_subgroup_audit.csv`: AUC, intervalo, n, origem do EP, peso e fonte de cada estudo de painel. `sens_spec_label_check.csv`: se sensibilidade e especificidade publicadas são consistentes com inteiros sobre os tamanhos de grupo como rotulados ou só trocados. `robustness_bivariate_label_check.csv`: o modelo bivariado com e sem os estudos sinalizados ali. `study_design_profile.csv`: contagem de cada valor de desenho entre os estudos agregados e entre todos os elegíveis. `robustness_validation_split_exploratory.csv`: AUC agregada conforme a estimativa selecionada venha ou não de amostra de validação separada (apenas descritivo). `robustness_summary.json`: semente, número de sorteios, razão de plausibilidade, estudos sinalizados.
+
 ## `data/raw/systematic_review_2026/search_strategy.json`
 
 Registro congelado das buscas: por braço, a query como submetida, a tradução da query feita pelo próprio PubMed, o filtro de data, o número total de registros correspondentes na data da busca e a lista completa de PMIDs recuperados.
@@ -79,7 +118,7 @@ Amostra bibliométrica da camada da monografia original, obtida ao vivo da API d
 
 ## `results/tables/meta_analysis_pooled_auc_primary.csv`
 
-A análise PRIMÁRIA, somente estudos circulantes (derivados de sangue): cada estudo reduzido a uma estimativa por subgrupo primeiro, por uma regra de prioridade fixa e cega à AUC (ver `scripts/_study_selection.py`: preferir uma linha de coorte de validação independente, depois o painel multi-miRNA próprio do estudo sobre seus marcadores componentes, depois o maior tamanho amostral combinado, depois um desempate alfabético), agregado entre estudos com tau-quadrado de Paule-Mandel. DA e DP são linhas primárias separadas; a linha combinada DA+DP é rotulada SECONDARY. Os dois estudos de líquido cefalorraquidiano nunca aparecem nesta tabela; ver `results/tables/csf_secondary_estimates.csv`.
+A análise PRIMÁRIA, somente estudos circulantes (derivados de sangue): cada estudo reduzido a uma estimativa por subgrupo primeiro, por uma regra de prioridade fixa e cega à AUC (ver `scripts/_study_selection.py`: preferir uma linha avaliada numa amostra de validação separada, depois o painel multi-miRNA próprio do estudo sobre seus marcadores componentes, depois o maior tamanho amostral combinado, depois um desempate alfabético), agregado entre estudos com tau-quadrado de Paule-Mandel. DA e DP são linhas primárias separadas; a linha combinada DA+DP é rotulada SECONDARY. Estudos de líquido cefalorraquidiano nunca aparecem nesta tabela; ver `results/tables/csf_secondary_estimates.csv`.
 
 | Coluna | Descrição |
 |---|---|
@@ -93,6 +132,7 @@ A análise PRIMÁRIA, somente estudos circulantes (derivados de sangue): cada es
 | `pi_low`, `pi_high` | Intervalo de predição a 95% (só k >= 3) |
 | `tau2_PM` | Variância entre estudos de Paule-Mandel na escala logito |
 | `I2_percent`, `Q`, `df`, `p_heterogeneity` | Estatísticas de heterogeneidade (Q de DerSimonian-Laird, reportado independentemente de qual tau-quadrado alimenta a estimativa agregada) |
+| `egger_intercept_one_per_study`, `egger_p_one_per_study` | Teste de Egger nas linhas uma-por-estudo (k >= 3); exploratório, com pouco poder abaixo de dez estudos |
 
 ## `results/tables/one_estimate_per_study_selection_audit.csv`
 
@@ -100,7 +140,7 @@ Uma linha por estudo circulante no pool primário: qual estimativa a regra de pr
 
 ## `results/tables/csf_secondary_estimates.csv`
 
-As duas estimativas de líquido cefalorraquidiano (uma de DA, uma de DP) fora de toda AUC agregada porque o LCR não é um biofluido circulante periférico (seção 2.2 do manuscrito). Com um estudo por doença não há o que agregar, então são reportadas narrativamente no manuscrito em vez de meta-analisadas.
+As estimativas de líquido cefalorraquidiano com EP estimável (Lusardi 2017 e Sandau 2020 na DA, Marques 2016 na DP) fora de toda AUC agregada porque o LCR não é um biofluido circulante periférico. Um quarto estudo de LCR (Dos Santos 2018) reporta a AUC numa partição de teste de tamanho não informado e não tem EP estimável. São reportadas narrativamente, não meta-analisadas.
 
 ## `results/tables/meta_analysis_pooled_auc_sensitivity_every_estimate.csv`
 
@@ -108,7 +148,7 @@ A análise antes reportada como primária: cada linha circulante qualificada tra
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (32 das 39 estimativas circulantes) de fato muda a resposta versus quão poucos estudos (2 para DA, 4 para DP) reportaram seu próprio intervalo.
+Para cada desfecho primário de doença, a AUC agregada restrita a estudos com IC/EP diretamente reportado (`reported_only`) contra o pool primário completo que também inclui variâncias reconstruídas por Hanley-McNeil (`full`), para que o leitor veja o quanto a reconstrução (29 das 38 estimativas circulantes) de fato muda a resposta versus quão poucos estudos (2 para DA, 3 para DP) reportaram um intervalo próprio utilizável.
 
 ## `results/tables/subgroup_difference_test.csv`
 
@@ -116,11 +156,11 @@ Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
-As 39 estimativas circulantes agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source` — `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo.
+As 38 estimativas circulantes agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source`: `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo, e `Hanley-McNeil (reported CI implausibly narrow)` quando um intervalo publicado foi posto de lado pela regra de plausibilidade (ver `ci_plausibility_check.csv`).
 
 ## `results/tables/arithmetic_audit.csv`
 
-Toda contagem central de tamanho amostral e de estudos usada em qualquer parte dos Metodos, Resultados ou Discussao do manuscrito (dos 587 registros identificados aos 8 estudos circulantes na sintese bivariada), reconciliada em uma unica tabela por `scripts/25_arithmetic_audit.py`, que le cada cifra ao vivo das mesmas tabelas e do mesmo JSON que o resto do pipeline ja produz e verifica que todo subtotal nomeado em `reconciles_as` de fato soma a linha que ele nomeia antes de escrever o arquivo. `scripts/08_verify_consistency.py` recalcula ainda um subconjunto dessas mesmas cifras de forma independente, direto da tabela de extracao, e falha se discordarem. Reproduzida como Tabela Suplementar S4, lida ao vivo deste arquivo em vez de transcrita.
+Toda contagem central de tamanho amostral e de estudos usada em qualquer parte dos Metodos, Resultados ou Discussao do manuscrito (dos 587 registros identificados aos 11 estudos circulantes na sintese bivariada), reconciliada em uma unica tabela por `scripts/25_arithmetic_audit.py`, que le cada cifra ao vivo das mesmas tabelas e do mesmo JSON que o resto do pipeline ja produz e verifica que todo subtotal nomeado em `reconciles_as` de fato soma a linha que ele nomeia antes de escrever o arquivo. `scripts/08_verify_consistency.py` recalcula ainda um subconjunto dessas mesmas cifras de forma independente, direto da tabela de extracao, e falha se discordarem. Reproduzida como Tabela Suplementar S4, lida ao vivo deste arquivo em vez de transcrita.
 
 | Coluna | Descrição |
 |---|---|
@@ -211,7 +251,7 @@ Um sinalizador e sua citação precisam concordar: o `scripts/08` falha se um `y
 
 ## `results/tables/quadas2_assessment.csv`
 
-Uma linha por estudo avaliado, sete domínios, cada um como veredito mais a razão que o produziu (`..._reason`). Os vereditos são `low`, `high`, `unclear` ou `unrated`. `unclear` significa que a pergunta foi feita e a fonte não responde; `unrated` significa que ela não foi feita. Nenhum domínio está hoje como `unrated`, e o `scripts/08` falha se algum voltar a ficar. Traz também `n_estimates` e `n_estimates_eligible` por estudo, além de duas classificações mais finas e derivadas por regra que não mudam nenhum dos sete vereditos: `reference_standard_type` (`neuropathological`, `biomarker_confirmed`, `clinical_criteria_named`, `unclear_not_named` ou `unclear_fulltext_unavailable`, lida do mesmo campo `reference_standard_quote` que `rob_reference_standard` usa) e `threshold_source` (`derived_and_evaluated_same_sample`, `cross_validated_within_sample`, `externally_validated` ou `not_determinable`, o mesmo conjunto `cohort_stage` que `rob_index_test` usa, renomeado).
+Uma linha por estudo avaliado, sete domínios, cada um como veredito mais a razão que o produziu (`..._reason`). Os vereditos são `low`, `high`, `unclear` ou `unrated`. `unclear` significa que a pergunta foi feita e a fonte não responde; `unrated` significa que ela não foi feita. Nenhum domínio está hoje como `unrated`, e o `scripts/08` falha se algum voltar a ficar. Traz também `n_estimates` e `n_estimates_eligible` por estudo, além de duas classificações mais finas e derivadas por regra que não mudam nenhum dos sete vereditos: `reference_standard_type` (`neuropathological`, `biomarker_confirmed`, `clinical_criteria_named`, `unclear_not_named` ou `unclear_fulltext_unavailable`, lida do mesmo campo `reference_standard_quote` que `rob_reference_standard` usa) e `threshold_source` (`derived_and_evaluated_same_sample`, `cross_validated_within_sample`, `evaluated_in_separate_sample` ou `not_determinable`, o mesmo conjunto `cohort_stage` que `rob_index_test` usa, renomeado; `evaluated_in_separate_sample` significa que a estimativa vem de participantes diferentes da amostra de derivação, não que um limiar foi pré-especificado ou validado externamente). O `rob_index_test` também vira `high` quando `study_design_preanalytics.csv` registra que os marcadores foram escolhidos usando os participantes de avaliação (`candidate_selection = same_sample_data_driven`); o texto da razão então cita esse arquivo.
 
 ## `results/tables/quadas2_summary.json`
 
@@ -275,11 +315,11 @@ Uma figura de seis painéis tipografando as equações que `scripts/05_meta_anal
 
 ## `results/figures/subgroup_summary_forest.*.png`
 
-Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de AUC agrupada reportados na Tabela 1 (DA primário, DP primário, DA+DP combinado secundário, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% de Hartung-Knapp modificado (mHK) lidos diretamente de `results/tables/meta_analysis_pooled_auc_primary.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota as 39 estimativas circulantes individuais em vez de cinco resumos de subgrupo.
+Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de AUC agrupada reportados na Tabela 1 (DA primário, DP primário, DA+DP combinado secundário, microRNA isolado, painel multi-microRNA), com cada ponto e seu IC 95% de Hartung-Knapp modificado (mHK) lidos diretamente de `results/tables/meta_analysis_pooled_auc_primary.csv`. Produzido pelo `scripts/23_subgroup_summary_forest.py`; não substitui o forest plot por estudo (`forest_plot_auc.*.png`, Figura Suplementar S1), que plota cada estimativa circulante individual em vez de cinco resumos de subgrupo.
 
 ## `results/figures/study_characteristics.*.png`
 
-Dois donuts (por doença, por tipo de marcador) e uma barra ranqueada (por biofluido) resumindo a composição das 51 estimativas elegíveis para o pool primário, agregados no momento do desenho a partir de `data/extracted/diagnostic_accuracy_extraction.csv` filtrado por `eligible_primary_pool == "yes"`. Produzida pelo `scripts/24_study_characteristics.py`; as mesmas 51 estimativas são tabuladas por completo, com mais dois detalhamentos (método de quantificação, estágio de coorte), na Tabela Suplementar S1.
+Dois donuts (por doença, por tipo de marcador) e uma barra ranqueada (por biofluido) resumindo a composição das 58 estimativas elegíveis para o pool primário, agregados no momento do desenho a partir de `data/extracted/diagnostic_accuracy_extraction.csv` filtrado por `eligible_primary_pool == "yes"`. Produzida pelo `scripts/24_study_characteristics.py`; as mesmas 58 estimativas são tabuladas por completo, com mais dois detalhamentos (método de quantificação, estágio de coorte), na Tabela Suplementar S1.
 
 ## Convenções
 

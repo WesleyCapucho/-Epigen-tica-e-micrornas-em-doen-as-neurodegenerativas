@@ -1143,7 +1143,7 @@
   "method": "small RNA-seq + SVM",
   "eligible_primary_pool": "yes",
   "exclusion_reason": "",
-  "note": "Training set (32 PD / 35 HC). The reported 95% CI is about 15 times narrower than a sampling interval at this n (Hanley-McNeil SE ~0.035), so it cannot describe sampling uncertainty.",
+  "note": "Training set (32 PD / 35 HC). The reported 95% CI is about 20 times narrower than a sampling interval at this n (Hanley-McNeil SE ~0.035), so it cannot describe sampling uncertainty.",
   "verbatim_quote": "The classifier could also identify patients with PD from healthy individuals in both the training (AUC = 0.917; 95% CI, 0.913-0.92) and validation (AUC = 0.916; 95% CI, 0.911-0.921) sets",
   "source": "PubMed Central open-access full text"
  },
