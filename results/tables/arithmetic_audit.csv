@@ -1,0 +1,35 @@
+label,value,reconciles_as,source
+Total unique records identified,587,identification.total_unique_records,PubMed/MEDLINE via NCBI E-utilities; Scopus and Web of Science via authenticated export
+Primary studies after screening,356,screening_rule_recomputation.primary_studies,data/processed/prisma_flow.json
+Primary studies reporting an extractable accuracy measure,129,screening_rule_recomputation.primary_reporting_auc_or_sens_spec,data/processed/prisma_flow.json
+Full texts retrieved,47,eligibility_fulltext.fulltext_retrieved,data/processed/prisma_flow.json
+Studies contributing extracted estimates,45,eligibility_fulltext.studies_contributing_extracted_estimates,data/processed/prisma_flow.json
+Extracted estimates (rows),79,eligibility_fulltext.extracted_estimates_total,data/processed/prisma_flow.json
+"Eligible estimates, systematic-review scope",51,= AD-arm + PD-arm below,data/extracted/diagnostic_accuracy_extraction.csv
+  of which AD-arm estimates,17,,data/extracted/diagnostic_accuracy_extraction.csv
+  of which PD-arm estimates,34,,data/extracted/diagnostic_accuracy_extraction.csv
+"Eligible studies, systematic-review scope (QUADAS-2/GRADE-rated)",28,= AD studies + PD studies below,data/extracted/diagnostic_accuracy_extraction.csv
+  of which AD studies,14,,results/tables/quadas2_assessment.csv
+  of which PD studies,14,,results/tables/quadas2_assessment.csv
+"Estimates with an estimable standard error (poolable, any biofluid)",41,= circulating + CSF poolable below,data/extracted/diagnostic_accuracy_extraction.csv
+Independent studies with >=1 poolable estimate (any biofluid),20,= circulating + CSF poolable studies below,data/extracted/diagnostic_accuracy_extraction.csv
+  Studies with NO poolable estimate at all (excluded from every quantitative synthesis),8,= eligible studies - poolable studies,data/extracted/diagnostic_accuracy_extraction.csv
+  CSF studies with any eligible row,3,,data/extracted/diagnostic_accuracy_extraction.csv
+"  CSF studies that are poolable (secondary, not pooled - see csf_secondary_estimates.csv)",2,,results/tables/csf_secondary_estimates.csv
+  CSF studies with NO poolable row (Marques TM 2016; among the excluded-8 above),1,,data/extracted/diagnostic_accuracy_extraction.csv
+Circulating (primary) poolable estimates,39,= poolable - CSF poolable estimates,data/processed/prisma_flow.json
+Circulating (primary) independent studies,18,= AD + PD circulating studies below,data/processed/prisma_flow.json
+  of which AD circulating studies (primary pool),9,= single + panel AD below,results/tables/meta_analysis_pooled_auc_primary.csv
+  of which PD circulating studies (primary pool),9,= single + panel PD below,results/tables/meta_analysis_pooled_auc_primary.csv
+    AD single-miRNA studies,5,,results/tables/meta_analysis_pooled_auc_primary.csv
+    AD multi-miRNA-panel studies,4,,results/tables/meta_analysis_pooled_auc_primary.csv
+    PD single-miRNA studies,6,,results/tables/meta_analysis_pooled_auc_primary.csv
+    PD multi-miRNA-panel studies,3,,results/tables/meta_analysis_pooled_auc_primary.csv
+"Circulating candidate estimates before one-per-study selection, AD",12,,results/tables/meta_analysis_pooled_auc_primary.csv
+"Circulating candidate estimates before one-per-study selection, PD",27,,results/tables/meta_analysis_pooled_auc_primary.csv
+Circulating studies with >1 candidate estimate to choose from,8,= AD multi-candidate + PD multi-candidate,results/tables/one_estimate_per_study_selection_audit.csv
+  of which AD,2,,results/tables/one_estimate_per_study_selection_audit.csv
+  of which PD,6,,results/tables/one_estimate_per_study_selection_audit.csv
+Bivariate synthesis: independent circulating studies,8,,results/tables/bivariate_summary.csv
+  one-estimate-per-study analysis: estimates used,8,,results/tables/bivariate_summary.csv
+  every-eligible-estimate analysis: estimates used,17,,results/tables/bivariate_summary.csv

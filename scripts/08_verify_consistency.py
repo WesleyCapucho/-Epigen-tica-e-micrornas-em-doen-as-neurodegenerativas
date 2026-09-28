@@ -1266,6 +1266,61 @@ def main():
                   f"{name}: does not quote the current BACE1-knockdown range {expect} "
                   f"computed from {ODE_RESULTS}")
 
+    # --- 9c. Arithmetic audit table matches independently recomputed counts -
+    # EN | scripts/25_arithmetic_audit.py reconciles every core sample-size and
+    #      study count in the review into one table, with its own internal
+    #      cross-total assertions. That is not enough on its own: a bug shared
+    #      between that script's own computation and its own assertions would
+    #      still pass. So this block recomputes a handful of the same figures
+    #      here, directly from the extraction table and the primary pooled
+    #      table, using code that does not import or call
+    #      scripts/25_arithmetic_audit.py at all, and requires the audit CSV
+    #      to agree.
+    # PT | scripts/25_arithmetic_audit.py reconcilia toda contagem central de
+    #      tamanho amostral e de estudos da revisao em uma tabela, com suas
+    #      proprias asserções internas de subtotal. Isso nao basta sozinho: um
+    #      defeito compartilhado entre o calculo daquele script e suas
+    #      proprias asserções ainda passaria. Entao este bloco recalcula
+    #      algumas dessas mesmas cifras aqui, diretamente da tabela de
+    #      extracao e da tabela agregada primaria, com codigo que nao importa
+    #      nem chama scripts/25_arithmetic_audit.py, e exige que a tabela de
+    #      auditoria concorde.
+    try:
+        audit_rows = {r["label"]: int(r["value"])
+                     for r in csv.DictReader(open("results/tables/arithmetic_audit.csv", encoding="utf-8"))}
+    except FileNotFoundError:
+        audit_rows = None
+        claim(False, "results/tables/arithmetic_audit.csv missing; run scripts/25_arithmetic_audit.py")
+
+    if audit_rows is not None:
+        elig_recount = [r for r in ext if r["eligible_primary_pool"] == "yes"]
+        elig_studies_recount = {study_id(r) for r in elig_recount}
+        ad_recount = sum(1 for r in elig_recount if r["disease"] == "AD")
+        pd_recount = sum(1 for r in elig_recount if r["disease"] == "PD")
+
+        check(audit_rows["Eligible estimates, systematic-review scope"] == len(elig_recount) == 51,
+              "arithmetic_audit: eligible-estimate count disagrees with an independent recount "
+              "of the extraction table")
+        check(audit_rows["  of which AD-arm estimates"] == ad_recount,
+              "arithmetic_audit: AD-arm estimate count disagrees with an independent recount")
+        check(audit_rows["  of which PD-arm estimates"] == pd_recount,
+              "arithmetic_audit: PD-arm estimate count disagrees with an independent recount")
+        check(audit_rows["Eligible studies, systematic-review scope (QUADAS-2/GRADE-rated)"]
+              == len(elig_studies_recount) == 28,
+              "arithmetic_audit: eligible-study count disagrees with an independent recount "
+              "of the extraction table")
+
+        primary_rows = list(csv.DictReader(open(POOLED_PRIMARY, encoding="utf-8")))
+        row_ad_all = next(r for r in primary_rows if r["subgroup"].startswith("AD - all markers"))
+        row_pd_all = next(r for r in primary_rows if r["subgroup"].startswith("PD - all markers"))
+        check(audit_rows["Circulating (primary) independent studies"]
+              == int(row_ad_all["n_studies"]) + int(row_pd_all["n_studies"]),
+              "arithmetic_audit: circulating-study total disagrees with "
+              f"{POOLED_PRIMARY}'s own AD+PD study counts")
+        check(audit_rows["  of which AD circulating studies (primary pool)"] == int(row_ad_all["n_studies"])
+              and audit_rows["  of which PD circulating studies (primary pool)"] == int(row_pd_all["n_studies"]),
+              f"arithmetic_audit: per-disease circulating-study counts disagree with {POOLED_PRIMARY}")
+
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections
     #      table below them, and both were found stale once: the check count said 1374

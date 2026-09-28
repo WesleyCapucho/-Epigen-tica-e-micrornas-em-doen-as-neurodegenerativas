@@ -118,6 +118,17 @@ Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap
 
 As 39 estimativas circulantes agregáveis com o erro-padrão usado em cada uma e, crucialmente, `se_source` — `reported_95CI` quando derivado de intervalo publicado, `Hanley-McNeil` quando calculado a partir dos tamanhos de grupo.
 
+## `results/tables/arithmetic_audit.csv`
+
+Toda contagem central de tamanho amostral e de estudos usada em qualquer parte dos Metodos, Resultados ou Discussao do manuscrito (dos 587 registros identificados aos 8 estudos circulantes na sintese bivariada), reconciliada em uma unica tabela por `scripts/25_arithmetic_audit.py`, que le cada cifra ao vivo das mesmas tabelas e do mesmo JSON que o resto do pipeline ja produz e verifica que todo subtotal nomeado em `reconciles_as` de fato soma a linha que ele nomeia antes de escrever o arquivo. `scripts/08_verify_consistency.py` recalcula ainda um subconjunto dessas mesmas cifras de forma independente, direto da tabela de extracao, e falha se discordarem. Reproduzida como Tabela Suplementar S4, lida ao vivo deste arquivo em vez de transcrita.
+
+| Coluna | Descrição |
+|---|---|
+| `label` | A contagem reportada; um espaço duplo no início marca que é uma subcontagem da linha imediatamente acima, um nível abaixo |
+| `value` | A própria contagem |
+| `reconciles_as` | A relação aritmética com linhas próximas contra a qual este valor é conferido, quando aplicável |
+| `source` | O arquivo de onde este valor foi lido |
+
 ## `results/tables/citation_frequency_vs_auc.csv`
 
 Por família de miRNA: AUC média reportada, número de estudos contribuintes, AUC mínima/máxima e número de artigos do corpus que a mencionam.

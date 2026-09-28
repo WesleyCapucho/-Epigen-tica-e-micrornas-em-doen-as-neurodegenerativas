@@ -118,6 +118,17 @@ Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 1
 
 The 39 poolable circulating estimates with the standard error used for each and, critically, `se_source` — `reported_95CI` when derived from a published interval, `Hanley-McNeil` when computed from group sizes.
 
+## `results/tables/arithmetic_audit.csv`
+
+Every core sample-size and study count used anywhere in the manuscript's Methods, Results or Discussion (from the 587 identified records down to the 8 circulating studies in the bivariate synthesis), reconciled in one table by `scripts/25_arithmetic_audit.py`, which reads each figure live from the same tables and JSON the rest of the pipeline already produces and asserts that every subtotal named in `reconciles_as` actually sums to the row it names before writing the file. `scripts/08_verify_consistency.py` additionally recomputes a subset of these same figures independently, straight from the extraction table, and fails if they disagree. Reproduced as Supplementary Table S4, read live from this file rather than transcribed.
+
+| Column | Description |
+|---|---|
+| `label` | The count being reported; a leading double space marks it as a sub-count of the row immediately above it at the next level up |
+| `value` | The count itself |
+| `reconciles_as` | The arithmetic relationship to nearby rows this value is checked against, where one applies |
+| `source` | The file this value was read from |
+
 ## `results/tables/citation_frequency_vs_auc.csv`
 
 Per miRNA family: mean reported AUC, number of contributing studies, min/max AUC, and number of corpus articles mentioning it.
