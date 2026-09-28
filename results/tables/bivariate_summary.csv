@@ -1,3 +1,3 @@
 analysis,k_estimates,n_studies,summary_sensitivity,sensitivity_ci_low,sensitivity_ci_high,summary_specificity,specificity_ci_low,specificity_ci_high,tau_sensitivity,tau_specificity,rho_between,diagnostic_odds_ratio,positive_likelihood_ratio,negative_likelihood_ratio,converged
-one estimate per study | uma estimativa por estudo,12,12,0.7552,0.6594,0.8309,0.7907,0.7511,0.8254,0.7344,0.1798,0.5887,11.651,3.608,0.31,True
-every eligible estimate | toda estimativa elegivel,21,12,0.7653,0.6954,0.8233,0.7833,0.7259,0.8314,0.7613,0.5985,-0.51,11.785,3.531,0.3,True
+one estimate per study | uma estimativa por estudo,19,19,0.7539,0.6769,0.8176,0.8144,0.779,0.8452,0.7623,0.2458,0.0399,13.444,4.062,0.302,True
+every eligible estimate | toda estimativa elegivel,43,19,0.7448,0.6971,0.7872,0.7962,0.7576,0.8301,0.7129,0.5842,-0.4958,11.403,3.655,0.321,True

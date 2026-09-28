@@ -70,7 +70,7 @@ One row per eligible study (27), recorded in the second full-text pass with shor
 
 ## `data/extracted/molecular_evidence_map.csv`
 
-One row per mechanistic claim made by a study in the primary pools (18 studies, 24 rows), read from the full text or, for two studies, marked as abstract only. Written by hand from the full texts on 2026-09-28 and read by `scripts/27_molecular_evidence_map.py` (figure) and `scripts/08` (coverage check).
+One row per mechanistic claim made by a study in the primary pools (37 studies, 65 rows), read from the full text or, for two studies, marked as abstract only. Written by hand from the full texts on 2026-09-28 and read by `scripts/27_molecular_evidence_map.py` (figure) and `scripts/08` (coverage check).
 
 | Column | Values |
 |---|---|
@@ -82,6 +82,26 @@ One row per mechanistic claim made by a study in the primary pools (18 studies, 
 | `model_system` | Cell line, assay or data source behind the claim |
 | `source_quote` | Verbatim sentence from the full text (empty only for `none_*`) |
 | `source`, `note` | PMC identifier or abstract source; free-text note |
+
+## `data/extracted/recall_check_decisions.csv`
+
+One row for each of the 227 primary studies whose abstract gave no accuracy statement, written for the recall check of 28 September 2026 (`scripts/30_recall_check.py`). `triage` is `candidate` for the 90 that look like case-control studies of circulating microRNAs in AD or PD on title and abstract (the rule is in the script and is re-derived on every run) and `not_candidate` for the rest. For candidates: `pmcid` (empty when there is no PubMed Central full text), `fulltext_read` (`yes`, or `no` when the full text could not be retrieved or does not exist), `decision` (`eligible`, `reports_accuracy_but_not_primary`, `not_eligible`, `fulltext_unavailable` or `not_assessed_no_open_fulltext`), `decision_reason` and `decision_quote`, the sentence the decision rests on. The estimates read from the eligible and accuracy-reporting papers are in `diagnostic_accuracy_extraction.csv` from record E090 onwards, each with its own source sentence, and were checked against the full text by a second reader before being accepted.
+
+## `results/tables/recall_check_summary.json`
+
+The counts of the recall check recomputed by `scripts/30_recall_check.py` from the file above; `scripts/08` requires them to equal the `recall_check` block of `data/processed/prisma_flow.json`.
+
+## `data/extracted/post_search_candidates.csv` and `results/tables/post_search_sensitivity.csv`
+
+A study that entered PubMed between the search date and 28 September 2026 and meets the eligibility criteria, available as an abstract only (Jeong et al. 2026, two assay variants of one panel). It is not in the primary analysis. `scripts/31_post_search_sensitivity.py` adds it to the primary AD selection, once with each variant, and writes the pooled AUC with and without it.
+
+## Two-disease reports
+
+Two reports (Mancuso et al. 2019 and Sandau et al. 2026) analyse both diseases. Their AD rows carry the real PMID; their PD rows carry an empty `pmid` and the DOI with the suffix `#PD`, so that `study_id` (PMID when present, DOI otherwise) treats each disease as its own study and each disease pool receives at most one estimate from the report.
+
+## `data/second_reviewer/second_reviewer_packet.xlsx`
+
+The workbook for the independent second reviewer, written by `python scripts/29_second_reviewer_packet.py build`: a seeded random sample of 120 screened records (decisions hidden), the QUADAS-2 sheet with the first reviewer's judgements hidden, and every pooled estimate with its stored value and source sentence for verification. `python scripts/29_second_reviewer_packet.py agree <returned file>` writes `results/tables/second_reviewer_agreement.csv` (percent agreement and Cohen's kappa).
 
 ## `results/tables/ci_plausibility_check.csv`
 

@@ -59,11 +59,11 @@
   "wos_primary_reporting_auc_or_sens_spec_total": 3
  },
  "eligibility_fulltext": {
-  "fulltext_retrieved": 48,
-  "studies_contributing_extracted_estimates": 45,
-  "extracted_estimates_total": 89,
+  "fulltext_retrieved": 82,
+  "studies_contributing_extracted_estimates": 77,
+  "extracted_estimates_total": 251,
   "estimates_added_from_scopus": 34,
-  "estimates_eligible_for_primary_pool": 58,
+  "estimates_eligible_for_primary_pool": 117,
   "note_en": "Two further full texts were read for the PD arm (PMC10765853 and PMC10357515). Four PD-arm candidates were access-restricted and could only be extracted from their abstracts; four more were screened out at full text because the index test was not a circulating miRNA (a lncRNA, a circRNA, a brain-tissue gene signature and a faecal microbiome genus) and one because the population was immune thrombocytopenia.",
   "note_pt": "Mais dois textos completos foram lidos para o braco PD (PMC10765853 e PMC10357515). Quatro candidatos do braco PD estavam com acesso restrito e so puderam ser extraidos do resumo; outros quatro sairam na leitura do texto completo porque o teste indice nao era um miRNA circulante (um lncRNA, um circRNA, uma assinatura genica de tecido cerebral e um genero do microbioma fecal) e um porque a populacao era trombocitopenia imune.",
   "wos_candidates_adjudicated": 3,
@@ -73,11 +73,26 @@
   "fulltext_second_pass_en": "On 2026-09-28 every eligible study with a PubMed Central full text (22) was re-read end to end. The pass added 10 estimates the first pass had missed (E080-E089: 6 case-versus-control, 4 differential-diagnosis or composite-comparator), filled missing group sizes for 5 studies, corrected the biofluid of 4 studies (two AD studies previously coded as blood measured CSF), and moved one study out of the eligible set (Jain et al. 2019: a CSF-exosome miRNA+piRNA signature against mixed psychiatric/neurological controls). Every change is logged, with the source sentence, in data/extracted/extraction_audit_log.csv.",
   "fulltext_second_pass_pt": "Em 2026-09-28 todo estudo elegivel com texto completo no PubMed Central (22) foi relido do inicio ao fim. A passagem acrescentou 10 estimativas que a primeira havia perdido (E080-E089: 6 caso-versus-controle, 4 de diagnostico diferencial ou comparador composto), preencheu tamanhos de grupo ausentes em 5 estudos, corrigiu o biofluido de 4 estudos (dois estudos de AD antes codificados como sangue mediam LCR) e retirou um estudo do conjunto elegivel (Jain et al. 2019: assinatura miRNA+piRNA em exossomos de LCR contra controles psiquiatricos/neurologicos mistos). Toda mudanca esta registrada, com a frase-fonte, em data/extracted/extraction_audit_log.csv.",
   "publisher_fulltext_note_en": "Miao et al. 2026 (Turk J Biochem) has no PubMed record. Its open-access publisher full text was supplied and read on 2026-09-28, which gave the group sizes (100 AD, 96 controls) missing from the Scopus abstract and moved the study into the primary pool (18 studies, 39 estimates).",
-  "publisher_fulltext_note_pt": "Miao et al. 2026 (Turk J Biochem) nao tem registro no PubMed. O texto completo aberto da editora foi fornecido e lido em 2026-09-28, o que trouxe os tamanhos de grupo (100 AD, 96 controles) ausentes do resumo do Scopus e levou o estudo ao pool primario (18 estudos, 39 estimativas)."
+  "publisher_fulltext_note_pt": "Miao et al. 2026 (Turk J Biochem) nao tem registro no PubMed. O texto completo aberto da editora foi fornecido e lido em 2026-09-28, o que trouxe os tamanhos de grupo (100 AD, 96 controles) ausentes do resumo do Scopus e levou o estudo ao pool primario (18 estudos, 39 estimativas).",
+  "recall_check": {
+   "records_without_accuracy_statement_in_abstract": 227,
+   "judged_plausible_by_title_and_abstract": 90,
+   "no_open_fulltext": 53,
+   "fulltext_requested": 37,
+   "fulltext_not_retrievable": 3,
+   "fulltext_read": 34,
+   "reports_with_eligible_estimates": 19,
+   "reports_with_accuracy_but_no_primary_estimate": 11,
+   "reports_not_eligible": 4,
+   "estimates_extracted": 162,
+   "estimates_eligible_for_primary_pool": 59,
+   "note_en": "Recall check of 28 September 2026. The first screening kept only records whose abstract mentioned an accuracy measure. Of the 356 primary studies, 227 did not; 90 of those looked like case-control studies of circulating microRNAs in AD or PD on title and abstract, and 37 of the 90 had a PubMed Central full text. Three could not be retrieved, so 34 were read in full. Nineteen reports supplied 59 eligible estimates (one report, Shigemizu et al. 2019, was then set aside because its participants are those re-analysed by Karaglani et al. 2020). The other 53 candidates have no open full text and could not be assessed.",
+   "note_pt": "Verificacao de recall de 28 de setembro de 2026. A primeira triagem manteve so registros cujo resumo citava uma medida de acuracia. Dos 356 estudos primarios, 227 nao citavam; 90 deles pareciam estudos caso-controle de microRNAs circulantes na DA ou na DP pelo titulo e resumo, e 37 desses 90 tinham texto completo no PubMed Central. Tres nao puderam ser recuperados, entao 34 foram lidos por inteiro. Dezenove relatos forneceram 59 estimativas elegiveis (um relato, Shigemizu et al. 2019, foi depois posto de lado porque seus participantes sao os reanalisados por Karaglani et al. 2020). Os outros 53 candidatos nao tem texto completo aberto e nao puderam ser avaliados."
+  }
  },
  "included_in_meta_analysis": {
-  "estimates_with_estimable_standard_error": 39,
-  "independent_studies": 18,
+  "estimates_with_estimable_standard_error": 97,
+  "independent_studies": 37,
   "csf_estimates_secondary_not_pooled": 3,
   "csf_studies_secondary_not_pooled": 3,
   "note_en": "The study count is now keyed on PMID when a study has one and on DOI otherwise. Keying on PMID alone had silently merged the studies published outside MEDLINE, four of which arrived with the Scopus arms, and understated the study total.",

@@ -2,17 +2,85 @@ record_id,first_author,year,disease,marker,n_cases,n_controls,auc,auc_ci_low,auc
 E041,Li Y,2024,PD,EV-miRNA SVM classifier,32.0,35.0,0.917,0.913,0.92,0.0018,0.0365,0.0489,Hanley-McNeil (reported CI implausibly narrow),True
 E082,Li Y,2024,PD,EV-miRNA SVM classifier,21.0,25.0,0.916,0.911,0.921,0.0026,0.0453,0.0563,Hanley-McNeil (reported CI implausibly narrow),True
 E053,Liang J,2024,PD,"10-biomarker classifier (miR-675-5p, miR-1247-5p, circSLC8A1, lncH19 + 6 pyroptosis proteins)",14.0,11.0,0.92,0.86,0.99,0.0332,0.0568,0.5837,reported_95CI,False
+E216,Mancuso R,2019,AD,miR-223-3p,40.0,40.0,0.844,0.771,0.9,0.0329,0.0445,0.7388,reported_95CI,False
 E075,Samareh A,2025,PD,NEAT1 + let-7a-5p + miR-506-3p,24.0,29.0,0.9501,0.8978,1.0,0.0261,0.0327,0.7964,reported_95CI,False
+E102,He S,2021,PD,hsa-miR-199a-3p,8.0,31.0,0.738,0.5597,0.9161,0.0909,0.1088,0.8354,reported_95CI,False
+E103,He S,2021,PD,hsa-miR-199a-3p,8.0,42.0,0.729,0.5493,0.9091,0.0918,0.1078,0.8511,reported_95CI,False
 E009,Tan YJ,2021,AD,miR-328-3p,28.0,8.0,0.702,0.534,0.87,0.0857,0.0971,0.8832,reported_95CI,False
+E113,He S,2021,PD,hsa-miR-151a-5p,22.0,42.0,0.708,0.5812,0.8344,0.0646,0.0713,0.9055,reported_95CI,False
+E228,Cha DJ,2019,AD,miR-212(-3p),16.0,31.0,0.84,0.72,0.96,0.0612,0.0674,0.9084,reported_95CI,False
+E219,Mancuso R,2019,PD,miR-223-3p,35.0,40.0,0.747,0.634,0.84,0.0526,0.0576,0.913,reported_95CI,False
+E104,He S,2021,PD,hsa-miR-199a-3p,8.0,22.0,0.756,0.5597,0.9517,0.1,0.1094,0.9143,reported_95CI,False
+E110,He S,2021,PD,hsa-miR-22-5p,22.0,42.0,0.7,0.5713,0.8291,0.0658,0.0719,0.9151,reported_95CI,False
 E023,Omura T,2025,PD,miR-101,8.0,6.0,0.781,0.547,1.0,0.1156,0.1259,0.9177,reported_95CI,False
+E108,He S,2021,PD,hsa-miR-22-5p,22.0,31.0,0.817,0.7023,0.9312,0.0584,0.0624,0.9364,reported_95CI,False
+E201,Saberian P,2025,AD,miR-22-3p,80.0,80.0,0.64,0.56,0.72,0.0408,0.0436,0.9367,reported_95CI,False
 E031,Qin Q,2026,AD,7-miRNA panel,73.0,53.0,0.97,0.943,0.997,0.0138,0.0147,0.9376,reported_95CI,False
+E235,Citterio LA,2023,PD,miR-7-1-5p,45.0,49.0,0.7,0.6,0.8,0.051,0.0543,0.9402,reported_95CI,False
+E236,Citterio LA,2023,PD,miR-223-3p,45.0,49.0,0.7,0.6,0.8,0.051,0.0543,0.9402,reported_95CI,False
+E234,Shu Y,2020,PD,miR-146a-5p,34.0,48.0,0.7921,0.6937,0.8905,0.0502,0.0526,0.9539,reported_95CI,False
+E111,He S,2021,PD,hsa-miR-151a-5p,22.0,31.0,0.741,0.6065,0.8744,0.0683,0.0713,0.9579,reported_95CI,False
+E171,Wang J,2019,AD,miR-103,120.0,120.0,0.891,0.85,0.931,0.0207,0.0215,0.9595,reported_95CI,False
+E116,He S,2021,PD,hsa-miR-29a-3p,22.0,42.0,0.712,0.5782,0.846,0.0683,0.071,0.9615,reported_95CI,False
 E032,Qin Q,2026,AD,7-miRNA panel,99.0,99.0,0.928,0.892,0.965,0.0186,0.0193,0.9639,reported_95CI,False
+E114,He S,2021,PD,hsa-miR-29a-3p,22.0,31.0,0.743,0.6089,0.8779,0.0686,0.0712,0.9645,reported_95CI,False
+E127,Dong H,2015,AD,miR-143,48.0,48.0,0.808,0.723,0.892,0.0431,0.0446,0.9661,reported_95CI,False
+E099,He S,2021,PD,hsa-miR-374b-5p,8.0,31.0,0.798,0.6084,0.9884,0.0969,0.1003,0.9661,reported_95CI,False
+E233,Shu Y,2020,PD,miR-132-3p,34.0,48.0,0.8175,0.7229,0.9121,0.0483,0.0499,0.9673,reported_95CI,False
+E203,Saberian P,2025,AD,miR-150-5p,80.0,80.0,0.6,0.52,0.69,0.0434,0.0447,0.971,reported_95CI,False
+E202,Saberian P,2025,AD,let-7g-5p,80.0,80.0,0.6,0.52,0.69,0.0434,0.0447,0.971,reported_95CI,False
+E204,Saberian P,2025,AD,miR-181c-5p,80.0,80.0,0.6,0.52,0.69,0.0434,0.0447,0.971,reported_95CI,False
+E129,Dong H,2015,AD,miR-146a,48.0,48.0,0.757,0.663,0.851,0.048,0.0493,0.9729,reported_95CI,False
+E208,Saberian P,2025,AD,miR-29b-3p,80.0,80.0,0.61,0.53,0.7,0.0434,0.0444,0.9762,reported_95CI,False
+E125,Dong H,2015,AD,miR-93,48.0,48.0,0.755,0.66,0.85,0.0485,0.0495,0.98,reported_95CI,False
+E172,Wang J,2019,AD,miR-107,120.0,120.0,0.739,0.677,0.801,0.0316,0.0319,0.9902,reported_95CI,False
+E173,Wang J,2019,AD,miR-103,120.0,120.0,0.755,0.694,0.815,0.0309,0.0312,0.9905,reported_95CI,False
 E024,Grossi I,2020,PD,miR-34a-5p,15.0,14.0,0.738,0.557,0.919,0.0923,0.0932,0.9912,reported_95CI,False
+E123,Dong H,2015,AD,miR-31,48.0,48.0,0.717,0.615,0.818,0.0518,0.0522,0.9912,reported_95CI,False
+E217,Mancuso R,2019,PD,miR-223-3p,28.0,40.0,0.934,0.846,0.98,0.0342,0.0344,0.9936,reported_95CI,False
+E107,He S,2021,PD,hsa-miR-28-5p,42.0,22.0,0.738,0.6169,0.8593,0.0618,0.0621,0.9958,reported_95CI,False
+E126,Dong H,2015,AD,miR-93,79.0,75.0,0.693,0.611,0.776,0.0421,0.0422,0.9973,reported_95CI,False
+E105,He S,2021,PD,hsa-miR-28-5p,42.0,31.0,0.746,0.6347,0.8568,0.0567,0.0567,0.9986,reported_95CI,False
+E130,Dong H,2015,AD,miR-146a,79.0,75.0,0.707,0.625,0.788,0.0416,0.0415,1.0013,reported_95CI,False
+E174,Wang J,2019,AD,miR-107,120.0,120.0,0.547,0.474,0.62,0.0372,0.0371,1.0027,reported_95CI,False
+E200,Saberian P,2025,AD,miR-30b-5p,80.0,80.0,0.65,0.56,0.73,0.0434,0.0432,1.0029,reported_95CI,False
 E052,Liang J,2024,PD,miR-1247-5p,104.0,106.0,0.6201,0.5443,0.6959,0.0387,0.0386,1.0032,reported_95CI,False
+E132,Dong H,2015,AD,"4-miRNA panel (miR-31 + miR-93 + miR-143 + miR-146a), risk score",79.0,75.0,0.709,0.628,0.791,0.0416,0.0414,1.0038,reported_95CI,False
+E128,Dong H,2015,AD,miR-143,79.0,75.0,0.706,0.624,0.788,0.0418,0.0416,1.0063,reported_95CI,False
 E001,Qin Q,2026,AD,let-7i-5p,73.0,53.0,0.835,0.766,0.905,0.0355,0.0352,1.0064,reported_95CI,False
+E124,Dong H,2015,AD,miR-31,79.0,75.0,0.72,0.639,0.801,0.0413,0.0408,1.0117,reported_95CI,False
+E096,He S,2021,PD,hsa-miR-374a-5p,8.0,31.0,0.758,0.5721,0.994,0.1076,0.1064,1.0118,reported_95CI,False
+E131,Dong H,2015,AD,"4-miRNA panel (miR-31 + miR-93 + miR-143 + miR-146a), risk score",48.0,48.0,0.746,0.647,0.846,0.0508,0.0502,1.012,reported_95CI,False
+E106,He S,2021,PD,hsa-miR-28-5p,42.0,8.0,0.789,0.6407,0.9367,0.0755,0.0746,1.0123,reported_95CI,False
+E097,He S,2021,PD,hsa-miR-374a-5p,42.0,31.0,0.78,0.6733,0.8858,0.0542,0.0533,1.0174,reported_95CI,False
 E051,Liang J,2024,PD,miR-675-5p,104.0,106.0,0.5896,0.5115,0.6678,0.0399,0.0392,1.0178,reported_95CI,False
+E115,He S,2021,PD,hsa-miR-29a-3p,22.0,8.0,0.813,0.6522,0.9728,0.0818,0.0802,1.0197,reported_95CI,False
+E183,Sandau US,2026,PD,57-miRNA elastic-net model (adjusted for age and sex),100.0,82.0,0.83,0.76,0.88,0.0306,0.0299,1.0222,reported_95CI,False
+E207,Saberian P,2025,AD,miR-26a-5p,80.0,80.0,0.6,0.5,0.68,0.0459,0.0447,1.0281,reported_95CI,False
+E205,Saberian P,2025,AD,miR-24-3p,80.0,80.0,0.61,0.52,0.7,0.0459,0.0444,1.0336,reported_95CI,False
 E087,Qin Q,2026,AD,7-miRNA panel,99.0,40.0,0.851,0.787,0.916,0.0329,0.0318,1.0339,reported_95CI,False
 E086,Qin Q,2026,AD,7-miRNA panel,99.0,36.0,0.951,0.916,0.986,0.0179,0.0172,1.038,reported_95CI,False
+E206,Saberian P,2025,AD,miR-323a-3p,80.0,80.0,0.62,0.53,0.71,0.0459,0.0442,1.0397,reported_95CI,False
+E209,Saberian P,2025,AD,miR-30a-3p,80.0,80.0,0.62,0.53,0.71,0.0459,0.0442,1.0397,reported_95CI,False
+E098,He S,2021,PD,hsa-miR-374a-5p,22.0,31.0,0.763,0.6213,0.9036,0.072,0.0691,1.0422,reported_95CI,False
+E101,He S,2021,PD,hsa-miR-374b-5p,22.0,31.0,0.761,0.6182,0.9038,0.0729,0.0693,1.0511,reported_95CI,False
+E227,Cha DJ,2019,AD,miR-132-3p,16.0,31.0,0.77,0.61,0.93,0.0816,0.0776,1.0523,reported_95CI,False
+E100,He S,2021,PD,hsa-miR-374b-5p,42.0,31.0,0.742,0.624,0.8598,0.0602,0.0571,1.0532,reported_95CI,False
+E189,Baghi M,2021,PD,miR-193b,20.0,20.0,0.7925,0.6434,0.9416,0.0761,0.0722,1.0542,reported_95CI,False
+E181,Sandau US,2026,AD,"10 AD-specific miRNAs (ridge logistic regression, adjusted for age and sex)",87.0,100.0,0.79,0.71,0.85,0.0357,0.0337,1.0592,reported_95CI,False
+E231,Shu Y,2020,PD,miR-132-3p,82.0,44.0,0.7325,0.64,0.8251,0.0472,0.0444,1.0639,reported_95CI,False
+E230,Cha DJ,2019,AD,miR-212(-3p),16.0,31.0,0.68,0.5,0.86,0.0918,0.0858,1.0704,reported_95CI,False
+E184,Sandau US,2026,AD,57-miRNA elastic-net model (adjusted for age and sex),87.0,100.0,0.8,0.72,0.86,0.0357,0.033,1.0812,reported_95CI,False
+E182,Sandau US,2026,AD,57-miRNA elastic-net model (adjusted for age and sex),87.0,82.0,0.78,0.69,0.84,0.0383,0.0354,1.082,reported_95CI,False
+E178,Sandau US,2026,AD,ratio miR-23a-3p / miR-423-5p (top-2 ratio),87.0,82.0,0.75,0.66,0.82,0.0408,0.0373,1.0945,reported_95CI,False
+E180,Sandau US,2026,AD,"10 AD-specific miRNAs (ridge logistic regression, adjusted for age and sex)",87.0,82.0,0.75,0.66,0.82,0.0408,0.0373,1.0945,reported_95CI,False
+E229,Cha DJ,2019,AD,miR-132-3p,16.0,31.0,0.58,0.38,0.78,0.102,0.0899,1.1353,reported_95CI,False
 E025,Han L,2020,PD,miR-29b,98.0,40.0,0.726,0.6268,0.8243,0.0504,0.0441,1.1434,reported_95CI,False
+E112,He S,2021,PD,hsa-miR-151a-5p,22.0,8.0,0.796,0.6,0.9909,0.0997,0.0841,1.1862,reported_95CI,False
+E179,Sandau US,2026,PD,ratio miR-23a-3p / miR-423-5p (top-2 ratio),100.0,82.0,0.86,0.79,0.92,0.0332,0.0273,1.2166,reported_95CI,False
+E109,He S,2021,PD,hsa-miR-22-5p,22.0,8.0,0.773,0.5495,0.9959,0.1139,0.089,1.2802,reported_95CI,False
+E185,Sandau US,2026,AD,57-miRNA linear discriminant analysis (LD function 1),87.0,120.0,0.94,0.87,0.97,0.0255,0.0185,1.3771,reported_95CI,False
 E033,Karaglani M,2020,AD,3-miRNA biosignature,48.0,22.0,0.975,0.908,1.0,0.0235,0.017,1.381,reported_95CI,False
 E080,Karaglani M,2020,AD,25-miRNA ridge biosignature (dataset 2),301.0,288.0,0.797,0.746,0.845,0.0253,0.0183,1.3821,reported_95CI,False
+E218,Mancuso R,2019,AD,miR-223-3p,40.0,28.0,0.988,0.926,1.0,0.0189,0.0126,1.5041,reported_95CI,False
+E232,Shu Y,2020,PD,miR-146a-5p,82.0,44.0,0.7295,0.3658,0.8232,0.1167,0.0446,2.6158,reported_95CI,False

@@ -70,7 +70,7 @@ Uma linha por estudo elegível (27), registrada na segunda passagem com citaçõ
 
 ## `data/extracted/molecular_evidence_map.csv`
 
-Uma linha por afirmação mecanística feita por um estudo dos pools primários (18 estudos, 24 linhas), lida do texto completo ou, em dois estudos, marcada como só resumo. Escrita à mão a partir dos textos completos em 2026-09-28 e lida pelo `scripts/27_molecular_evidence_map.py` (figura) e pelo `scripts/08` (checagem de cobertura).
+Uma linha por afirmação mecanística feita por um estudo dos pools primários (37 estudos, 65 linhas), lida do texto completo ou, em dois estudos, marcada como só resumo. Escrita à mão a partir dos textos completos em 2026-09-28 e lida pelo `scripts/27_molecular_evidence_map.py` (figura) e pelo `scripts/08` (checagem de cobertura).
 
 | Coluna | Valores |
 |---|---|
@@ -82,6 +82,26 @@ Uma linha por afirmação mecanística feita por um estudo dos pools primários 
 | `model_system` | Linhagem celular, ensaio ou fonte de dados por trás da afirmação |
 | `source_quote` | Frase literal do texto completo (vazia só para `none_*`) |
 | `source`, `note` | Identificador PMC ou fonte do resumo; nota livre |
+
+## `data/extracted/recall_check_decisions.csv`
+
+Uma linha para cada um dos 227 estudos primarios cujo resumo nao trazia afirmacao de acuracia, escrita para a verificacao de recall de 28 de setembro de 2026 (`scripts/30_recall_check.py`). `triage` e `candidate` para os 90 que, pelo titulo e resumo, parecem estudos caso-controle de microRNAs circulantes na DA ou na DP (a regra esta no script e e rederivada a cada execucao) e `not_candidate` para os demais. Para os candidatos: `pmcid` (vazio quando nao ha texto completo no PubMed Central), `fulltext_read` (`yes`, ou `no` quando o texto completo nao pode ser recuperado ou nao existe), `decision` (`eligible`, `reports_accuracy_but_not_primary`, `not_eligible`, `fulltext_unavailable` ou `not_assessed_no_open_fulltext`), `decision_reason` e `decision_quote`, a frase em que a decisao se apoia. As estimativas lidas dos artigos elegiveis e dos que reportam acuracia estao em `diagnostic_accuracy_extraction.csv` a partir do registro E090, cada uma com sua frase de origem, e foram conferidas contra o texto completo por um segundo leitor antes de serem aceitas.
+
+## `results/tables/recall_check_summary.json`
+
+As contagens da verificacao de recall recalculadas pelo `scripts/30_recall_check.py` a partir do arquivo acima; o `scripts/08` exige que sejam iguais ao bloco `recall_check` de `data/processed/prisma_flow.json`.
+
+## `data/extracted/post_search_candidates.csv` e `results/tables/post_search_sensitivity.csv`
+
+Um estudo que entrou no PubMed entre a data da busca e 28 de setembro de 2026 e atende aos criterios de elegibilidade, disponivel so como resumo (Jeong et al. 2026, duas variantes de ensaio de um painel). Nao esta na analise primaria. O `scripts/31_post_search_sensitivity.py` o acrescenta a selecao primaria de DA, uma vez com cada variante, e grava a AUC agregada com e sem ele.
+
+## Relatos com as duas doencas
+
+Dois relatos (Mancuso et al. 2019 e Sandau et al. 2026) analisam as duas doencas. As linhas de DA levam o PMID real; as de DP levam `pmid` vazio e o DOI com o sufixo `#PD`, de modo que `study_id` (PMID quando existe, DOI caso contrario) trate cada doenca como um estudo proprio e cada pool receba no maximo uma estimativa do relato.
+
+## `data/second_reviewer/second_reviewer_packet.xlsx`
+
+A planilha do segundo revisor independente, gerada por `python scripts/29_second_reviewer_packet.py build`: uma amostra aleatoria com semente de 120 registros triados (decisoes ocultas), a aba de QUADAS-2 com os julgamentos do primeiro revisor ocultos e toda estimativa agregada com o valor guardado e a frase de origem para conferencia. `python scripts/29_second_reviewer_packet.py agree <arquivo devolvido>` grava `results/tables/second_reviewer_agreement.csv` (concordancia percentual e kappa de Cohen).
 
 ## `results/tables/ci_plausibility_check.csv`
 

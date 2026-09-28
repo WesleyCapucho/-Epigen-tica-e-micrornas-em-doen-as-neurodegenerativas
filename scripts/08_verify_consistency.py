@@ -196,11 +196,11 @@ def main():
     elig_rows = [r for r in ext if r["eligible_primary_pool"] == "yes"]
     disease_counts = Counter(r["disease"] for r in elig_rows)
     marker_counts = Counter(r["marker_type"] for r in elig_rows)
-    check(disease_counts["AD"] == 20 and disease_counts["PD"] == 38,
-          f"eligible disease split is {dict(disease_counts)}, expected AD=20/PD=38 "
+    check(disease_counts["AD"] == 48 and disease_counts["PD"] == 69,
+          f"eligible disease split is {dict(disease_counts)}, expected AD=48/PD=69 "
           "(manuscript section 3.2 and Figure 3)")
-    check(marker_counts["single_miRNA"] == 42 and marker_counts["multi_miRNA_panel"] == 16,
-          f"eligible marker-type split is {dict(marker_counts)}, expected single=42/panel=16 "
+    check(marker_counts["single_miRNA"] == 90 and marker_counts["multi_miRNA_panel"] == 27,
+          f"eligible marker-type split is {dict(marker_counts)}, expected single=90/panel=27 "
           "(manuscript section 3.2 and Figure 3)")
     check(incl["estimates_with_estimable_standard_error"] == len(inputs),
           f"PRISMA poolable={incl['estimates_with_estimable_standard_error']} but inputs table has {len(inputs)}")
@@ -780,8 +780,8 @@ def main():
             check(rt in allowed_ref_types,
                   f"QUADAS-2 {r['study_id']}: unexpected reference_standard_type {rt!r}")
             ref_type_counts[rt] = ref_type_counts.get(rt, 0) + 1
-        expect_ref_types = {"neuropathological": 1, "biomarker_confirmed": 1,
-                            "clinical_criteria_named": 13, "unclear_not_named": 7,
+        expect_ref_types = {"neuropathological": 1, "biomarker_confirmed": 2,
+                            "clinical_criteria_named": 27, "unclear_not_named": 12,
                             "unclear_fulltext_unavailable": 5}
         check(ref_type_counts == expect_ref_types,
               f"QUADAS-2 reference_standard_type: counted {ref_type_counts}, "
@@ -811,7 +811,8 @@ def main():
             check(ts in allowed_threshold_sources,
                   f"QUADAS-2 {r['study_id']}: unexpected threshold_source {ts!r}")
             threshold_source_counts[ts] = threshold_source_counts.get(ts, 0) + 1
-        expect_threshold_sources = {"derived_and_evaluated_same_sample": 23,
+        expect_threshold_sources = {"derived_and_evaluated_same_sample": 41,
+                                    "cross_validated_within_sample": 2,
                                     "evaluated_in_separate_sample": 4}
         check(threshold_source_counts == expect_threshold_sources,
               f"QUADAS-2 threshold_source: counted {threshold_source_counts}, "
@@ -911,11 +912,11 @@ def main():
             "autopsy": sum(1 for r in sl_assessed if r["autopsy_confirmed"] == "yes"),
             "blinded": sum(1 for r in sl_assessed if r["blinding_stated"] == "yes"),
         }
-        check(counted["fulltext"] == 22 and counted["named"] == 15
-              and counted["autopsy"] == 1 and counted["blinded"] == 1,
+        check(counted["fulltext"] == 42 and counted["named"] == 30
+              and counted["autopsy"] == 1 and counted["blinded"] == 5,
               f"QUADAS-2 full-text pass: the study-level record changed {counted}; the "
-              "documentation quotes 22 full texts, 15 naming criteria, 1 autopsy-confirmed "
-              "and 1 stating blinding")
+              "documentation quotes 42 full texts, 30 naming criteria, 1 autopsy-confirmed "
+              "and 5 stating blinding")
         n_assessed = qsum["studies_assessed"]
         for phrase in (f"{counted['fulltext']} of {n_assessed} studies",
                        f"{counted['named']} name the diagnostic criteria",
@@ -1308,7 +1309,7 @@ def main():
         ad_recount = sum(1 for r in elig_recount if r["disease"] == "AD")
         pd_recount = sum(1 for r in elig_recount if r["disease"] == "PD")
 
-        check(audit_rows["Eligible estimates, systematic-review scope"] == len(elig_recount) == 58,
+        check(audit_rows["Eligible estimates, systematic-review scope"] == len(elig_recount) == 117,
               "arithmetic_audit: eligible-estimate count disagrees with an independent recount "
               "of the extraction table")
         check(audit_rows["  of which AD-arm estimates"] == ad_recount,
@@ -1316,7 +1317,7 @@ def main():
         check(audit_rows["  of which PD-arm estimates"] == pd_recount,
               "arithmetic_audit: PD-arm estimate count disagrees with an independent recount")
         check(audit_rows["Eligible studies, systematic-review scope (QUADAS-2/GRADE-rated)"]
-              == len(elig_studies_recount) == 27,
+              == len(elig_studies_recount) == 47,
               "arithmetic_audit: eligible-study count disagrees with an independent recount "
               "of the extraction table")
 
@@ -1364,8 +1365,8 @@ def main():
                       f"log says {e['new_value']!r}")
             check(bool(e["source_quote"].strip()), f"audit log: {rid} change has no source quote")
         added = {e["record_id"] for e in audit_log if e["action"] == "added"}
-        check(added == {f"E{i:03d}" for i in range(80, 90)},
-              f"audit log: added rows are {sorted(added)}, expected E080-E089")
+        check(added == {f"E{i:03d}" for i in range(80, 252)},
+              f"audit log: added rows are {sorted(added)[:3]}..{sorted(added)[-3:]} ({len(added)}), expected E080-E251")
 
     design_vocab = {
         "reference_standard_basis": {"clinical_criteria", "biomarker_supported", "neuropathological",
@@ -1451,6 +1452,31 @@ def main():
             if not r["evidence_type"].startswith("none"):
                 check(len(r["source_quote"].strip()) > 20,
                       f"molecular map: {r['first_author']} {r['year']} claim has no source sentence")
+
+    # --- 9f. Recall check and post-search sensitivity ---------------------------
+    # EN | The counts in the PRISMA flow that describe the recall check (studies whose
+    #      abstract gave no accuracy statement, read in full afterwards) must equal the
+    #      counts recomputed by scripts/30 from the decisions file, and the sensitivity
+    #      analysis for the study that entered PubMed after the search date must exist and
+    #      change the AD pool by less than one AUC point per 100 (otherwise the Methods
+    #      sentence that calls it a sensitivity analysis needs revisiting).
+    # PT | As contagens do fluxo PRISMA que descrevem a verificacao de recall devem igualar
+    #      as recalculadas pelo scripts/30 a partir do arquivo de decisoes, e a analise de
+    #      sensibilidade do estudo que entrou no PubMed apos a data da busca deve existir.
+    try:
+        rc_sum = json.load(open("results/tables/recall_check_summary.json", encoding="utf-8"))
+        rc_flow = flow["eligibility_fulltext"]["recall_check"]
+        for k_, v_ in rc_sum.items():
+            check(rc_flow.get(k_) == v_, f"recall check: PRISMA flow {k_}={rc_flow.get(k_)} but scripts/30 gives {v_}")
+        rc_rows = list(csv.DictReader(open("data/extracted/recall_check_decisions.csv", encoding="utf-8")))
+        check(all(r["decision"] and r["decision_reason"] for r in rc_rows if r["triage"] == "candidate"),
+              "recall check: a candidate has no decision or no reason")
+        ps_rows = list(csv.DictReader(open("results/tables/post_search_sensitivity.csv", encoding="utf-8")))
+        base_auc = float(ps_rows[0]["pooled_auc"])
+        check(all(abs(float(r["pooled_auc"]) - base_auc) < 0.01 for r in ps_rows[1:]),
+              "post-search sensitivity moves the AD pooled AUC by 0.01 or more; revise the Methods and Results wording")
+    except FileNotFoundError as exc_:
+        claim(False, f"{exc_.filename} missing; run scripts/30_recall_check.py and scripts/31_post_search_sensitivity.py")
 
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections

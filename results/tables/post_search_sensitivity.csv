@@ -1,0 +1,4 @@
+analysis,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent
+AD primary pool (search dates in the Methods),18,0.8156,0.7722,0.8523,78.5
+"AD primary pool plus Jeong 2026, 4-miRNA random forest panel (RT-qPCR data)",19,0.8182,0.7769,0.8533,77.6
+"AD primary pool plus Jeong 2026, 4-miRNA random forest panel (ORCA-Cas data)",19,0.8202,0.7774,0.8564,78.2
