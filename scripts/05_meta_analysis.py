@@ -409,6 +409,7 @@ def summarise_from_selection(label, coll):
     if r is None:
         return None
     n_multi = int((coll["n_candidate_estimates"] > 1).sum())
+    eg = egger_test(coll["y"].values, np.sqrt(coll["v"].values)) if len(coll) >= 3 else None
     return {
         "subgroup": label,
         "n_studies": r["k"],
@@ -426,6 +427,8 @@ def summarise_from_selection(label, coll):
         "Q": round(r["Q"], 2),
         "df": r["df"],
         "p_heterogeneity": round(r["p_Q"], 4) if not np.isnan(r["p_Q"]) else "",
+        "egger_intercept_one_per_study": round(eg["intercept"], 3) if eg else "",
+        "egger_p_one_per_study": round(eg["p_value"], 4) if eg else "",
     }
 
 
@@ -523,20 +526,72 @@ def variance_source_comparison(label, sub):
     return out
 
 
-def main():
-    os.makedirs(TAB_DIR, exist_ok=True)
-    os.makedirs(FIG_DIR, exist_ok=True)
-    df = pd.read_csv(IN_CSV)
+# --------------------------------------------------------------------------
+# EN | Plausibility of a reported confidence interval.
+#      A reported 95% CI is normally preferred to the Hanley-McNeil
+#      reconstruction. But an interval can only describe sampling uncertainty
+#      if it is at least roughly as wide as sampling at the stated group sizes
+#      allows. When the SE implied by a reported CI is less than
+#      CI_PLAUSIBILITY_RATIO times the Hanley-McNeil SE for the same AUC and
+#      group sizes, the interval is treated as not describing sampling
+#      uncertainty (for example, the spread of a cross-validation estimate),
+#      and the Hanley-McNeil SE is used instead. This rule was added after the
+#      2026-09-28 full-text audit, not pre-specified; it changes exactly one
+#      study (Li Y 2024, SE ratio about 0.07), and every analysis is also
+#      re-run with the reported intervals as published
+#      (scripts/26_robustness_analyses.py). The ratio of every row that has
+#      both a CI and group sizes is written to
+#      results/tables/ci_plausibility_check.csv so the choice of cut-off can
+#      be judged against the whole distribution.
+# PT | Plausibilidade de um intervalo de confianca reportado.
+#      Um IC de 95% reportado normalmente tem preferencia sobre a
+#      reconstrucao de Hanley-McNeil. Mas um intervalo so descreve incerteza
+#      amostral se for pelo menos aproximadamente tao largo quanto a
+#      amostragem nos tamanhos de grupo declarados permite. Quando o EP
+#      implicito num IC reportado e menor que CI_PLAUSIBILITY_RATIO vezes o EP
+#      de Hanley-McNeil para a mesma AUC e os mesmos grupos, o intervalo e
+#      tratado como nao descrevendo incerteza amostral (por exemplo, a
+#      dispersao de uma estimativa de validacao cruzada), e usa-se o EP de
+#      Hanley-McNeil. Esta regra foi adicionada depois da auditoria de texto
+#      completo de 2026-09-28, nao pre-especificada; ela muda exatamente um
+#      estudo (Li Y 2024, razao de EP ~0,07), e toda analise tambem e rodada
+#      com os intervalos como publicados (scripts/26_robustness_analyses.py).
+#      A razao de toda linha com IC e tamanhos de grupo vai para
+#      results/tables/ci_plausibility_check.csv, para que o ponto de corte
+#      possa ser julgado contra a distribuicao inteira.
+# --------------------------------------------------------------------------
+CI_PLAUSIBILITY_RATIO = 0.5
+SE_SOURCE_IMPLAUSIBLE = "Hanley-McNeil (reported CI implausibly narrow)"
 
+
+def load_estimates(ci_plausibility=True):
+    """
+    EN | Read the extraction table and attach se_auc / se_source / study_id.
+         Returns (df, elig, poolable, pool_csf, pool). With
+         ci_plausibility=False every reported CI is used as published (the
+         sensitivity analysis in 26_robustness_analyses.py).
+    PT | Le a tabela de extracao e anexa se_auc / se_source / study_id.
+         Retorna (df, elig, poolable, pool_csf, pool). Com
+         ci_plausibility=False todo IC reportado e usado como publicado (a
+         analise de sensibilidade em 26_robustness_analyses.py).
+    """
+    df = pd.read_csv(IN_CSV)
     for c in ["auc", "auc_ci_low", "auc_ci_high", "n_cases", "n_controls",
               "sensitivity", "specificity"]:
         df[c] = pd.to_numeric(df[c], errors="coerce")
 
     se_ci = df.apply(lambda r: se_from_ci(r["auc_ci_low"], r["auc_ci_high"]), axis=1)
     se_hm = df.apply(lambda r: se_hanley_mcneil(r["auc"], r["n_cases"], r["n_controls"]), axis=1)
-    df["se_auc"] = se_ci.where(se_ci.notna(), se_hm)
-    df["se_source"] = np.where(se_ci.notna(), "reported_95CI",
-                               np.where(se_hm.notna(), "Hanley-McNeil", "not_estimable"))
+    df["se_ci_reported"] = se_ci
+    df["se_hanley_mcneil"] = se_hm
+    df["se_ratio_ci_over_hm"] = se_ci / se_hm
+    implausible = (df["se_ratio_ci_over_hm"] < CI_PLAUSIBILITY_RATIO) if ci_plausibility \
+        else pd.Series(False, index=df.index)
+    use_ci = se_ci.notna() & ~implausible
+    df["se_auc"] = se_ci.where(use_ci, se_hm)
+    df["se_source"] = np.where(use_ci, "reported_95CI",
+                               np.where(implausible & se_hm.notna(), SE_SOURCE_IMPLAUSIBLE,
+                                        np.where(se_hm.notna(), "Hanley-McNeil", "not_estimable")))
 
     pmid_txt = (df["pmid"].astype(str).str.strip()
                 .str.replace(r"\.0$", "", regex=True)
@@ -548,6 +603,21 @@ def main():
     is_csf = poolable["biofluid"].isin(CSF_BIOFLUIDS)
     pool_csf = poolable[is_csf].copy()
     pool = poolable[~is_csf].copy()
+    return df, elig, poolable, pool_csf, pool
+
+
+def main():
+    os.makedirs(TAB_DIR, exist_ok=True)
+    os.makedirs(FIG_DIR, exist_ok=True)
+    df, elig, poolable, pool_csf, pool = load_estimates(ci_plausibility=True)
+
+    chk = df[df["se_ci_reported"].notna() & df["se_hanley_mcneil"].notna()][
+        ["record_id", "first_author", "year", "disease", "marker", "n_cases", "n_controls", "auc",
+         "auc_ci_low", "auc_ci_high", "se_ci_reported", "se_hanley_mcneil", "se_ratio_ci_over_hm",
+         "se_source"]].copy()
+    chk["flagged_implausible"] = chk["se_ratio_ci_over_hm"] < CI_PLAUSIBILITY_RATIO
+    chk.round(4).sort_values("se_ratio_ci_over_hm").to_csv(
+        f"{TAB_DIR}/ci_plausibility_check.csv", index=False)
 
     print("=" * 78)
     print("EN | Meta-analysis input | PT | Entrada da meta-analise")

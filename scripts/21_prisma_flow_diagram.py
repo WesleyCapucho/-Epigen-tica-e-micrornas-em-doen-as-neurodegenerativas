@@ -11,15 +11,15 @@ PT | O fluxograma PRISMA 2020, desenhado a partir de data/processed/prisma_flow.
 
 EN | Why a new figure rather than reusing a table. The manuscript's own review found
      the prose flow (587 unique records -> 356 primary studies -> 129 with an
-     extractable measure -> 47 full texts -> 45 studies / 79 estimates -> 51 eligible /
-     28 studies -> 39 pooled circulating / 18 studies, plus 2 CSF estimates reported
+     extractable measure -> 47 full texts -> 45 studies / 89 estimates -> 58 eligible /
+     27 studies -> 38 pooled circulating / 17 studies, plus 3 CSF estimates reported
      separately) hard to scan against the eleven-row subgroup table it was competing
      with for space. This is the same numbers, laid out the way a systematic review's
      readers expect to see them.
 PT | Por que uma figura nova em vez de reaproveitar uma tabela. A propria revisao do
      manuscrito achou o fluxo em prosa (587 registros unicos -> 356 estudos primarios ->
-     129 com medida extraivel -> 47 textos completos -> 45 estudos / 79 estimativas ->
-     51 elegiveis / 28 estudos -> 39 circulantes agregados / 18 estudos, mais 2
+     129 com medida extraivel -> 47 textos completos -> 45 estudos / 89 estimativas ->
+     58 elegiveis / 27 estudos -> 38 circulantes agregados / 17 estudos, mais 3
      estimativas de LCR reportadas a parte) dificil de acompanhar ao
      lado da tabela de onze subgrupos com quem disputava espaco. Sao os mesmos numeros,
      dispostos como o leitor de uma revisao sistematica espera ve-los.
@@ -155,11 +155,11 @@ def plot(flow, path, lang):
         f"Estimativas circulantes com erro-padrão computável,\nincluidas na meta-análise agregada PRIMÁRIA (n = {pool['estimates_with_estimable_standard_error']})\n"
         f"de {pool['independent_studies']} estudos independentes"),
         HUE_INC)
-    box(ax, (col_r, y_pool + 1.6), w_side, h - 3.2, tr(lang,
-        f"No computable standard error\n(no CI, no group sizes) (n = {n_not_estimable})\n"
-        f"Cerebrospinal fluid, computable SE but\nnot a circulating biofluid: reported\nseparately, not pooled (n = {n_csf})",
-        f"Sem erro-padrão computável\n(sem IC, sem tamanhos de grupo) (n = {n_not_estimable})\n"
-        f"Líquido cefalorraquidiano, com EP\ncomputável mas não circulante:\nreportado à parte, não agregado (n = {n_csf})"),
+    box(ax, (col_r, y_pool - 1.5), w_side, h + 3.0, tr(lang,
+        f"No computable standard error: no CI and\nno usable group sizes (n = {n_not_estimable})\n\n"
+        f"Cerebrospinal fluid, SE computable\nbut not a circulating biofluid:\nreported separately, not pooled (n = {n_csf})",
+        f"Sem erro-padrão computável: sem IC e\nsem tamanhos de grupo utilizáveis (n = {n_not_estimable})\n\n"
+        f"Líquido cefalorraquidiano, EP computável\nmas não é biofluido circulante:\nreportado à parte, não agregado (n = {n_csf})"),
         HUE_EXC, fontsize=7.2)
 
     for (y0, y1) in [(88, y_screen + h), (y_screen, y_primary + h), (y_primary, y_elig + h),

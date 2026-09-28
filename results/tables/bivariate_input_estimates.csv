@@ -1,9 +1,12 @@
 record_id,study_id,first_author,year,disease,marker,sensitivity,specificity,n_cases,n_controls,continuity_corrected,in_primary_analysis
 E004,38618193,Duan X,2024,AD,miR-125b-1-3p,0.821,0.677,71,71,False,True
 E005,38618193,Duan X,2024,AD,miR-451a,0.679,0.726,71,71,False,False
-E007,28137310,Hara N,2017,AD,miR-501-3p,0.53,1.0,27,18,True,True
+E006,33542630,Zhang M,2021,AD,miR-128,0.869,0.821,117,106,False,True
+E007,28137310,Hara N,2017,AD,miR-501-3p,0.53,1.0,36,22,True,True
 E020,35655754,Wu L,2022,PD,miR-153,0.548,0.747,75,73,False,True
 E021,35655754,Wu L,2022,PD,miR-223,0.685,0.88,75,73,False,False
+E022,38033547,Rai S,2023,PD,miR-23b-3p,0.9375,0.6875,16,16,False,True
+E023,41373032,Omura T,2025,PD,miR-101,0.5,1.0,8,6,True,True
 E051,38172670,Liang J,2024,PD,miR-675-5p,0.9327,0.3271,104,106,False,False
 E052,38172670,Liang J,2024,PD,miR-1247-5p,0.4712,0.7642,104,106,False,True
 E063,10.3760/cma.j.issn.0254-9026.2024.01.005,Chen T,2024,PD,miR-124,0.741,0.778,58,30,False,False

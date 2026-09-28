@@ -1,0 +1,6 @@
+disease,first_author,year,record_id,marker,cohort_stage,n_cases,n_controls,auc,reported_ci,se_auc_used,se_source,weight_percent,source
+AD,Karaglani M,2020,E081,"25-miRNA ridge biosignature (dataset 2, test split)",validation,84.0,73.0,0.807,,0.0344,Hanley-McNeil,51.1,PubMed Central open-access full text
+AD,Qin Q,2026,E032,7-miRNA panel,validation,99.0,99.0,0.928,0.892-0.965,0.0186,reported_95CI,48.9,PubMed Central open-access full text
+PD,Li J,2021,E068,miR-124 + miR-494,single,90.0,100.0,0.898,,0.0239,Hanley-McNeil,59.4,Scopus record (abstract)
+PD,Chen T,2024,E065,miR-124 + miR-1976,single,58.0,30.0,0.912,,0.0299,Hanley-McNeil,29.0,Scopus record (abstract)
+PD,Li Y,2024,E082,EV-miRNA SVM classifier,validation,21.0,25.0,0.916,0.911-0.921,0.0453,Hanley-McNeil (reported CI implausibly narrow),11.6,PubMed Central open-access full text

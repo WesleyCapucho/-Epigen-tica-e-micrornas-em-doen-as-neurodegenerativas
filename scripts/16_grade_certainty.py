@@ -87,6 +87,7 @@ THRESHOLDS = OrderedDict([
     ("imprecision_serious_ci_width", 0.20),
     ("imprecision_very_serious_ci_width", 0.40),
     ("publication_bias_egger_p", 0.05),
+    ("publication_bias_min_studies_for_test", 10),
     ("indirectness_serious_fraction_high_applicability", 0.50),
 ])
 
@@ -225,32 +226,57 @@ def rate_imprecision(primary_row):
                    f"{width:.3f} ({float(lo):.3f}-{float(hi):.3f}){pi_txt}")
 
 
-def rate_publication_bias(sens_row):
+def rate_publication_bias(sens_row, primary_row):
     """
     EN | GRADE domain 5. A significant Egger intercept is evidence of
          small-study effects (funnel-plot asymmetry), which is necessary but
          not sufficient for publication/dissemination bias specifically:
          heterogeneity, true differences correlated with study size, and
-         chance can all produce the same asymmetry. The judgement below is
-         phrased accordingly, as small-study effects rather than as a
-         confirmed verdict on publication bias as such.
+         chance can all produce the same asymmetry. Funnel-plot tests are
+         also underpowered and unstable below about ten independent studies,
+         and the every-estimate pool treats correlated rows from one study as
+         independent. So the test result no longer triggers a downgrade by
+         itself. The rule, revised after the 2026-09-28 audit showed the
+         every-estimate Egger verdict flipping between diseases when one
+         study's implausible CI was corrected: with fewer than
+         publication_bias_min_studies_for_test independent studies in the
+         primary pool the domain is judged "not assessable by statistical
+         test" and not downgraded on the test; with at least that many, one
+         step is taken only when the Egger test is significant on BOTH the
+         one-estimate-per-study pool and the every-estimate pool. Both
+         p-values are always reported so a reader can apply a stricter rule.
     PT | Dominio 5 do GRADE. Um intercepto de Egger significativo e evidencia
-         de efeitos de estudos pequenos (assimetria do funil), o que e
-         necessario mas nao suficiente para vies de publicacao/disseminacao
-         especificamente: heterogeneidade, diferencas reais correlacionadas
-         com o tamanho do estudo, e o acaso tambem podem produzir a mesma
-         assimetria. O julgamento abaixo e formulado de acordo, como efeitos
-         de estudos pequenos e nao como um veredito confirmado sobre vies de
-         publicacao em si.
+         de efeitos de estudos pequenos (assimetria do funil), necessario mas
+         nao suficiente para vies de publicacao/disseminacao: heterogeneidade,
+         diferencas reais correlacionadas com o tamanho do estudo e o acaso
+         produzem a mesma assimetria. Testes de funil tambem tem pouco poder e
+         sao instaveis abaixo de cerca de dez estudos independentes, e o pool
+         de toda-estimativa trata linhas correlacionadas de um estudo como
+         independentes. Por isso o resultado do teste nao dispara mais um
+         rebaixamento sozinho. A regra, revista depois que a auditoria de
+         2026-09-28 mostrou o veredito de Egger (toda-estimativa) trocando de
+         doenca quando o IC implausivel de um estudo foi corrigido: com menos
+         de publication_bias_min_studies_for_test estudos independentes no pool
+         primario, o dominio e julgado "nao avaliavel por teste estatistico" e
+         nao rebaixado pelo teste; com pelo menos esse numero, um passo so e
+         dado quando o Egger e significativo TANTO no pool uma-por-estudo
+         QUANTO no pool toda-estimativa. Os dois valores de p sao sempre
+         reportados para que o leitor aplique uma regra mais estrita.
     """
-    p_raw = sens_row["egger_p"]
-    if p_raw in ("", None):
-        return 0, "Egger test not estimable at this k"
-    p = float(p_raw)
-    steps = 1 if p < THRESHOLDS["publication_bias_egger_p"] else 0
-    verdict = ("small-study effects detected (not itself proof of publication bias)"
-               if steps else "no small-study effects detected")
-    return steps, f"Egger test p = {p:.4g} on the every-estimate sensitivity pool, {verdict}"
+    k = int(primary_row["n_studies"])
+    p_every = sens_row.get("egger_p", "")
+    p_one = primary_row.get("egger_p_one_per_study", "")
+    fmt = lambda v: f"{float(v):.3g}" if v not in ("", None) else "not estimable"
+    ps = f"Egger p = {fmt(p_one)} (one estimate per study) and {fmt(p_every)} (every estimate)"
+    if k < THRESHOLDS["publication_bias_min_studies_for_test"]:
+        return 0, (f"{ps}; with {k} independent studies the test is underpowered and not used to "
+                   f"downgrade, so publication bias is not assessable by test and cannot be excluded")
+    both = (p_one not in ("", None) and p_every not in ("", None)
+            and float(p_one) < THRESHOLDS["publication_bias_egger_p"]
+            and float(p_every) < THRESHOLDS["publication_bias_egger_p"])
+    verdict = ("small-study effects on both pools (not itself proof of publication bias)"
+               if both else "no consistent small-study effect across the two pools")
+    return (1 if both else 0), f"{ps}; {verdict}"
 
 
 def summary_of_findings(sens, spec, prevalence):
@@ -358,9 +384,11 @@ def rate_disease(disease, quadas_all, primary_rows, sens_rows):
         ("indirectness", rate_indirectness(quadas)),
         ("inconsistency", rate_inconsistency(primary_row)),
         ("imprecision", rate_imprecision(primary_row)),
-        ("publication_bias", rate_publication_bias(sens_row)),
+        ("publication_bias", rate_publication_bias(sens_row, primary_row)),
     ]:
         en, pt = downgrade(steps)
+        if name == "publication_bias" and steps == 0 and "not assessable" in why:
+            en, pt = "not assessable by test (not downgraded)", "nao avaliavel por teste (sem rebaixamento)"
         domains[name] = OrderedDict([("downgrade_steps", steps), ("judgement_en", en),
                                      ("judgement_pt", pt), ("reason", why)])
     total = sum(d["downgrade_steps"] for d in domains.values())
@@ -474,10 +502,10 @@ def main():
          "AD and PD are rated separately because they are different diagnostic "
          f"questions with different evidence bases ({n_ad} AD and {n_pd} PD studies "
          "in the primary, circulating AUC pool), and a single combined verdict "
-         f"would obscure that PD's evidence is far more heterogeneous (I2 {i2_pd}% "
+         f"would obscure that PD's evidence is more heterogeneous (I2 {i2_pd}% "
          f"versus AD's {i2_ad}%). Both ratings are very low, "
          "driven by the same structural facts: every study is a case-versus-healthy-control design, "
-         "the threshold was set in the same sample it was evaluated in for all but one study, and "
+         "no study pre-specified its positivity threshold, and "
          "heterogeneity is high to extreme. The combined bivariate summary of "
          "findings below is a secondary, exploratory illustration of what a "
          f"pooled operating point would imply clinically, drawn from only {biv_primary['n_studies']} "
@@ -488,11 +516,11 @@ def main():
          "diagnosticas diferentes com bases de evidencia diferentes "
          f"({n_ad} estudos de AD e {n_pd} de PD no pool "
          "primario circulante de AUC), e um veredito unico combinado "
-         f"esconderia que a evidencia de PD e muito mais heterogenea (I2 "
+         f"esconderia que a evidencia de PD e mais heterogenea (I2 "
          f"{i2_pd}% contra {i2_ad}% de AD). As duas classificacoes "
          "sao muito baixas, guiadas pelos mesmos fatos estruturais: todo "
-         "estudo e um desenho caso-versus-controle-saudavel, o limiar foi "
-         "fixado na mesma amostra em que foi avaliado em todos os estudos menos um, e a heterogeneidade e "
+         "estudo e um desenho caso-versus-controle-saudavel, o limiar de positividade nao foi "
+         "pre-especificado por nenhum estudo, e a heterogeneidade e "
          "alta a extrema. A tabela de resumo de achados bivariada combinada "
          "abaixo e uma ilustracao secundaria e exploratoria do que um ponto de "
          f"operacao agrupado implicaria clinicamente, tirada de apenas {biv_primary['n_studies']} "

@@ -114,7 +114,8 @@ def main():
         ("  Studies with NO poolable estimate at all (excluded from every quantitative synthesis)", len(no_poolable_row_studies), "= eligible studies - poolable studies", EXTRACTION),
         ("  CSF studies with any eligible row", len(csf_row_studies_any), "", EXTRACTION),
         ("  CSF studies that are poolable (secondary, not pooled - see csf_secondary_estimates.csv)", len(csf_poolable_studies), "", CSF),
-        ("  CSF studies with NO poolable row (Marques TM 2016; among the excluded-8 above)", len(csf_row_studies_any - csf_poolable_studies), "", EXTRACTION),
+        ("  CSF studies with NO poolable row (counted in the no-poolable-estimate row above)", len(csf_row_studies_any - csf_poolable_studies), "", EXTRACTION),
+        ("Circulating eligible studies (systematic-review scope)", len(elig_studies - csf_row_studies_any), "= eligible studies - CSF studies", EXTRACTION),
         ("Circulating (primary) poolable estimates", int(flow["included_in_meta_analysis"]["estimates_with_estimable_standard_error"]), "= poolable - CSF poolable estimates", FLOW),
         ("Circulating (primary) independent studies", int(flow["included_in_meta_analysis"]["independent_studies"]), "= AD + PD circulating studies below", FLOW),
         ("  of which AD circulating studies (primary pool)", int(row_ad_all["n_studies"]), "= single + panel AD below", PRIMARY),
@@ -136,14 +137,17 @@ def main():
     # EN/PT: assertions - every subtotal actually sums to the row above it,
     # not merely printed side by side.
     assert len(elig) == len(elig_ad) + len(elig_pd)
-    assert len(elig_studies) == len(quadas_ad) + len(quadas_pd) == 28
+    assert len(elig_studies) == len(quadas_ad) + len(quadas_pd) == len(quadas)
     assert len(poolable_studies) == len(circ_poolable_studies) + len(csf_poolable_studies)
     assert int(flow["included_in_meta_analysis"]["independent_studies"]) == int(row_ad_all["n_studies"]) + int(row_pd_all["n_studies"])
     assert int(row_ad_all["n_studies"]) == int(row_single_ad["n_studies"]) + int(row_panel_ad["n_studies"])
     assert int(row_pd_all["n_studies"]) == int(row_single_pd["n_studies"]) + int(row_panel_pd["n_studies"])
     assert len(sel_multi) == sum(1 for r in sel_ad if int(r["n_candidate_estimates"]) > 1) \
         + sum(1 for r in sel_pd if int(r["n_candidate_estimates"]) > 1)
-    assert len(csf_row_studies_any) == 3 and len(csf_poolable_studies) == 2
+    assert len(csf_poolable_studies) == int(flow["included_in_meta_analysis"]["csf_studies_secondary_not_pooled"])
+    assert len(circ_poolable_studies) == int(flow["included_in_meta_analysis"]["independent_studies"])
+    assert len(elig) == int(flow["eligibility_fulltext"]["estimates_eligible_for_primary_pool"])
+    assert len(ext) == int(flow["eligibility_fulltext"]["extracted_estimates_total"])
 
     print("=" * 78)
     print("EN | Arithmetic audit | PT | Auditoria aritmetica")

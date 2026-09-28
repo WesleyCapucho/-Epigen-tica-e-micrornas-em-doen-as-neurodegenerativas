@@ -177,16 +177,16 @@ def main():
           sum(1 for r in ext if r["eligible_primary_pool"] == "yes"),
           "PRISMA estimates_eligible_for_primary_pool disagrees with the table")
 
-    # EN | The disease and marker-type split of the 51 eligible estimates is stated in
-    #      the manuscript's section 3.2 prose (17 AD / 34 PD, 38 single / 13 panel) and,
+    # EN | The disease and marker-type split of the 58 eligible estimates is stated in
+    #      the manuscript's section 3.2 prose (20 AD / 38 PD, 42 single / 16 panel) and,
     #      since Figure 3 (scripts/24_study_characteristics.py) drew that same split as a
     #      donut chart, is now something a reader can see at a glance rather than only
     #      read in a sentence. A chart is a claim like any other, so it is checked like
     #      one: both counts are recomputed here from the extraction table and would fail
     #      loudly if the figure and the prose ever disagreed with each other or with the
     #      table both are drawn from.
-    # PT | O detalhamento por doenca e por tipo de marcador das 51 estimativas elegiveis
-    #      esta na prosa da secao 3.2 do manuscrito (17 DA / 34 DP, 38 isolado / 13
+    # PT | O detalhamento por doenca e por tipo de marcador das 58 estimativas elegiveis
+    #      esta na prosa da secao 3.2 do manuscrito (20 DA / 38 DP, 42 isolado / 16
     #      painel) e, como a Figura 3 (scripts/24_study_characteristics.py) desenhou essa
     #      mesma divisao como grafico de rosca, agora e algo que o leitor ve num relance
     #      em vez de so ler numa frase. Um grafico e uma afirmacao como qualquer outra,
@@ -196,11 +196,11 @@ def main():
     elig_rows = [r for r in ext if r["eligible_primary_pool"] == "yes"]
     disease_counts = Counter(r["disease"] for r in elig_rows)
     marker_counts = Counter(r["marker_type"] for r in elig_rows)
-    check(disease_counts["AD"] == 17 and disease_counts["PD"] == 34,
-          f"eligible disease split is {dict(disease_counts)}, expected AD=17/PD=34 "
+    check(disease_counts["AD"] == 20 and disease_counts["PD"] == 38,
+          f"eligible disease split is {dict(disease_counts)}, expected AD=20/PD=38 "
           "(manuscript section 3.2 and Figure 3)")
-    check(marker_counts["single_miRNA"] == 38 and marker_counts["multi_miRNA_panel"] == 13,
-          f"eligible marker-type split is {dict(marker_counts)}, expected single=38/panel=13 "
+    check(marker_counts["single_miRNA"] == 42 and marker_counts["multi_miRNA_panel"] == 16,
+          f"eligible marker-type split is {dict(marker_counts)}, expected single=42/panel=16 "
           "(manuscript section 3.2 and Figure 3)")
     check(incl["estimates_with_estimable_standard_error"] == len(inputs),
           f"PRISMA poolable={incl['estimates_with_estimable_standard_error']} but inputs table has {len(inputs)}")
@@ -781,7 +781,7 @@ def main():
                   f"QUADAS-2 {r['study_id']}: unexpected reference_standard_type {rt!r}")
             ref_type_counts[rt] = ref_type_counts.get(rt, 0) + 1
         expect_ref_types = {"neuropathological": 1, "biomarker_confirmed": 1,
-                            "clinical_criteria_named": 11, "unclear_not_named": 9,
+                            "clinical_criteria_named": 12, "unclear_not_named": 7,
                             "unclear_fulltext_unavailable": 6}
         check(ref_type_counts == expect_ref_types,
               f"QUADAS-2 reference_standard_type: counted {ref_type_counts}, "
@@ -804,21 +804,29 @@ def main():
         #      acima.
         allowed_threshold_sources = {"derived_and_evaluated_same_sample",
                                      "cross_validated_within_sample",
-                                     "externally_validated", "not_determinable"}
+                                     "evaluated_in_separate_sample", "not_determinable"}
         threshold_source_counts = {}
         for r in quadas:
             ts = r.get("threshold_source", "")
             check(ts in allowed_threshold_sources,
                   f"QUADAS-2 {r['study_id']}: unexpected threshold_source {ts!r}")
             threshold_source_counts[ts] = threshold_source_counts.get(ts, 0) + 1
-        expect_threshold_sources = {"derived_and_evaluated_same_sample": 27,
-                                    "externally_validated": 1}
+        expect_threshold_sources = {"derived_and_evaluated_same_sample": 23,
+                                    "evaluated_in_separate_sample": 4}
         check(threshold_source_counts == expect_threshold_sources,
               f"QUADAS-2 threshold_source: counted {threshold_source_counts}, "
               f"manuscript (section 3.3) states {expect_threshold_sources}")
-        check(threshold_source_counts.get("derived_and_evaluated_same_sample", 0)
+        # EN/PT: rob_index_test HIGH = derived-in-sample + the leakage override
+        #        (markers chosen on the evaluation participants; scripts/14
+        #        index_test_leakage), and the override may only ever fire on a study
+        #        whose threshold_source is not already derived-in-sample.
+        n_leak = sum(1 for r in quadas if "study_design_preanalytics.csv" in r["rob_index_test_reason"])
+        check(all(r["threshold_source"] != "derived_and_evaluated_same_sample" for r in quadas
+                  if "study_design_preanalytics.csv" in r["rob_index_test_reason"]),
+              "QUADAS-2: the leakage override fired on a study already derived-in-sample")
+        check(threshold_source_counts.get("derived_and_evaluated_same_sample", 0) + n_leak
               == sum(1 for r in quadas if r["rob_index_test"] == "high"),
-              "QUADAS-2: threshold_source derived_and_evaluated_same_sample count "
+              "QUADAS-2: derived-in-sample count plus leakage overrides "
               "disagrees with rob_index_test HIGH count")
 
     # EN | The study-level record behind the reference-standard and flow domains. A
@@ -851,7 +859,7 @@ def main():
             check((r["blinding_stated"] == "yes") == bool(r["blinding_quote"]),
                   f"QUADAS-2 study level {r['study_id']}: the blinding flag and the quote disagree")
             if r["autopsy_confirmed"] == "yes":
-                check(bool(re.search(r"autops|neuropatholog|Braak|Brain Bank Network",
+                check(bool(re.search(r"autops|neuropatholog|postmortem patholog|Braak|Brain Bank Network",
                                      r["reference_standard_quote"], re.I)),
                       f"QUADAS-2 study level {r['study_id']}: autopsy claimed but the quote "
                       "does not mention neuropathological confirmation")
@@ -901,10 +909,10 @@ def main():
             "autopsy": sum(1 for r in sl_assessed if r["autopsy_confirmed"] == "yes"),
             "blinded": sum(1 for r in sl_assessed if r["blinding_stated"] == "yes"),
         }
-        check(counted["fulltext"] == 22 and counted["named"] == 13
+        check(counted["fulltext"] == 21 and counted["named"] == 14
               and counted["autopsy"] == 1 and counted["blinded"] == 1,
               f"QUADAS-2 full-text pass: the study-level record changed {counted}; the "
-              "documentation quotes 22 full texts, 13 naming criteria, 1 autopsy-confirmed "
+              "documentation quotes 21 full texts, 14 naming criteria, 1 autopsy-confirmed "
               "and 1 stating blinding")
         n_assessed = qsum["studies_assessed"]
         for phrase in (f"{counted['fulltext']} of {n_assessed} studies",
@@ -1298,7 +1306,7 @@ def main():
         ad_recount = sum(1 for r in elig_recount if r["disease"] == "AD")
         pd_recount = sum(1 for r in elig_recount if r["disease"] == "PD")
 
-        check(audit_rows["Eligible estimates, systematic-review scope"] == len(elig_recount) == 51,
+        check(audit_rows["Eligible estimates, systematic-review scope"] == len(elig_recount) == 58,
               "arithmetic_audit: eligible-estimate count disagrees with an independent recount "
               "of the extraction table")
         check(audit_rows["  of which AD-arm estimates"] == ad_recount,
@@ -1306,7 +1314,7 @@ def main():
         check(audit_rows["  of which PD-arm estimates"] == pd_recount,
               "arithmetic_audit: PD-arm estimate count disagrees with an independent recount")
         check(audit_rows["Eligible studies, systematic-review scope (QUADAS-2/GRADE-rated)"]
-              == len(elig_studies_recount) == 28,
+              == len(elig_studies_recount) == 27,
               "arithmetic_audit: eligible-study count disagrees with an independent recount "
               "of the extraction table")
 
@@ -1320,6 +1328,102 @@ def main():
         check(audit_rows["  of which AD circulating studies (primary pool)"] == int(row_ad_all["n_studies"])
               and audit_rows["  of which PD circulating studies (primary pool)"] == int(row_pd_all["n_studies"]),
               f"arithmetic_audit: per-disease circulating-study counts disagree with {POOLED_PRIMARY}")
+
+    # --- 9d. 2026-09-28 full-text second pass ------------------------------
+    # EN | The second pass changed the extraction table and added three files. Each
+    #      change is only trustworthy if the log that documents it still matches the
+    #      table it claims to describe, so the log is replayed against the table here;
+    #      the design table must cover exactly the eligible studies with values from a
+    #      closed vocabulary; and the robustness tables must reproduce the primary
+    #      numbers they are meant to perturb.
+    # PT | A segunda passagem mudou a tabela de extracao e acrescentou tres arquivos.
+    #      Cada mudanca so e confiavel se o log que a documenta ainda bate com a tabela
+    #      que diz descrever, entao o log e reexecutado contra a tabela aqui; a tabela de
+    #      desenho deve cobrir exatamente os estudos elegiveis, com valores de um
+    #      vocabulario fechado; e as tabelas de robustez devem reproduzir os numeros
+    #      primarios que pretendem perturbar.
+    ext_by_id = {r["record_id"]: r for r in ext}
+    try:
+        audit_log = list(csv.DictReader(open("data/extracted/extraction_audit_log.csv", encoding="utf-8")))
+    except FileNotFoundError:
+        audit_log = None
+        claim(False, "data/extracted/extraction_audit_log.csv missing")
+    if audit_log is not None:
+        for e in audit_log:
+            rid = e["record_id"]
+            if not rid.startswith("E"):
+                continue
+            check(rid in ext_by_id, f"audit log: {rid} not in the extraction table")
+            if rid not in ext_by_id:
+                continue
+            if e["action"] == "corrected" and e["field"] in ext_by_id[rid] and e["field"] != "note":
+                check(ext_by_id[rid][e["field"]] == e["new_value"],
+                      f"audit log: {rid}.{e['field']} is {ext_by_id[rid][e['field']]!r}, "
+                      f"log says {e['new_value']!r}")
+            check(bool(e["source_quote"].strip()), f"audit log: {rid} change has no source quote")
+        added = {e["record_id"] for e in audit_log if e["action"] == "added"}
+        check(added == {f"E{i:03d}" for i in range(80, 90)},
+              f"audit log: added rows are {sorted(added)}, expected E080-E089")
+
+    design_vocab = {
+        "reference_standard_basis": {"clinical_criteria", "biomarker_supported", "neuropathological",
+                                     "not_reported", "not_assessable_no_fulltext"},
+        "disease_stage": {"early", "mixed", "established", "not_reported", "not_assessable_no_fulltext"},
+        "medication_status": {"drug_naive", "treated", "mixed", "not_reported", "not_assessable_no_fulltext"},
+        "haemolysis_handling": {"measured_and_excluded", "excluded_method_not_stated", "procedural_only",
+                                "not_reported", "not_applicable_whole_blood", "not_assessable_no_fulltext"},
+        "candidate_selection": {"a_priori_literature", "separate_discovery_sample", "training_split_only",
+                                "same_sample_data_driven", "not_assessable_no_fulltext"},
+        "validation_design": {"none_single_sample", "separate_discovery_then_roc_in_evaluation_sample",
+                              "internal_resampling", "random_split_holdout",
+                              "independent_cohort_locked_model", "not_assessable_no_fulltext"},
+        "threshold_prespecified": {"no", "not_assessable_no_fulltext"},
+    }
+    try:
+        design_rows = list(csv.DictReader(open("data/extracted/study_design_preanalytics.csv", encoding="utf-8")))
+    except FileNotFoundError:
+        design_rows = None
+        claim(False, "data/extracted/study_design_preanalytics.csv missing")
+    if design_rows is not None:
+        elig_ids = {study_id(r) for r in ext if r["eligible_primary_pool"] == "yes"}
+        check({r["study_id"] for r in design_rows} == elig_ids,
+              "study design table: the studies covered are not the eligible studies")
+        for r in design_rows:
+            for f, allowed in design_vocab.items():
+                check(r[f] in allowed, f"study design table {r['study_id']}: {f}={r[f]!r} not in vocabulary")
+            check((r["fulltext_read"] == "yes") == bool(r["key_quotes"].strip()),
+                  f"study design table {r['study_id']}: quotes present iff full text was read")
+        check(not any(r["threshold_prespecified"] == "yes" for r in design_rows),
+              "study design table: a study now pre-specifies its threshold; the manuscript says none does")
+
+    try:
+        plaus = list(csv.DictReader(open("results/tables/ci_plausibility_check.csv", encoding="utf-8")))
+        rob = list(csv.DictReader(open("results/tables/robustness_alternative_analyses.csv", encoding="utf-8")))
+        paud = list(csv.DictReader(open("results/tables/panel_subgroup_audit.csv", encoding="utf-8")))
+    except FileNotFoundError:
+        plaus = rob = paud = None
+        claim(False, "robustness tables missing; run scripts/05 and scripts/26")
+    if plaus is not None:
+        flagged = {r["record_id"] for r in plaus if r["flagged_implausible"] == "True"}
+        check(flagged == {"E041", "E082"},
+              f"CI plausibility: flagged rows are {sorted(flagged)}, the manuscript names only Li Y 2024")
+        unflagged = [float(r["se_ratio_ci_over_hm"]) for r in plaus if r["flagged_implausible"] != "True"]
+        check(min(unflagged) > 0.5, "CI plausibility: an unflagged row sits below the 0.5 cut-off")
+        inputs_by_id = {r["record_id"]: r for r in inputs}
+        for rid in flagged & set(inputs_by_id):
+            check(inputs_by_id[rid]["se_source"].startswith("Hanley-McNeil (reported CI implausibly narrow)"),
+                  f"CI plausibility: {rid} is flagged but its pooled SE is not the Hanley-McNeil one")
+        primary_rows_ = list(csv.DictReader(open(POOLED_PRIMARY, encoding="utf-8")))
+        for d in ("AD", "PD"):
+            prim = next(r for r in primary_rows_ if r["subgroup"].startswith(f"{d} - all markers"))
+            robr = next(r for r in rob if r["analysis"].startswith("primary rule (panel preferred)")
+                        and r["outcome"] == f"{d} - all markers")
+            check(abs(float(prim["pooled_auc"]) - float(robr["pooled_auc"])) < 1e-4,
+                  f"robustness: the primary {d} row does not reproduce {POOLED_PRIMARY}")
+        for d in ("AD", "PD"):
+            w = [float(r["weight_percent"]) for r in paud if r["disease"] == d]
+            if w:
+                check(abs(sum(w) - 100.0) < 0.3, f"panel audit: {d} weights sum to {sum(w)}, not 100")
 
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections

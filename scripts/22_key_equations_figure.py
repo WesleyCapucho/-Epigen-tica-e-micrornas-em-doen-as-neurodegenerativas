@@ -33,7 +33,7 @@ def panel(ax, title, eq_lines, source, title_color="#1F3864"):
              color=title_color, va="top")
     y = 0.66
     for line in eq_lines:
-        ax.text(0.06, y, line, transform=ax.transAxes, fontsize=13.5, va="top")
+        ax.text(0.04, y, line, transform=ax.transAxes, fontsize=13, va="top")
         y -= 0.28
     ax.text(0.02, 0.04, source, transform=ax.transAxes, fontsize=8.2, color="#6b6a66",
              style="italic", va="bottom")
@@ -44,7 +44,8 @@ def panel(ax, title, eq_lines, source, title_color="#1F3864"):
 
 
 def plot(path, lang):
-    fig, axes = plt.subplots(3, 2, figsize=(12.5, 11.5))
+    fig, axes = plt.subplots(3, 2, figsize=(17, 12.5))
+    fig.subplots_adjust(left=0.015, right=0.985, bottom=0.015, top=0.93, wspace=0.03, hspace=0.06)
     fig.suptitle(tr(lang, "Key equations used in the synthesis",
                      "Equações-chave usadas na síntese"),
                  fontsize=16, weight="bold", y=0.99)
@@ -64,11 +65,12 @@ def plot(path, lang):
              "scripts/05_meta_analysis.py — se_hanley_mcneil(); Hanley & McNeil, 1982"))
 
     panel(axes[1, 0],
-          tr(lang, "3. DerSimonian–Laird random effects", "3. Efeitos aleatórios de DerSimonian–Laird"),
-          [r"$\hat\tau^2=\max\!\left(0,\ \dfrac{Q-(k-1)}{\sum w_i-\sum w_i^2/\sum w_i}\right)$",
-           r"$\hat\theta=\dfrac{\sum w_i^{*}y_i}{\sum w_i^{*}},\ \ w_i^{*}=\dfrac{1}{v_i+\hat\tau^2}$"],
-          tr(lang, "scripts/05_meta_analysis.py — dersimonian_laird(); DerSimonian & Laird, 1986",
-             "scripts/05_meta_analysis.py — dersimonian_laird(); DerSimonian & Laird, 1986"))
+          tr(lang, "3. Paule–Mandel random effects, modified Hartung–Knapp CI",
+             "3. Efeitos aleatórios de Paule–Mandel, IC de Hartung–Knapp modificado"),
+          [r"$\sum_i w_i^{*}(y_i-\hat\theta)^2 = k-1,\ \ w_i^{*}=\dfrac{1}{v_i+\hat\tau^2},\ \ \hat\theta=\dfrac{\sum w_i^{*}y_i}{\sum w_i^{*}}$",
+           r"$SE_{mHK}=\max\!\left(\sqrt{\dfrac{\sum w_i^{*}(y_i-\hat\theta)^2}{(k-1)\sum w_i^{*}}},\ \dfrac{1}{\sqrt{\sum w_i^{*}}}\right),\ \ \hat\theta \pm t_{k-1}\,SE_{mHK}$"],
+          tr(lang, "scripts/05_meta_analysis.py — paule_mandel_tau2(), pool_re()\nPaule & Mandel 1982; Hartung & Knapp 2001; IntHout et al. 2014",
+             "scripts/05_meta_analysis.py — paule_mandel_tau2(), pool_re()\nPaule & Mandel 1982; Hartung & Knapp 2001; IntHout et al. 2014"))
 
     panel(axes[1, 1],
           tr(lang, "4. Egger's regression test", "4. Teste de regressão de Egger"),
@@ -92,7 +94,6 @@ def plot(path, lang):
           tr(lang, "scripts/05_meta_analysis.py — se_from_ci()",
              "scripts/05_meta_analysis.py — se_from_ci()"))
 
-    plt.tight_layout(rect=[0, 0, 1, 0.965])
     fig.savefig(path, dpi=600, facecolor="white")
     plt.close(fig)
 

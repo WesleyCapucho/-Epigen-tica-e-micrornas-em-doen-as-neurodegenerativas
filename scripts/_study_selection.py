@@ -66,16 +66,21 @@ def _num(x, default=0.0):
         return default
 
 
-def select_one_per_study(candidates):
+def select_one_per_study(candidates, panel_preference=True):
     """
     EN | candidates: list of dict-like rows, all belonging to ONE study, each
          with 'cohort_stage', 'marker_type', 'n_cases', 'n_controls', 'marker'
          keys. Returns (selected_row, reason_string, n_candidates). Raises if
-         candidates is empty.
+         candidates is empty. panel_preference=False drops step (2), giving
+         the alternative, marker-type-neutral rule used only as a sensitivity
+         analysis (scripts/26_robustness_analyses.py).
     PT | candidates: lista de linhas tipo-dict, todas de UM estudo, cada uma
          com as chaves 'cohort_stage', 'marker_type', 'n_cases', 'n_controls',
          'marker'. Retorna (linha_selecionada, motivo, n_candidatos). Lanca
-         excecao se candidates estiver vazia.
+         excecao se candidates estiver vazia. panel_preference=False remove a
+         etapa (2), dando a regra alternativa neutra quanto ao tipo de marcador,
+         usada apenas como analise de sensibilidade
+         (scripts/26_robustness_analyses.py).
     """
     rows = list(candidates)
     if not rows:
@@ -89,9 +94,9 @@ def select_one_per_study(candidates):
     best_stage = min(STAGE_RANK.get(r.get("cohort_stage"), 3) for r in rows)
     rows = [r for r in rows if STAGE_RANK.get(r.get("cohort_stage"), 3) == best_stage]
     if best_stage == 0:
-        reason_parts.append("independent validation cohort | coorte de validacao independente")
+        reason_parts.append("evaluated in a separate validation sample | avaliada em amostra de validacao separada")
 
-    if len(rows) > 1:
+    if len(rows) > 1 and panel_preference:
         panel_ranks = [0 if r.get("marker_type") == "multi_miRNA_panel" else 1 for r in rows]
         best_panel = min(panel_ranks)
         if best_panel == 0 and any(p == 1 for p in panel_ranks):
@@ -118,7 +123,7 @@ def select_one_per_study(candidates):
     return rows[0], reason, n0
 
 
-def select_one_per_study_grouped(rows, study_id_fn):
+def select_one_per_study_grouped(rows, study_id_fn, panel_preference=True):
     """EN/PT: groups `rows` (dict-likes) by study_id_fn(row) and applies
     select_one_per_study to each group. Returns an OrderedDict-like list of
     (study_id, selected_row, reason, n_candidates)."""
@@ -128,6 +133,6 @@ def select_one_per_study_grouped(rows, study_id_fn):
         groups.setdefault(study_id_fn(r), []).append(r)
     out = []
     for sid, g in groups.items():
-        sel, reason, n = select_one_per_study(g)
+        sel, reason, n = select_one_per_study(g, panel_preference=panel_preference)
         out.append((sid, sel, reason, n))
     return out

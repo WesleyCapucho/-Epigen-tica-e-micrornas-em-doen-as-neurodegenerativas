@@ -67,6 +67,7 @@ from _bilingual import LANGS, t, fig_path
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 STUDY_LEVEL = "data/extracted/quadas2_study_level.csv"
+DESIGN = "data/extracted/study_design_preanalytics.csv"
 TAB_DIR = "results/tables"
 FIG_DIR = "results/figures"
 
@@ -363,7 +364,7 @@ def threshold_source(rows):
          Youden/ROC-derived, or externally validated" expects, so the manuscript can
          report the distribution in those terms without inventing a second data source.
          Follows the identical priority order as rob_index_test (derived-in-sample beats
-         cross-validated beats externally-validated beats not-determinable) so the two
+         cross-validated beats evaluated-in-a-separate-sample beats not-determinable) so the two
          never disagree about which category a study falls into; only the label differs.
          Does not change any QUADAS-2 verdict; that logic is left untouched in
          rob_index_test.
@@ -372,11 +373,29 @@ def threshold_source(rows):
          pre-especificado, derivado por Youden/ROC, ou validado externamente" espera,
          para que o manuscrito reporte a distribuicao nesses termos sem inventar uma
          segunda fonte de dado. Segue a mesma ordem de prioridade de rob_index_test
-         (derivado-na-amostra vence validado-cruzado vence validado-externamente vence
+         (derivado-na-amostra vence validado-cruzado vence avaliado-em-amostra-separada vence
          nao-determinavel), entao os dois nunca discordam sobre a categoria de um
          estudo; so o rotulo muda. Nao muda nenhum veredito QUADAS-2; essa logica
          permanece intocada em rob_index_test.
     """
+    # EN | "evaluated_in_separate_sample" means the reported estimate comes from
+    #      participants other than those the markers or model were chosen in (a
+    #      held-out split or a second cohort). It does NOT mean a numeric cut-off
+    #      was fixed in advance: the 2026-09-28 full-text audit found that no
+    #      included study pre-specified a threshold, and the previous label
+    #      "externally_validated" overstated this. Nor does it mean external
+    #      (multi-centre) validation: every such sample came from the same centre
+    #      or recruitment as its derivation sample (see
+    #      data/extracted/study_design_preanalytics.csv, validation_design).
+    # PT | "evaluated_in_separate_sample" significa que a estimativa reportada vem
+    #      de participantes diferentes daqueles em que marcadores ou modelo foram
+    #      escolhidos (particao retida ou segunda coorte). NAO significa que um
+    #      ponto de corte numerico foi fixado de antemao: a auditoria de texto
+    #      completo de 2026-09-28 achou que nenhum estudo incluido pre-especificou
+    #      limiar, e o rotulo anterior "externally_validated" exagerava isso. Nem
+    #      significa validacao externa (multicentrica): toda amostra assim veio do
+    #      mesmo centro ou recrutamento da amostra de derivacao (ver
+    #      data/extracted/study_design_preanalytics.csv, validation_design).
     stages = {r["cohort_stage"] for r in rows}
     derived = {"single", "discovery", "training"} & stages
     if derived:
@@ -384,11 +403,38 @@ def threshold_source(rows):
     if "cross-validated" in stages:
         return "cross_validated_within_sample"
     if "validation" in stages:
-        return "externally_validated"
+        return "evaluated_in_separate_sample"
     return "not_determinable"
 
 
-def assess(rows_by_study, study_level):
+def index_test_leakage(verdict, reason, design):
+    """
+    EN | A second signalling-question answer for the index-test domain, from the
+         2026-09-28 full-text pass (data/extracted/study_design_preanalytics.csv):
+         were the markers or the model chosen using the same participants the
+         reported accuracy was evaluated in? cohort_stage alone cannot see this. A
+         study whose AUC comes from a held-out split is still at HIGH risk when the
+         markers were picked by comparing cases and controls across the whole
+         dataset before the split (candidate_selection == same_sample_data_driven),
+         because the evaluation participants informed the choice of test.
+    PT | Uma segunda resposta de pergunta-sinal para o dominio do teste indice, da
+         passagem de texto completo de 2026-09-28
+         (data/extracted/study_design_preanalytics.csv): os marcadores ou o modelo
+         foram escolhidos usando os mesmos participantes em que a acuracia reportada
+         foi avaliada? O cohort_stage sozinho nao ve isso. Um estudo cuja AUC vem de
+         uma particao retida continua em risco ALTO quando os marcadores foram
+         escolhidos comparando casos e controles no conjunto inteiro antes da
+         particao (candidate_selection == same_sample_data_driven), porque os
+         participantes de avaliacao informaram a escolha do teste.
+    """
+    if verdict != HIGH and design and design.get("candidate_selection") == "same_sample_data_driven":
+        return HIGH, ("markers or model selected using the same participants the accuracy was "
+                      "evaluated in [study_design_preanalytics.csv candidate_selection]")
+    return verdict, reason
+
+
+def assess(rows_by_study, study_level, design=None):
+    design = design or {}
     out = []
     for sid, rows in sorted(rows_by_study.items()):
         first = rows[0]
@@ -405,6 +451,8 @@ def assess(rows_by_study, study_level):
         sl = study_level.get(sid)
         for key, rule in RULES.items():
             verdict, reason = (rule(rows, sl) if key in NEEDS_STUDY_LEVEL else rule(rows))
+            if key == "rob_index_test":
+                verdict, reason = index_test_leakage(verdict, reason, design.get(sid))
             rec[key] = verdict
             rec[key + "_reason"] = reason
         rec["reference_standard_type"] = reference_standard_type(sl)
@@ -482,7 +530,10 @@ def main():
     if os.path.exists(STUDY_LEVEL):
         study_level = {r["study_id"]: r
                        for r in csv.DictReader(open(STUDY_LEVEL, encoding="utf-8"))}
-    assessment = assess(by_study, study_level)
+    design = {}
+    if os.path.exists(DESIGN):
+        design = {r["study_id"]: r for r in csv.DictReader(open(DESIGN, encoding="utf-8"))}
+    assessment = assess(by_study, study_level, design)
     fields = list(assessment[0].keys())
     with open(f"{TAB_DIR}/quadas2_assessment.csv", "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)

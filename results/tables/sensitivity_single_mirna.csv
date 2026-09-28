@@ -1,13 +1,14 @@
 analysis,k_estimates,n_studies,pooled_auc,ci_low,ci_high,I2_percent
-primary (one per study) | primaria (uma por estudo),11,11,0.7316,0.6528,0.7981,78.6
-leave out | sem Hara N 2017 (28137310),10,10,0.7234,0.6376,0.7955,79.8
-leave out | sem Oliveira SR 2020 (32585840),10,10,0.7397,0.6565,0.8086,80.3
-leave out | sem Hojati Z 2020 (33129241),10,10,0.7306,0.6427,0.8035,80.6
-leave out | sem Grossi I 2020 (33416118),10,10,0.7316,0.6441,0.8042,80.7
-leave out | sem Dong LH 2021 (34042273),10,10,0.6919,0.6307,0.747,42.1
-leave out | sem Wu L 2022 (35655754),10,10,0.7438,0.6605,0.8126,78.7
-leave out | sem Aguilar MA 2023 (37483339),10,10,0.7445,0.6627,0.812,78.9
-leave out | sem Liang J 2024 (38172670),10,10,0.7458,0.6638,0.8134,76.2
-leave out | sem Duan X 2024 (38618193),10,10,0.7276,0.6377,0.8022,80.0
-leave out | sem Omura T 2025 (41373032),10,10,0.7296,0.6433,0.8014,80.6
-leave out | sem Yang SJ 2026 (41836608),10,10,0.7292,0.6405,0.8028,80.5
+primary (one per study) | primaria (uma por estudo),12,12,0.7599,0.693,0.8161,78.8
+leave out | sem Hara N 2017 (28137310),11,11,0.7544,0.6808,0.8156,80.2
+leave out | sem Oliveira SR 2020 (32585840),11,11,0.7683,0.7004,0.8246,80.0
+leave out | sem Hojati Z 2020 (33129241),11,11,0.7608,0.6873,0.8215,80.8
+leave out | sem Grossi I 2020 (33416118),11,11,0.7614,0.6884,0.8218,80.8
+leave out | sem Zhang M 2021 (33542630),11,11,0.7495,0.6755,0.8113,77.2
+leave out | sem Dong LH 2021 (34042273),11,11,0.7358,0.6743,0.7893,66.2
+leave out | sem Wu L 2022 (35655754),11,11,0.774,0.7078,0.8289,76.5
+leave out | sem Rai S 2023 (38033547),11,11,0.7568,0.6837,0.8176,80.6
+leave out | sem Liang J 2024 (38172670),11,11,0.7764,0.7121,0.8298,71.3
+leave out | sem Duan X 2024 (38618193),11,11,0.7595,0.684,0.8216,80.7
+leave out | sem Omura T 2025 (41373032),11,11,0.7592,0.6866,0.8194,80.7
+leave out | sem Yang SJ 2026 (41836608),11,11,0.7601,0.6857,0.8214,80.7

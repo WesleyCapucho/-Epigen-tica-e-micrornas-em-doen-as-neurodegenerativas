@@ -1,0 +1,10 @@
+disease,group,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent,Q_between,p_value
+AD,selected estimate from separate participants,4,0.8404,0.6659,0.9329,81.2,,
+AD,selected estimate from the derivation sample,4,0.8274,0.6962,0.9094,61.6,,
+AD,difference test,,,,,,0.1,0.752
+PD,selected estimate from separate participants,2,0.8017,0.0,1.0,85.2,,
+PD,selected estimate from the derivation sample,7,0.7854,0.6419,0.882,87.8,,
+PD,difference test,,,,,,0.214,0.6434
+AD+PD,selected estimate from separate participants,6,0.8283,0.6877,0.9136,79.3,,
+AD+PD,selected estimate from the derivation sample,11,0.7993,0.7184,0.8614,86.4,,
+AD+PD,difference test,,,,,,4.395,0.036

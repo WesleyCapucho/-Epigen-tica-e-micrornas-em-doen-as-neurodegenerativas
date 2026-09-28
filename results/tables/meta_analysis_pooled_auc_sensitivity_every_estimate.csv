@@ -1,12 +1,12 @@
 subgroup,k_estimates,n_studies,pooled_auc,ci_low,ci_high,tau2_logit,I2_percent,Q,df,p_heterogeneity,egger_intercept,egger_p
-Overall (all eligible) | Global,39,18,0.7793,0.7181,0.8304,0.9692,95.9,919.3,38,0.0,-4.381,0.0
-AD - all markers | todos marcadores,12,9,0.8467,0.7883,0.8912,0.3508,78.8,51.9,11,0.0,2.528,0.1482
-PD - all markers | todos marcadores,27,9,0.7407,0.6518,0.8135,1.158,96.9,829.18,26,0.0,-5.5,0.0
-All - single miRNA | miRNA isolado,31,14,0.73,0.6907,0.766,0.2046,74.8,119.15,30,0.0,1.391,0.0599
-AD - single miRNA | miRNA isolado,7,6,0.8016,0.7412,0.8508,0.1291,63.0,16.2,6,0.0127,-0.394,0.088
-PD - single miRNA | miRNA isolado,24,8,0.7059,0.6628,0.7455,0.1599,70.2,77.21,23,0.0,1.455,0.1405
-All - multi-miRNA panel | painel multi-miRNA,8,7,0.9056,0.867,0.9338,0.1874,75.2,28.2,7,0.0002,-0.445,0.0
-AD - multi-miRNA panel | painel multi-miRNA,5,4,0.9124,0.8121,0.9617,0.7723,83.2,23.81,4,0.0001,3.027,0.4411
-PD - multi-miRNA panel | painel multi-miRNA,3,3,0.9168,0.9133,0.9203,0.0,0.0,0.78,2,0.6772,-0.558,0.0041
-Biofluid | Biofluido - plasma,5,4,0.7618,0.6422,0.8507,0.2995,75.7,16.49,4,0.0024,1.536,0.4607
-Biofluid | Biofluido - serum,19,7,0.8046,0.7412,0.8555,0.5422,87.6,145.71,18,0.0,2.828,0.2918
+Overall (all eligible) | Global,38,17,0.8018,0.7671,0.8324,0.3015,80.6,190.85,37,0.0,1.977,0.003
+AD - all markers | todos marcadores,15,8,0.8312,0.7905,0.8653,0.1908,76.3,58.97,14,0.0,2.892,0.0296
+PD - all markers | todos marcadores,23,9,0.7761,0.7229,0.8215,0.347,79.9,109.57,22,0.0,2.28,0.1601
+All - single miRNA | miRNA isolado,28,15,0.764,0.726,0.7981,0.1915,73.5,101.71,27,0.0,0.9,0.0022
+AD - single miRNA | miRNA isolado,10,7,0.7994,0.762,0.8323,0.0617,52.0,18.74,9,0.0275,0.018,0.0173
+PD - single miRNA | miRNA isolado,18,8,0.7387,0.6834,0.7873,0.2178,72.9,62.8,17,0.0,1.508,0.0905
+All - multi-miRNA panel | painel multi-miRNA,10,6,0.8923,0.8387,0.9296,0.4094,81.6,48.99,9,0.0,3.539,0.0538
+AD - multi-miRNA panel | painel multi-miRNA,5,2,0.9067,0.82,0.954,0.578,88.1,33.65,4,0.0,4.658,0.2087
+PD - multi-miRNA panel | painel multi-miRNA,5,4,0.8804,0.7976,0.9322,0.3511,72.4,14.48,4,0.0059,2.293,0.4037
+Biofluid | Biofluido - plasma,4,3,0.7766,0.6097,0.8856,0.4992,82.1,16.79,3,0.0008,1.959,0.6107
+Biofluid | Biofluido - serum,25,9,0.8001,0.7529,0.8402,0.3817,84.3,153.29,24,0.0,2.061,0.0545

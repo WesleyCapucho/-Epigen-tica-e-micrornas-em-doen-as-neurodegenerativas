@@ -1,0 +1,23 @@
+record_id,first_author,year,marker,eligible_primary_pool,n_cases,n_controls,sensitivity,specificity,verdict
+E006,Zhang M,2021,miR-128,yes,117,106,0.869,0.821,not_integer_consistent_either_way
+E007,Hara N,2017,miR-501-3p,yes,36,22,0.53,1.0,consistent
+E020,Wu L,2022,miR-153,yes,75,73,0.548,0.747,consistent_only_if_labels_swapped
+E021,Wu L,2022,miR-223,yes,75,73,0.685,0.88,consistent_only_if_labels_swapped
+E023,Omura T,2025,miR-101,yes,8,6,0.5,1.0,consistent
+E038,Zhang M,2021,miR-128 + clinical variables,no,117,106,0.939,0.875,not_integer_consistent_either_way
+E049,Wang T,2015,miR-107,no,116,81,0.983,0.827,consistent
+E051,Liang J,2024,miR-675-5p,yes,104,106,0.9327,0.3271,not_integer_consistent_either_way
+E052,Liang J,2024,miR-1247-5p,yes,104,106,0.4712,0.7642,consistent
+E063,Chen T,2024,miR-124,yes,58,30,0.741,0.778,not_integer_consistent_either_way
+E064,Chen T,2024,miR-1976,yes,58,30,0.518,0.901,not_integer_consistent_either_way
+E065,Chen T,2024,miR-124 + miR-1976,yes,58,30,0.764,0.932,not_integer_consistent_either_way
+E066,Li J,2021,miR-124,yes,90,100,0.8667,0.7503,not_integer_consistent_either_way
+E067,Li J,2021,miR-494,yes,90,100,0.6111,0.7900,consistent
+E068,Li J,2021,miR-124 + miR-494,yes,90,100,0.8556,0.8500,consistent
+E069,Wu L,2020,miR-9a,yes,85,50,0.9059,0.7000,consistent
+E070,Wu L,2020,miR-133b,yes,85,50,0.8353,0.8200,consistent
+E071,Wu L,2020,miR-9a + miR-133b,yes,85,50,0.8941,0.8800,consistent
+E074,Chen P,2026,miR-423-5p,yes,83,56,0.8434,0.7679,consistent
+E077,Fotuhi SN,2019,BACE1-AS (lncRNA),no,45,36,0.68,1.00,not_integer_consistent_either_way
+E078,Hoss AG,2016,29-miRNA classifier,no,29,33,0.966,0.939,consistent
+E088,Marques TM,2016,miR-133b + miR-148b,no,28,17,0.82,0.67,not_integer_consistent_either_way

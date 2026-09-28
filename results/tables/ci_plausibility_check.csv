@@ -1,0 +1,18 @@
+record_id,first_author,year,disease,marker,n_cases,n_controls,auc,auc_ci_low,auc_ci_high,se_ci_reported,se_hanley_mcneil,se_ratio_ci_over_hm,se_source,flagged_implausible
+E041,Li Y,2024,PD,EV-miRNA SVM classifier,32.0,35.0,0.917,0.913,0.92,0.0018,0.0365,0.0489,Hanley-McNeil (reported CI implausibly narrow),True
+E082,Li Y,2024,PD,EV-miRNA SVM classifier,21.0,25.0,0.916,0.911,0.921,0.0026,0.0453,0.0563,Hanley-McNeil (reported CI implausibly narrow),True
+E053,Liang J,2024,PD,"10-biomarker classifier (miR-675-5p, miR-1247-5p, circSLC8A1, lncH19 + 6 pyroptosis proteins)",14.0,11.0,0.92,0.86,0.99,0.0332,0.0568,0.5837,reported_95CI,False
+E075,Samareh A,2025,PD,NEAT1 + let-7a-5p + miR-506-3p,24.0,29.0,0.9501,0.8978,1.0,0.0261,0.0327,0.7964,reported_95CI,False
+E009,Tan YJ,2021,AD,miR-328-3p,28.0,8.0,0.702,0.534,0.87,0.0857,0.0971,0.8832,reported_95CI,False
+E023,Omura T,2025,PD,miR-101,8.0,6.0,0.781,0.547,1.0,0.1156,0.1259,0.9177,reported_95CI,False
+E031,Qin Q,2026,AD,7-miRNA panel,73.0,53.0,0.97,0.943,0.997,0.0138,0.0147,0.9376,reported_95CI,False
+E032,Qin Q,2026,AD,7-miRNA panel,99.0,99.0,0.928,0.892,0.965,0.0186,0.0193,0.9639,reported_95CI,False
+E024,Grossi I,2020,PD,miR-34a-5p,15.0,14.0,0.738,0.557,0.919,0.0923,0.0932,0.9912,reported_95CI,False
+E052,Liang J,2024,PD,miR-1247-5p,104.0,106.0,0.6201,0.5443,0.6959,0.0387,0.0386,1.0032,reported_95CI,False
+E001,Qin Q,2026,AD,let-7i-5p,73.0,53.0,0.835,0.766,0.905,0.0355,0.0352,1.0064,reported_95CI,False
+E051,Liang J,2024,PD,miR-675-5p,104.0,106.0,0.5896,0.5115,0.6678,0.0399,0.0392,1.0178,reported_95CI,False
+E087,Qin Q,2026,AD,7-miRNA panel,99.0,40.0,0.851,0.787,0.916,0.0329,0.0318,1.0339,reported_95CI,False
+E086,Qin Q,2026,AD,7-miRNA panel,99.0,36.0,0.951,0.916,0.986,0.0179,0.0172,1.038,reported_95CI,False
+E025,Han L,2020,PD,miR-29b,98.0,40.0,0.726,0.6268,0.8243,0.0504,0.0441,1.1434,reported_95CI,False
+E033,Karaglani M,2020,AD,3-miRNA biosignature,48.0,22.0,0.975,0.908,1.0,0.0235,0.017,1.381,reported_95CI,False
+E080,Karaglani M,2020,AD,25-miRNA ridge biosignature (dataset 2),301.0,288.0,0.797,0.746,0.845,0.0253,0.0183,1.3821,reported_95CI,False

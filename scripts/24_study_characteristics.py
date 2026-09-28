@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-EN | A compact composition figure for the 51 estimates eligible for the primary pool:
+EN | A compact composition figure for the estimates eligible for the primary pool:
      two donuts (disease, marker type) and one ranked bar (biofluid), computed live from
      data/extracted/diagnostic_accuracy_extraction.csv rather than retyped from
      Supplementary Table S1.
-PT | Uma figura compacta de composicao para as 51 estimativas elegiveis para o pool
+PT | Uma figura compacta de composicao para as estimativas elegiveis para o pool
      primario: dois donuts (doenca, tipo de marcador) e uma barra ranqueada (biofluido),
      calculados diretamente de data/extracted/diagnostic_accuracy_extraction.csv em vez
      de redigitados da Tabela Suplementar S1.
@@ -17,7 +17,7 @@ EN | Why this exists. Supplementary Table S1 carries this breakdown as four smal
      PD-heavy, single-marker-heavy, and serum-heavy, before reading the pooled-accuracy
      results that follow - each of those three imbalances matters for how those results
      should be read (section 4.3 discusses the panel-marker and biofluid imbalances
-     directly). This is a compositional summary of the same 51 estimates Table S1
+     directly). This is a compositional summary of the same eligible estimates Table S1
      tabulates in full, not a new or competing count.
 PT | Por que isto existe. A Tabela Suplementar S1 traz este detalhamento em quatro
      tabelas pequenas, o que e o lugar certo para a versao exaustiva (ela tambem separa
@@ -27,15 +27,15 @@ PT | Por que isto existe. A Tabela Suplementar S1 traz este detalhamento em quat
      acuracia agrupada que vem a seguir - cada um desses tres desequilibrios importa para
      como esses resultados devem ser lidos (a secao 4.3 discute os desequilibrios de
      marcador-painel e de biofluido diretamente). Isto e um resumo composicional das
-     mesmas 51 estimativas que a Tabela S1 tabula por completo, nao uma contagem nova ou
+     mesmas estimativas elegiveis que a Tabela S1 tabula por completo, nao uma contagem nova ou
      concorrente.
 
 EN | Every count is aggregated at run time from the extraction table filtered to
-     eligible_primary_pool == "yes", the same filter and the same 51-row total that
+     eligible_primary_pool == "yes", the same filter and the same row total that
      Supplementary Table S1 and scripts/08_verify_consistency.py both use, so the figure
      cannot silently disagree with the table it summarises.
 PT | Toda contagem e agregada em tempo de execucao a partir da tabela de extracao
-     filtrada por eligible_primary_pool == "yes", o mesmo filtro e o mesmo total de 51
+     filtrada por eligible_primary_pool == "yes", o mesmo filtro e o mesmo total de linhas
      linhas que a Tabela Suplementar S1 e o scripts/08_verify_consistency.py usam, entao
      a figura nao pode discordar em silencio da tabela que resume.
 
@@ -43,6 +43,7 @@ PT | Toda contagem e agregada em tempo de execucao a partir da tabela de extraca
 """
 
 import csv
+import json
 import os
 import sys
 from collections import Counter, OrderedDict
@@ -54,6 +55,7 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
 
+FLOW = "data/processed/prisma_flow.json"
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 FIG_DIR = "results/figures"
 
@@ -115,7 +117,7 @@ def ranked_bar(ax, counts, lang):
     ax.set_yticks(y)
     ax.set_yticklabels(labels, fontsize=8.2)
     ax.set_xlim(0, max(values) * 1.28)
-    ax.set_xlabel(t(lang, "estimates (n = 51)", "estimativas (n = 51)"), fontsize=8.4)
+    ax.set_xlabel(t(lang, f"estimates (n = {total})", f"estimativas (n = {total})"), fontsize=8.4)
     ax.set_title(t(lang, "By biofluid", "Por biofluido"), fontsize=9.6)
     ax.spines[["top", "right", "left"]].set_visible(False)
     ax.tick_params(left=False)
@@ -147,8 +149,8 @@ def plot(rows, path, lang):
     ranked_bar(ax3, bar_counts, lang)
 
     fig.suptitle(t(lang,
-                   "Composition of the 51 estimates eligible for the primary pool",
-                   "Composição das 51 estimativas elegíveis para o pool primário"),
+                   f"Composition of the {len(rows)} estimates eligible for the primary pool",
+                   f"Composição das {len(rows)} estimativas elegíveis para o pool primário"),
                  fontsize=11, y=1.03)
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
@@ -159,8 +161,10 @@ def main():
         sys.exit(f"EN/PT: missing {EXTRACTION}")
     rows = [r for r in csv.DictReader(open(EXTRACTION, encoding="utf-8"))
             if r["eligible_primary_pool"] == "yes"]
-    if len(rows) != 51:
-        sys.exit(f"EN/PT: expected 51 eligible estimates, found {len(rows)}")
+    flow = json.load(open(FLOW, encoding="utf-8"))
+    expected = flow["eligibility_fulltext"]["estimates_eligible_for_primary_pool"]
+    if len(rows) != expected:
+        sys.exit(f"EN/PT: {FLOW} says {expected} eligible estimates, extraction has {len(rows)}")
     os.makedirs(FIG_DIR, exist_ok=True)
     for lang in LANGS:
         plot(rows, fig_path(FIG_DIR, "study_characteristics", lang), lang)

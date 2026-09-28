@@ -9,6 +9,7 @@
   "imprecision_serious_ci_width": 0.2,
   "imprecision_very_serious_ci_width": 0.4,
   "publication_bias_egger_p": 0.05,
+  "publication_bias_min_studies_for_test": 10,
   "indirectness_serious_fraction_high_applicability": 0.5
  },
  "by_disease": {
@@ -18,41 +19,41 @@
      "downgrade_steps": 2,
      "judgement_en": "very serious",
      "judgement_pt": "muito serio",
-     "reason": "9 of 9 studies are at high risk of bias in at least one QUADAS-2 domain (100%)"
+     "reason": "8 of 8 studies are at high risk of bias in at least one QUADAS-2 domain (100%)"
     },
     "indirectness": {
      "downgrade_steps": 1,
      "judgement_en": "serious",
      "judgement_pt": "serio",
-     "reason": "9 of 9 studies raise high applicability concern for patient selection (100%): the pooled contrast is case versus healthy control, not the differential diagnosis a clinician faces"
+     "reason": "8 of 8 studies raise high applicability concern for patient selection (100%): the pooled contrast is case versus healthy control, not the differential diagnosis a clinician faces"
     },
     "inconsistency": {
      "downgrade_steps": 1,
      "judgement_en": "serious",
      "judgement_pt": "serio",
-     "reason": "I2 = 73.0% across the pooled estimates"
+     "reason": "I2 = 70.7% across the pooled estimates"
     },
     "imprecision": {
      "downgrade_steps": 0,
      "judgement_en": "not serious",
      "judgement_pt": "nao serio",
-     "reason": "95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC (9 studies) spans 0.143 (0.756-0.899); 95% prediction interval 0.548-0.958"
+     "reason": "95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC (8 studies) spans 0.119 (0.765-0.884); 95% prediction interval 0.619-0.939"
     },
     "publication_bias": {
      "downgrade_steps": 0,
-     "judgement_en": "not serious",
-     "judgement_pt": "nao serio",
-     "reason": "Egger test p = 0.1482 on the every-estimate sensitivity pool, no small-study effects detected"
+     "judgement_en": "not assessable by test (not downgraded)",
+     "judgement_pt": "nao avaliavel por teste (sem rebaixamento)",
+     "reason": "Egger p = 0.0447 (one estimate per study) and 0.0296 (every estimate); with 8 independent studies the test is underpowered and not used to downgrade, so publication bias is not assessable by test and cannot be excluded"
     }
    },
    "total_downgrade_steps": 4,
    "certainty_of_evidence": "very low",
-   "primary_pooled_auc": 0.8401,
+   "primary_pooled_auc": 0.8329,
    "primary_auc_ci_hk": [
-    "0.7557",
-    "0.8992"
+    "0.7653",
+    "0.884"
    ],
-   "primary_row_n_studies": 9
+   "primary_row_n_studies": 8
   },
   "PD": {
    "domains": {
@@ -69,66 +70,66 @@
      "reason": "9 of 9 studies raise high applicability concern for patient selection (100%): the pooled contrast is case versus healthy control, not the differential diagnosis a clinician faces"
     },
     "inconsistency": {
-     "downgrade_steps": 2,
-     "judgement_en": "very serious",
-     "judgement_pt": "muito serio",
-     "reason": "I2 = 97.4% across the pooled estimates"
+     "downgrade_steps": 1,
+     "judgement_en": "serious",
+     "judgement_pt": "serio",
+     "reason": "I2 = 85.8% across the pooled estimates"
     },
     "imprecision": {
      "downgrade_steps": 1,
      "judgement_en": "serious",
      "judgement_pt": "serio",
-     "reason": "95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC (9 studies) spans 0.231 (0.642-0.872); 95% prediction interval 0.317-0.964"
+     "reason": "95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC (9 studies) spans 0.209 (0.665-0.873); 95% prediction interval 0.386-0.956"
     },
     "publication_bias": {
-     "downgrade_steps": 1,
-     "judgement_en": "serious",
-     "judgement_pt": "serio",
-     "reason": "Egger test p = 0 on the every-estimate sensitivity pool, small-study effects detected (not itself proof of publication bias)"
+     "downgrade_steps": 0,
+     "judgement_en": "not assessable by test (not downgraded)",
+     "judgement_pt": "nao avaliavel por teste (sem rebaixamento)",
+     "reason": "Egger p = 0.66 (one estimate per study) and 0.16 (every estimate); with 9 independent studies the test is underpowered and not used to downgrade, so publication bias is not assessable by test and cannot be excluded"
     }
    },
-   "total_downgrade_steps": 7,
+   "total_downgrade_steps": 5,
    "certainty_of_evidence": "very low",
-   "primary_pooled_auc": 0.7778,
+   "primary_pooled_auc": 0.787,
    "primary_auc_ci_hk": [
-    "0.6418",
-    "0.8724"
+    "0.6647",
+    "0.8732"
    ],
    "primary_row_n_studies": 9
   }
  },
- "bivariate_summary_of_findings_scope": "exploratory, AD and PD combined, 8 independent studies with a paired sensitivity and specificity; not disease-specific and not the basis for either disease's GRADE rating above",
- "bivariate_summary_sensitivity": 0.7376,
- "bivariate_summary_specificity": 0.793,
+ "bivariate_summary_of_findings_scope": "exploratory, AD and PD combined, 11 independent studies with a paired sensitivity and specificity; not disease-specific and not the basis for either disease's GRADE rating above",
+ "bivariate_summary_sensitivity": 0.7532,
+ "bivariate_summary_specificity": 0.7908,
  "summary_of_findings": [
   {
    "pre_test_probability": 0.05,
-   "true_positives_per_1000": 36.9,
-   "false_negatives_per_1000": 13.1,
-   "true_negatives_per_1000": 753.4,
-   "false_positives_per_1000": 196.6,
-   "positive_predictive_value": 0.1579,
-   "negative_predictive_value": 0.9829
+   "true_positives_per_1000": 37.7,
+   "false_negatives_per_1000": 12.3,
+   "true_negatives_per_1000": 751.3,
+   "false_positives_per_1000": 198.7,
+   "positive_predictive_value": 0.1593,
+   "negative_predictive_value": 0.9838
   },
   {
    "pre_test_probability": 0.2,
-   "true_positives_per_1000": 147.5,
-   "false_negatives_per_1000": 52.5,
-   "true_negatives_per_1000": 634.4,
-   "false_positives_per_1000": 165.6,
-   "positive_predictive_value": 0.4711,
-   "negative_predictive_value": 0.9236
+   "true_positives_per_1000": 150.6,
+   "false_negatives_per_1000": 49.4,
+   "true_negatives_per_1000": 632.6,
+   "false_positives_per_1000": 167.4,
+   "positive_predictive_value": 0.4737,
+   "negative_predictive_value": 0.9276
   },
   {
    "pre_test_probability": 0.5,
-   "true_positives_per_1000": 368.8,
-   "false_negatives_per_1000": 131.2,
-   "true_negatives_per_1000": 396.5,
-   "false_positives_per_1000": 103.5,
-   "positive_predictive_value": 0.7809,
-   "negative_predictive_value": 0.7514
+   "true_positives_per_1000": 376.6,
+   "false_negatives_per_1000": 123.4,
+   "true_negatives_per_1000": 395.4,
+   "false_positives_per_1000": 104.6,
+   "positive_predictive_value": 0.7826,
+   "negative_predictive_value": 0.7621
   }
  ],
- "reading_en": "AD and PD are rated separately because they are different diagnostic questions with different evidence bases (9 AD and 9 PD studies in the primary, circulating AUC pool), and a single combined verdict would obscure that PD's evidence is far more heterogeneous (I2 97.4% versus AD's 73.0%). Both ratings are very low, driven by the same structural facts: every study is a case-versus-healthy-control design, the threshold was set in the same sample it was evaluated in for all but one study, and heterogeneity is high to extreme. The combined bivariate summary of findings below is a secondary, exploratory illustration of what a pooled operating point would imply clinically, drawn from only 8 studies, and should not be read as a validated clinical accuracy for either disease individually.",
- "reading_pt": "AD e PD sao classificadas separadamente porque sao perguntas diagnosticas diferentes com bases de evidencia diferentes (9 estudos de AD e 9 de PD no pool primario circulante de AUC), e um veredito unico combinado esconderia que a evidencia de PD e muito mais heterogenea (I2 97.4% contra 73.0% de AD). As duas classificacoes sao muito baixas, guiadas pelos mesmos fatos estruturais: todo estudo e um desenho caso-versus-controle-saudavel, o limiar foi fixado na mesma amostra em que foi avaliado em todos os estudos menos um, e a heterogeneidade e alta a extrema. A tabela de resumo de achados bivariada combinada abaixo e uma ilustracao secundaria e exploratoria do que um ponto de operacao agrupado implicaria clinicamente, tirada de apenas 8 estudos, e nao deve ser lida como uma acuracia clinica validada para nenhuma das duas doencas isoladamente."
+ "reading_en": "AD and PD are rated separately because they are different diagnostic questions with different evidence bases (8 AD and 9 PD studies in the primary, circulating AUC pool), and a single combined verdict would obscure that PD's evidence is more heterogeneous (I2 85.8% versus AD's 70.7%). Both ratings are very low, driven by the same structural facts: every study is a case-versus-healthy-control design, no study pre-specified its positivity threshold, and heterogeneity is high to extreme. The combined bivariate summary of findings below is a secondary, exploratory illustration of what a pooled operating point would imply clinically, drawn from only 11 studies, and should not be read as a validated clinical accuracy for either disease individually.",
+ "reading_pt": "AD e PD sao classificadas separadamente porque sao perguntas diagnosticas diferentes com bases de evidencia diferentes (8 estudos de AD e 9 de PD no pool primario circulante de AUC), e um veredito unico combinado esconderia que a evidencia de PD e mais heterogenea (I2 85.8% contra 70.7% de AD). As duas classificacoes sao muito baixas, guiadas pelos mesmos fatos estruturais: todo estudo e um desenho caso-versus-controle-saudavel, o limiar de positividade nao foi pre-especificado por nenhum estudo, e a heterogeneidade e alta a extrema. A tabela de resumo de achados bivariada combinada abaixo e uma ilustracao secundaria e exploratoria do que um ponto de operacao agrupado implicaria clinicamente, tirada de apenas 11 estudos, e nao deve ser lida como uma acuracia clinica validada para nenhuma das duas doencas isoladamente."
 }
