@@ -77,7 +77,8 @@ Uma linha por afirmação mecanística feita por um estudo dos pools primários 
 | `study_id`, `first_author`, `year`, `disease` | Identificadores do estudo, com a mesma chave da auditoria de seleção |
 | `pooled_marker` | O marcador selecionado para o pool primário |
 | `mirna`, `target_or_pathway` | O(s) microRNA(s) a que a afirmação se refere e o alvo ou via proposto |
-| `biological_axis` | O eixo da doença a que a afirmação pertence; `none` quando não há afirmação |
+| `biological_axis` | O eixo da doença a que a afirmação pertence, nas palavras da fonte; `none` quando não há afirmação |
+| `axis_group` | Um de onze grupos curados (amiloide e processamento da APP; tau, sinapse e sinalização neuronal; neuroinflamação e imunidade inata; sobrevivência celular, apoptose e proteostase; biologia da alfa-sinucleína; neurônio dopaminérgico e LRRK2; vascular e barreira hematoencefálica; biologia de vesículas extracelulares; relação cérebro-periferia; correlação com medida clínica ou de biomarcador; neurodesenvolvimento e outros), atribuído pelo revisor a partir de `biological_axis` e da afirmação, para que a Tabela 3 do manuscrito agrupe o que é semelhante; `none` quando não há afirmação |
 | `evidence_type` | `experimental_in_included_study`, `experimental_cited_from_authors_prior_work`, `literature_cited`, `in_silico_prediction`, `clinical_correlation`, `paired_brain_tissue`, `none_reported`, `none_reported_abstract_only` |
 | `model_system` | Linhagem celular, ensaio ou fonte de dados por trás da afirmação |
 | `source_quote` | Frase literal do texto completo (vazia só para `none_*`) |

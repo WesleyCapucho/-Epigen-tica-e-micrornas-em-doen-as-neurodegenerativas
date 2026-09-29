@@ -77,7 +77,8 @@ One row per mechanistic claim made by a study in the primary pools (37 studies, 
 | `study_id`, `first_author`, `year`, `disease` | Study identifiers, keyed like the selection audit |
 | `pooled_marker` | The marker selected for the primary pool |
 | `mirna`, `target_or_pathway` | The microRNA(s) the claim concerns and the proposed target or pathway |
-| `biological_axis` | The disease axis the claim belongs to; `none` when no claim is made |
+| `biological_axis` | The disease axis the claim belongs to, in the words of the source; `none` when no claim is made |
+| `axis_group` | One of eleven curated groups (amyloid and APP processing; tau, synaptic and neuronal signalling; neuroinflammation and innate immunity; cell survival, apoptosis and proteostasis; alpha-synuclein biology; dopaminergic neuron biology and LRRK2; vascular and blood-brain barrier; extracellular vesicle biology; brain-periphery relationship; correlation with clinical or biomarker measures; neuronal development and other), assigned by the reviewer from `biological_axis` and the claim so that Table 3 of the manuscript groups like with like; `none` when no claim is made |
 | `evidence_type` | `experimental_in_included_study`, `experimental_cited_from_authors_prior_work`, `literature_cited`, `in_silico_prediction`, `clinical_correlation`, `paired_brain_tissue`, `none_reported`, `none_reported_abstract_only` |
 | `model_system` | Cell line, assay or data source behind the claim |
 | `source_quote` | Verbatim sentence from the full text (empty only for `none_*`) |

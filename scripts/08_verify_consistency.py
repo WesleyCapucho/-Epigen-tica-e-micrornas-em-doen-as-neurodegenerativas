@@ -1449,6 +1449,9 @@ def main():
               f"molecular map covers {sorted(mapped_ids ^ pooled_ids)} differently from the pooled studies")
         for r in mmap:
             check(r["evidence_type"] in tiers, f"molecular map: unknown evidence_type {r['evidence_type']}")
+            # EN/PT: axis_group is filled exactly when a claim is made | axis_group preenchido exatamente quando ha afirmacao
+            check((r["axis_group"] == "none") == r["evidence_type"].startswith("none") and r["axis_group"] != "",
+                  f"molecular map: {r['first_author']} {r['year']} axis_group inconsistent with evidence_type")
             if not r["evidence_type"].startswith("none"):
                 check(len(r["source_quote"].strip()) > 20,
                       f"molecular map: {r['first_author']} {r['year']} claim has no source sentence")
