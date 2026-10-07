@@ -88,77 +88,126 @@ def load():
     return rows, pooled
 
 
-LINE = 0.2       # EN/PT: row height per text line, in axis units | altura de linha de texto, em unidades do eixo
-MAX_LINES = 7    # EN/PT: lines shown per cell before "+N" | linhas por celula antes de "+N"
-WRAP = 23        # EN/PT: characters per line inside a cell | caracteres por linha dentro da celula
-
-
-def cell_text(cs):
-    """EN/PT: one paragraph per claim, wrapped whole; never cut in the middle of a claim |
-    um paragrafo por afirmacao, quebrado inteiro; nunca cortado no meio de uma afirmacao."""
-    if cs[0]["evidence_type"] in ("none_reported", "none_reported_abstract_only"):
-        return ["-"]
-    lines, shown = [], 0
-    for c in cs:
-        # EN/PT: a claim with no named target falls back on its biological axis | afirmacao sem alvo nomeado usa o eixo biologico
-        target = c["target_or_pathway"].strip() or c["biological_axis"].strip()
-        claim = textwrap.shorten(f"{c['mirna']} -> {target}", 75, placeholder="...")
-        wrapped = textwrap.wrap(claim, WRAP)
-        if lines and len(lines) + len(wrapped) > MAX_LINES:
-            lines.append(f"+{len(cs) - shown} more")
-            return lines
-        lines += wrapped
-        shown += 1
-    return lines
+GROUPS = [
+    ("Amyloid and APP processing", "Amiloide e processamento da APP"),
+    ("Tau, synaptic and neuronal signalling", "Tau, sinapse e sinalização neuronal"),
+    ("Neuroinflammation and innate immunity", "Neuroinflamação e imunidade inata"),
+    ("Cell survival, apoptosis and proteostasis", "Sobrevivência celular, apoptose e proteostase"),
+    ("Alpha-synuclein biology", "Biologia da alfa-sinucleína"),
+    ("Dopaminergic neuron biology and LRRK2", "Neurônio dopaminérgico e LRRK2"),
+    ("Vascular and blood-brain barrier", "Vascular e barreira hematoencefálica"),
+    ("Extracellular vesicle biology", "Biologia de vesículas extracelulares"),
+    ("Brain-periphery relationship", "Relação cérebro-periferia"),
+    ("Neuronal development and other", "Neurodesenvolvimento e outros"),
+    ("Correlation with clinical or biomarker measures", "Correlação com medida clínica ou de biomarcador"),
+]
+GROUP_INDEX = {g: i for i, (g, _) in enumerate(GROUPS)}
+# EN/PT: shape repeats the ordinal colour so that neighbouring dark steps stay distinguishable | a forma repete a cor ordinal para que passos escuros vizinhos fiquem distinguiveis
+TIER_MARKER = {0: "o", 1: "o", 2: "s", 3: "^", 4: "D", 5: "p"}
 
 
 def plot(rows, pooled, path, lang):
-    order = sorted(pooled.values(), key=lambda r: (r["disease"], -float(r["selected_auc"])))
-    keys = [study_key(r) for r in order]
-    n = len(keys)
-    cells, heights = [], []
-    for k in keys:
-        by_tier = {}
-        for c in rows:
-            if study_key(c) == k:
-                by_tier.setdefault(TIER_INDEX[c["evidence_type"]], []).append(c)
-        row_cells = {j: cell_text(cs) for j, cs in by_tier.items()}
-        cells.append(row_cells)
-        heights.append(max(0.55, LINE * max(len(v) for v in row_cells.values()) + 0.25))
-    tops = [sum(heights[:i]) for i in range(n)]
-    total = sum(heights)
-    x0 = -4.6
-    fig, ax = plt.subplots(figsize=(19, 0.6 * total + 1.8))
-    ax.set_xlim(x0, len(TIERS) - 0.5)
-    ax.set_ylim(total, -1.3)
-    ax.axis("off")
-
-    for j, (_k, en, pt, col) in enumerate(TIERS):
-        ax.text(j, -0.8, t(lang, en, pt), ha="center", va="center", fontsize=8.5,
-                fontweight="bold", color=col)
-    ax.text(x0 + 0.05, -0.8, t(lang, "Pooled study, selected marker (AUC)",
-                               "Estudo agregado, marcador selecionado (AUC)"),
-            ha="left", va="center", fontsize=9, fontweight="bold")
-
+    """
+    EN | Study by pathway matrix. One row per pooled study (AD then PD, highest AUC first),
+         one column per pathway group; a dot marks a group in which the study offers a claim,
+         coloured by the strongest kind of support it offers there (dark = an experiment in
+         the study, light = a correlation or paired tissue). Studies with no claim for the
+         pooled marker are shown in the last column. The bar on the left is the study's AUC,
+         so the reader can look for any relation between mechanism and accuracy, and see none.
+    PT | Matriz estudo por via. Uma linha por estudo agregado (DA e depois DP, maior AUC
+         primeiro), uma coluna por grupo de via; um ponto marca o grupo em que o estudo faz
+         uma afirmacao, colorido pelo tipo mais forte de apoio (escuro = experimento no
+         estudo, claro = correlacao ou tecido pareado). Estudos sem afirmacao para o
+         marcador agregado aparecem na ultima coluna. A barra a esquerda e a AUC do estudo.
+    """
+    import matplotlib.gridspec as gridspec
+    from _viz_style import (TIER_RAMP, TIER_NONE, DISEASE, INK, INK2, INK3, BAND, RULE, PAGE, GRID, panel_letter)
+    order_rows = sorted(pooled.values(), key=lambda r: (r["disease"], -float(r["selected_auc"])))
+    n = len(order_rows)
+    ng = len(GROUPS)
+    cells = {}
+    n_claims = {}
+    for r in rows:
+        sid = r["study_id"]
+        if r["evidence_type"].startswith("none"):
+            cells.setdefault((sid, "none"), 99)
+            continue
+        g = r["axis_group"]
+        tier = TIER_INDEX[r["evidence_type"]]
+        key = (sid, g)
+        cells[key] = min(cells.get(key, 99), tier)
+        n_claims[key] = n_claims.get(key, 0) + 1
+    # a study with claims elsewhere is not "none"
+    has_claim = {sid for (sid, g) in cells if g != "none"}
+    fig_h = 1.9 + 0.157 * n + 0.8
+    fig = plt.figure(figsize=(7.4, fig_h))
+    gs = gridspec.GridSpec(2, 3, width_ratios=[1.3, 1.25, 4.9], height_ratios=[1.45, 0.157 * n * 6],
+                           left=0.01, right=0.99, top=1 - 0.2 / fig_h, bottom=0.75 / fig_h, wspace=0.03, hspace=0.04)
+    axl = fig.add_subplot(gs[1, 0]); axb = fig.add_subplot(gs[1, 1]); axm = fig.add_subplot(gs[1, 2])
+    axt = fig.add_subplot(gs[0, 2])
+    ncol = ng + 1
+    for ax in (axl, axb, axm):
+        ax.set_ylim(n - 0.5, -0.5)
+    axl.set_xlim(0, 1); axl.axis("off")
+    axb.set_xlim(0.5, 1.13)
+    axm.set_xlim(-0.6, ncol - 0.4); axm.axis("off")
     prev = None
-    for i, r in enumerate(order):
-        y0, h = tops[i], heights[i]
-        yc = y0 + h / 2
-        if r["disease"] != prev:
-            if prev is not None:
-                ax.axhline(y0, color="black", lw=0.8)
-            prev = r["disease"]
+    counts_by_col = [0] * ncol
+    for i, r in enumerate(order_rows):
+        sid = r["study_id"]
+        dis = r["disease"]
         if i % 2 == 0:
-            ax.axhspan(y0, y0 + h, color="#f4f4f4", zorder=0)
-        label = f"{r['disease']}  {r['first_author']} {int(float(r['year']))}: " \
-                f"{textwrap.shorten(r['selected_marker'], 30, placeholder='...')} ({float(r['selected_auc']):.2f})"
-        ax.text(x0 + 0.05, yc, "\n".join(textwrap.wrap(label, 46)), ha="left", va="center", fontsize=8.5)
-        for j, lines in cells[i].items():
-            ax.scatter([j - 0.42], [yc], s=38, color=TIERS[j][3], zorder=3)
-            ax.text(j - 0.34, yc, "\n".join(lines), ha="left", va="center", fontsize=6.6,
-                    color="black", linespacing=1.15)
-    # EN/PT: no in-figure title; the caption lives in the manuscript text (journal rule)
-    # sem titulo na figura; a legenda fica no texto do manuscrito (regra da revista)
+            for ax in (axl, axb, axm):
+                ax.axhspan(i - 0.5, i + 0.5, color=BAND, lw=0, zorder=0)
+        if dis != prev:
+            if prev is not None:
+                for ax in (axl, axb, axm):
+                    ax.axhline(i - 0.5, color=INK3, lw=0.8, zorder=1)
+            prev = dis
+        axl.text(0.0, i, dis, fontsize=6.0, va="center", color=DISEASE[dis], fontweight="bold")
+        axl.text(0.14, i, f"{r['first_author']} {int(float(r['year']))}", fontsize=6.4, va="center", color=INK)
+        auc = float(r["selected_auc"])
+        axb.plot([0.5, auc], [i, i], color=DISEASE[dis], lw=1.4, solid_capstyle="butt", zorder=2)
+        axb.scatter([auc], [i], s=11, color=DISEASE[dis], zorder=3)
+        axb.text(1.13, i, f"{auc:.2f}", fontsize=5.8, va="center", ha="right", color=INK2)
+        for g, gi in GROUP_INDEX.items():
+            tier = cells.get((sid, g))
+            if tier is None:
+                continue
+            k = n_claims[(sid, g)]
+            hollow = tier == 1
+            axm.scatter([gi], [i], s=(40 if tier != 3 else 46) + 6 * min(k - 1, 4), marker=TIER_MARKER[tier],
+                        facecolor=PAGE if hollow else TIER_RAMP[tier], edgecolor=TIER_RAMP[tier], linewidths=1.6 if hollow else 0, zorder=3)
+            counts_by_col[gi] += 1
+        if sid not in has_claim:
+            axm.scatter([ng], [i], s=30, facecolor=PAGE, edgecolor=TIER_NONE, linewidths=1.3, zorder=3)
+            counts_by_col[ng] += 1
+    axb.spines['bottom'].set_bounds(0.5, 1.0); axb.set_yticks([]); axb.set_xticks([0.5, 0.75, 1.0]); axb.tick_params(axis="x", labelsize=6.3, length=2)
+    axb.spines["left"].set_visible(False)
+    axb.set_xlabel("AUC", fontsize=6.8)
+    for sp in ("top", "right"):
+        axb.spines[sp].set_visible(False)
+    # column heads and marginal counts
+    axt.set_xlim(-0.6, ncol - 0.4); axt.set_ylim(0, 11); axt.axis("off")
+    import textwrap as _tw
+    for gi in range(ncol):
+        lab = t(lang, *GROUPS[gi]) if gi < ng else t(lang, "No mechanism reported for the pooled marker", "Nenhum mecanismo relatado para o marcador agregado")
+        axt.text(gi, 5.0, "\n".join(_tw.wrap(lab, 24)), rotation=90, ha="center", va="bottom", fontsize=6.0, color=INK, linespacing=0.95)
+        h = counts_by_col[gi]
+        axt.add_patch(plt.Rectangle((gi - 0.2, 0.0), 0.4, 0.3 * h, color=RULE if gi == ng else INK2, lw=0, alpha=0.9))
+        if h:
+            axt.text(gi, 0.3 * h + 0.15, str(h), ha="center", va="bottom", fontsize=5.8, color=INK2)
+    axt.text(-0.75, 0.15, t(lang, "Studies per pathway", "Estudos por via"), fontsize=5.8, color=INK3, va="bottom", ha="right")
+    # legend: strength of support
+    names = [(t(lang, "Experiment in the study", "Experimento no estudo")), t(lang, "Authors' earlier experiment", "Experimento anterior dos autores"),
+             t(lang, "Cited from literature", "Citado da literatura"), t(lang, "Target prediction", "Predição de alvo"),
+             t(lang, "Clinical correlation", "Correlação clínica"), t(lang, "Paired brain tissue", "Tecido cerebral pareado")]
+    handles = [plt.Line2D([], [], marker=TIER_MARKER[i], ls="none", ms=6, mfc=PAGE if i == 1 else c, mec=c, mew=1.6 if i == 1 else 0) for i, c in enumerate(TIER_RAMP)]
+    handles.append(plt.Line2D([], [], marker="o", ls="none", ms=6, mfc=PAGE, mec=TIER_NONE, mew=1.3))
+    names.append(t(lang, "None reported", "Nenhuma relatada"))
+    fig.legend(handles, names, loc="lower left", bbox_to_anchor=(0.01, 0.0), ncol=4, frameon=False, fontsize=6.3,
+               handletextpad=0.2, columnspacing=1.0, title=t(lang, "Strongest support offered (dark to light)", "Apoio mais forte oferecido (escuro a claro)"),
+               title_fontsize=6.3, alignment="left")
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 

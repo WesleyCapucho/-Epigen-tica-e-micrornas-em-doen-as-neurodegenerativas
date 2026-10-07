@@ -64,6 +64,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+import _viz_style  # noqa: F401  (applies the shared figure style)
 
 QUADAS = "results/tables/quadas2_assessment.csv"
 POOLED_PRIMARY = "results/tables/meta_analysis_pooled_auc_primary.csv"
@@ -301,43 +302,59 @@ def summary_of_findings(sens, spec, prevalence):
 
 
 def plot(sof, subtitle, path, lang):
-    """EN/PT: what the test does to 1000 people, at each pre-test probability."""
-    fig, axes = plt.subplots(1, len(sof), figsize=(3.5 * len(sof), 4.4), sharey=True)
+    """
+    EN | What the test does to 1000 people at each pre-test probability, drawn as an icon
+         array: one dot is one person, so false alarms and missed cases are counted by eye.
+         Counts are the per-1000 values of the summary of findings, rounded so that the dots
+         add to 1000.
+    PT | O que o teste faz a 1000 pessoas em cada probabilidade pre-teste, desenhado como
+         matriz de icones: um ponto e uma pessoa, de modo que alarmes falsos e casos
+         perdidos sao contados a olho. As contagens sao os valores por 1000 do resumo de
+         achados, arredondados para que os pontos somem 1000.
+    """
+    from _viz_style import INK, INK2, INK3, PAGE, PD, TIER_RAMP, RULE
+    keys = [("true_positives_per_1000", TIER_RAMP[0], "o", True,
+             t(lang, "diseased, test positive", "doentes, teste positivo")),
+            ("false_negatives_per_1000", TIER_RAMP[0], "o", False,
+             t(lang, "diseased, test negative (missed)", "doentes, teste negativo (perdidos)")),
+            ("false_positives_per_1000", PD, "o", True,
+             t(lang, "healthy, test positive (false alarm)", "saudáveis, teste positivo (alarme falso)")),
+            ("true_negatives_per_1000", "#d6d4ce", "o", True,
+             t(lang, "healthy, test negative", "saudáveis, teste negativo"))]
+    ncol, nrow = 40, 25
+    fig, axes = plt.subplots(1, len(sof), figsize=(7.4, 3.6))
     if len(sof) == 1:
         axes = [axes]
-    keys = [("true_positives_per_1000", "#2e8b57",
-             t(lang, "correctly identified as diseased", "identificados corretamente como doentes")),
-            ("false_negatives_per_1000", "#c0392b",
-             t(lang, "missed cases", "casos perdidos")),
-            ("true_negatives_per_1000", "#7fb3d5",
-             t(lang, "correctly cleared", "corretamente liberados")),
-            ("false_positives_per_1000", "#e59866",
-             t(lang, "false alarms", "alarmes falsos"))]
     for ax, row in zip(axes, sof):
-        bottom = 0.0
-        for key, colour, _lab in keys:
-            v = row[key]
-            ax.bar(0, v, bottom=bottom, color=colour, width=0.62, edgecolor="white")
-            if v >= 45:
-                ax.text(0, bottom + v / 2, f"{v:.0f}", ha="center", va="center",
-                        fontsize=9, color="white" if colour != "#7fb3d5" else "#123")
-            bottom += v
-        ax.set_xticks([])
-        ax.set_title(t(lang, f"pre-test probability {row['pre_test_probability']:.0%}",
-                       f"probabilidade pré-teste {row['pre_test_probability']:.0%}"),
-                     fontsize=9.5)
-        ax.set_xlabel(t(lang,
-                        f"PPV {row['positive_predictive_value']:.2f}  ·  "
-                        f"NPV {row['negative_predictive_value']:.2f}",
-                        f"VPP {row['positive_predictive_value']:.2f}  ·  "
-                        f"VPN {row['negative_predictive_value']:.2f}"), fontsize=8.5)
-        ax.spines[["top", "right"]].set_visible(False)
-    axes[0].set_ylabel(t(lang, "people per 1000 tested", "pessoas por 1000 testadas"))
-    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for _, c, _ in keys]
-    fig.legend(handles, [lab for _, _, lab in keys], loc="lower center",
-               ncol=2, fontsize=8.5, frameon=False, bbox_to_anchor=(0.5, -0.08))
+        raw = [row[k] for k, *_ in keys]
+        counts = [int(x) for x in raw]
+        rem = sorted(range(4), key=lambda i: -(raw[i] - counts[i]))
+        for i in rem[:1000 - sum(counts)]:
+            counts[i] += 1
+        seq = []
+        for (k, colour, mk, filled, _lab), c in zip(keys, counts):
+            seq += [(colour, filled)] * c
+        xs, ys, fc, ec = [], [], [], []
+        for j, (colour, filled) in enumerate(seq):
+            col, rw = divmod(j, nrow)
+            xs.append(col); ys.append(rw)
+            fc.append(colour if filled else PAGE); ec.append(colour)
+        ax.scatter(xs, ys, s=5.0, facecolor=fc, edgecolor=ec, linewidths=0.8)
+        ax.set_xlim(-1, ncol); ax.set_ylim(nrow, -1.5)
+        ax.set_aspect("equal"); ax.axis("off")
+        ax.set_title(t(lang, f"Pre-test probability {row['pre_test_probability']:.0%}",
+                       f"Probabilidade pré-teste {row['pre_test_probability']:.0%}"), fontsize=8.6, fontweight="bold", color=INK, pad=2)
+        ax.text(ncol / 2 - 0.5, nrow + 2.2,
+                t(lang, f"{counts[2]} false alarms, {counts[1]} missed", f"{counts[2]} alarmes falsos, {counts[1]} perdidos"),
+                ha="center", va="top", fontsize=7.2, color=INK)
+        ax.text(ncol / 2 - 0.5, nrow + 4.6,
+                t(lang, f"PPV {row['positive_predictive_value']:.2f} · NPV {row['negative_predictive_value']:.2f}",
+                  f"VPP {row['positive_predictive_value']:.2f} · VPN {row['negative_predictive_value']:.2f}"),
+                ha="center", va="top", fontsize=7.0, color=INK2)
+    handles = [plt.Line2D([], [], marker="o", ls="none", ms=5.5, mfc=(c if f else PAGE), mec=c, mew=0.9) for _, c, _, f, _ in keys]
+    fig.legend(handles, [lab for *_, lab in keys], loc="lower center", ncol=2, fontsize=7, frameon=False,
+               bbox_to_anchor=(0.5, 0.12), handletextpad=0.3, columnspacing=1.6)
     # Title omitted: the caption in the manuscript names the figure.
-    fig.tight_layout()
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 

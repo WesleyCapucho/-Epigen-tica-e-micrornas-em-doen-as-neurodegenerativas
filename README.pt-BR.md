@@ -86,6 +86,7 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 19_mechanism_animations.py                 # GIFs animados de mecanismos já simulados
 │   ├── 20_structure_story_panel.py                # Compõe os renders do scripts/13 numa figura só
 │   ├── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
+│   ├── _viz_style.py                              # Paleta e escala tipografica compartilhadas das figuras do manuscrito
 │   └── tools/mirror_extraction_json.py            # Regenera o espelho JSON da tabela de extração
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, PRISMA-DTA checklist, Scopus/WoS export
@@ -129,6 +130,8 @@ python scripts/28_primary_forest_plot.py          # precisa do 05
 python scripts/29_second_reviewer_packet.py build   # planilha para o segundo revisor independente
 python scripts/30_recall_check.py                  # verificacao de recall do filtro por resumo
 python scripts/31_post_search_sensitivity.py       # precisa do 05
+python scripts/32_design_profile_figure.py         # grafico de unidades do desenho e do relato
+python scripts/33_robustness_specification_figure.py   # grafico de especificacoes das analises de robustez
 python scripts/08_verify_consistency.py           # precisa passar antes de versionar
 
 # Camada mecanística, offline

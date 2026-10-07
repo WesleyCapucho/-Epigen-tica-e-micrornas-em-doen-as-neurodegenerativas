@@ -85,7 +85,8 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 18_graphical_abstract.py                   # Schematic figure: both axes, computed numbers
 │   ├── 19_mechanism_animations.py                 # Animated GIFs of already-simulated mechanisms
 │   ├── 20_structure_story_panel.py                # Composites scripts/13's renders into one figure
-│   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR
+│   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR (and as a vector PDF)
+│   ├── _viz_style.py                              # Shared palette and type scale for the manuscript figures
 │   └── tools/mirror_extraction_json.py            # Regenerates the JSON mirror of the extraction table
 ├── docs/
 │   ├── en/                            # Methods, data dictionary, PRISMA-DTA checklist, Scopus/WoS export
@@ -129,6 +130,8 @@ python scripts/28_primary_forest_plot.py          # needs 05
 python scripts/29_second_reviewer_packet.py build   # workbook for the independent second reviewer
 python scripts/30_recall_check.py                  # recall check of the abstract-based filter
 python scripts/31_post_search_sensitivity.py       # needs 05
+python scripts/32_design_profile_figure.py         # unit chart of design and reporting features
+python scripts/33_robustness_specification_figure.py   # specification chart of the robustness analyses
 python scripts/08_verify_consistency.py           # must pass before committing
 
 # Mechanistic layer, offline

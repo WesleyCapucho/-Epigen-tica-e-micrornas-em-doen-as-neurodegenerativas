@@ -39,10 +39,12 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+from _viz_style import *  # noqa: F401,F403  (palette, ROB_*, helpers; applies the shared style)
 
 SELECTION = "results/tables/one_estimate_per_study_selection_audit.csv"
 INPUTS = "results/tables/meta_analysis_input_estimates.csv"
 POOLED = "results/tables/meta_analysis_pooled_auc_primary.csv"
+QUADAS = "results/tables/quadas2_assessment.csv"
 FIG_DIR = "results/figures"
 STEM = "forest_plot_primary"
 PRIMARY_ROW = {"AD": "AD - all markers", "PD": "PD - all markers"}
@@ -93,53 +95,118 @@ def load():
     return out
 
 
+def load_rob():
+    """EN/PT: QUADAS-2 risk-of-bias judgement per study unit | julgamento QUADAS-2 por unidade de estudo."""
+    rows = list(csv.DictReader(open(QUADAS, encoding="utf-8")))
+    return {r["study_id"].lower(): r for r in rows}
+
+
+ROB_COLS = [("rob_patient_selection", "PS"), ("rob_index_test", "IT"),
+            ("rob_reference_standard", "RS"), ("rob_flow_timing", "FT")]
+BIOFLUID = {"serum": "serum", "plasma": "plasma", "serum_exosome": "serum EV", "serum_neuronal_EV": "serum nEV",
+            "plasma_EV": "plasma EV", "plasma_neuronal_EV": "plasma nEV", "blood": "blood", "plasma_sEV": "plasma sEV"}
+
+
 def plot(data, path, lang):
-    fig, axes = plt.subplots(2, 1, figsize=(10.5, 9.2),
-                             gridspec_kw={"height_ratios": [len(data["AD"][0]) + 3, len(data["PD"][0]) + 3]})
-    colors = {"AD": "#3B6EA5", "PD": "#B3541E"}
-    for ax, dis in zip(axes, ["AD", "PD"]):
+    rob = load_rob()
+    sel = {(s["first_author"], str(int(float(s["year"]))), s["disease"]): s
+           for s in csv.DictReader(open(SELECTION, encoding="utf-8"))}
+    nA, nP = len(data["AD"][0]), len(data["PD"][0])
+    row_h = 0.19
+    fig_h = row_h * (nA + nP + 8) + 1.1
+    fig = plt.figure(figsize=(7.4, fig_h))
+    outer = fig.add_gridspec(2, 1, height_ratios=[nA + 4, nP + 4], hspace=0.12,
+                             left=0.015, right=0.985, top=1 - 0.4 / fig_h, bottom=1.0 / fig_h)
+    for k, dis in enumerate(["AD", "PD"]):
         studies, prow = data[dis]
         n = len(studies)
-        labels = []
-        for i, s in enumerate(studies):
-            yy = n - i + 1
-            lo = inv_logit(s["y"] - 1.959964 * math.sqrt(s["v"]))
-            hi = inv_logit(s["y"] + 1.959964 * math.sqrt(s["v"]))
-            ax.plot([lo, hi], [yy, yy], color=colors[dis], lw=1.3)
-            ax.scatter([inv_logit(s["y"])], [yy], s=18 + 6 * s["wpct"], marker="s", color=colors[dis], zorder=3)
-            nn = f"{int(float(s['n'][0]))}/{int(float(s['n'][1]))}" if s["n"][0] and s["n"][1] else "n/r"
-            src = (t(lang, "reported CI", "IC reportado") if s["se_source"] == "reported_95CI"
-                   else "HM*" if "implausibly" in s["se_source"] else "HM")
-            labels.append((yy, f"{s['author']} {s['year']}  {textwrap.shorten(s['marker'], 30, placeholder='...')}  ({s['biofluid']}, {nn}, {src})"))
-            ax.text(1.005, yy, f"{inv_logit(s['y']):.2f} [{lo:.2f}, {hi:.2f}]  {s['wpct']:.1f}%",
-                    va="center", fontsize=7.2, transform=ax.get_yaxis_transform())
+        studies = sorted(studies, key=lambda s: -s["y"])
+        col = DISEASE[dis]
+        soft = AD_SOFT if dis == "AD" else PD_SOFT
+        g = outer[k].subgridspec(1, 4, width_ratios=[2.9, 2.6, 1.95, 1.0], wspace=0.015)
+        axl, axf, axv, axr = (fig.add_subplot(g[0, i]) for i in range(4))
+        ytop = n + 3.2
+        for ax in (axl, axf, axv, axr):
+            ax.set_ylim(-1.9, ytop)
+        for ax in (axl, axv, axr):
+            ax.axis("off")
+        axl.set_xlim(0, 1); axv.set_xlim(0, 1); axr.set_xlim(0, 4)
+        # EN/PT: header row | linha de cabecalho
+        yh = n + 1.9
+        axl.text(0.0, yh, t(lang, "Study", "Estudo"), fontsize=7.5, fontweight="bold", va="center")
+        axl.text(0.5, yh, t(lang, "Selected estimate", "Estimativa selecionada"), fontsize=7.5, fontweight="bold", va="center")
+        axv.text(0.0, yh, "AUC [95% CI]", fontsize=7, fontweight="bold", va="center")
+        axv.text(0.66, yh, t(lang, "n case/ctrl", "n caso/ctrl"), fontsize=6.0, fontweight="bold", va="center", ha="center")
+        axv.text(1.0, yh, t(lang, "Wt %", "Peso %"), fontsize=6.6, fontweight="bold", va="center", ha="right")
+        for j, (_c, ab) in enumerate(ROB_COLS):
+            axr.text(j + 0.5, yh, ab, fontsize=7.2, fontweight="bold", ha="center", va="center", color=INK2)
+        axl.text(0.0, ytop - 0.15, t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
+                                     "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"),
+                 fontsize=10, fontweight="bold", color=col, va="center")
+        # EN/PT: prediction band and pooled line behind the studies | faixa de predicao e linha agregada atras dos estudos
         est, lo, hi = float(prow["pooled_auc"]), float(prow["ci_low_hk"]), float(prow["ci_high_hk"])
         pil, pih = float(prow["pi_low"]), float(prow["pi_high"])
-        ax.plot([pil, pih], [0.2, 0.2], color="#555555", lw=1.0, ls="-")
-        ax.fill([lo, est, hi, est], [0.2, 0.55, 0.2, -0.15], color="#222222", zorder=4)
-        labels.append((0.2, t(lang,
-                              f"Summary, {n} studies (mHK CI; line = 95% PI)  I² = {float(prow['I2_percent']):.1f}%",
-                              f"Resumo, {n} estudos (IC mHK; linha = IP 95%)  I² = {float(prow['I2_percent']):.1f}%")))
-        ax.text(1.005, 0.2, f"{est:.2f} [{lo:.2f}, {hi:.2f}]  PI [{pil:.2f}, {pih:.2f}]", va="center",
-                fontsize=7.2, fontweight="bold", transform=ax.get_yaxis_transform())
-        ax.set_yticks([p for p, _ in labels])
-        ax.set_yticklabels([l for _, l in labels], fontsize=7.4)
-        ax.tick_params(axis="y", length=0)
-        ax.axvline(0.5, color="#999999", ls="--", lw=0.8)
-        ax.axvline(est, color="#bbbbbb", ls=":", lw=0.8)
-        ax.set_xlim(0.3, 1.0)
-        ax.set_ylim(-0.6, n + 1.8)
-        ax.set_title(t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
-                       "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"),
-                     loc="left", fontsize=10, color=colors[dis], fontweight="bold")
+        axf.axvspan(pil, pih, ymin=0.0, ymax=1.0, color=soft, alpha=0.55, lw=0, zorder=0)
+        axf.axvline(est, color=col, lw=0.9, zorder=1)
+        axf.axvline(0.5, color=INK3, lw=0.7, ls=(0, (3, 3)), zorder=1)
+        for i, s in enumerate(studies):
+            yy = n - i
+            lo_i = inv_logit(s["y"] - 1.959964 * math.sqrt(s["v"]))
+            hi_i = inv_logit(s["y"] + 1.959964 * math.sqrt(s["v"]))
+            auc = inv_logit(s["y"])
+            sr = s["se_source"]
+            ls = "-" if sr == "reported_95CI" else (0, (1, 1.2)) if "implausibly" in sr else (0, (4, 1.6))
+            axf.plot([lo_i, hi_i], [yy, yy], color=col, lw=1.15, ls=ls, solid_capstyle="butt", zorder=2)
+            srow = sel[(s["author"], str(s["year"]), dis)]
+            panel = srow["selected_marker_type"] == "multi_miRNA_panel"
+            axf.scatter([auc], [yy], s=16 + 5.2 * s["wpct"], marker="D" if panel else "s",
+                        facecolor=col if panel else PAGE, edgecolor=col, linewidth=1.2, zorder=3)
+            if i % 2 == 0:
+                for ax in (axl, axv, axr):
+                    ax.axhspan(yy - 0.5, yy + 0.5, color=BAND, lw=0, zorder=0)
+                axf.axhspan(yy - 0.5, yy + 0.5, color=BAND, alpha=0.5, lw=0, zorder=0.5)
+            axl.text(0.0, yy, f"{s['author']} {s['year']}", fontsize=7.2, va="center", color=INK)
+            axl.text(0.5, yy, textwrap.shorten(s["marker"], 29, placeholder="…"), fontsize=6.3, va="center", color=INK2, clip_on=True)
+            nn = f"{int(float(s['n'][0]))}/{int(float(s['n'][1]))}" if s["n"][0] and s["n"][1] else "n/r"
+            star = "*" if "implausibly" in sr else ""
+            axv.text(0.0, yy, f"{auc:.2f} [{lo_i:.2f}, {hi_i:.2f}]{star}", fontsize=6.6, va="center")
+            axv.text(0.66, yy, nn, fontsize=6.3, va="center", ha="center", color=INK2)
+            axv.text(1.0, yy, f"{s['wpct']:.1f}", fontsize=6.6, va="center", ha="right", color=INK2)
+            q = rob.get(srow["study_id"].lower())
+            for j, (c, _ab) in enumerate(ROB_COLS):
+                v = q[c] if q else "unclear"
+                rounded(axr, j + 0.1, yy - 0.36, 0.8, 0.72, ROB_FILL[v], r=0.14)
+                axr.text(j + 0.5, yy, ROB_LETTER[v], fontsize=5.8, fontweight="bold", ha="center", va="center", color=ROB_TEXT[v])
+        # EN/PT: summary row | linha de resumo
+        ys = -1.0
+        axf.plot([pil, pih], [ys, ys], color=INK, lw=1.0, zorder=3)
+        axf.fill([lo, est, hi, est], [ys, ys + 0.5, ys, ys - 0.5], color=col, zorder=4, ec=INK, lw=0.6)
+        axf.axhline(0.0, color=RULE, lw=0.7, zorder=1)
+        axl.text(0.0, ys, t(lang, f"Pooled, {n} studies", f"Agregado, {n} estudos"), fontsize=7.4, fontweight="bold", va="center")
+        axl.text(0.0, ys - 0.85, f"I² = {float(prow['I2_percent']):.1f}%", fontsize=6.6, va="center", color=INK2)
+        axv.text(0.0, ys, f"{est:.2f} [{lo:.2f}, {hi:.2f}]", fontsize=7.2, fontweight="bold", va="center")
+        axv.text(0.0, ys - 0.85, f"PI [{pil:.2f}, {pih:.2f}]", fontsize=6.6, va="center", color=INK2)
+        axf.set_xlim(0.3, 1.0)
+        axf.set_yticks([])
+        axf.set_xticks([0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+        axf.tick_params(axis="x", length=2.5, labelsize=7)
         for sp in ("top", "right", "left"):
-            ax.spines[sp].set_visible(False)
-    axes[-1].set_xlabel(t(lang, "AUC (95% CI); marker size proportional to random-effects weight. "
-                          "HM = Hanley-McNeil SE; HM* = reported CI replaced as implausibly narrow",
-                          "AUC (IC 95%); tamanho do marcador proporcional ao peso de efeitos aleatórios. "
-                          "HM = EP de Hanley-McNeil; HM* = IC reportado substituído por ser implausivelmente estreito"),
-                        fontsize=8.4)
-    fig.tight_layout()
+            axf.spines[sp].set_visible(False)
+        if k == 1:
+            axf.set_xlabel("AUC", fontsize=8)
+        else:
+            axf.set_xlabel("")
+    # EN/PT: key | legenda
+    items = [
+        (t(lang, "Single microRNA", "miRNA isolado"), dict(marker="s", mfc=PAGE, mec=INK2, ls="none", ms=5.5)),
+        (t(lang, "Panel", "Painel"), dict(marker="D", mfc=INK2, mec=INK2, ls="none", ms=5.2)),
+        (t(lang, "Reported CI", "IC reportado"), dict(marker=None, color=INK2, ls="-", lw=1.2)),
+        (t(lang, "CI reconstructed (Hanley-McNeil)", "IC reconstruído (Hanley-McNeil)"), dict(marker=None, color=INK2, ls=(0, (4, 1.6)), lw=1.2)),
+        (t(lang, "* reported CI replaced as implausibly narrow", "* IC reportado substituído por implausivelmente estreito"), dict(marker=None, color=INK2, ls=(0, (1, 1.2)), lw=1.2)),
+    ]
+    handles = [matplotlib.lines.Line2D([], [], **kw) for _lab, kw in items]
+    fig.legend(handles, [lab for lab, _ in items], loc="lower left", bbox_to_anchor=(0.0, 0.0), ncol=3,
+               frameon=False, fontsize=6.6, handlelength=2.2, columnspacing=1.2)
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 

@@ -761,7 +761,7 @@ def main():
 
     for lang in LANGS:
         forest_plot(pool, lang)
-        funnel_plot(pool, lang)
+        funnel_plot(pool, lang, sel_all)
     print(f"\nEN: tables -> {TAB_DIR} | figures -> {FIG_DIR}")
     print(f"PT: tabelas -> {TAB_DIR} | figuras -> {FIG_DIR}")
 
@@ -908,34 +908,58 @@ def forest_plot(pool, lang):
     plt.close(fig)
 
 
-def funnel_plot(pool, lang):
-    """EN/PT: funnel plot on the logit(AUC) scale to inspect small-study effects."""
+def funnel_plot(pool, lang, sel=None):
+    """
+    EN | Contour-enhanced funnel plot on the logit(AUC) scale. The shading marks the
+         significance of a two-sided test of AUC = 0.5 (logit 0) for a point at that place:
+         white p > 0.10, then progressively darker for 0.05-0.10, 0.01-0.05 and < 0.01. An
+         asymmetry that sits inside the white and pale zones points to selective reporting;
+         one that sits in the dark zones does not. Faint dots are every eligible estimate;
+         solid dots are the one estimate per study that enters the primary analysis, and the
+         vertical line is that selection's pooled estimate for each disease.
+    PT | Funil com contornos na escala logit(AUC). O sombreado marca a significancia de um
+         teste bilateral de AUC = 0,5 (logit 0) para um ponto naquele lugar: branco p > 0,10,
+         depois cada vez mais escuro para 0,05-0,10, 0,01-0,05 e < 0,01. Uma assimetria
+         dentro das zonas branca e clara aponta para relato seletivo; nas zonas escuras, nao.
+         Pontos claros sao toda estimativa elegivel; pontos solidos sao a unica estimativa
+         por estudo da analise primaria, e a linha vertical e o agregado dessa selecao.
+    """
+    import _viz_style as vs
+    from matplotlib.patches import Patch
     y = logit(pool["auc"].values)
     se = pool["se_auc"].values / (pool["auc"].values * (1 - pool["auc"].values))
-    r = pool_re(y, se ** 2, tau2_method="DL")
-
-    fig, ax = plt.subplots(figsize=(6.4, 5.4))
-    colors = {"AD": "#3B6EA5", "PD": "#B3541E", "mixed_neurodegenerative": "#777777"}
-    for dis, sub_idx in pool.groupby("disease").groups.items():
-        idx = pool.index.get_indexer(sub_idx)
-        ax.scatter(y[idx], se[idx], s=38, alpha=0.85,
-                   color=colors.get(dis, "#555555"), label=dis)
-
-    if r:
-        se_max = float(np.nanmax(se)) * 1.05
-        se_line = np.linspace(0.001, se_max, 60)
-        for z, ls in [(1.959964, "--"), (1.644854, ":")]:
-            ax.plot(r["estimate"] - z * se_line, se_line, color="#888888", ls=ls, lw=1)
-            ax.plot(r["estimate"] + z * se_line, se_line, color="#888888", ls=ls, lw=1)
-        ax.axvline(r["estimate"], color="#444444", lw=1.2)
-
-    ax.invert_yaxis()
+    se_max = float(np.nanmax(se)) * 1.08
+    ymax = float(np.nanmax(np.abs(y))) * 1.12
+    fig, ax = plt.subplots(figsize=(6.2, 4.9))
+    grid = np.linspace(0.0, se_max, 80)
+    ax.set_facecolor("#d3d2cc")                                   # p < 0.01
+    for z, colr in [(2.575829, "#e4e3de"), (1.959964, "#efeeea"), (1.644854, "#ffffff")]:
+        ax.fill_betweenx(grid, -z * grid, z * grid, color=colr, zorder=0.5, lw=0)
+    ax.axvline(0.0, color=vs.INK3, lw=0.9, ls=(0, (3, 3)), zorder=1)
+    for dis in ("AD", "PD"):
+        idx = np.where(pool["disease"].values == dis)[0]
+        ax.scatter(y[idx], se[idx], s=11, color=vs.DISEASE[dis], alpha=0.30, linewidths=0, zorder=2)
+        if sel is not None:
+            ss = sel[sel["disease"] == dis]
+            ys_, ses_ = ss["y"].values.astype(float), np.sqrt(ss["v"].values.astype(float))
+            ax.scatter(ys_, ses_, s=30, color=vs.DISEASE[dis], edgecolor="white", linewidths=0.7, zorder=4,
+                       label=t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
+                               "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"))
+            r = pool_re(ys_, ses_ ** 2, tau2_method="PM")
+            if r:
+                ax.plot([r["estimate"], r["estimate"]], [0, se_max], color=vs.DISEASE[dis], lw=1.0, zorder=3)
+    ax.set_xlim(-0.35, ymax)
+    ax.set_ylim(se_max, 0)
     ax.set_xlabel("logit(AUC)")
     ax.set_ylabel(t(lang, "Standard error", "Erro-padrão"))
+    handles, labels = ax.get_legend_handles_labels()
+    for fc, lab in (("#ffffff", "p ≥ 0.10"), ("#efeeea", "0.05 ≤ p < 0.10"), ("#e4e3de", "0.01 ≤ p < 0.05"), ("#d3d2cc", "p < 0.01")):
+        handles.append(Patch(fc=fc, ec=vs.RULE, lw=0.6)); labels.append(lab)
+    ax.legend(handles, labels, fontsize=7, frameon=True, framealpha=0.9, facecolor="white", edgecolor=vs.RULE, loc="lower right",
+              title=t(lang, "Test of AUC = 0.5", "Teste de AUC = 0,5"), title_fontsize=7)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
     # Title omitted: the caption in the manuscript names the figure.
-    ax.legend(fontsize=8, frameon=False)
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
     fig.tight_layout()
     fig.savefig(fig_path(FIG_DIR, "funnel_plot_auc", lang), dpi=600, bbox_inches="tight")
     plt.close(fig)

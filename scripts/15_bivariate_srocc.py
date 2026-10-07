@@ -331,38 +331,71 @@ def sroc_points(fit, n=200):
     return xs, ys
 
 
+def prediction_ellipse(fit, n=200):
+    """
+    EN | Approximate 95% prediction region for the true sensitivity and specificity of a new
+         study: the fitted bivariate normal with the between-study covariance plus the
+         variance of each summary mean (their covariance is not stored, so it is taken as
+         zero). Drawn on the ROC plane after the inverse-logit transform. It is an
+         illustration of how far apart studies are expected to fall, not a tested interval.
+    PT | Regiao de predicao de 95% aproximada para a sensibilidade e a especificidade
+         verdadeiras de um novo estudo: a normal bivariada ajustada com a covariancia entre
+         estudos mais a variancia de cada media sumaria (a covariancia delas nao e guardada
+         e entra como zero). Desenhada no plano ROC apos a transformada logito inversa. E uma
+         ilustracao de quao distantes se espera que caiam os estudos, nao um intervalo testado.
+    """
+    vs_ = float(fit["tau_sens"]) ** 2 + float(fit["se_mu_sens"]) ** 2
+    vp_ = float(fit["tau_spec"]) ** 2 + float(fit["se_mu_spec"]) ** 2
+    cov = float(fit["rho"]) * float(fit["tau_sens"]) * float(fit["tau_spec"])
+    sigma = np.array([[vs_, cov], [cov, vp_]])
+    try:
+        chol = np.linalg.cholesky(sigma)
+    except np.linalg.LinAlgError:
+        return [], []
+    r = np.sqrt(5.991)
+    th = np.linspace(0, 2 * np.pi, n)
+    pts = np.array([float(fit["mu_sens"]), float(fit["mu_spec"])])[:, None] + r * chol @ np.vstack([np.cos(th), np.sin(th)])
+    inv = lambda z: 1.0 / (1.0 + np.exp(-z))
+    return 1.0 - inv(pts[1]), inv(pts[0])
+
+
 def plot(fit, meta, primary, path, lang):
-    fig, ax = plt.subplots(figsize=(6.4, 6.0))
-    sizes = [30 + 2.2 * (m["n_cases"] + m["n_controls"]) ** 0.5 * 3 for m in meta]
-    colours = {"AD": "#1f77b4", "PD": "#d62728"}
+    import _viz_style as vs
+    fig, ax = plt.subplots(figsize=(5.4, 5.2))
+    sizes = [14 + 1.1 * (m["n_cases"] + m["n_controls"]) ** 0.5 * 3 for m in meta]
+    ex, ey = prediction_ellipse(fit)
+    if len(ex):
+        ax.fill(ex, ey, color="#e4e3de", alpha=0.8, lw=0, zorder=1,
+                label=t(lang, "95% prediction region (approximate)", "região de predição de 95% (aproximada)"))
     for m, s in zip(meta, sizes):
-        ax.scatter(1 - m["specificity"], m["sensitivity"], s=s, alpha=0.45,
-                   color=colours.get(m["disease"], "#7f7f7f"),
+        ax.scatter(1 - m["specificity"], m["sensitivity"], s=s, alpha=0.6,
+                   color=vs.DISEASE.get(m["disease"], vs.INK3),
                    edgecolor="white", linewidth=0.8, zorder=3)
     xs, ys = sroc_points(fit)
     if xs:
-        ax.plot(xs, ys, color="black", lw=1.6, zorder=4,
-                label=t(lang, "SROC (bivariate)", "ROC sumária (bivariada)"))
+        ax.plot(xs, ys, color=vs.INK, lw=1.3, zorder=4,
+                label=t(lang, "summary ROC (bivariate)", "ROC sumária (bivariada)"))
     ax.scatter([1 - primary["summary_specificity"]], [primary["summary_sensitivity"]],
-               marker="D", s=95, color="black", zorder=5,
-               label=(t(lang, "summary  ", "sumário  ") +
+               marker="D", s=60, color=vs.INK, zorder=5,
+               label=(t(lang, "summary point  ", "ponto sumário  ") +
                       f"{primary['summary_sensitivity']:.2f} / "
                       f"{primary['summary_specificity']:.2f}"))
     ax.plot([1 - primary["specificity_ci_low"], 1 - primary["specificity_ci_high"]],
-            [primary["summary_sensitivity"]] * 2, color="black", lw=1.2, zorder=5)
+            [primary["summary_sensitivity"]] * 2, color=vs.INK, lw=1.1, zorder=5)
     ax.plot([1 - primary["summary_specificity"]] * 2,
             [primary["sensitivity_ci_low"], primary["sensitivity_ci_high"]],
-            color="black", lw=1.2, zorder=5)
-    ax.plot([0, 1], [0, 1], ls=":", color="grey", lw=1)
-    for d, c in colours.items():
-        ax.scatter([], [], color=c, alpha=0.6, s=60,
-                   label=t(lang, f"{d} study", f"estudo de {d}"))
+            color=vs.INK, lw=1.1, zorder=5)
+    ax.plot([0, 1], [0, 1], ls=":", color=vs.INK3, lw=0.9)
+    for d, c in vs.DISEASE.items():
+        ax.scatter([], [], color=c, alpha=0.8, s=36, label=t(lang, f"{d} study (area = sample size)", f"estudo de {d} (área = amostra)"))
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
+    ax.set_aspect("equal")
     ax.set_xlabel(t(lang, "1 - specificity", "1 - especificidade"))
     ax.set_ylabel(t(lang, "sensitivity", "sensibilidade"))
     # Title omitted: the caption in the manuscript names the figure.
-    ax.legend(loc="lower right", fontsize=8, frameon=False)
-    ax.grid(alpha=0.25)
+    ax.legend(loc="lower right", fontsize=6.8, frameon=False)
+    ax.grid(color=vs.GRID, lw=0.6)
+    ax.set_axisbelow(True)
     fig.tight_layout()
     fig.savefig(path, dpi=600)
     plt.close(fig)

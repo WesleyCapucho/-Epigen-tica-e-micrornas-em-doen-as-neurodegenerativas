@@ -64,6 +64,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+import _viz_style  # noqa: F401  (applies the shared figure style)
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 STUDY_LEVEL = "data/extracted/quadas2_study_level.csv"
@@ -468,48 +469,108 @@ def assess(rows_by_study, study_level, design=None):
 
 
 def plot(assessment, path, lang):
-    """EN/PT: the standard QUADAS-2 stacked bar, one row per domain."""
-    order = [HIGH, UNCLEAR, LOW, UNRATED]
-    colour = {HIGH: "#c0392b", UNCLEAR: "#f0c419", LOW: "#2e8b57", UNRATED: "#9aa0a6"}
-    label = {HIGH: t(lang, "High", "Alto"), UNCLEAR: t(lang, "Unclear", "Incerto"),
-             LOW: t(lang, "Low", "Baixo"),
-             UNRATED: t(lang, "Not assessed", "Não avaliado")}
+    """
+    EN | Two views of the same judgements. A: share of studies at each level for every
+         domain. B: the judgement for each study and domain (one coloured cell with its
+         letter, so colour is never the only signal), AD and PD side by side, pooled
+         studies first.
+    PT | Duas visoes dos mesmos julgamentos. A: proporcao de estudos em cada nivel por
+         dominio. B: o julgamento de cada estudo em cada dominio (uma celula colorida com
+         sua letra, de modo que a cor nunca e o unico sinal), DA e DP lado a lado, estudos
+         agregados primeiro.
+    """
+    import matplotlib.gridspec as gridspec
+    from _viz_style import (ROB_FILL, ROB_LETTER, ROB_TEXT, INK, INK2, INK3, BAND, DISEASE,
+                            rounded, panel_letter)
+    level = {HIGH: "high", UNCLEAR: "unclear", LOW: "low"}
+    name = {"high": t(lang, "High", "Alto"), "unclear": t(lang, "Unclear", "Incerto"), "low": t(lang, "Low", "Baixo")}
     keys = list(DOMAINS)
-    fig, ax = plt.subplots(figsize=(10, 4.6))
+    short = {"rob_patient_selection": ("Patient\nselection", "Seleção de\npacientes"),
+             "rob_index_test": ("Index\ntest", "Teste\níndice"),
+             "rob_reference_standard": ("Reference\nstandard", "Padrão de\nreferência"),
+             "rob_flow_timing": ("Flow and\ntiming", "Fluxo e\ntempo"),
+             "app_patient_selection": ("Patient\nselection", "Seleção de\npacientes"),
+             "app_index_test": ("Index\ntest", "Teste\níndice"),
+             "app_reference_standard": ("Reference\nstandard", "Padrão de\nreferência")}
+    pooled_ids = set()
+    if os.path.exists("results/tables/one_estimate_per_study_selection_audit.csv"):
+        with open("results/tables/one_estimate_per_study_selection_audit.csv", encoding="utf-8") as fh:
+            pooled_ids = {r["study_id"].lower() for r in csv.DictReader(fh)}
     n = len(assessment)
+    groups = {}
+    for dis in ("AD", "PD"):
+        rows = [r for r in assessment if r["disease"] == dis]
+        rows.sort(key=lambda r: (r["study_id"].lower() not in pooled_ids, r["first_author"], r["year"]))
+        groups[dis] = rows
+    nmax = max(len(v) for v in groups.values())
+    row_h = 0.172
+    fig_h = 2.45 + row_h * nmax + 1.1
+    fig = plt.figure(figsize=(7.4, fig_h))
+    gs = gridspec.GridSpec(2, 2, height_ratios=[2.25, row_h * nmax + 0.8], hspace=0.28, wspace=0.06,
+                           left=0.02, right=0.985, top=1 - 0.3 / fig_h, bottom=0.55 / fig_h)
+    # ---- A: share of studies at each level ----
+    axa = fig.add_subplot(gs[0, :])
+    nd = len(keys)
     for i, key in enumerate(keys):
-        counts = Counter(r[key] for r in assessment)
+        y = nd - 1 - i - (0.9 if i >= 4 else 0)
+        counts = Counter(level.get(r[key]) for r in assessment)
         left = 0.0
-        for v in order:
+        for v in ("low", "unclear", "high"):
             frac = 100.0 * counts.get(v, 0) / n
             if frac <= 0:
                 continue
-            ax.barh(len(keys) - 1 - i, frac, left=left, color=colour[v],
-                    edgecolor="white", height=0.72)
-            if frac >= 7:
-                ax.text(left + frac / 2, len(keys) - 1 - i, f"{frac:.0f}%",
-                        ha="center", va="center", fontsize=8,
-                        color="white" if v != UNCLEAR else "black")
+            rounded(axa, left + 0.35, y - 0.34, max(frac - 0.7, 0.2), 0.68, ROB_FILL[v], r=0.12)
+            if frac >= 6:
+                axa.text(left + frac / 2, y, f"{ROB_LETTER[v]} {counts[v]}", ha="center", va="center",
+                         fontsize=7, fontweight="bold", color=ROB_TEXT[v])
             left += frac
-    ax.set_yticks(range(len(keys)))
-    ax.set_yticklabels([t(lang, *DOMAINS[k]) for k in reversed(keys)], fontsize=9)
-    ax.set_xlabel(t(lang, f"per cent of studies  (n = {n})",
-                    f"por cento dos estudos  (n = {n})"))
-    ax.set_xlim(0, 100)
-    # Title omitted: the caption in the manuscript names the figure.
-    # EN | Only put a category in the legend if it is actually on the chart. A grey
-    #      "Not assessed" key above a chart with no grey in it invites the reader to go
-    #      looking for a bar that is not there.
-    # PT | So entra na legenda a categoria que esta de fato no grafico. Uma chave cinza
-    #      "Nao avaliado" sobre um grafico sem nada de cinza convida o leitor a procurar
-    #      uma barra que nao existe.
-    present = [v for v in order
-               if any(r[k] == v for r in assessment for k in keys)]
-    handles = [plt.Rectangle((0, 0), 1, 1, color=colour[v]) for v in present]
-    ax.legend(handles, [label[v] for v in present], loc="lower center",
-              bbox_to_anchor=(0.5, -0.32), ncol=len(present), fontsize=8, frameon=False)
-    ax.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout()
+        axa.text(-1.5, y, t(lang, *short[key]).replace("\n", " "), ha="right", va="center", fontsize=7.4, color=INK)
+    axa.text(-1.5, nd - 1 + 0.95, t(lang, "Risk of bias", "Risco de viés"), ha="right", va="center", fontsize=7.6, fontweight="bold", color=INK2)
+    axa.text(-1.5, 1.1 + 0.95, t(lang, "Applicability concern", "Preocupação de aplicabilidade"), ha="right", va="center", fontsize=7.6, fontweight="bold", color=INK2)
+    axa.set_xlim(0, 100); axa.set_ylim(-1.5, nd + 0.8)
+    axa.set_yticks([]); axa.set_xticks([0, 25, 50, 75, 100])
+    axa.set_xticklabels(["0%", "25%", "50%", "75%", "100%"])
+    for sp in ("left", "top", "right"):
+        axa.spines[sp].set_visible(False)
+    axa.set_xlabel(t(lang, f"share of the {n} eligible studies", f"proporção dos {n} estudos elegíveis"), fontsize=7.4)
+    panel_letter(axa, "A", x=-0.19, y=1.0)
+    # ---- B: study by domain ----
+    for col, dis in enumerate(("AD", "PD")):
+        ax = fig.add_subplot(gs[1, col])
+        rows = groups[dis]
+        ax.set_xlim(-6.2, nd + 0.1); ax.set_ylim(-0.7, nmax + 2.1)
+        ax.axis("off")
+        ax.text(-6.2, nmax + 1.55, t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
+                                      "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson")
+                + f"  (n = {len(rows)})", fontsize=8.6, fontweight="bold", color=DISEASE[dis], va="center")
+        ab = ["PS", "IT", "RS", "FT", "PS", "IT", "RS"]
+        for j, key in enumerate(keys):
+            x = j + (0.25 if j >= 4 else 0)
+            ax.text(x + 0.5, nmax - 0.1, ab[j], ha="center", va="center", fontsize=6.6, fontweight="bold", color=INK2)
+        ax.text(2.0, nmax + 0.85, t(lang, "Risk of bias", "Risco de viés"), ha="center", va="center", fontsize=6.8, color=INK2)
+        ax.text(5.75, nmax + 0.85, t(lang, "Applicability", "Aplicabilidade"), ha="center", va="center", fontsize=6.8, color=INK2)
+        ax.plot([0.1, 3.9], [nmax + 0.45] * 2, color=INK3, lw=0.7)
+        ax.plot([4.35, 6.9], [nmax + 0.45] * 2, color=INK3, lw=0.7)
+        for i, r in enumerate(rows):
+            y = nmax - 1 - i
+            if i % 2 == 0:
+                ax.add_patch(plt.Rectangle((-6.2, y - 0.5), nd + 6.3, 1.0, color=BAND, lw=0, zorder=0))
+            pooled = r["study_id"].lower() in pooled_ids
+            ax.text(-0.15, y, f"{r['first_author']} {r['year']}" + ("" if pooled else " †"), ha="right", va="center",
+                    fontsize=6.4, color=INK if pooled else INK3)
+            for j, key in enumerate(keys):
+                x = j + (0.25 if j >= 4 else 0)
+                v = level[r[key]]
+                rounded(ax, x + 0.08, y - 0.37, 0.84, 0.74, ROB_FILL[v], r=0.14)
+                ax.text(x + 0.5, y, ROB_LETTER[v], ha="center", va="center", fontsize=5.6, fontweight="bold", color=ROB_TEXT[v])
+        if col == 0:
+            panel_letter(ax, "B", x=-0.02, y=1.0)
+    handles = [plt.Line2D([], [], marker="s", ls="none", ms=7, mfc=ROB_FILL[v], mec=ROB_FILL[v]) for v in ("low", "unclear", "high")]
+    fig.legend(handles, [f"{ROB_LETTER[v]}  {name[v]}" for v in ("low", "unclear", "high")], loc="lower left",
+               bbox_to_anchor=(0.02, 0.0), ncol=3, frameon=False, fontsize=7, handletextpad=0.3, columnspacing=1.4)
+    fig.text(0.985, 0.012, t(lang, "† not in the pooled analysis (cerebrospinal fluid or no estimable standard error)",
+                             "† fora da análise agregada (líquido cefalorraquidiano ou sem erro-padrão estimável)"),
+             fontsize=6.2, color=INK3, ha="right", va="bottom")
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
