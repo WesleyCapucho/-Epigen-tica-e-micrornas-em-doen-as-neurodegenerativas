@@ -1481,6 +1481,35 @@ def main():
     except FileNotFoundError as exc_:
         claim(False, f"{exc_.filename} missing; run scripts/30_recall_check.py and scripts/31_post_search_sensitivity.py")
 
+    # --- 9b. Main-text figures stay inside the journal's artwork limits ---
+    # EN | scripts/_journal_fit.py records the size, lettering and line width of every
+    #      main-text figure it writes. A figure regenerated outside the limits (174 x 234
+    #      mm, no lettering under 6.5 pt, no line under 0.3 pt, Arial-compatible font, an
+    #      EPS twin) would otherwise reach the submission unnoticed.
+    # PT | scripts/_journal_fit.py registra tamanho, texto e espessura de linha de toda
+    #      figura do texto principal. Figura regenerada fora dos limites (174 x 234 mm,
+    #      sem texto abaixo de 6,5 pt, sem linha abaixo de 0,3 pt, fonte compativel com
+    #      Arial, par EPS) chegaria ao envio sem ser notada.
+    try:
+        spec_rows = {r["file"]: r for r in csv.DictReader(open("results/tables/journal_figure_spec.csv", encoding="utf-8"))}
+        for stem in ("prisma_flow_diagram", "design_profile", "quadas2_summary",
+                     "forest_plot_primary", "robustness_specification", "molecular_evidence_map"):
+            for lang_ in ("en", "pt-BR"):
+                f_ = f"results/figures/{stem}.{lang_}.png"
+                r_ = spec_rows.get(f_)
+                check(r_ is not None, f"journal artwork: {f_} has no row in journal_figure_spec.csv")
+                if r_ is None:
+                    continue
+                check(float(r_["width_mm"]) <= 174.05 and float(r_["height_mm"]) <= 234.05,
+                      f"journal artwork: {f_} is {r_['width_mm']} x {r_['height_mm']} mm, over 174 x 234 mm")
+                check(float(r_["min_text_pt"]) >= 6.5 - 1e-6, f"journal artwork: {f_} has lettering of {r_['min_text_pt']} pt")
+                check(float(r_["min_line_pt"]) >= 0.3, f"journal artwork: {f_} has a line of {r_['min_line_pt']} pt")
+                check(all(any(k_ in fnt for k_ in ("Arial", "Helvetica", "Liberation Sans")) for fnt in r_["fonts"].split("; ")),
+                      f"journal artwork: {f_} uses {r_['fonts']}")
+                check(os.path.exists(f_[:-4] + ".eps"), f"journal artwork: {f_[:-4]}.eps is missing")
+    except FileNotFoundError:
+        claim(False, "results/tables/journal_figure_spec.csv missing; run the main-text figure scripts (14, 21, 27, 28, 32, 33)")
+
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections
     #      table below them, and both were found stale once: the check count said 1374

@@ -59,7 +59,8 @@ ROB_TEXT = {"low": "#ffffff", "unclear": "#1b1b1a", "high": "#ffffff"}
 def apply():
     """EN/PT: set the global matplotlib style | define o estilo global do matplotlib."""
     rcParams.update({
-        "font.family": "DejaVu Sans",
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica", "Liberation Sans", "DejaVu Sans"],
         "font.size": 8,
         "axes.titlesize": 9,
         "axes.labelsize": 8,

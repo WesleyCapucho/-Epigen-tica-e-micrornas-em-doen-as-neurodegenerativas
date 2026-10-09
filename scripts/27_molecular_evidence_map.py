@@ -139,10 +139,10 @@ def plot(rows, pooled, path, lang):
         n_claims[key] = n_claims.get(key, 0) + 1
     # a study with claims elsewhere is not "none"
     has_claim = {sid for (sid, g) in cells if g != "none"}
-    fig_h = 1.9 + 0.157 * n + 0.8
+    fig_h = 2.3 + 0.157 * n + 1.05
     fig = plt.figure(figsize=(7.4, fig_h))
-    gs = gridspec.GridSpec(2, 3, width_ratios=[1.3, 1.25, 4.9], height_ratios=[1.45, 0.157 * n * 6],
-                           left=0.01, right=0.99, top=1 - 0.2 / fig_h, bottom=0.75 / fig_h, wspace=0.03, hspace=0.04)
+    gs = gridspec.GridSpec(2, 3, width_ratios=[1.3, 1.25, 4.9], height_ratios=[2.4, 0.157 * n * 6],
+                           left=0.01, right=0.99, top=1 - 0.2 / fig_h, bottom=1.0 / fig_h, wspace=0.03, hspace=0.04)
     axl = fig.add_subplot(gs[1, 0]); axb = fig.add_subplot(gs[1, 1]); axm = fig.add_subplot(gs[1, 2])
     axt = fig.add_subplot(gs[0, 2])
     ncol = ng + 1
@@ -188,11 +188,11 @@ def plot(rows, pooled, path, lang):
     for sp in ("top", "right"):
         axb.spines[sp].set_visible(False)
     # column heads and marginal counts
-    axt.set_xlim(-0.6, ncol - 0.4); axt.set_ylim(0, 11); axt.axis("off")
+    axt.set_xlim(-0.6, ncol - 0.4); axt.set_ylim(0, 12); axt.axis("off")
     import textwrap as _tw
     for gi in range(ncol):
         lab = t(lang, *GROUPS[gi]) if gi < ng else t(lang, "No mechanism reported for the pooled marker", "Nenhum mecanismo relatado para o marcador agregado")
-        axt.text(gi, 5.0, "\n".join(_tw.wrap(lab, 24)), rotation=90, ha="center", va="bottom", fontsize=6.0, color=INK, linespacing=0.95)
+        axt.text(gi, 6.6, "\n".join(_tw.wrap(lab, 24)), rotation=90, ha="center", va="bottom", fontsize=6.0, color=INK, linespacing=0.95)
         h = counts_by_col[gi]
         axt.add_patch(plt.Rectangle((gi - 0.2, 0.0), 0.4, 0.3 * h, color=RULE if gi == ng else INK2, lw=0, alpha=0.9))
         if h:

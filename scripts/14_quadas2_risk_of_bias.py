@@ -505,11 +505,11 @@ def plot(assessment, path, lang):
     nmax = max(len(v) for v in groups.values())
     row_h = 0.172
     fig_h = 2.45 + row_h * nmax + 1.1
-    fig = plt.figure(figsize=(7.4, fig_h))
+    fig = plt.figure(figsize=(6.85, fig_h))
     gs = gridspec.GridSpec(2, 2, height_ratios=[2.25, row_h * nmax + 0.8], hspace=0.28, wspace=0.06,
-                           left=0.02, right=0.985, top=1 - 0.3 / fig_h, bottom=0.55 / fig_h)
+                           left=0.01, right=0.995, top=1 - 0.3 / fig_h, bottom=0.55 / fig_h)
     # ---- A: share of studies at each level ----
-    axa = fig.add_subplot(gs[0, :])
+    axa = fig.add_axes([0.255, 1 - (0.3 + 2.0) / fig_h, 0.735, 1.9 / fig_h])
     nd = len(keys)
     for i, key in enumerate(keys):
         y = nd - 1 - i - (0.9 if i >= 4 else 0)
@@ -522,7 +522,7 @@ def plot(assessment, path, lang):
             rounded(axa, left + 0.35, y - 0.34, max(frac - 0.7, 0.2), 0.68, ROB_FILL[v], r=0.12)
             if frac >= 6:
                 axa.text(left + frac / 2, y, f"{ROB_LETTER[v]} {counts[v]}", ha="center", va="center",
-                         fontsize=7, fontweight="bold", color=ROB_TEXT[v])
+                         fontsize=7.2, fontweight="bold", color=ROB_TEXT[v])
             left += frac
         axa.text(-1.5, y, t(lang, *short[key]).replace("\n", " "), ha="right", va="center", fontsize=7.4, color=INK)
     axa.text(-1.5, nd - 1 + 0.95, t(lang, "Risk of bias", "Risco de viés"), ha="right", va="center", fontsize=7.6, fontweight="bold", color=INK2)
@@ -533,7 +533,7 @@ def plot(assessment, path, lang):
     for sp in ("left", "top", "right"):
         axa.spines[sp].set_visible(False)
     axa.set_xlabel(t(lang, f"share of the {n} eligible studies", f"proporção dos {n} estudos elegíveis"), fontsize=7.4)
-    panel_letter(axa, "A", x=-0.19, y=1.0)
+    panel_letter(axa, "a", x=-0.34, y=1.02)
     # ---- B: study by domain ----
     for col, dis in enumerate(("AD", "PD")):
         ax = fig.add_subplot(gs[1, col])
@@ -546,9 +546,9 @@ def plot(assessment, path, lang):
         ab = ["PS", "IT", "RS", "FT", "PS", "IT", "RS"]
         for j, key in enumerate(keys):
             x = j + (0.25 if j >= 4 else 0)
-            ax.text(x + 0.5, nmax - 0.1, ab[j], ha="center", va="center", fontsize=6.6, fontweight="bold", color=INK2)
-        ax.text(2.0, nmax + 0.85, t(lang, "Risk of bias", "Risco de viés"), ha="center", va="center", fontsize=6.8, color=INK2)
-        ax.text(5.75, nmax + 0.85, t(lang, "Applicability", "Aplicabilidade"), ha="center", va="center", fontsize=6.8, color=INK2)
+            ax.text(x + 0.5, nmax - 0.1, ab[j], ha="center", va="center", fontsize=7.0, fontweight="bold", color=INK2)
+        ax.text(2.0, nmax + 0.85, t(lang, "Risk of bias", "Risco de viés"), ha="center", va="center", fontsize=7.0, color=INK2)
+        ax.text(5.75, nmax + 0.85, t(lang, "Applicability", "Aplicabilidade"), ha="center", va="center", fontsize=7.0, color=INK2)
         ax.plot([0.1, 3.9], [nmax + 0.45] * 2, color=INK3, lw=0.7)
         ax.plot([4.35, 6.9], [nmax + 0.45] * 2, color=INK3, lw=0.7)
         for i, r in enumerate(rows):
@@ -557,20 +557,20 @@ def plot(assessment, path, lang):
                 ax.add_patch(plt.Rectangle((-6.2, y - 0.5), nd + 6.3, 1.0, color=BAND, lw=0, zorder=0))
             pooled = r["study_id"].lower() in pooled_ids
             ax.text(-0.15, y, f"{r['first_author']} {r['year']}" + ("" if pooled else " †"), ha="right", va="center",
-                    fontsize=6.4, color=INK if pooled else INK3)
+                    fontsize=7.0, color=INK if pooled else INK3)
             for j, key in enumerate(keys):
                 x = j + (0.25 if j >= 4 else 0)
                 v = level[r[key]]
                 rounded(ax, x + 0.08, y - 0.37, 0.84, 0.74, ROB_FILL[v], r=0.14)
-                ax.text(x + 0.5, y, ROB_LETTER[v], ha="center", va="center", fontsize=5.6, fontweight="bold", color=ROB_TEXT[v])
+                ax.text(x + 0.5, y, ROB_LETTER[v], ha="center", va="center", fontsize=6.8, fontweight="bold", color=ROB_TEXT[v])
         if col == 0:
-            panel_letter(ax, "B", x=-0.02, y=1.0)
+            panel_letter(ax, "b", x=-0.02, y=1.0)
     handles = [plt.Line2D([], [], marker="s", ls="none", ms=7, mfc=ROB_FILL[v], mec=ROB_FILL[v]) for v in ("low", "unclear", "high")]
     fig.legend(handles, [f"{ROB_LETTER[v]}  {name[v]}" for v in ("low", "unclear", "high")], loc="lower left",
-               bbox_to_anchor=(0.02, 0.0), ncol=3, frameon=False, fontsize=7, handletextpad=0.3, columnspacing=1.4)
+               bbox_to_anchor=(0.02, 0.0), ncol=3, frameon=False, fontsize=7.2, handletextpad=0.3, columnspacing=1.4)
     fig.text(0.985, 0.012, t(lang, "† not in the pooled analysis (cerebrospinal fluid or no estimable standard error)",
                              "† fora da análise agregada (líquido cefalorraquidiano ou sem erro-padrão estimável)"),
-             fontsize=6.2, color=INK3, ha="right", va="bottom")
+             fontsize=6.8, color=INK3, ha="right", va="bottom")
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 

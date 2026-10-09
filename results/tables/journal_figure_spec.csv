@@ -1,0 +1,13 @@
+file,width_mm,height_mm,fits_174x234_mm,fonts,min_text_pt,texts_below_8pt,texts_below_6pt,min_line_pt
+results/figures/design_profile.en.png,173.7,109.0,yes,Liberation Sans,6.5,47,0,0.72
+results/figures/design_profile.pt-BR.png,173.7,109.0,yes,Liberation Sans,6.5,47,0,0.72
+results/figures/forest_plot_primary.en.png,173.6,220.2,yes,Liberation Sans,6.5,451,0,0.55
+results/figures/forest_plot_primary.pt-BR.png,173.6,220.3,yes,Liberation Sans,6.5,451,0,0.55
+results/figures/molecular_evidence_map.en.png,172.5,233.7,yes,Liberation Sans,6.5,190,0,0.73
+results/figures/molecular_evidence_map.pt-BR.png,172.7,233.7,yes,Liberation Sans,6.5,190,0,0.73
+results/figures/prisma_flow_diagram.en.png,150.7,181.1,yes,Liberation Sans,6.5,27,0,0.8
+results/figures/prisma_flow_diagram.pt-BR.png,154.1,181.1,yes,Liberation Sans,6.5,27,0,0.8
+results/figures/quadas2_summary.en.png,173.8,185.7,yes,Liberation Sans,6.53,458,0,0.67
+results/figures/quadas2_summary.pt-BR.png,173.8,185.7,yes,Liberation Sans,6.53,458,0,0.67
+results/figures/robustness_specification.en.png,172.6,154.5,yes,Liberation Sans,6.5,65,0,0.74
+results/figures/robustness_specification.pt-BR.png,172.1,153.6,yes,Liberation Sans,6.5,65,0,0.74

@@ -166,7 +166,7 @@ def plot(data, path, lang):
                     ax.axhspan(yy - 0.5, yy + 0.5, color=BAND, lw=0, zorder=0)
                 axf.axhspan(yy - 0.5, yy + 0.5, color=BAND, alpha=0.5, lw=0, zorder=0.5)
             axl.text(0.0, yy, f"{s['author']} {s['year']}", fontsize=7.2, va="center", color=INK)
-            axl.text(0.5, yy, textwrap.shorten(s["marker"], 29, placeholder="…"), fontsize=6.3, va="center", color=INK2, clip_on=True)
+            axl.text(0.5, yy, textwrap.shorten(s["marker"], 26, placeholder="…"), fontsize=6.3, va="center", color=INK2, clip_on=True)
             nn = f"{int(float(s['n'][0]))}/{int(float(s['n'][1]))}" if s["n"][0] and s["n"][1] else "n/r"
             star = "*" if "implausibly" in sr else ""
             axv.text(0.0, yy, f"{auc:.2f} [{lo_i:.2f}, {hi_i:.2f}]{star}", fontsize=6.6, va="center")

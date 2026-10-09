@@ -72,12 +72,24 @@ def _install_vector_twin():
     original = Figure.savefig
 
     def savefig(self, fname, *args, **kwargs):
+        is_png = isinstance(fname, str) and fname.lower().endswith(".png")
+        try:
+            import _journal_fit as jf
+        except ImportError:
+            jf = None
+        main = bool(jf and is_png and jf.is_main(fname))
+        if main:
+            jf.fit(self)                      # main-text figures: at most 174 x 234 mm
         result = original(self, fname, *args, **kwargs)
-        if isinstance(fname, str) and fname.lower().endswith(".png"):
+        if is_png:
             kw = {k: v for k, v in kwargs.items() if k not in ("dpi", "format", "facecolor")}
             if "facecolor" in kwargs:
                 kw["facecolor"] = kwargs["facecolor"]
-            original(self, fname[:-4] + ".pdf", *args, format="pdf", **kw)
+            pdf = fname[:-4] + ".pdf"
+            original(self, pdf, *args, format="pdf", **kw)
+            if main:
+                jf.record(fname, jf.measure(self))
+                jf.eps_from_pdf(pdf)          # EPS twin for the journal
         return result
 
     savefig._vector_twin = True
