@@ -220,6 +220,8 @@ Scripts: MIT (`LICENSE`). Data, tables, figures and documentation: CC BY 4.0 (`L
 
 ## Citation
 
-Capucho, W. *Epigenetics and microRNAs in neurodegenerative disease: systematic review and meta-analysis of circulating miRNA diagnostic accuracy.* GitHub, 2026. https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas
+Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.0.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.23353780
+
+Repository: https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas. Retrospective registration: OSF, https://doi.org/10.17605/OSF.IO/NJ8A5.
 
 Literature data are from PubMed/PubMed Central (National Library of Medicine, NCBI) and Scopus (Elsevier). Individual studies are cited by DOI in `data/extracted/diagnostic_accuracy_extraction.csv`.
