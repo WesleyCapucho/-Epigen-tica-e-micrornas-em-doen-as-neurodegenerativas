@@ -151,7 +151,7 @@ def plot(data, pv, rnd, path, lang):
                        "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"), loc="left", fontsize=9, fontweight="bold", color=col)
         ax.set_xlabel(t(lang, "Pooled AUC", "AUC agregado"), fontsize=7.4)
         if c == 0:
-            panel_letter(ax, "A", x=-0.62, y=1.06)
+            panel_letter(ax, "a", x=-0.62, y=1.06)
     # ---- B: panel versus single ----
     axb = fig.add_subplot(gsb[0, 0])
     axb.set_ylim(-0.7, 5.0)
@@ -181,7 +181,7 @@ def plot(data, pv, rnd, path, lang):
     axb.set_xticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
     axb.set_xlabel(t(lang, "Pooled AUC (95% CI); square = single microRNA, diamond = panel; n studies in brackets",
                      "AUC agregado (IC 95%); quadrado = miRNA isolado, losango = painel; n de estudos entre parênteses"), fontsize=7.2)
-    panel_letter(axb, "B", x=-0.62, y=1.02)
+    panel_letter(axb, "b", x=-0.62, y=1.02)
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 
