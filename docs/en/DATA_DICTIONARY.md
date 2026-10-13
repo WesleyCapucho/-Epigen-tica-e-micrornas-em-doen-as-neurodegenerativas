@@ -142,7 +142,7 @@ Counts are of **distinct articles**, never of raw occurrences.
 
 ## `data/raw/systematic_review_2026/exports/`
 
-The database exports this review was built from, archived exactly as downloaded: `scopus_AD_2026-09-10.csv`, `scopus_PD_2026-09-10.csv`, `wos_AD_2026-09-23.txt`, `wos_PD_2026-09-23.txt`. Scopus and Web of Science require an authenticated institutional session and cannot be queried by API from this project, so the export is the primary record of what the search returned. Web of Science files are tab-delimited full records carrying the two-letter field tags (`TI`, `AB`, `DI`, `PM`, `PY`, `SO`, `AU`, `DT`, `DE`); `scripts/09` also accepts the long column names.
+The four database exports this review was built from (`scopus_AD_2026-09-10.csv`, `scopus_PD_2026-09-10.csv`, `wos_AD_2026-09-23.txt`, `wos_PD_2026-09-23.txt`) are **not redistributed**, because the terms of Scopus and Web of Science limit it. `data/raw/systematic_review_2026/exports_manifest.csv` records each file's search date, record count and SHA-256 hash; the records themselves are in `screening_corpus.json` and `additional_records_*.json`. Scopus and Web of Science require an authenticated institutional session and cannot be queried by API from this project. Web of Science files are tab-delimited full records carrying the two-letter field tags (`TI`, `AB`, `DI`, `PM`, `PY`, `SO`, `AU`, `DT`, `DE`); `scripts/09` also accepts the long column names.
 
 ## `data/raw/systematic_review_2026/additional_records_*.json`
 

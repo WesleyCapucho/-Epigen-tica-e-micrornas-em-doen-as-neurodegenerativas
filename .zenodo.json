@@ -9,8 +9,22 @@
       "orcid": "0009-0008-2495-8092"
     }
   ],
-  "keywords": ["microRNA", "Alzheimer's disease", "Parkinson's disease", "diagnostic accuracy", "meta-analysis"],
+  "keywords": [
+    "microRNA",
+    "Alzheimer's disease",
+    "Parkinson's disease",
+    "diagnostic accuracy",
+    "meta-analysis"
+  ],
   "related_identifiers": [
-    {"identifier": "10.17605/OSF.IO/NJ8A5", "relation": "isSupplementTo", "scheme": "doi"}
-  ]
+    {
+      "identifier": "10.17605/OSF.IO/NJ8A5",
+      "relation": "isSupplementTo",
+      "scheme": "doi"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "language": "eng",
+  "notes": "Scripts are under the MIT licence (LICENSE); data, tables, figures and documentation under CC BY 4.0 (LICENSE-DATA.md). Third-party material (two supplementary tables of published papers; titles and abstracts of the screened records) keeps its own terms. The Scopus and Web of Science export files are not distributed; exports_manifest.csv records their record counts and SHA-256 hashes."
 }

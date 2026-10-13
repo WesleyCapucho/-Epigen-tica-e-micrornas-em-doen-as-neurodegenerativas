@@ -160,7 +160,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4292 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4300 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -213,6 +213,10 @@ Thirteen defects in this pipeline were found after results had already been prod
 ## Scientific integrity and use of AI
 
 This work follows the transparency and reproducibility principles of the USP Guide to Good Scientific Practice (2025). AI tools assisted with organisation, code, retrieval and drafting; they did not replace data curation, verification against sources, or the author's scientific judgement. No data were fabricated. Where a value could not be verified against its source, it was excluded and the exclusion recorded.
+
+## Licence
+
+Scripts: MIT (`LICENSE`). Data, tables, figures and documentation: CC BY 4.0 (`LICENSE-DATA.md`), except third-party material, which keeps its own terms; the notice lists what is excluded.
 
 ## Citation
 

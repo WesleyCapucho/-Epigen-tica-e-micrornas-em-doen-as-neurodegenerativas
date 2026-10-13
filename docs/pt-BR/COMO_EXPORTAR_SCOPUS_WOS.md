@@ -67,7 +67,7 @@ O **resumo é obrigatório**: a triagem o lê. Sem ele, o registro entra no flux
 
 ## Passo 3 — Web of Science (feito, 23 de setembro de 2026)
 
-Os dois braços foram executados e ingeridos: 187 registros no braço DA, 108 no braço DP, 27 deles novos após a desduplicação. As exportações estão arquivadas em `data/raw/systematic_review_2026/exports/` como `wos_AD_2026-09-23.txt` e `wos_PD_2026-09-23.txt`. As instruções continuam aqui porque a busca precisa ser repetível, e porque uma atualização desta revisão vai rodá-la de novo.
+Os dois braços foram executados e ingeridos: 187 registros no braço DA, 108 no braço DP, 27 deles novos após a desduplicação. Os arquivos de exportação (`wos_AD_2026-09-23.txt` e `wos_PD_2026-09-23.txt`) não são redistribuídos; o número de registros e os hashes estão em `data/raw/systematic_review_2026/exports_manifest.csv`. As instruções continuam aqui porque a busca precisa ser repetível, e porque uma atualização desta revisão vai rodá-la de novo.
 
 Em **Advanced Search**, campo `TS=` (Topic):
 

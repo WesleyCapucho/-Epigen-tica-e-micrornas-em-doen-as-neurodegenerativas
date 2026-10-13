@@ -217,6 +217,26 @@ def main():
                                              + ident["scopus_PD_records_new"]),
           "PRISMA Scopus PD arm arithmetic does not add up")
 
+    # EN | The Scopus and Web of Science export files are not redistributed (the terms of
+    #      the databases limit it), so the manifest is what ties the PRISMA identification
+    #      counts to the files that were used: each arm's record count in the manifest has
+    #      to equal the count the flow diagram reports.
+    # PT | Os arquivos de exportacao do Scopus e da Web of Science nao sao redistribuidos
+    #      (os termos das bases limitam isso), entao o manifesto e o que liga as contagens
+    #      de identificacao do PRISMA aos arquivos usados: o numero de registros de cada
+    #      braco no manifesto tem de ser igual ao do diagrama de fluxo.
+    try:
+        man = {(r["database"], r["arm"]): r for r in
+               csv.DictReader(open("data/raw/systematic_review_2026/exports_manifest.csv", encoding="utf-8"))}
+        for (db_, arm_), key_ in (("Scopus", "AD"), "scopus_records_AD_arm"), (("Scopus", "PD"), "scopus_records_PD_arm"), \
+                                  (("Web of Science", "AD"), "wos_records_AD_arm"), (("Web of Science", "PD"), "wos_records_PD_arm"):
+            check((db_, arm_) in man and int(man[(db_, arm_)]["n_records"]) == ident[key_],
+                  f"export manifest: {db_} {arm_} arm has {man.get((db_, arm_), {}).get('n_records')} records, PRISMA says {ident[key_]}")
+            check(man[(db_, arm_)]["redistributed"] == "no" and len(man[(db_, arm_)]["sha256"]) == 64,
+                  f"export manifest: {db_} {arm_} row is incomplete")
+    except FileNotFoundError:
+        claim(False, "data/raw/systematic_review_2026/exports_manifest.csv missing")
+
     # EN | The per-arm PubMed counts have to add up to the deduplicated total, AND each
     #      count has to equal the number of PMIDs actually archived - not the number the
     #      live esearch reported. These silently diverged once: esearch reported 168 for

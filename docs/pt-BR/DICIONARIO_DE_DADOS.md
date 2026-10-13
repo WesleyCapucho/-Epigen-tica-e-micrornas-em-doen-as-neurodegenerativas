@@ -142,7 +142,7 @@ As contagens são de **artigos distintos**, nunca de ocorrências brutas.
 
 ## `data/raw/systematic_review_2026/exports/`
 
-As exportações das bases de que esta revisão partiu, arquivadas exatamente como baixadas: `scopus_AD_2026-09-10.csv`, `scopus_PD_2026-09-10.csv`, `wos_AD_2026-09-23.txt`, `wos_PD_2026-09-23.txt`. Scopus e Web of Science exigem sessão institucional autenticada e não podem ser consultadas por API a partir deste projeto, então a exportação é o registro primário do que a busca retornou. Os arquivos da Web of Science são registros completos delimitados por tabulação com as etiquetas de campo de duas letras (`TI`, `AB`, `DI`, `PM`, `PY`, `SO`, `AU`, `DT`, `DE`); o `scripts/09` também aceita os nomes longos de coluna.
+As quatro exportações das bases de que esta revisão partiu (`scopus_AD_2026-09-10.csv`, `scopus_PD_2026-09-10.csv`, `wos_AD_2026-09-23.txt`, `wos_PD_2026-09-23.txt`) **não são redistribuídas**, porque os termos do Scopus e da Web of Science limitam isso. `data/raw/systematic_review_2026/exports_manifest.csv` registra data da busca, número de registros e hash SHA-256 de cada arquivo; os registros em si estão em `screening_corpus.json` e `additional_records_*.json`. Scopus e Web of Science exigem sessão institucional autenticada e não podem ser consultadas por API a partir deste projeto. Os arquivos da Web of Science são registros completos delimitados por tabulação com as etiquetas de campo de duas letras (`TI`, `AB`, `DI`, `PM`, `PY`, `SO`, `AU`, `DT`, `DE`); o `scripts/09` também aceita os nomes longos de coluna.
 
 ## `data/raw/systematic_review_2026/additional_records_*.json`
 

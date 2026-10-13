@@ -67,7 +67,7 @@ The **abstract is mandatory**: screening reads it. Without it a record still ent
 
 ## Step 3 — Web of Science (done, 23 September 2026)
 
-Both arms have been run and ingested: 187 records for the AD arm, 108 for the PD arm, 27 of them new after deduplication. The exports are archived in `data/raw/systematic_review_2026/exports/` as `wos_AD_2026-09-23.txt` and `wos_PD_2026-09-23.txt`. The instructions stay here because the search has to be repeatable, and because an update of this review will run it again.
+Both arms have been run and ingested: 187 records for the AD arm, 108 for the PD arm, 27 of them new after deduplication. The export files (`wos_AD_2026-09-23.txt` and `wos_PD_2026-09-23.txt`) are not redistributed; their record counts and hashes are in `data/raw/systematic_review_2026/exports_manifest.csv`. The instructions stay here because the search has to be repeatable, and because an update of this review will run it again.
 
 In **Advanced Search**, using the `TS=` (Topic) field:
 

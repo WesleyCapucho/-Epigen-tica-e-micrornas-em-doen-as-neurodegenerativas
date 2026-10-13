@@ -1,3 +1,7 @@
 __pycache__/
 *.pyc
 results/.audit_baseline/
+
+# Scopus / Web of Science exports are not redistributed (see the README in that folder)
+data/raw/systematic_review_2026/exports/*
+!data/raw/systematic_review_2026/exports/README.md

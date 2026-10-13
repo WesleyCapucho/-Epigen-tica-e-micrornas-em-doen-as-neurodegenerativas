@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this repository, please cite it as below."
 title: "Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results"
 type: dataset
+license: CC-BY-4.0
 authors:
   - family-names: Capucho
     given-names: Wesley Felipe
