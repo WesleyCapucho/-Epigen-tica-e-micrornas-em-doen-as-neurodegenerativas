@@ -16,7 +16,7 @@ O site da Springer está bloqueado pela política de rede deste ambiente (`link.
 | Folha de rosto: autor, afiliação como instituição, (departamento), cidade, (estado), país; autor correspondente com e-mail ativo; ORCID de 16 dígitos | **Parcial** | Faltavam cidade e país; agora constam na linha da afiliação, com a cidade do campus como `[VERIFICAR]`. O e-mail do autor correspondente é da USP e a afiliação é UNIFESP: confirme se é intencional. O ORCID consta. |
 | Referências: números entre colchetes, numeradas na ordem da primeira citação; só obras publicadas ou aceitas; periódicos abreviados pela lista ISSN de abreviações; DOI como link completo | **Atendido** | 74 referências; todas com `https://doi.org/...`; periódicos abreviados. Uma entrada (Oliveira 2020, número do artigo) segue marcada `verify` em `refs.json`. |
 | Tabelas: algarismos arábicos, citadas em ordem, com legenda; notas por letras minúsculas sobrescritas; feitas com a função de tabela | **Corrigido** | A única tabela do texto principal usava asterisco e trazia as notas dentro da legenda. Agora tem legenda curta, letra sobrescrita no cabeçalho e as notas abaixo da tabela. |
-| Figuras: algarismos arábicos, citadas em ordem; partes por letras minúsculas; legendas no arquivo de texto, iniciadas por "Fig. n" em negrito | **Corrigido** | Os painéis das Figs 3 e 5 eram A e B; agora são a e b nas imagens e nas legendas. |
+| Figuras: algarismos arábicos, citadas em ordem; legendas no arquivo de texto, iniciadas por "Fig. n" em negrito; partes da figura com letras | **Atendido** | O resumo das instruções dizia letras minúsculas, mas o exemplo publicado pela própria revista traz letras maiúsculas nas imagens e "(A)", "(B)" nas legendas, e as cita como "Fig. 1A and B". Mantive as maiúsculas nas imagens (Figs 3 e 5) e as legendas seguem o estilo "(A) ... (B) ..." do exemplo. Se a página atual disser minúsculas, basta trocar a letra em `scripts/14` e `scripts/33`. |
 | Arquivos de figura nomeados `Fig1`, `Fig2`, ... | **Feito** | `Fig1.eps` a `Fig6.eps` e `Fig1.tif` a `Fig6.tif`, numerados na ordem do manuscrito. |
 | Arte vetorial em EPS com fontes embutidas; arte de traço em bitmap a 1200 dpi ou mais | **Corrigido** | O par EPS é gravado junto com cada figura (`scripts/_journal_fit.py`); fontes embutidas. Os TIFF têm 1200 dpi, LZW. |
 | Largura de 84 ou 174 mm, altura de no máximo 234 mm | **Corrigido** | Cinco das seis figuras eram mais largas que 174 mm e duas eram mais altas que 234 mm. Os doze arquivos (EN e PT) agora cabem; `results/tables/journal_figure_spec.csv` registra o tamanho e o `scripts/08` confere. |
@@ -29,6 +29,20 @@ O site da Springer está bloqueado pela política de rede deste ambiente (`link.
 | Informação suplementar citada no texto como figuras e tabelas | **Atendido** | As Tabelas Suplementares S1 a S13 são citadas pela primeira vez em ordem numérica. |
 | Modelos de linguagem: não são autores; uso substancial documentado nos Métodos | **Atendido** | Métodos, "Use of a large language model", e a carta de apresentação. |
 | Títulos com no máximo três níveis; siglas definidas na primeira menção; numeração de páginas automática | **Corrigido** | Uma varredura achou siglas usadas antes ou sem definição (entre elas AD, PD, AUC, ROC, CI, PET, OSF, NCBI, PRISMA-DTA, QUADAS-2, PROBAST, GRADE, ER e ORCA-Cas). Todas agora são definidas onde aparecem pela primeira vez, e as siglas que só aparecem dentro das figuras são definidas nas legendas. |
+
+## O que o artigo publicado mostra (conferido em 13 de outubro de 2026)
+
+Foi enviado como modelo um artigo publicado da revista: Huang et al., *Mol Neurobiol* 2026;63:409, um Brief Report, [10.1007/s12035-026-05684-4](https://doi.org/10.1007/s12035-026-05684-4). Dois resumos sistemáticos publicados também foram lidos pelo PubMed e pelo PubMed Central: Przywara et al. 2026, [10.1007/s12035-026-06247-3](https://doi.org/10.1007/s12035-026-06247-3), e Khan et al. 2026, [10.1007/s12035-026-06143-w](https://doi.org/10.1007/s12035-026-06143-w). Uma busca por título no PubMed encontra 116 registros da *Molecular Neurobiology* com "systematic review" ou "meta-analysis" no título, então esse tipo de artigo cabe na revista.
+
+| Característica dos artigos publicados | O manuscrito |
+|---|---|
+| Resumo não estruturado em um parágrafo, depois "Keywords" separadas por " · " | Igual. |
+| Lista de siglas (duas colunas) logo depois das palavras-chave, no exemplo | **Ainda não está no manuscrito.** A ser incluída; toda sigla dela já é definida no primeiro uso no texto. |
+| Revisões sistemáticas mantêm Introdução, Métodos, Resultados, Discussão, Conclusão nessa ordem; o Brief Report do exemplo põe Materials and Methods no fim | Mesma ordem das revisões sistemáticas. |
+| Citações numeradas entre colchetes com intervalos (`[1–4]`), figuras citadas como `(Fig. 1A and B)` | Igual; "Fig. 5b" no texto dos Resultados passa a "Fig. 5B". |
+| Legendas: "Fig. n" em negrito, uma frase de título, depois "(A) ... (B) ..." | Legendas das Figs 3 e 5 a reescrever nesse formato. |
+| Lista de referências: sobrenomes com iniciais, ano entre parênteses, título, periódico abreviado, `volume(número):primeira–última`, DOI como link | Igual, exceto que o manuscrito não traz o número do fascículo e usa hífen nas páginas. O exemplo da própria página de instruções também omite o fascículo, então é cosmético. |
+| No artigo composto, as declarações vêm antes das referências, sob "Supplementary Information", "Acknowledgements", "Author contribution", "Funding", "Data availability" e "Declarations" (Ethics approval, Consent for publication, Competing interests) | O manuscrito mantém as declarações depois das Referências, como a página de instruções diz; a editora reorganiza. |
 
 ## Não encontrado nos resumos da página (confirmar na página atual)
 

@@ -16,7 +16,7 @@ The Springer site is blocked by this environment's network policy (`link.springe
 | Title page: author name, affiliation as institution, (department), city, (state), country; corresponding author with an active e-mail; 16-digit ORCID | **Partly met** | City and country were missing and are now in the affiliation line, with the city of the campus left as `[VERIFICAR]`. The corresponding e-mail is a USP address while the affiliation is UNIFESP: confirm that this is intended. ORCID is present. |
 | References: numbers in square brackets, numbered consecutively in order of first citation; only published or accepted works; journal names abbreviated per the ISSN List of Title Word Abbreviations; DOI as a full link | **Met** | 74 references; every entry carries `https://doi.org/...`; journal names are abbreviated. One entry (Oliveira 2020, article number) stays flagged `verify` in `refs.json`. |
 | Tables: Arabic numerals, cited in order, with a caption; footnotes by superscript lower-case letters; built with the table function | **Fixed** | The only main-text table used an asterisk and carried its notes inside the caption. It now has a short caption, a superscript letter in the header and the notes below the table. |
-| Figures: Arabic numerals, cited in order; parts denoted by lower-case letters; captions in the text file, starting with bold "Fig. n" | **Fixed** | Panels of Fig. 3 and Fig. 5 were A and B; they are now a and b in the images and the captions. |
+| Figures: Arabic numerals, cited in order; captions in the text file, starting with bold "Fig. n"; parts of a figure lettered | **Met** | The instruction summary said lower-case part letters, but the journal's own published example prints capital letters in the images and in the captions as "(A)", "(B)", and cites them as "Fig. 1A and B". Capitals are kept in the images (Figs 3 and 5) and the captions follow the "(A) ... (B) ..." style of the example. If the live page says lower case, flip the letter in `scripts/14` and `scripts/33`. |
 | Figure files named `Fig1`, `Fig2`, ... | **Done** | `Fig1.eps` to `Fig6.eps` and `Fig1.tif` to `Fig6.tif`, made from `results/figures/<name>.en.*` and numbered in manuscript order. They are delivered with the manuscript and not stored in the repository (the TIFF files are 2.6 to 9.8 MB each). |
 | Vector art as EPS with fonts embedded; bitmap line art at 1200 dpi or more | **Fixed** | EPS twins are written with each figure (`scripts/_journal_fit.py`); fonts are embedded. TIFF files are 1200 dpi, LZW. |
 | Width 84 or 174 mm, height at most 234 mm | **Fixed** | Five of the six figures were wider than 174 mm and two were taller than 234 mm. All twelve files (EN and PT) now fit; `results/tables/journal_figure_spec.csv` records the size and `scripts/08` checks it. |
@@ -29,6 +29,20 @@ The Springer site is blocked by this environment's network policy (`link.springe
 | Supplementary information cited in the text like figures and tables | **Met** | Supplementary Tables S1 to S13 are first cited in numerical order. |
 | Large language models: not an author; substantive use documented in the Methods | **Met** | Methods, "Use of a large language model", and the cover letter. |
 | Headings no deeper than three levels; abbreviations defined at first mention; footnote and page numbering automatic | **Fixed** | A scan found abbreviations used before or without a definition (among them AD, PD, AUC, ROC, CI, PET, OSF, NCBI, PRISMA-DTA, QUADAS-2, PROBAST, GRADE, ER and ORCA-Cas). All are now defined where they first appear, and the abbreviations that only appear inside figures are defined in the captions. |
+
+## What the published example shows (checked 13 October 2026)
+
+The author supplied a published article of the journal as a model: Huang et al., *Mol Neurobiol* 2026;63:409, a Brief Report, [10.1007/s12035-026-05684-4](https://doi.org/10.1007/s12035-026-05684-4). Two published systematic reviews were also read through PubMed and PubMed Central: Przywara et al. 2026, [10.1007/s12035-026-06247-3](https://doi.org/10.1007/s12035-026-06247-3), and Khan et al. 2026, [10.1007/s12035-026-06143-w](https://doi.org/10.1007/s12035-026-06143-w). A PubMed title search finds 116 records of *Molecular Neurobiology* with "systematic review" or "meta-analysis" in the title, so this kind of article fits the journal.
+
+| Feature of the published articles | The manuscript |
+|---|---|
+| Unstructured abstract in one paragraph, then "Keywords" separated by " · " | Same. |
+| A list of abbreviations (two columns) right after the keywords, in the example | **Not yet in the manuscript.** To be added; every abbreviation in it is already defined at first use in the text. |
+| Systematic reviews keep Introduction, Methods, Results, Discussion, Conclusion in that order; the example Brief Report puts Materials and Methods last | Same order as the systematic reviews. |
+| Numbered citations in square brackets with ranges (`[1–4]`), figure citations as `(Fig. 1A and B)` | Same; "Fig. 5b" in the Results text becomes "Fig. 5B". |
+| Captions: "Fig. n" in bold, a title sentence, then "(A) ... (B) ..." | Captions of Figs 3 and 5 to be reworded this way. |
+| Reference list: surnames with initials, year in parentheses, title, abbreviated journal, `volume(issue):first–last`, DOI as a link | Same except that the manuscript gives no issue number and uses a hyphen in page ranges. The instruction page's own example also omits the issue, so this is cosmetic. |
+| Declarations in the typeset article come before the references, under "Supplementary Information", "Acknowledgements", "Author contribution", "Funding", "Data availability" and "Declarations" (Ethics approval, Consent for publication, Competing interests) | The manuscript keeps its declarations after the References, as the instruction page reads; the typesetter rearranges them. |
 
 ## Not found in the page summaries (confirm on the live page)
 

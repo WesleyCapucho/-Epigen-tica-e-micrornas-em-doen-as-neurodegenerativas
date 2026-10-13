@@ -533,7 +533,7 @@ def plot(assessment, path, lang):
     for sp in ("left", "top", "right"):
         axa.spines[sp].set_visible(False)
     axa.set_xlabel(t(lang, f"share of the {n} eligible studies", f"proporção dos {n} estudos elegíveis"), fontsize=7.4)
-    panel_letter(axa, "a", x=-0.34, y=1.02)
+    panel_letter(axa, "A", x=-0.34, y=1.02)
     # ---- B: study by domain ----
     for col, dis in enumerate(("AD", "PD")):
         ax = fig.add_subplot(gs[1, col])
@@ -564,7 +564,7 @@ def plot(assessment, path, lang):
                 rounded(ax, x + 0.08, y - 0.37, 0.84, 0.74, ROB_FILL[v], r=0.14)
                 ax.text(x + 0.5, y, ROB_LETTER[v], ha="center", va="center", fontsize=6.8, fontweight="bold", color=ROB_TEXT[v])
         if col == 0:
-            panel_letter(ax, "b", x=-0.02, y=1.0)
+            panel_letter(ax, "B", x=-0.02, y=1.0)
     handles = [plt.Line2D([], [], marker="s", ls="none", ms=7, mfc=ROB_FILL[v], mec=ROB_FILL[v]) for v in ("low", "unclear", "high")]
     fig.legend(handles, [f"{ROB_LETTER[v]}  {name[v]}" for v in ("low", "unclear", "high")], loc="lower left",
                bbox_to_anchor=(0.02, 0.0), ncol=3, frameon=False, fontsize=7.2, handletextpad=0.3, columnspacing=1.4)
