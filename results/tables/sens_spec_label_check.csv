@@ -1,0 +1,57 @@
+record_id,first_author,year,marker,eligible_primary_pool,n_cases,n_controls,sensitivity,specificity,verdict
+E006,Zhang M,2021,miR-128,yes,117,106,0.869,0.821,not_integer_consistent_either_way
+E007,Hara N,2017,miR-501-3p,yes,36,22,0.53,1.0,consistent
+E020,Wu L,2022,miR-153,yes,75,73,0.548,0.747,consistent_only_if_labels_swapped
+E021,Wu L,2022,miR-223,yes,75,73,0.685,0.88,consistent_only_if_labels_swapped
+E023,Omura T,2025,miR-101,yes,8,6,0.5,1.0,consistent
+E038,Zhang M,2021,miR-128 + clinical variables,no,117,106,0.939,0.875,not_integer_consistent_either_way
+E045,Miao Y,2026,miR-384-5p,yes,100,96,0.780,0.802,consistent
+E049,Wang T,2015,miR-107,no,116,81,0.983,0.827,consistent
+E051,Liang J,2024,miR-675-5p,yes,104,106,0.9327,0.3271,not_integer_consistent_either_way
+E052,Liang J,2024,miR-1247-5p,yes,104,106,0.4712,0.7642,consistent
+E063,Chen T,2024,miR-124,yes,58,30,0.741,0.778,not_integer_consistent_either_way
+E064,Chen T,2024,miR-1976,yes,58,30,0.518,0.901,not_integer_consistent_either_way
+E065,Chen T,2024,miR-124 + miR-1976,yes,58,30,0.764,0.932,not_integer_consistent_either_way
+E066,Li J,2021,miR-124,yes,90,100,0.8667,0.7503,not_integer_consistent_either_way
+E067,Li J,2021,miR-494,yes,90,100,0.6111,0.7900,consistent
+E068,Li J,2021,miR-124 + miR-494,yes,90,100,0.8556,0.8500,consistent
+E069,Wu L,2020,miR-9a,yes,85,50,0.9059,0.7000,consistent
+E070,Wu L,2020,miR-133b,yes,85,50,0.8353,0.8200,consistent
+E071,Wu L,2020,miR-9a + miR-133b,yes,85,50,0.8941,0.8800,consistent
+E074,Chen P,2026,miR-423-5p,yes,83,56,0.8434,0.7679,consistent
+E077,Fotuhi SN,2019,BACE1-AS (lncRNA),no,45,36,0.68,1.00,not_integer_consistent_either_way
+E078,Hoss AG,2016,29-miRNA classifier,no,29,33,0.966,0.939,consistent
+E088,Marques TM,2016,miR-133b + miR-148b,no,28,17,0.82,0.67,not_integer_consistent_either_way
+E095,Li H,2020,miR-150,yes,80,60,0.775,0.883,consistent
+E133,Siedlecki-Wullich D,2019,miR-92a-3p,yes,56,14,0.4737,0.9286,not_integer_consistent_either_way
+E134,Siedlecki-Wullich D,2019,miR-181c-5p,yes,56,14,0.7018,0.8571,not_integer_consistent_either_way
+E135,Siedlecki-Wullich D,2019,miR-210-3p,yes,56,14,0.807,0.7143,not_integer_consistent_either_way
+E136,Siedlecki-Wullich D,2019,miR-92a-3p + miR-181c-5p + miR-210-3p (logistic regression),yes,56,14,0.9286,0.7143,consistent
+E137,Siedlecki-Wullich D,2019,miR-92a-3p,no,26,14,0.5,0.9286,consistent
+E138,Siedlecki-Wullich D,2019,miR-181c-5p,no,26,14,0.8462,0.8571,consistent
+E139,Siedlecki-Wullich D,2019,miR-210-3p,no,26,14,0.7692,0.7143,consistent
+E140,Siedlecki-Wullich D,2019,miR-92a-3p + miR-181c-5p + miR-210-3p (logistic regression),no,26,14,0.8462,0.8571,consistent
+E141,Ravanidis S,2020,miR-7-5p + miR-136-3p + miR-409-3p (age and sex taken into account),no,208,193,0.72,0.67,consistent
+E142,Chen Q,2021,miR-133b,yes,46,45,0.826,0.889,consistent
+E143,Chen Q,2021,miR-221-3p,yes,46,45,0.552,0.8,not_integer_consistent_either_way
+E144,Chen Q,2021,miR-133b + miR-221-3p,yes,46,45,0.848,0.889,consistent
+E145,Chen Q,2021,miR-221-3p,yes,27,15,0.741,0.867,consistent
+E146,Chen Q,2021,miR-133b,yes,27,15,0.778,0.667,consistent
+E147,Chen Q,2021,miR-320a,yes,27,15,0.667,0.867,consistent
+E148,Chen Q,2021,miR-133b + miR-221-3p + miR-320a,yes,27,15,0.815,0.867,consistent
+E149,Chen Q,2021,miR-133b,no,18,15,0.667,0.667,consistent
+E150,Chen Q,2021,miR-221-3p,no,18,15,0.722,0.867,consistent
+E151,Chen Q,2021,miR-133b + miR-221-3p,no,18,15,0.778,0.8,consistent
+E152,Chen Q,2021,miR-133b,no,18,45,0.944,0.911,consistent
+E153,Chen Q,2021,miR-221-3p,no,18,45,0.556,0.8,consistent
+E154,Chen Q,2021,miR-133b + miR-221-3p,no,18,45,0.944,0.911,consistent
+E155,Chen Q,2021,miR-133b,no,21,45,0.857,0.844,consistent
+E156,Chen Q,2021,miR-4454,no,46,21,0.571,0.826,consistent_only_if_labels_swapped
+E186,Giuliani A,2021,miR-21-5p,yes,116,41,0.55,0.707,consistent
+E187,Giuliani A,2021,miR-126-3p,yes,116,41,0.383,0.875,not_integer_consistent_either_way
+E235,Citterio LA,2023,miR-7-1-5p,yes,45,49,0.545,0.816,not_integer_consistent_either_way
+E236,Citterio LA,2023,miR-223-3p,yes,45,49,0.932,0.512,not_integer_consistent_either_way
+E237,Citterio LA,2023,miR-7-1-5p x miR-223-3p (product of serum values),yes,45,49,0.711,0.799,not_integer_consistent_either_way
+E239,Shigemizu D,2019,78-miRNA supervised-PCA logistic model,no,510,144,0.933,0.66,consistent
+E243,Shigemizu D,2019,78-miRNA supervised-PCA logistic model,no,10,22,1.0,0.18,consistent
+E248,Vallelunga A,2021,miR-96-5p,no,52,56,0.774,0.673,not_integer_consistent_either_way

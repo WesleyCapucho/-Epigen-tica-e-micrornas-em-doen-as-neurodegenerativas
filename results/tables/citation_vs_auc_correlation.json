@@ -1,0 +1,18 @@
+[
+ {
+  "analysis": "all single-miRNA estimates | todas as estimativas",
+  "n_mirnas": 84,
+  "spearman_rho": 0.00417814742493841,
+  "spearman_p": 0.9699111468432923,
+  "pearson_r": 0.02043522884900945,
+  "pearson_p": 0.8536174214645779
+ },
+ {
+  "analysis": "eligible estimates only | apenas elegiveis",
+  "n_mirnas": 59,
+  "spearman_rho": -0.1595363964406508,
+  "spearman_p": 0.22745085010330776,
+  "pearson_r": -0.10371512911290963,
+  "pearson_p": 0.43438070891538977
+ }
+]

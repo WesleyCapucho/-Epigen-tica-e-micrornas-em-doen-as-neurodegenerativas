@@ -1,0 +1,110 @@
+[
+ {
+  "Title": "Diagnostic validity of biomarkers in Parkinson's Disease: systematic review and meta-analysis",
+  "Abstract": "Objective: To identify biomarkers for Parkinson's disease, cerebrospinal fluid, blood, saliva, and urine. Method: The studies were collected from the Cochrane, LILACS, PubMed, SCOPUS, WEB OF SCIENCE, OpenGrey, ProQuest and Google Scholar databases starting from May 3, 2016 and updated on March 20, 2017. Twenty-two studies were evaluated, by the Quality Assessment Tool for Diagnostic,Accuracy Studies and Review Manager 5.3. Results: Evidence shows that serum antibodies can be used as highly specific: and accurate biomarkers for the diagnosis of Parkinson's disease at the outset. Biomarkers in the cerebrospinal fluid are related to increased motor severity, postural instability, gait abnormality, and cognitive impairment. Conclusion: Serum and cerebrospinal antibodies can be used as diagnostic biomarkers at the onset of the disease.",
+  "DOI": "10.1590/0034-7167-2017-0450",
+  "PMID": "30517414",
+  "Year": "2018",
+  "Journal": "REVISTA BRASILEIRA DE ENFERMAGEM",
+  "Authors": "da Costa, MFBNA; Reisdorfer, E; Kempfer, SS; Fernandes, GCM; Porporatti, AL; Canto, GD",
+  "PublicationTypes": "Review",
+  "Keywords": "Review; Parkinson's Disease; Diagnostic; Biomarkers; Blood",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "Parkinson's Disease-related Circulating microRNA Biomarkers - a Validation Study",
+  "Abstract": "Parkinson's disease (PD) is the second most common neurodegenerative disease. One of the major challenges in studying this progressive neurological disorder is to identify and develop biomarkers for early detection. Recently, several blood-based microRNA (miRNA) biomarkers for PD have been reported. However, follow-up studies with new, independent cohorts have been rare. Previously, we identified a panel of four circulating miRNA biomarkers for PD (miR-1826, miR-450b-3p, miR-505, and miR-626) with biomarker performance of 91% sensitivity and 100% specificity. However, the expression of miR-450b-3p could not be detected in a new, independent validation set. In our current study, we improved the detection power by including a non-biased pre-amplification step in quantitative real-time PCR (qRT-PCR) and reevaluated the biomarker performance. We found the panel of four PD-related miRNAs achieved the predictive power of 83% sensitivity and 75% specificity in our validation set. This is the first biomarker validation study of PD which showed reproducibility and robustness of plasma-based circulating miRNAs as molecular biomarkers and qRT-PCR as potential diagnostic assay.",
+  "DOI": "10.3934/medsci.2015.1.7",
+  "PMID": "",
+  "Year": "2015",
+  "Journal": "AIMS MEDICAL SCIENCE",
+  "Authors": "Petillo, D; Orey, S; Tan, AC; Forsgren, L; Khoo, SK",
+  "PublicationTypes": "Article",
+  "Keywords": "Parkinson's disease; circulating microRNAs; plasma; biomarkers; validation; quantitative real-time PCR",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "microRNA Profiles in Parkinson's Disease Prefrontal Cortex",
+  "Abstract": "Objective: The goal of this study was to compare the microRNA (miRNA) profile of Parkinson's disease (PD) frontal cortex with normal control brain, allowing for the identification of PD specific signatures as well as study the disease-related phenotypes of onset age and dementia. Methods: Small RNA sequence analysis was performed from prefrontal cortex for 29 PD samples and 33 control samples. After sample QC, normalization and batch correction, linear regression was employed to identify miRNAs altered in PD, and a PD classifier was developed using weighted voting class prediction. The relationship of miRNA levels to onset age and PD with dementia (PDD) was also characterized in case-only analyses. Results: One twenty five miRNAs were differentially expressed in PD at a genome-wide level of significance (FDR q < 0.05). A set of 29 miRNAs classified PD from non-diseased brain (93.9% specificity, 96.6% sensitivity). The majority of differentially expressed miRNAs (105/125) showed an ordinal relationship from control, to PD without dementia (PDN), to PDD. Among PD brains, 36 miRNAs classified PDD from PDN (sensitivity 81.2%, specificity = 88.9%). Among differentially expressed miRNAs, miR-10b-5p had a positive association with onset age (q = 4.7e-2). Conclusions: Based on cortical miRNA levels, PD brains were accurately classified from non-diseased brains. Additionally, the PDD miRNA profile exhibited a more severe pattern of alteration among those differentially expressed in PD. To evaluate the clinical utility of miRNAs as potential clinical biomarkers, further characterization and testing of brain-related miRNA alterations in peripheral biofluids is warranted.",
+  "DOI": "10.3389/fnagi.2016.00036",
+  "PMID": "",
+  "Year": "2016",
+  "Journal": "FRONTIERS IN AGING NEUROSCIENCE",
+  "Authors": "Hoss, AG; Labadorf, A; Beach, TG; Latourelle, JC; Myers, RH",
+  "PublicationTypes": "Article",
+  "Keywords": "Parkinson's disease; miRNA; small RNA sequencing; dementia; cortex; Huntington's disease",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "Validation of human microRNA target pathways enables evaluation of target prediction tools",
+  "Abstract": "MicroRNAs are regulators of gene expression. A wide-spread, yet not validated, assumption is that the targetome of miRNAs is non-randomly distributed across the transcriptome and that targets share functional pathways. We developed a computational and experimental strategy termed high-throughput miRNA interaction reporter assay (HiTmIR) to facilitate the validation of target pathways. First, targets and target pathways are predicted and prioritized by computational means to increase the specificity and positive predictive value. Second, the novel webtool miRTaH facilitates guided designs of reporter assay constructs at scale. Third, automated and standardized reporter assays are performed. We evaluated HiTmIR using miR-34a-5p, for which TNF- and TGFB-signaling, and Parkinson's Disease (PD)-related categories were identified and repeated the pipeline for miR-7-5p. HiTmIR validated 58.9% of the target genes for miR-34a-5p and 46.7% for miR-7-5p. We confirmed the targeting by measuring the endogenous protein levels of targets in a neuronal cell model. The standardized positive and negative targets are collected in the new miRATBase database, representing a resource for training, or benchmarking new target predictors. Applied to 88 target predictors with different confidence scores, TargetScan 7.2 and miRanda outperformed other tools. Our experiments demonstrate the efficiency of HiTmIR and provide evidence for an orchestrated miRNA-gene targeting.",
+  "DOI": "10.1093/nar/gkaa1161",
+  "PMID": "33305319",
+  "Year": "2021",
+  "Journal": "NUCLEIC ACIDS RESEARCH",
+  "Authors": "Kern, F; Krammes, L; Danz, K; Diener, C; Kehl, T; Küchler, O; Fehlmann, T; Kahraman, M; Rheinheimer, S; Aparicio-Puerta, E; Wagner, S; Ludwig, N; Backes, C; Lenhof, HP; von Briesen, H; Hart, M; Keller, A; Meese, E",
+  "PublicationTypes": "Article",
+  "Keywords": "",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "Inflammatory Mechanisms in Parkinson's Disease: From Pathogenesis to Targeted Therapies",
+  "Abstract": "Inflammation is a critical factor contributing to the progressive neurodegenerative process observed in Parkinson's disease (PD). Microglia, the immune cells of the central nervous system, are activated early in PD pathogenesis and can both trigger and propagate early disease processes via innate and adaptive immune mechanisms such as upregulated immune cells and antibody-mediated inflammation. Downstream cytokines and gene regulators such as microRNA (miRNA) coordinate later disease course and mediate disease progression. Biomarkers signifying the inflammatory and neurodegenerative processes at play within the central nervous system are of increasing interest to clinical teams. To be effective, such biomarkers must achieve the highest sensitivity and specificity for predicting PD risk, confirming diagnosis, or monitoring disease severity. The aim of this review was to summarize the current preclinical and clinical evidence that suggests that inflammatory processes contribute to the initiation and progression of neurodegenerative processes in PD. In this article, we further summarize the data about main inflammatory biomarkers described in PD to date and their potential for regulation as a novel target for disease-modifying pharmacological strategies.",
+  "DOI": "10.1177/1073858421992265",
+  "PMID": "33586516",
+  "Year": "2022",
+  "Journal": "NEUROSCIENTIST",
+  "Authors": "Lee, SYH; Yates, NJ; Tye, SJ",
+  "PublicationTypes": "Review",
+  "Keywords": "Parkinson&#8217; s disease; neuroinflammation; neurodegeneration; biomarkers; disease-modifying therapies",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "Identification of biomarkers associated with inflammatory response in Parkinson's disease by bioinformatics and machine learning",
+  "Abstract": "Parkinson's disease (PD) is a common and debilitating neurodegenerative disorder. The inflammatory response is essential in the pathogenesis and progression of PD. The goal of this study is to combine bioinformatics and machine learning to screen for biomarker genes related to the inflammatory response in PD. First, differentially expressed genes associated with inflammatory response were screened, PPI networks were constructed and enriched for analysis. LASSO, SVM-RFE and Random Forest algorithms were used to screen biomarker genes. Then, ROC curves were drawn and PD risk predicting models were constructed on the basis of the biomarker genes. Finally, drug sensitivity analysis, mRNA-miRNA network construction and single-cell transcriptome data analysis were performed. The experimental results showed that we screened 31 differentially expressed genes related to inflammatory response. Signaling pathways such as cytokine activity were associated with these genes. Three biomarkers were identified using machine learning algorithms: IL18R1, NMUR1 and RELA. Seventeen co-associated miRNAs were identified by the mRNA-miRNA network as possible regulatory nodes in PD. Finally, these three biomarkers were found to be closely associated with T cells, Endothelial cells, excitatory neurons, inhibitory neurons, and other cells in single-cell transcriptomic analysis. In conclusion, IL18R1, NMUR1 and RELA could be potential therapeutic targets for PD in inflammatory response and new biomarkers for PD diagnosis.",
+  "DOI": "10.1371/journal.pone.0320257",
+  "PMID": "40929030",
+  "Year": "2025",
+  "Journal": "PLOS ONE",
+  "Authors": "Li, YT; Jia, W; Chen, C; Chen, C; Chen, JC; Yang, XL; Liu, P",
+  "PublicationTypes": "Article",
+  "Keywords": "",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "Identification of diagnose related therapeutic targets of Danggui buxue decoction in Parkinson's disease",
+  "Abstract": "Background: Parkinson's disease (PD) is the fastest growing neurological disease. Currently, there is no diseasemodifying therapy to slow the progression of the disease. Danggui buxue decoction (DBD) is widely used in the clinic because of its therapeutic effect. However, little is known about the molecular mechanism of DBD against PD. This study intends to explore the possible molecular mechanisms involved in DBD treatment of PD based on network pharmacology, and provide potential research directions for future research. Methods: Firstly, the active components and target genes of DBD were screened from the traditional Chinese medicine systems pharmacology (TCMSP), DrugBank and UniProt database. Secondly, target genes of PD were identified from the (GEO) dataset, followed by identification of common target genes of DBD and PD. Thirdly, analysis of protein-protein interaction (PPI), functional enrichment and diagnosis was performed on common target genes, followed by correlation analysis between core target genes, immune cell, miRNAs, and transcription factors (TFs). Finally, molecular docking between core target genes and active components, and real-time PCR were performed. Results: A total of 72 common target genes were identified between target genes of DBD and target genes of PD. Among which, 11 target genes with potential diagnostic value were further identified, including TP53, AKT1, IL1B, MMP9, NOS3, RELA, MAPK14, HMOX1, TGFB1, NOS2, and ERBB2. The combinations with the best docking binding were identified, including kaempferol-AKT1/HMOX1/NOS2/NOS3, quercetin-AKT1/ERBB2/ IL1B/HMOX1/MMP9/TP53/NOS3/TGFB1. Moreover, IL1B and NOS2 respectively positively and negatively correlated with neutrophil and Type 1 T helper cell. Some miRNA-core target gene regulatory pairs were identified, such as hsa-miR-185-5p-TP53/TGFB1/RELA/MAPK14/IL1B/ERBB2/AKT1 and hsa-miR-214-3pNOS3. These core target genes were significantly enriched in focal adhesion, TNF, HIF-1, and ErbB signaling pathway. Conclusion: Diagnostic TP53, AKT1, IL1B, MMP9, NOS3, RELA, MAPK14, HMOX1, TGFB1, NOS2, and ERBB2 may be considered as potential therapeutic targets of DBD in the treatment of PD.",
+  "DOI": "10.1016/j.brainres.2024.149097",
+  "PMID": "38950810",
+  "Year": "2024",
+  "Journal": "BRAIN RESEARCH",
+  "Authors": "Jin, M; Ye, KS; Hu, DF; Chen, JF; Wu, S; Chi, SM",
+  "PublicationTypes": "Article",
+  "Keywords": "Parkinson's disease; Danggui buxue decoction; Immune infiltration; Transcription factor; Signaling pathway; Molecular docking",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "New Insights into the Biosensing of Parkinson's Disease Biomarkers: A Concise Review",
+  "Abstract": "Background: Parkinson's disease (PD) is a long-term, degenerative, and neurological disease in which a person loses control of certain body functions. The formulation of novel effective therapeutics for PD as a neurodegenerative disease requires accurate and efficient diagnosis at the early stages. Objective: Analyzing data gathered by measurable signals converted from biological reactions allows for qualitative and quantitative evaluations. Among various approaches reported so far, biosensors are powerful analytical tools that have been used in detecting the biomarkers of PD. Methods: Biosensor's biological recognition components include antibodies, receptors, microorganisms, nucleic acids, enzymes, cells and tissues, and biomimetic structures. This review introduces electrochemical, optical, and optochemical detection of PD biomarkers based on recent advances in nanotechnology and material science, which resulted in the development of high-performance biosensors in this field. Results: PD biomarkers such as alpha-synuclein protein, dopamine (DA), urate, ascorbic acid, miRNAs, and their biological roles are summarized. Additionally, the advantages and disadvantages of the usual standard methods are reviewed. We compared electrochemical, optical, and optochemical biosensors' properties and novel strategies for higher sensitivity and selectivity. Conclusion: The development of novel biosensors is required for the early diagnosis of PD as sensitive, rapid, reliable, and cost-effective systems.",
+  "DOI": "10.2174/0929867328666211213111812",
+  "PMID": "34961452",
+  "Year": "2022",
+  "Journal": "CURRENT MEDICINAL CHEMISTRY",
+  "Authors": "Hosseini, ES; Mohammadi, S; Khodarahmi, R; Fouani, MH; Tavallaei, O; Jaberi, KR; Shabaninejad, Z; Janfaza, S; Yazdian-Robati, R; Sajadimajd, S",
+  "PublicationTypes": "Review",
+  "Keywords": "Neurodegenerative disease; electrochemical biosensors; optical biosensors; optochemical biosensors; parkinson; biomarker",
+  "database": "Web of Science"
+ },
+ {
+  "Title": "LoC-SERS Platform Integrated with the Signal Amplification Strategy toward Parkinson's Disease Diagnosis",
+  "Abstract": "Multiplexed detection of Parkinson's disease (PD) biomarkers is of great significance for early diagnosis and personalized treatment. In this study, we fabricated a robust surface-enhanced Raman scattering-enabled lab-on-a-chip (LoCSERS) platform for simultaneous quantification of alpha-synuclein, phosphorylated tau protein 181, osteopontin, and osteocalcin. Herein, the antibody-DNA conjugate was designed to introduce the catalytic hairpin self-assembly (CHA) amplification into the protein detection. Au nano-stars (AuNSs) modified with Raman reporter molecules and hairpin-structure DNA 1 were applied as the SERS nanotags. Au-coated silicon nanocone array (Au/ SiNCA) fabricated based on the maskless plasma etching-prepared high-density Si nanocone array (SiNCA) and surface ion sputtering was used as the capture substrate after the modification of hairpin-structure DNA 2. Benefitting from the antibody-DNA conjugate induced CHA amplification, numerous AuNSs can be connected to the Au/SiNCA surface, which significantly amplify the plasmonic coupling effect for ultrasensitive SERS detection, and the limit of detection was less than the pg/mL level. The application of highly uniform Au/SiNCA and antibody-DNA conjugate endows the LoC-SERS platform excellent analytical performance, including superior reproducibility, satisfactory universality, and high sensitivity. In addition, a 1-methyl-4-phenyl-1,2,3,6-tetrahydropyridine (MPTP)-induced PD mice model was established, and satisfactory results were obtained in real sample analysis with the LoC-SERS platform, which may be enlightening for exploiting protein biomarkers in PD monitoring.",
+  "DOI": "10.1021/acsami.3c00103",
+  "PMID": "37119180",
+  "Year": "2023",
+  "Journal": "ACS APPLIED MATERIALS & INTERFACES",
+  "Authors": "Cao, XW; Ge, SJ; Chen, M; Mao, HY; Wang, Y",
+  "PublicationTypes": "Article",
+  "Keywords": "surface-enhanced Raman scattering; catalytic hairpin assembly; Parkinson's disease; lab-on-a-chip; signal amplification",
+  "database": "Web of Science"
+ }
+]

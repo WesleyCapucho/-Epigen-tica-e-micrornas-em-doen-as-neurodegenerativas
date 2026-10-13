@@ -1,0 +1,8 @@
+{
+  "random_draws": 2000,
+  "seed": 20260928,
+  "ci_plausibility_ratio": 0.5,
+  "studies_flagged_label_swap": [
+    "35655754"
+  ]
+}

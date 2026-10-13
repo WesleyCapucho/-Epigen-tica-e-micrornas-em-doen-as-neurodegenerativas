@@ -1,0 +1,12 @@
+{
+  "pmids": ["41918250","42663279","42600914","42600995","42385887","41467429","42716230","42711740","42708923","42696105","42690211","42485567","42431487","42323054","42308989","42032299","42675804","42712981","42642833","42640413","42635855","42631818","42626787","42608670","42606643","42603243","42162905","42661704","42650138","42643736","42643339","42557483","42571753","42554796","42543712","42569825","42528277","42384341","42324031","42268317","42251967","42207471","41017705","42527713","42502242","42650743","42589231","42538997","42553702","42482158","42481587","42474555","42470121","42539325","42506451","42473218","42446817","42400752","42450256","42397457","42208462","42138198","42055093","42010206","41708889","40618273","40618254","42360639","42395402","42337584","42337208","42395483","42332537","42401527","42253155","42389429","42357473","42343519","42368464","42271483","42454185","42208531","42261156","42260294","42279176","42234230","42161892","42434351","42215422","42067097","42024084","41962421","41921918","40145964","42290958","42278353","42204625","41876051","42178743","42227493"],
+  "total_count": 2777,
+  "returned_count": 100,
+  "query": "(microRNA[Title/Abstract] OR miRNA[Title/Abstract] OR \"micro-RNA\"[Title/Abstract]) AND (Alzheimer[Title/Abstract] OR Parkinson[Title/Abstract] OR neurodegenerat*[Title/Abstract]) AND (expression[Title/Abstract] OR biomarker[Title/Abstract] OR epigenetic[Title/Abstract] OR methylation[Title/Abstract] OR \"expression profiling\"[Title/Abstract] OR \"RNA-seq\"[Title/Abstract] OR microarray[Title/Abstract])",
+  "query_translation": "(\"microRNA\"[Title/Abstract] OR \"miRNA\"[Title/Abstract] OR \"micro-RNA\"[Title/Abstract]) AND (\"Alzheimer\"[Title/Abstract] OR \"Parkinson\"[Title/Abstract] OR \"neurodegenerat*\"[Title/Abstract]) AND (\"expression\"[Title/Abstract] OR \"biomarker\"[Title/Abstract] OR \"epigenetic\"[Title/Abstract] OR \"methylation\"[Title/Abstract] OR \"expression profiling\"[Title/Abstract] OR \"RNA-seq\"[Title/Abstract] OR \"microarray\"[Title/Abstract]) AND 2015/01/01:2026/09/10[Date - Publication]",
+  "date_from": "2015/01/01",
+  "date_to": "2026/09/10",
+  "sort": "pub_date",
+  "source_tool": "mcp__PubMed__search_articles",
+  "access_date": "2026-09-10"
+}

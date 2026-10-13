@@ -1,0 +1,102 @@
+{
+  "purpose_en": "Prior systematic reviews and meta-analyses on the diagnostic accuracy of miRNAs in Alzheimer's and Parkinson's disease. Recorded so this project can be positioned honestly against work that already exists, and so its headline numbers can be compared like with like.",
+  "purpose_pt": "Revisoes sistematicas e meta-analises previas sobre a acuracia diagnostica de miRNAs em Alzheimer e Parkinson. Registradas para que este projeto se posicione honestamente diante do que ja existe, e para que seus numeros principais sejam comparados de forma equivalente.",
+  "identified_on": "2026-09-10",
+  "how_found_en": "Surfaced when the Scopus export was screened. Two of them had slipped past the earlier PubMed screening because of a regular-expression defect (a trailing word boundary after 'meta-analys' meant the alternative never matched 'meta-analysis'). The defect is fixed in scripts/04_screening.py.",
+  "how_found_pt": "Apareceram na triagem da exportacao do Scopus. Duas haviam escapado da triagem anterior do PubMed por um defeito de expressao regular (a fronteira de palavra apos 'meta-analys' impedia que a alternativa casasse com 'meta-analysis'). O defeito esta corrigido em scripts/04_screening.py.",
+
+  "critical_note_on_comparability_en": "The pooled AUC these studies report is a SUMMARY ROC (SROC) area, obtained by fitting a curve through study-level sensitivity-specificity pairs in a bivariate/HSROC model. The estimate in this project is a random-effects average of the AUCs the studies themselves reported. These are different quantities and are not interchangeable: an SROC area describes the fitted summary curve, whereas the average of reported AUCs describes what a typical study observed. The two can differ substantially even on identical data, and the difference is not evidence that either is wrong.",
+  "critical_note_on_comparability_pt": "A AUC agregada que esses estudos reportam e uma area SROC (ROC-resumo), obtida ajustando uma curva aos pares sensibilidade-especificidade de cada estudo num modelo bivariado/HSROC. A estimativa deste projeto e uma media de efeitos aleatorios das AUCs que os proprios estudos reportaram. Sao quantidades diferentes e nao intercambiaveis: a area SROC descreve a curva-resumo ajustada, enquanto a media das AUCs reportadas descreve o que um estudo tipico observou. As duas podem diferir bastante mesmo sobre dados identicos, e a diferenca nao e evidencia de que alguma esteja errada.",
+
+  "studies": [
+    {
+      "pmid": "38460993", "year": 2024, "doi": "10.1016/j.nrleng.2023.12.011",
+      "journal": "Neurologia", "disease": "AD",
+      "title": "The potential diagnostic accuracy of circulating microRNAs for Alzheimer's disease: A meta-analysis",
+      "included": "62 studies from 18 articles",
+      "pooled_sensitivity": 0.82, "sensitivity_ci": [0.78, 0.85],
+      "pooled_specificity": 0.80, "specificity_ci": [0.76, 0.83],
+      "pooled_auc_sroc": 0.88, "auc_ci": [0.84, 0.90],
+      "key_subgroup_finding": "microRNA clusters of plasma type performed better than single markers",
+      "publication_bias": "not found (Deeks)"
+    },
+    {
+      "pmid": "39232595", "year": 2024, "doi": "10.1016/j.nrleng.2024.07.004",
+      "journal": "Neurologia", "disease": "PD",
+      "title": "Circulating microRNAs as potential biomarkers for the diagnosis of Parkinson's disease: A meta-analysis",
+      "included": "44 studies from 16 articles (3298 PD, 2529 controls)",
+      "pooled_sensitivity": 0.79, "sensitivity_ci": [0.76, 0.81],
+      "pooled_specificity": 0.82, "specificity_ci": [0.78, 0.84],
+      "pooled_auc_sroc": 0.87, "auc_ci": [0.84, 0.90],
+      "key_subgroup_finding": "miRNA cluster showed better diagnostic accuracy than miRNA simple",
+      "publication_bias": "no significant bias"
+    },
+    {
+      "pmid": "37770507", "year": 2023, "doi": "10.1038/s41598-023-43096-9",
+      "journal": "Scientific Reports", "disease": "PD",
+      "title": "MicroRNAs in Parkinson's disease: a systematic review and diagnostic accuracy meta-analysis",
+      "included": "102 studies systematically reviewed; 15 combination studies and 17 single-miRNA studies pooled separately",
+      "pooled_sensitivity": 0.82, "sensitivity_ci": [0.76, 0.87],
+      "pooled_specificity": 0.80, "specificity_ci": [0.74, 0.84],
+      "pooled_auc_sroc": 0.87, "auc_ci": [0.83, 0.89],
+      "key_subgroup_finding": "The reported AUC of 0.87 is for COMBINATIONS of miRNAs; single-miRNA studies were pooled in a separate analysis",
+      "note_en": "This is the closest antecedent to the present work: it also separates single markers from combinations. It was already cited in the source monograph.",
+      "note_pt": "E o antecedente mais proximo deste trabalho: tambem separa marcadores isolados de combinacoes. Ja estava citado na monografia de origem."
+    },
+    {
+      "pmid": "40783152", "year": 2025, "doi": "10.1016/j.cca.2025.120542",
+      "journal": "Clinica Chimica Acta", "disease": "AD",
+      "title": "Exosomal microRNA biomarkers in Alzheimer's disease: Systematic review and meta-analysis",
+      "included": "14 articles (23 studies), 910 patients and 696 controls",
+      "pooled_sensitivity": 0.83, "sensitivity_ci": [0.77, 0.88],
+      "pooled_specificity": 0.84, "specificity_ci": [0.76, 0.90],
+      "pooled_auc_sroc": 0.90, "auc_ci": [0.87, 0.92],
+      "key_subgroup_finding": "restricted to exosomal miRNAs; better performance with sample size >= 50 and a specified cut-off",
+      "publication_bias": "none detected (Deeks p = 0.06)"
+    },
+    {
+      "pmid": "26903857", "year": 2016, "doi": "10.3389/fnagi.2016.00013",
+      "journal": "Frontiers in Aging Neuroscience", "disease": "AD",
+      "title": "Diagnostic Value of microRNA for Alzheimer's Disease: A Systematic Review and Meta-Analysis",
+      "included": "236 papers reviewed; 7 studies pooled",
+      "pooled_sensitivity": 0.86, "sensitivity_ci": [0.79, 0.90],
+      "pooled_specificity": 0.87, "specificity_ci": [0.72, 0.95],
+      "pooled_auc_sroc": 0.87,
+      "note_en": "A corrigendum was published (PMID 28261090)."
+    },
+    {
+      "pmid": "32133447", "year": 2020, "doi": "10.15386/mpr-1393",
+      "journal": "Medicine and Pharmacy Reports", "disease": "AD",
+      "title": "Diagnostic and prognostic value of microRNAs for Alzheimer's disease: a comprehensive meta-analysis",
+      "included": "two meta-analyses: 10 studies (AUC / Cohen's d) and 8 studies (fold change)",
+      "pooled_auc_sroc": null,
+      "note_en": "Reports no single pooled AUC; splits the synthesis because primary studies reported incompatible statistics. Explicitly names small samples and detection-method heterogeneity as obstacles.",
+      "note_pt": "Nao reporta uma AUC agregada unica; divide a sintese porque os estudos primarios reportaram estatisticas incompativeis. Nomeia explicitamente amostras pequenas e heterogeneidade de metodos como obstaculos."
+    }
+  ],
+
+  "other_reviews_identified": [
+    {"pmid": "42279176", "year": 2026, "title": "Network Meta-Analysis of Cognitive Impairment and miRNA Expression in AD Patients with Hearing Loss"},
+    {"pmid": "42434351", "year": 2026, "title": "Region-specific Transcriptomic Signatures in AD: A Meta-analysis of Vulnerable Brain Regions"},
+    {"pmid": "41572495", "year": 2026, "title": "Extracellular Vesicle-Derived microRNAs as Fluid Biomarkers in Neurodegenerative Diseases: A Systematic Review"},
+    {"pmid": "37189731", "year": 2023, "title": "State of the Art of microRNAs Signatures as Biomarkers and Therapeutic Targets in PD and AD"},
+    {"pmid": "35264731", "year": 2022, "title": "Differential expression of MicroRNAs in AD: a systematic review and meta-analysis"},
+    {"pmid": "34243793", "year": 2021, "title": "Prediction of differentially expressed microRNAs in blood as potential biomarkers for AD"},
+    {"pmid": "31240600", "year": 2019, "title": "A Systematic Review of MicroRNA Expression as Biomarker of Late-Onset AD"},
+    {"pmid": "26484928", "year": 2016, "title": "Circulating microRNAs as Biomarkers of AD: A Systematic Review"},
+    {"pmid": "24678935", "year": 2014, "title": "The potential of microRNAs as biofluid markers of neurodegenerative diseases - a systematic review"}
+  ],
+
+  "implications_for_this_project_en": [
+    "The claim that pooling has rarely been done is FALSE and was removed from the manuscript.",
+    "The finding that panels outperform single miRNAs is CORROBORATED by at least three prior meta-analyses, not novel to this work. It is now reported as convergent evidence.",
+    "The headline difference (0.745 here for single miRNAs versus 0.87-0.88 there) is largely a difference of estimand: SROC area versus average reported AUC. This must be stated, not presented as a contradiction.",
+    "What remains genuinely novel: testing literature attention against measured accuracy; the clinical-trial registry check; and an extraction table in which every value carries the verbatim sentence of its source."
+  ],
+  "implications_for_this_project_pt": [
+    "A afirmacao de que a agregacao raramente foi feita e FALSA e foi removida do manuscrito.",
+    "O achado de que paineis superam miRNAs isolados e CORROBORADO por ao menos tres meta-analises previas, e nao original deste trabalho. Passa a ser reportado como evidencia convergente.",
+    "A diferenca principal (0,745 aqui para miRNAs isolados versus 0,87-0,88 la) e sobretudo diferenca de estimando: area SROC versus media das AUCs reportadas. Isso precisa ser dito, e nao apresentado como contradicao.",
+    "O que permanece genuinamente inedito: testar a atencao da literatura contra a acuracia medida; a checagem no registro de ensaios clinicos; e uma tabela de extracao em que cada valor carrega a frase verbatim de sua fonte."
+  ]
+}

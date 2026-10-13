@@ -1,0 +1,4 @@
+comparison,n_studies_a,n_studies_b,Q_between,df,p_value
+panel vs single | painel vs isolado - AD,12,6,0.206,1,0.6498
+panel vs single | painel vs isolado - PD,12,7,33.798,1,0.0
+panel vs single | painel vs isolado - combined | combinado,24,13,12.53,1,0.0004
