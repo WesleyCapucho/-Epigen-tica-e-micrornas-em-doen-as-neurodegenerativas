@@ -184,11 +184,15 @@ The analysis that was previously reported as primary: every qualifying circulati
 
 ## `results/tables/meta_analysis_variance_source_comparison.csv`
 
-For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (30 of 39 circulating estimates) actually changes the answer versus how few studies (2 for AD, 3 for PD) reported a usable interval of their own.
+For each primary disease outcome, the pooled AUC restricted to studies with a directly reported CI/SE (`reported_only`) against the full primary pool that also includes Hanley-McNeil reconstructed variances (`full`), so a reader can see how much the reconstruction (55 of 97 circulating estimates) actually changes the answer versus how few studies (7 for AD, 8 for PD) reported a usable interval of their own.
 
 ## `results/tables/subgroup_difference_test.csv`
 
-Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 df), computed on the one-per-study primary rows, within AD, within PD, and combined. Valid only because the one-estimate-per-study selection assigns every study to exactly one marker type, so the two groups compared are disjoint by construction; see the docstring of `subgroup_difference_test` in `scripts/05_meta_analysis.py`.
+Formal test for a panel-versus-single difference (Borenstein et al., 2009, ch. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 df), computed on the one-per-study primary rows, within AD, within PD, and combined. Valid only because the one-estimate-per-study selection assigns every study to exactly one marker type, so the two groups compared are disjoint by construction; see the docstring of `subgroup_difference_test` in `scripts/05_meta_analysis.py`. The table also carries the random-effects contrast that the manuscript reports: `diff_logit_RE` (panel minus single, difference of the pooled logit AUCs, each with its own Paule-Mandel τ²), `se_RE` (Hartung-Knapp standard errors combined), `df_RE` (Welch-Satterthwaite degrees of freedom) and `p_value_RE`. The Q-based `p_value` ignores between-study variance and is anti-conservative at the heterogeneity seen here; it is kept so the change is visible. `robustness_alternative_analyses.csv` (`panel_vs_single_p_RE`), `robustness_random_selection.csv` (`p_AD_RE`, `p_PD_RE`, `p_combined_RE`) and `robustness_validation_split_exploratory.csv` (`p_value_RE`) carry the same contrast.
+
+## `results/tables/manuscript_numbers.json`
+
+Written by `scripts/35_manuscript_numbers.py`: every number that the Article 1 manuscript quotes, as a flat key-to-string map already rounded and formatted for the text, with the source file of each value under `_sources`. The manuscript itself is kept outside this repository and refers to these keys; a build that finds a key missing stops. It selects, rounds and counts from files written by scripts 03 to 33 and computes nothing new about the studies.
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 

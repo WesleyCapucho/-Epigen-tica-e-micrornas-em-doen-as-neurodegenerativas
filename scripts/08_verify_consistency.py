@@ -380,6 +380,32 @@ def main():
         check(float(r["Q_between"]) >= 0,
               f"subgroup difference [{r['comparison']}]: Q_between should not be negative")
 
+    # EN | The random-effects contrast (the one the manuscript reports) is the difference of the
+    #      two subgroups' pooled logit AUCs, so it must agree with the stored pooled estimates,
+    #      and its p value must be a probability that is not smaller than the fixed-effect p value
+    #      by construction of the extra variance term (checked loosely: both in [0, 1]).
+    # PT | O contraste de efeitos aleatorios (o que o manuscrito reporta) e a diferenca das AUCs
+    #      logit agregadas dos dois subgrupos, entao deve concordar com as estimativas agregadas
+    #      guardadas, e seu p deve ser uma probabilidade (verificado de forma frouxa: em [0, 1]).
+    def _logit(x):
+        return math.log(x / (1 - x))
+
+    pairs = {"AD": ("AD - single miRNA", "AD - multi-miRNA panel"),
+             "PD": ("PD - single miRNA", "PD - multi-miRNA panel"),
+             "combined": ("All - single miRNA", "All - multi-miRNA panel")}
+    for r in subgroup_diff:
+        tag = "AD" if r["comparison"].endswith("- AD") else "PD" if r["comparison"].endswith("- PD") else "combined"
+        a = next(x for x in pooled_primary if x["subgroup"].startswith(pairs[tag][0]))
+        b = next(x for x in pooled_primary if x["subgroup"].startswith(pairs[tag][1]))
+        d_stored = _logit(float(b["pooled_auc"])) - _logit(float(a["pooled_auc"]))
+        check(abs(d_stored - float(r["diff_logit_RE"])) < 0.003,
+              f"subgroup difference [{r['comparison']}]: random-effects contrast disagrees with the "
+              f"stored pooled estimates ({d_stored:.3f} vs {r['diff_logit_RE']})")
+        check(0.0 <= float(r["p_value_RE"]) <= 1.0,
+              f"subgroup difference [{r['comparison']}]: random-effects p value outside [0, 1]")
+        check(float(r["se_RE"]) > 0 and float(r["df_RE"]) > 1,
+              f"subgroup difference [{r['comparison']}]: random-effects SE or df not usable")
+
     # --- 7. Mention counts cover the corpus the AUCs came from -------------
     fam_counts = {r["family"]: int(r["n_articles_mentioning_family"]) for r in counts}
     for r in cited:
