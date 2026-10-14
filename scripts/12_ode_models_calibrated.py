@@ -165,9 +165,15 @@ def load_measured():
         "kplus_low":  val("K008") * 3600.0 / 1e6,
         "m_half_uM":  val("K009") * 1e6,    # M -> uM
         "m_half_uM_b": val("K010") * 1e6,
-        # Abeta42 aggregation reaction orders (Cohen 2013)
-        "n_c": val("K012"),
-        "n_2": val("K013"),
+        # Abeta42 aggregation reaction orders (Cohen 2013).
+        # EN | K013 is the PRIMARY order and K012 the SECONDARY one. The two were read the
+        #      other way round until scripts/36 asked for them by meaning; both rows are 2,
+        #      so no earlier output changes, but the names now match the rows.
+        # PT | K013 e a ordem PRIMARIA e K012 a SECUNDARIA. Os dois eram lidos ao
+        #      contrario ate o scripts/36 pedi-los pelo significado; as duas linhas valem
+        #      2, entao nenhuma saida anterior muda, mas os nomes agora batem com as linhas.
+        "n_c": val("K013"),
+        "n_2": val("K012"),
         "M_star_uM": val("K014") * 1e6,     # M -> uM
         # miRNA decay constants, 1/h
         "d_miR_median": val("K016"),
@@ -360,8 +366,33 @@ def ad_rhs(t, y, p):
     return [dm29a, dm29b, dm29c, dmR, dpB, dA, dP, dM]
 
 
-def run_ad(measured, condition, free=None, t_end=2000.0, mimic=1.0):
-    """EN/PT: one AD trajectory. `mimic` multiplies miR-29 synthesis."""
+def ad_monomer_rhs(t, y, p):
+    """
+    EN | The first six equations of ad_rhs: the miR-29 paralogues, BACE1 and the Abeta42
+         monomer. The aggregation block has no feedback on any of them, so the monomer
+         trajectory is the same with or without it. This form exists so that a question
+         about the monomer is not at the mercy of the illustrative block, which does not
+         conserve mass and diverges at two corners of the free-parameter scan. It calls
+         ad_rhs rather than restating the equations, so there is one copy of them.
+    PT | As seis primeiras equacoes de ad_rhs: os paralogos de miR-29, a BACE1 e o
+         monomero de Abeta42. O bloco de agregacao nao realimenta nenhuma delas, entao a
+         trajetoria do monomero e a mesma com ou sem ele. Esta forma existe para que uma
+         pergunta sobre o monomero nao dependa do bloco ilustrativo, que nao conserva
+         massa e diverge em dois cantos da varredura de parametros livres. Chama ad_rhs em
+         vez de reescrever as equacoes, entao ha uma copia so delas.
+    """
+    return ad_rhs(t, list(y) + [0.0, 0.0], p)[:6]
+
+
+def run_ad(measured, condition, free=None, t_end=2000.0, mimic=1.0, aggregation=True):
+    """
+    EN | One AD trajectory. `mimic` multiplies miR-29 synthesis. With aggregation=False
+         only the monomer cascade is integrated (six states instead of eight); sol.y[5]
+         is the monomer pool either way.
+    PT | Uma trajetoria de AD. `mimic` multiplica a sintese de miR-29. Com
+         aggregation=False so a cascata do monomero e integrada (seis estados em vez de
+         oito); sol.y[5] e o pool de monomero nos dois casos.
+    """
     free = free or {k: midpoint(k) for k in FREE}
     p = {
         "d_miR29a": measured["d_miR29a_proxy"],
@@ -396,7 +427,10 @@ def run_ad(measured, condition, free=None, t_end=2000.0, mimic=1.0):
         raise ValueError(condition)
 
     y0 = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1e-3, 0.0]
-    sol = solve_ivp(ad_rhs, (0.0, t_end), y0, args=(p,),
+    rhs = ad_rhs
+    if not aggregation:
+        y0, rhs = y0[:6], ad_monomer_rhs
+    sol = solve_ivp(rhs, (0.0, t_end), y0, args=(p,),
                     t_eval=np.linspace(0.0, t_end, 1200), method="LSODA", rtol=1e-8, atol=1e-10)
     return sol, p
 
@@ -460,29 +494,117 @@ def run_pd(measured, acidic=False, free=None, t_end=2000.0, mimic=1.0,
 # --------------------------------------------------------------------------
 # Experiments | Experimentos
 # --------------------------------------------------------------------------
+N_PARALOGUES = 3     # EN/PT: miR-29a, -29b and -29c, each at a steady state of 1.0
+
+
+def bace1_knockdown(d, k, m):
+    """
+    EN | Fractional fall in steady-state BACE1 (mRNA and, because protein follows mRNA
+         linearly, protein) when every miR-29 paralogue is held at m times baseline. The
+         mRNA level is s / (d + 3 k m), so against the baseline s / (d + 3 k) the fall is
+         1 - (d + 3 k) / (d + 3 k m). Writing rho = 3 k / d, the baseline share of mRNA
+         decay that the miRNA is responsible for, this is 1 - (1 + rho) / (1 + rho m).
+    PT | Queda fracional da BACE1 no estado estacionario (mRNA e, como a proteina segue o
+         mRNA linearmente, proteina) quando cada paralogo de miR-29 e mantido em m vezes o
+         basal. O nivel de mRNA e s / (d + 3 k m), entao frente ao basal s / (d + 3 k) a
+         queda e 1 - (d + 3 k) / (d + 3 k m). Com rho = 3 k / d, a parcela basal do
+         decaimento do mRNA de que o miRNA e responsavel, vale 1 - (1 + rho) / (1 + rho m).
+    """
+    n = N_PARALOGUES
+    return 1.0 - (d + n * k) / (d + n * k * m)
+
+
+def mimic_for_knockdown(d, k, target):
+    """
+    EN | The inverse of bace1_knockdown: the mimic factor that gives a fractional fall
+         `target`. As rho grows the answer tends to 1 / (1 - target), the proportional
+         limit; as rho shrinks it grows without bound, because a miRNA that holds only a
+         small share of the mRNA's decay has little leverage.
+    PT | A inversa de bace1_knockdown: o fator de mimetico que da uma queda fracional
+         `target`. Quando rho cresce a resposta tende a 1 / (1 - target), o limite
+         proporcional; quando rho encolhe ela cresce sem limite, porque um miRNA que
+         detem so uma pequena parcela do decaimento do mRNA tem pouca alavanca.
+    """
+    n = N_PARALOGUES
+    return 1.0 + target / (1.0 - target) * (d + n * k) / (n * k)
+
+
+def required_bace1_knockdown(measured):
+    """
+    EN | How far BACE1 has to fall to bring the AD monomer pool back to the control
+         pool, assuming production is proportional to BACE1 protein. At steady state the
+         monomer pool is (k_prod / k_clear) times BACE1 protein, so the AD pool matches
+         the control pool when BACE1 protein is lowered by 1 - 1 / R, with R the AD over
+         control ratio of k_prod / k_clear. It depends on the two measured Abeta42
+         constants and on nothing else.
+    PT | O quanto a BACE1 precisa cair para trazer o pool de monomero da AD de volta ao
+         pool do controle, supondo producao proporcional a proteina BACE1. No estado
+         estacionario o pool de monomero e (k_prod / k_clear) vezes a proteina BACE1,
+         entao o pool da AD iguala o do controle quando a proteina BACE1 cai 1 - 1 / R,
+         com R a razao AD sobre controle de k_prod / k_clear. Depende das duas constantes
+         medidas de Abeta42 e de mais nada.
+    """
+    r = ((measured["k_prod_Ab_ad"] / measured["k_clear_Ab_ad"])
+         / (measured["k_prod_Ab_ctrl"] / measured["k_clear_Ab_ctrl"]))
+    return 1.0 - 1.0 / r
+
+
 def experiment_clearance_vs_production(measured):
     """
     EN | The central AD question. Human data say the disease lever is clearance, not
-         production. A miR-29 mimic acts on production. How large a mimic would be
-         needed to bring AD Abeta back to the control steady state?
+         production. A miR-29 mimic acts on production. How far must BACE1 fall, and how
+         large a mimic does that take, to bring AD Abeta back to the control steady
+         state?
+
+         The required fall is closed-form and has no free parameter (see
+         required_bace1_knockdown). The mimic that delivers it is closed-form too and
+         depends on one free parameter, k_repress (see mimic_for_knockdown); it is
+         reported at the geometric midpoint of the declared range and across the range.
+         Each of the three is then checked by integrating the ODE. An earlier version
+         searched a grid of mimic factors with a step of 0.247 and reported the first
+         one that reached the control level, 1.494, which overshoots the exact
+         requirement and made the knockdown it implied look like a range of 30-33%
+         when it is 29.2% at every value of the free parameter.
     PT | A questao central de AD. Os dados humanos dizem que a alavanca e a depuracao,
-         nao a producao. Um mimetico de miR-29 age na producao. Que tamanho de mimetico
-         seria preciso para trazer o Abeta de AD de volta ao estado do controle?
+         nao a producao. Um mimetico de miR-29 age na producao. Quanto a BACE1 precisa
+         cair, e que tamanho de mimetico isso exige, para trazer o Abeta de AD de volta
+         ao estado estacionario do controle?
+
+         A queda necessaria e de forma fechada e nao tem parametro livre (ver
+         required_bace1_knockdown). O mimetico que a entrega tambem e de forma fechada e
+         depende de um parametro livre, k_repress (ver mimic_for_knockdown); e reportado
+         na media geometrica da faixa declarada e ao longo da faixa. Cada um dos tres e
+         entao conferido integrando a EDO. Uma versao anterior varria uma grade de
+         fatores de mimetico com passo de 0,247 e reportava o primeiro que alcancava o
+         nivel do controle, 1,494, que ultrapassa a exigencia exata e fazia a queda
+         implicada parecer uma faixa de 30-33% quando e 29,2% em todo valor do parametro
+         livre.
     """
-    sol_c, _ = run_ad(measured, "control")
-    sol_d, _ = run_ad(measured, "AD")
+    sol_c, _ = run_ad(measured, "control", aggregation=False)
+    sol_d, _ = run_ad(measured, "AD", aggregation=False)
     ab_c = sol_c.y[5][-1]
     ab_d = sol_d.y[5][-1]
 
-    # EN/PT: scan mimic strength until the AD trajectory reaches the control level
-    needed, grid = None, np.linspace(1.0, 60.0, 240)
-    for f in grid:
-        s, _ = run_ad(measured, "AD", mimic=float(f))
-        if s.y[5][-1] <= ab_c:
-            needed = float(f)
-            break
+    kappa = required_bace1_knockdown(measured)
+    d = measured["d_mRNA_BACE1"]
+    k_mid = midpoint("k_repress")
+    k_lo, k_hi = FREE["k_repress"]["low"], FREE["k_repress"]["high"]
+    folds = {name: mimic_for_knockdown(d, k, kappa)
+             for name, k in (("low", k_lo), ("mid", k_mid), ("high", k_hi))}
 
-    # EN/PT: for comparison, restoring clearance alone
+    # EN/PT: integrate the ODE at each closed-form mimic factor; the AD monomer pool must
+    #        land on the control pool of the same free-parameter setting
+    errors = []
+    for name, k in (("low", k_lo), ("mid", k_mid), ("high", k_hi)):
+        free = {kk: midpoint(kk) for kk in FREE}
+        free["k_repress"] = k
+        s_c, _ = run_ad(measured, "control", free=free, aggregation=False)
+        s_d, _ = run_ad(measured, "AD", free=free, mimic=folds[name], aggregation=False)
+        errors.append(abs(s_d.y[5][-1] / s_c.y[5][-1] - 1.0))
+    if max(errors) > 1e-6:
+        sys.exit("EN/PT: the closed-form mimic factor does not bring the integrated AD "
+                 f"monomer pool to the control pool (relative error {max(errors):.2e})")
+
     return dict(
         abeta_control=float(ab_c),
         abeta_AD=float(ab_d),
@@ -491,8 +613,10 @@ def experiment_clearance_vs_production(measured):
             100.0 * (1.0 - measured["k_clear_Ab_ad"] / measured["k_clear_Ab_ctrl"])),
         production_difference_percent=float(
             100.0 * (1.0 - measured["k_prod_Ab_ad"] / measured["k_prod_Ab_ctrl"])),
-        mimic_fold_needed=needed,
-        mimic_scan_max=float(grid[-1]),
+        required_bace1_knockdown=float(kappa),
+        mimic_fold_needed=float(folds["mid"]),
+        mimic_fold_needed_range=[float(folds["high"]), float(folds["low"])],
+        mimic_fold_ode_check_max_relative_error=float(max(errors)),
     )
 
 
@@ -745,14 +869,20 @@ def experiment_mimic_versus_measured_knockdown(measured, clearance, n=9):
          The model says how much miR-29 has to rise to bring AD Abeta back to the control
          steady state (clearance experiment). Hebert et al. 2008 measured what miR-29a/b-1
          transfection does to BACE1 protein in cells: about 50% knockdown (K047). The two
-         meet on BACE1, so the comparison is: what BACE1 knockdown does the required mimic
-         produce, and how large a mimic would be needed to reproduce the measured 50%?
+         meet on BACE1, so the comparison is: how large is the BACE1 knockdown the model
+         requires, and how large a mimic would be needed to reproduce the measured 50%?
+         The required knockdown is exact and free of free parameters (it is 1 - 1/R, see
+         required_bace1_knockdown); only the mimic factor that delivers it depends on
+         k_repress.
     PT | Poe a dose que o modelo pede ao lado de uma dose de fato alcancada. O modelo diz
          quanto o miR-29 precisa subir para levar o Abeta de AD ao estado do controle
          (experimento de depuracao). Hebert et al. 2008 mediram o que a transfeccao de
          miR-29a/b-1 faz com a proteina BACE1 em celulas: cerca de 50% de queda (K047).
-         Os dois se encontram na BACE1, entao a comparacao e: que queda de BACE1 a dose
-         exigida produz, e que dose reproduziria os 50% medidos?
+         Os dois se encontram na BACE1, entao a comparacao e: quao grande e a queda de
+         BACE1 que o modelo exige, e que dose reproduziria os 50% medidos? A queda
+         exigida e exata e livre de parametros livres (e 1 - 1/R, ver
+         required_bace1_knockdown); so o fator de mimetico que a entrega depende de
+         k_repress.
 
     EN | At steady state the BACE1 mRNA level is s_mRNA / (d_mRNA + 3 k_repress m) for a
          mimic factor m, because each of the three paralogues settles at m times baseline.
@@ -767,44 +897,44 @@ def experiment_mimic_versus_measured_knockdown(measured, clearance, n=9):
          decaimento do mRNA e medido (K068), entao a unica grandeza livre aqui e o
          k_repress, reportado em toda a faixa declarada.
     """
-    m_needed = clearance["mimic_fold_needed"]
+    kappa = clearance["required_bace1_knockdown"]
     measured_kd = measured["BACE1_knockdown_miR29"]      # K047, fraction
 
-    def knockdown(d, k, m):
-        """EN/PT: fractional fall in steady-state BACE1 for a mimic factor m."""
-        return 1.0 - (d + 3.0 * k) / (d + 3.0 * k * m)
-
-    def mimic_for(d, k, target):
-        """EN/PT: mimic factor that gives a target fractional knockdown."""
-        return 1.0 + target / (1.0 - target) * (d + 3.0 * k) / (3.0 * k)
-
-    # EN/PT: d is measured now (K068), so only k_repress is swept
+    # EN/PT: d is measured now (K068), so only k_repress is swept: n*n values of it
     d_fixed = measured["d_mRNA_BACE1"]
-    grid = [(d_fixed, float(k))
-            for k in np.geomspace(FREE["k_repress"]["low"], FREE["k_repress"]["high"], n * n)]
-    kds = [knockdown(d, k, m_needed) for d, k in grid] if m_needed else []
-    mimics = [mimic_for(d, k, measured_kd) for d, k in grid]
+    ks = [float(k) for k in
+          np.geomspace(FREE["k_repress"]["low"], FREE["k_repress"]["high"], n * n)]
+    offset = [mimic_for_knockdown(d_fixed, k, kappa) for k in ks]
+    reproduce = [mimic_for_knockdown(d_fixed, k, measured_kd) for k in ks]
+    # EN/PT: the knockdown that each required mimic produces must be kappa, by construction
+    back = [bace1_knockdown(d_fixed, k, m) for k, m in zip(ks, offset)]
+    if max(abs(b - kappa) for b in back) > 1e-12:
+        sys.exit("EN/PT: the closed-form mimic factor does not return the required knockdown")
 
     out = dict(
-        mimic_fold_needed_to_offset_clearance=m_needed,
+        required_BACE1_knockdown=float(kappa),
         d_mRNA_BACE1_measured=float(d_fixed),
         measured_BACE1_knockdown_K047=measured_kd,
-        grid_points=len(grid),
-        mimic_fold_to_reproduce_measured_knockdown=[float(min(mimics)), float(max(mimics))],
+        required_over_measured_knockdown=float(kappa / measured_kd),
+        required_knockdown_below_measured=bool(kappa < measured_kd),
+        k_repress_values=len(ks),
+        mimic_fold_to_offset_clearance=[float(min(offset)), float(max(offset))],
+        mimic_fold_to_reproduce_measured_knockdown=[float(min(reproduce)), float(max(reproduce))],
     )
-    if kds:
-        out["BACE1_knockdown_at_required_mimic"] = [float(min(kds)), float(max(kds))]
-        out["required_knockdown_below_measured_everywhere"] = bool(max(kds) < measured_kd)
     out["reading_en"] = (
         "The comparison is between a modelled dose and a measured effect in a cell line, "
         "not a prediction of what a mimic would do in a human brain. It says only whether "
         "the intervention the model asks for is larger or smaller than one already shown "
-        "to be achievable.")
+        "to be achievable. The transfected miRNA level in the cell experiment is not "
+        "reported as a fold over baseline, so the 50% constrains the product of repression "
+        "strength and dose, not either alone.")
     out["reading_pt"] = (
         "A comparacao e entre uma dose modelada e um efeito medido em linhagem celular, "
         "nao uma predicao do que um mimetico faria num cerebro humano. Ela diz apenas se a "
         "intervencao que o modelo pede e maior ou menor que uma ja demonstrada como "
-        "alcancavel.")
+        "alcancavel. O nivel de miRNA transfectado no experimento celular nao e "
+        "reportado como razao sobre o basal, entao os 50% restringem o produto da forca "
+        "de repressao pela dose, e nenhum dos dois sozinho.")
     return out
 
 
@@ -821,9 +951,20 @@ def experiment_free_parameter_sensitivity(measured, n=9):
         for v in np.geomspace(spec["low"], spec["high"], n):
             free = dict(base)
             free[name] = float(v)
-            sc, _ = run_ad(measured, "control", free=free)
-            sd, _ = run_ad(measured, "AD", free=free)
-            ratio = sd.y[5][-1] / sc.y[5][-1] if sc.y[5][-1] else float("nan")
+            # EN | Monomer cascade only (aggregation=False). The question here is the
+            #      monomer ratio, which the illustrative aggregation block cannot change;
+            #      with that block included, the corners k_repress = 0.1 and
+            #      k_translate = 5 diverged and were reported as not evaluable.
+            # PT | So a cascata do monomero (aggregation=False). A pergunta aqui e a razao
+            #      de monomero, que o bloco ilustrativo de agregacao nao pode mudar; com
+            #      esse bloco incluido, os cantos k_repress = 0,1 e k_translate = 5
+            #      divergiam e eram reportados como nao avaliaveis.
+            sc, _ = run_ad(measured, "control", free=free, aggregation=False)
+            sd, _ = run_ad(measured, "AD", free=free, aggregation=False)
+            if not (sc.success and sd.success):
+                ratio = float("nan")
+            else:
+                ratio = sd.y[5][-1] / sc.y[5][-1] if sc.y[5][-1] else float("nan")
             # EN | Three outcomes, not two. A non-finite ratio means the illustrative
             #      aggregation block diverged at this corner of the scan; it is NOT
             #      evidence against the conclusion. An earlier version counted such a
@@ -945,9 +1086,12 @@ def main():
     print(f"  Abeta AD / control            : {clearance['abeta_ratio_AD_over_control']:.3f}")
     print(f"  measured clearance deficit    : {clearance['clearance_deficit_percent']:.1f}%")
     print(f"  measured production difference: {clearance['production_difference_percent']:.1f}%")
-    mf = clearance["mimic_fold_needed"]
-    print(f"  miR-29 mimic fold needed      : "
-          f"{'>%.0f (not reached in scan)' % clearance['mimic_scan_max'] if mf is None else '%.1f' % mf}")
+    print(f"  required BACE1 knockdown      : {100 * clearance['required_bace1_knockdown']:.1f}%"
+          f"  (1 - 1/ratio, no free parameter)")
+    lo_m, hi_m = clearance["mimic_fold_needed_range"]
+    print(f"  miR-29 mimic fold needed      : {clearance['mimic_fold_needed']:.3f} at the midpoint "
+          f"of k_repress, {lo_m:.3f} .. {hi_m:.3f} across its range")
+    print(f"  ODE check, max relative error : {clearance['mimic_fold_ode_check_max_relative_error']:.1e}")
 
     print("\n--- Single-dose mimic washout ---")
     for lab, d in washout.items():
@@ -1002,26 +1146,28 @@ def main():
     print(f"  substrate per enzyme                  : {stoich['APP_per_BACE1']:.0f} to 1")
 
     print("\n--- Required mimic dose vs a measured knockdown [K047] ---")
-    kd = dose.get("BACE1_knockdown_at_required_mimic")
-    if kd:
-        print(f"  BACE1 knockdown at the required mimic : "
-              f"{100*kd[0]:.0f}-{100*kd[1]:.0f}%  across {dose['grid_points']} free-parameter pairs")
-    print(f"  measured knockdown in cells [K047]    : {100*dose['measured_BACE1_knockdown_K047']:.0f}%")
+    print(f"  BACE1 knockdown the model requires    : {100*dose['required_BACE1_knockdown']:.1f}%"
+          f"  (same at every k_repress)")
+    print(f"  measured knockdown in cells [K047]    : {100*dose['measured_BACE1_knockdown_K047']:.0f}%"
+          f"  (required is {100*dose['required_over_measured_knockdown']:.0f}% of it)")
+    lo, hi = dose["mimic_fold_to_offset_clearance"]
+    print(f"  mimic fold that delivers the required : {lo:.3f} .. {hi:.3f}"
+          f"  across {dose['k_repress_values']} values of k_repress")
     lo, hi = dose["mimic_fold_to_reproduce_measured_knockdown"]
-    print(f"  mimic fold to reproduce it            : {lo:.2f} .. {hi:.2f}")
+    print(f"  mimic fold to reproduce the measured  : {lo:.2f} .. {hi:.2f}")
 
     print("\n--- Free-parameter sensitivity ---")
     print(f"  scans run / varreduras        : {len(sens)}")
     print(f"  AD above control              : {len(ok)}")
     print(f"  AD at or below control        : {len(flips)}")
-    print(f"  not evaluable (diverged)      : {len(nanq)}")
+    print(f"  not evaluable                 : {len(nanq)}")
     if ratios:
         print(f"  ratio range across all scans  : {min(ratios):.4f} .. {max(ratios):.4f}")
     print("  " + ("conclusion holds throughout | conclusao se mantem"
                   if not flips else "CONCLUSION NOT ROBUST | CONCLUSAO NAO ROBUSTA"))
 
     out = dict(
-        generated_on="2026-09-23",
+        generated_on="2026-10-14",
         measured_parameter_source=KINETICS,
         free_parameters={k: {kk: (vv if not isinstance(vv, float) else float(vv))
                              for kk, vv in v.items()} for k, v in FREE.items()},
@@ -1034,6 +1180,7 @@ def main():
         alpha_synuclein_saturation=sat,
         enzyme_substrate_stoichiometry=stoich,
         mir7_knockdown_to_elongation=chain,
+        free_parameter_sensitivity_aggregation_block_excluded=True,
         free_parameter_sensitivity_scans=len(sens),
         free_parameter_sensitivity_ad_above_control=len(ok),
         free_parameter_sensitivity_flips=len(flips),

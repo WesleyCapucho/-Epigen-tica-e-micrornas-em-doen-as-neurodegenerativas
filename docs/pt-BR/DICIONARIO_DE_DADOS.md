@@ -265,7 +265,7 @@ Saída do `scripts/12`: os parâmetros livres, suas faixas e o valor central de 
 
 ## `results/tables/ode_free_parameter_sensitivity.csv`
 
-Uma linha por ponto da varredura dos parâmetros livres: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). Uma execução que falha numericamente é reportada como `not_evaluable`, nunca contada como inversão.
+Uma linha por ponto da varredura dos parâmetros livres: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). Uma execução que falha numericamente é reportada como `not_evaluable`, nunca contada como inversão. As execuções integram só a cascata do monômero (o bloco ilustrativo de agregação fica de fora, porque não pode mudar o pool de monômero e divergia em dois cantos da varredura); as 18 são avaliáveis.
 
 ## `results/tables/structure_figure_provenance.json`
 
@@ -324,6 +324,14 @@ Uma linha por espécie e intervalo de dose: `species`, `param_id` (a linha da ta
 ## `results/tables/mimic_dosing_feasibility.json`
 
 O mesmo cálculo com as comparações que o usam: a constante de decaimento de cada espécie e seu `param_id`, a comparação de dosagem diária contra a referência de estabilidade mediana (penalidade, intervalo equivalente, fator de estabilização necessário) e a suposição declarada de que o mimético entregue é eliminado na taxa endógena — por isso a saída é um fator de estabilização necessário e não um veredito de viabilidade.
+
+## `results/tables/mimic_target_response.csv`
+
+Uma linha por cenário do `scripts/36`: `axis` (AD ou PD), `rho_case` (`scan low`, `scan midpoint`, `scan high`, e para a PD `K065 loss of function`), `k_repress`, `rho`, a `species` entregue com seu `param_id` e `half_life_h`, `interval_h`, `protein_case` e `protein_half_life_h`, o `target` e `target_knockdown`, e se é `reachable` com dose até 10^4 vezes o pool basal do repressor. Para um cenário alcançável: a `dose` em bolus e os resultantes `peak_excess`, `peak_pool_over_baseline`, `trough_pool_over_baseline` e `mean_excess` (todos em unidades do pool basal), o `linear_excess` e o `linear_dose` que a forma fechada do estado estacionário pede, `efficiency` (`linear_dose` sobre `dose`, no máximo 1), `knockdown_reached` (a queda média da proteína no ciclo, igual à meta), `protein_ripple` (oscilação pico a vale da proteína sobre sua média), `abeta_ripple` (só AD), `elongation_reduction_m49_8` e `elongation_reduction_m46_0` (só PD: o retardo médio da elongação da fibrila na curva de saturação com K009 e K010, na concentração do botão K054) e `residual` (quão bem o estado periódico fechou). Para um cenário inalcançável as colunas de dose ficam vazias e `knockdown_reached` é o que a maior dose alcança. A dose não depende de `protein_case`: num ciclo periódico a proteína média é igual ao mRNA médio.
+
+## `results/tables/mimic_target_response.json`
+
+O resto do `scripts/36`: as versões de software, os parâmetros de integração, a força de repressão ρ nas pontas e no ponto médio da varredura declarada para cada eixo e, para a DP, no valor do K065 (com o fator de mimético que a forma fechada pede em cada caso), o escalonamento da taxa de nucleação a partir das ordens de reação medidas do Aβ42, os seis resultados de verificação com seus erros e tolerâncias, as suposições em inglês e português, e as contagens de cenários e de cenários inalcançáveis.
 
 ## `results/tables/graphical_abstract_values.json`
 

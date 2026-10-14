@@ -265,7 +265,7 @@ Output of `scripts/12`: the free parameters, their ranges and the central value 
 
 ## `results/tables/ode_free_parameter_sensitivity.csv`
 
-One row per point of the free-parameter scan: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). A run that fails numerically is reported as `not_evaluable`, never counted as a reversal.
+One row per point of the free-parameter scan: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). A run that fails numerically is reported as `not_evaluable`, never counted as a reversal. The runs integrate the monomer cascade only (the illustrative aggregation block is left out, because it cannot change the monomer pool and diverged at two corners of the scan); all 18 are evaluable.
 
 ## `results/tables/structure_figure_provenance.json`
 
@@ -324,6 +324,14 @@ One row per species and dosing interval: `species`, `param_id` (the kinetic-tabl
 ## `results/tables/mimic_dosing_feasibility.json`
 
 The same calculation with the comparisons that use it: each species' decay constant and its `param_id`, the daily-dosing comparison against the median-stability reference (penalty, equivalent interval, fold stabilisation required), and the stated assumption that the delivered mimic is cleared at the endogenous rate — which is why the output is a required fold stabilisation rather than a verdict on feasibility.
+
+## `results/tables/mimic_target_response.csv`
+
+One row per scenario of `scripts/36`: `axis` (AD or PD), `rho_case` (`scan low`, `scan midpoint`, `scan high`, and for PD `K065 loss of function`), `k_repress`, `rho`, the delivered `species` with its `param_id` and `half_life_h`, `interval_h`, `protein_case` and `protein_half_life_h`, the `target` and `target_knockdown`, and whether it is `reachable` at a dose up to 10^4 times the baseline repressor pool. For a reachable scenario: the bolus `dose` and the resulting `peak_excess`, `peak_pool_over_baseline`, `trough_pool_over_baseline` and `mean_excess` (all in units of the baseline pool), the `linear_excess` and `linear_dose` that the steady-state closed form asks for, `efficiency` (`linear_dose` over `dose`, at most 1), `knockdown_reached` (the cycle-averaged protein knockdown, equal to the target), `protein_ripple` (peak-to-trough swing of the protein over its mean), `abeta_ripple` (AD only), `elongation_reduction_m49_8` and `elongation_reduction_m46_0` (PD only: the mean slowdown of fibril elongation on the saturation curve with K009 and K010, at the bouton concentration K054) and `residual` (how closely the periodic state closed). For an unreachable scenario the dose columns are empty and `knockdown_reached` is what the largest dose reaches. The dose does not depend on `protein_case`: over a periodic cycle the mean protein equals the mean mRNA.
+
+## `results/tables/mimic_target_response.json`
+
+The rest of `scripts/36`: the software versions, the integration settings, the repression strength ρ at the ends and midpoint of the declared scan for each axis and, for PD, at the K065 value (with the mimic factor the closed form asks for in each case), the nucleation-rate scaling from the measured Aβ42 reaction orders, the six verification results with their errors and tolerances, the assumptions in English and Portuguese, and the counts of scenarios and of unreachable scenarios.
 
 ## `results/tables/graphical_abstract_values.json`
 

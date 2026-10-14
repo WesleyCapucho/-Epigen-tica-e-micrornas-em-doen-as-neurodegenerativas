@@ -60,6 +60,8 @@ GRADE_JSON = "results/tables/grade_certainty.json"
 DOSING_JSON = "results/tables/mimic_dosing_feasibility.json"
 DOSING_CSV = "results/tables/mimic_dosing_feasibility.csv"
 ANIM_JSON = "results/tables/mechanism_animations.json"
+TARGET_JSON = "results/tables/mimic_target_response.json"
+TARGET_CSV = "results/tables/mimic_target_response.csv"
 
 
 def study_id(row):
@@ -600,18 +602,53 @@ def main():
               "ode dose: the BACE1 mRNA decay used is not K068")
         corners = [(d_meas, k)
                    for k in (fr["k_repress"]["low"], fr["k_repress"]["high"])]
-        m = dose["mimic_fold_needed_to_offset_clearance"]
-        lo, hi = dose["BACE1_knockdown_at_required_mimic"]
-        vals = [kd(d, k, m) for d, k in corners]
-        check(abs(min(vals) - lo) < 1e-9 and abs(max(vals) - hi) < 1e-9,
-              f"ode dose: knockdown range {lo:.4f}-{hi:.4f} != corners "
-              f"{min(vals):.4f}-{max(vals):.4f}")
+
+        # EN | The knockdown the clearance deficit requires is rebuilt here from the four
+        #      Abeta42 rows (K001-K004), not read back from the JSON: bringing the AD
+        #      monomer pool (k_prod / k_clear) back to the control pool means lowering
+        #      BACE1 by 1 - 1/R. It must be one number, the same at every k_repress. An
+        #      earlier grid search reported it as a 30-33% range.
+        # PT | A queda que o deficit de depuracao exige e refeita aqui a partir das quatro
+        #      linhas de Abeta42 (K001-K004), nao relida do JSON: levar o pool de monomero
+        #      da AD (k_prod / k_clear) de volta ao do controle significa baixar a BACE1
+        #      em 1 - 1/R. Tem de ser um numero so, igual em todo k_repress. Uma busca em
+        #      grade anterior o reportava como faixa de 30-33%.
+        ab = {pid: float(kin_by_pid[pid]["value_si"]) for pid in ("K001", "K002", "K003", "K004")}
+        ratio_ab = (ab["K002"] / ab["K004"]) / (ab["K001"] / ab["K003"])
+        kappa = 1.0 - 1.0 / ratio_ab
+        check(abs(dose["required_BACE1_knockdown"] - kappa) < 1e-12,
+              f"ode dose: required knockdown {dose['required_BACE1_knockdown']:.6f} != "
+              f"1 - 1/R = {kappa:.6f} from K001-K004")
+        check(abs(ode["ad_clearance_vs_production"]["required_bace1_knockdown"] - kappa) < 1e-12,
+              "ode dose: the clearance block and the dose block disagree on the required knockdown")
+        # EN/PT: the mimic factor that delivers kappa at each end of the declared k_repress
+        #        range, from the inverse written out independently of the script
+        def mimic_for(d, k, t):
+            return 1.0 + t / (1.0 - t) * (d + 3.0 * k) / (3.0 * k)
+        m_lo, m_hi = dose["mimic_fold_to_offset_clearance"]
+        (_, k_lo), (_, k_hi) = corners
+        check(abs(m_hi - mimic_for(d_meas, k_lo, kappa)) < 1e-9
+              and abs(m_lo - mimic_for(d_meas, k_hi, kappa)) < 1e-9,
+              f"ode dose: mimic fold range {m_lo:.4f}-{m_hi:.4f} does not match the closed "
+              f"form at the ends of the k_repress range")
+        check(abs(kd(d_meas, k_lo, m_hi) - kappa) < 1e-9 and abs(kd(d_meas, k_hi, m_lo) - kappa) < 1e-9,
+              "ode dose: the mimic factor at an end of the range does not give the required knockdown")
+        clr = ode["ad_clearance_vs_production"]
+        check(clr["mimic_fold_needed_range"] == [m_lo, m_hi]
+              or all(abs(a - b) < 1e-12 for a, b in zip(clr["mimic_fold_needed_range"], [m_lo, m_hi])),
+              "ode dose: the clearance block and the dose block disagree on the mimic fold range")
+        check(m_lo <= clr["mimic_fold_needed"] <= m_hi,
+              "ode dose: the midpoint mimic fold lies outside its own range")
+        check(clr["mimic_fold_ode_check_max_relative_error"] < 1e-6,
+              "ode dose: the integrated AD pool does not reach the control pool at the closed-form fold")
         for m_end in dose["mimic_fold_to_reproduce_measured_knockdown"]:
             got = [kd(d, k, m_end) for d, k in corners]
             check(min(abs(g - target) for g in got) < 1e-9,
                   f"ode dose: mimic fold {m_end:.4f} does not give the measured knockdown")
-        check(dose["required_knockdown_below_measured_everywhere"] == (hi < target),
-              "ode dose: the below-measured verdict disagrees with the reported range")
+        check(abs(dose["required_over_measured_knockdown"] - kappa / target) < 1e-12,
+              "ode dose: the required-over-measured ratio is not kappa / K047")
+        check(dose["required_knockdown_below_measured"] == (kappa < target),
+              "ode dose: the below-measured verdict disagrees with the numbers")
 
     # EN | Wilhelm et al. print copy numbers and concentrations in the same table and
     #      state in the legend that the concentrations were computed over the synaptic
@@ -714,6 +751,201 @@ def main():
               "ode chain: the measured pair does not match K060")
         check(abs(ad["pair_if_independent"] - (1.0 - (1.0 - a_) * (1.0 - b_))) < 1e-12,
               "ode chain: the independent-action prediction is not 1 - (1-a)(1-b)")
+
+    # EN | scripts/36 (what a repeated mimic dose does to the protein it targets). The
+    #      closed forms are rebuilt here from the parameter table, not read back from the
+    #      JSON, and the scenario table is held to the identities the model has to obey:
+    #      the knockdown reached is the one asked for; the dose does not depend on the
+    #      protein half-life, because over a periodic cycle the mean protein equals the
+    #      mean mRNA; peak over mean excess is scripts/17's penalty; efficiency never
+    #      exceeds 1; the dose rises with the dosing interval and falls with the stability
+    #      of the delivered species; and a target that is out of reach stays out of reach
+    #      at longer intervals. The internal verification of scripts/36 must also have
+    #      passed.
+    # PT | scripts/36 (o que uma dose repetida de mimetico faz com a proteina que ele
+    #      mira). As formas fechadas sao refeitas aqui a partir da tabela de parametros,
+    #      nao relidas do JSON, e a tabela de cenarios e submetida as identidades que o
+    #      modelo precisa obedecer: a queda alcancada e a pedida; a dose nao depende da
+    #      meia-vida da proteina, porque num ciclo periodico a proteina media iguala o
+    #      mRNA medio; excesso de pico sobre medio e a penalidade do scripts/17; a
+    #      eficiencia nunca passa de 1; a dose sobe com o intervalo e cai com a
+    #      estabilidade da especie entregue; e uma meta fora de alcance continua fora em
+    #      intervalos maiores. A verificacao interna do scripts/36 tambem precisa ter
+    #      passado.
+    try:
+        tgt = json.load(open(TARGET_JSON, encoding="utf-8"))
+        tgt_rows = list(csv.DictReader(open(TARGET_CSV, encoding="utf-8")))
+    except FileNotFoundError:
+        tgt, tgt_rows = None, []
+    if tgt is not None and ode is not None and kin_by_id:
+        def pv(pid):
+            return float(kin_by_id[pid]["value_si"])
+
+        def rel(a, b):
+            return abs(a - b) / max(abs(b), 1e-300)
+
+        def fold(kappa, rho):
+            return 1.0 + kappa / (1.0 - kappa) * (1.0 + rho) / rho
+
+        fr_ = ode["free_parameters"]["k_repress"]
+        k_lo, k_hi = fr_["low"], fr_["high"]
+        k_mid = math.sqrt(k_lo * k_hi)
+        d_ad, d_pd = pv("K068"), pv("K066")
+        r_ab = (pv("K002") / pv("K004")) / (pv("K001") / pv("K003"))
+        kappa_ad = 1.0 - 1.0 / r_ab
+
+        check(all(v["passed"] for v in tgt["verification"].values()),
+              "mimic target: an internal verification of scripts/36 did not pass")
+        check(tgt["intervals_h"] == [8.0, 12.0, 24.0, 48.0, 168.0],
+              "mimic target: the dosing intervals are not those of scripts/17")
+        check(len(tgt_rows) == tgt["scenarios"],
+              f"mimic target: {len(tgt_rows)} rows, the JSON says {tgt['scenarios']}")
+        check(sum(1 for r in tgt_rows if r["reachable"] != "True") == tgt["scenarios_unreachable"],
+              "mimic target: the unreachable count disagrees with the table")
+
+        # EN/PT: repression strength rebuilt from K068, K066, K065 and the declared k_repress range
+        rs = tgt["repression_strength"]
+        want = {("AD", "rho_scan_low"): 3.0 * k_lo / d_ad, ("AD", "rho_scan_mid"): 3.0 * k_mid / d_ad,
+                ("AD", "rho_scan_high"): 3.0 * k_hi / d_ad, ("PD", "rho_scan_low"): k_lo / d_pd,
+                ("PD", "rho_scan_mid"): k_mid / d_pd, ("PD", "rho_scan_high"): k_hi / d_pd}
+        for (ax_, key_), v in want.items():
+            check(rel(rs[ax_][key_], v) < 1e-12, f"mimic target: {ax_} {key_} is not n k / d from the table")
+        check(abs(rs["PD"]["rho_K065"] - pv("K065")) < 1e-12 and
+              rs["PD"]["rho_K065_below_scan"] == (pv("K065") < k_lo / d_pd),
+              "mimic target: rho from K065 does not match the row, or its position against the scan is wrong")
+        for ax_, tmap in (("AD", {"required to restore control Abeta42 [K001-K004]": kappa_ad}),
+                          ("PD", {"miR-7 alone, 3'UTR reporter [K058]": pv("K058"),
+                                  "miR-7 + miR-153, cortical neurons [K063]": pv("K063")})):
+            for lab, kap in tmap.items():
+                t_ = rs[ax_]["targets"][lab]
+                check(abs(t_["knockdown"] - kap) < 1e-12 and
+                      rel(t_["proportional_limit_fold"], 1.0 / (1.0 - kap)) < 1e-12,
+                      f"mimic target: {ax_} target '{lab}' does not match its table rows")
+                for key_, rho_ in (("fold_at_scan_low", rs[ax_]["rho_scan_low"]),
+                                   ("fold_at_scan_mid", rs[ax_]["rho_scan_mid"]),
+                                   ("fold_at_scan_high", rs[ax_]["rho_scan_high"])):
+                    check(rel(t_[key_], fold(kap, rho_)) < 1e-12,
+                          f"mimic target: {ax_} '{lab}' {key_} is not the closed form")
+        for lab, t_ in rs["PD"]["targets"].items():
+            check(rel(t_["fold_at_K065"], fold(t_["knockdown"], pv("K065"))) < 1e-12,
+                  f"mimic target: PD '{lab}' fold at K065 is not the closed form")
+        # EN/PT: the AD closed form must also agree with scripts/12's range for the same fold
+        lo_, hi_ = ode["mimic_dose_vs_measured_knockdown"]["mimic_fold_to_offset_clearance"]
+        check(rel(lo_, fold(kappa_ad, rs["AD"]["rho_scan_high"])) < 1e-9 and
+              rel(hi_, fold(kappa_ad, rs["AD"]["rho_scan_low"])) < 1e-9,
+              "mimic target: scripts/12 and scripts/36 disagree on the AD mimic fold at the ends of the scan")
+
+        # EN/PT: nucleation scaling, with the two orders asked for by what each row says it is
+        nuc = tgt["nucleation_scaling"]
+        check("primary" in kin_by_id["K013"]["parameter"] and "secondary" in kin_by_id["K012"]["parameter"],
+              "mimic target: K013 must be the primary and K012 the secondary nucleation order")
+        check(nuc["order_primary_nucleation"] == pv("K013") and nuc["order_secondary_nucleation"] == pv("K012"),
+              "mimic target: the nucleation orders are not read from K013 (primary) and K012 (secondary)")
+        check(rel(nuc["monomer_ratio_AD_over_control"], r_ab) < 1e-12 and
+              abs(nuc["required_monomer_reduction"] - kappa_ad) < 1e-12,
+              "mimic target: the monomer ratio or the required reduction does not match K001-K004")
+        for kind_, n_ in (("primary", pv("K013")), ("secondary", pv("K012"))):
+            check(rel(nuc[f"{kind_}_nucleation_rate_ratio_AD_over_control"], r_ab ** n_) < 1e-12 and
+                  abs(nuc[f"{kind_}_nucleation_rate_reduction_after_offset"]
+                      - (1.0 - (1.0 - kappa_ad) ** n_)) < 1e-12,
+                  f"mimic target: {kind_} nucleation scaling is not ratio^order")
+
+        # EN/PT: the scenario table
+        half = {pid: math.log(2.0) / pv(pid) for pid in ("K016", "K017", "K018", "K020", "K021")}
+        decay = {pid: pv(pid) for pid in half}
+        prot_ok = {"AD": {round(math.log(2.0) / pv("K025"), 6), round(math.log(2.0) / pv("K029"), 6)},
+                   "PD": {round(math.log(2.0) / pv("K026"), 6), round(math.log(2.0) / pv("K029"), 6)}}
+        target_ok = {"AD": [kappa_ad], "PD": [pv("K058"), pv("K063")]}
+        bad = {k_: [] for k_ in ("rho", "target", "species", "protein", "reached", "eff", "peak",
+                                 "pool", "linear", "unreach")}
+        for r in tgt_rows:
+            ax_ = r["axis"]
+            n_sp, d_m = (3.0, d_ad) if ax_ == "AD" else (1.0, d_pd)
+            dx = decay[r["param_id"]]
+            T = float(r["interval_h"])
+            kap = float(r["target_knockdown"])
+            tag = f"{ax_}/{r['rho_case']}/{r['species']}/{T:g}h/{r['target'][:12]}"
+            if rel(float(r["rho"]), n_sp * float(r["k_repress"]) / d_m) > 1e-9:
+                bad["rho"].append(tag)
+            if not any(abs(kap - t_) < 1e-12 for t_ in target_ok[ax_]):
+                bad["target"].append(tag)
+            if rel(float(r["half_life_h"]), half[r["param_id"]]) > 1e-9:
+                bad["species"].append(tag)
+            if round(float(r["protein_half_life_h"]), 6) not in prot_ok[ax_]:
+                bad["protein"].append(tag)
+            e_lin = fold(kap, float(r["rho"])) - 1.0
+            if rel(float(r["linear_excess"]), e_lin) > 1e-9 or rel(float(r["linear_dose"]), e_lin * dx * T) > 1e-9:
+                bad["linear"].append(tag)
+            if r["reachable"] == "True":
+                dose = float(r["dose"])
+                if abs(float(r["knockdown_reached"]) - kap) > 1e-8:
+                    bad["reached"].append(tag)
+                eff = float(r["efficiency"])
+                if rel(eff, float(r["linear_dose"]) / dose) > 1e-9 or eff > 1.0 + 1e-9:
+                    bad["eff"].append(tag)
+                x = dx * T
+                if rel(float(r["peak_excess"]) / float(r["mean_excess"]), x / (1.0 - math.exp(-x))) > 1e-9 \
+                        or rel(float(r["mean_excess"]), dose / x) > 1e-9:
+                    bad["peak"].append(tag)
+                if rel(float(r["peak_pool_over_baseline"]), 1.0 + float(r["peak_excess"])) > 1e-9 \
+                        or rel(float(r["trough_pool_over_baseline"]),
+                               1.0 + float(r["peak_excess"]) * math.exp(-x)) > 1e-9:
+                    bad["pool"].append(tag)
+            elif r["dose"] != "" or float(r["knockdown_reached"]) >= kap:
+                bad["unreach"].append(tag)
+        for k_, what in (("rho", "rho is not n k / d from the table"),
+                         ("target", "target knockdown is not a table row (K001-K004, K058, K063)"),
+                         ("species", "species half-life is not its table row"),
+                         ("protein", "protein half-life is not a table row (K025, K026, K029)"),
+                         ("linear", "linear benchmark is not the closed form"),
+                         ("reached", "knockdown reached differs from the target"),
+                         ("eff", "efficiency is not linear dose over dose, or exceeds 1"),
+                         ("peak", "peak over mean excess is not scripts/17's ratio"),
+                         ("pool", "peak or trough pool is not 1 + excess"),
+                         ("unreach", "an unreachable row carries a dose or reaches its target")):
+            check(not bad[k_], f"mimic target: {what}; first: {bad[k_][:3]}")
+
+        # EN/PT: dose independent of the protein half-life (mean protein = mean mRNA over a cycle)
+        groups = {}
+        for r in tgt_rows:
+            key_ = (r["axis"], r["rho_case"], r["species"], r["interval_h"], r["target"])
+            groups.setdefault(key_, []).append(r)
+        miss = [k_ for k_, g_ in groups.items()
+                if len({x["dose"] == "" for x in g_}) > 1
+                or any(x["dose"] != "" and rel(float(x["dose"]), float(g_[0]["dose"])) > 1e-7 for x in g_)]
+        check(not miss, f"mimic target: the dose depends on the protein half-life in {miss[:2]}")
+
+        # EN/PT: dose rises with the interval, and unreachable stays unreachable
+        series = {}
+        for r in tgt_rows:
+            if not r["protein_case"].startswith(("BACE1 in", "alpha-syn")):
+                continue
+            series.setdefault((r["axis"], r["rho_case"], r["species"], r["target"]), []).append(r)
+        nonmono, flip = [], []
+        for k_, g_ in series.items():
+            g_.sort(key=lambda x: float(x["interval_h"]))
+            doses = [float(x["dose"]) for x in g_ if x["dose"] != ""]
+            if any(b_ <= a_ for a_, b_ in zip(doses, doses[1:])):
+                nonmono.append(k_)
+            flags = [x["reachable"] == "True" for x in g_]
+            if any((not a_) and b_ for a_, b_ in zip(flags, flags[1:])):
+                flip.append(k_)
+        check(not nonmono, f"mimic target: dose does not rise with the interval in {nonmono[:2]}")
+        check(not flip, f"mimic target: a target that is out of reach becomes reachable at a longer interval in {flip[:2]}")
+
+        # EN/PT: the dose falls as the delivered species gets more stable
+        stab = {}
+        for r in tgt_rows:
+            if r["dose"] == "" or not r["protein_case"].startswith(("BACE1 in", "alpha-syn")):
+                continue
+            stab.setdefault((r["axis"], r["rho_case"], r["interval_h"], r["target"]), []).append(r)
+        notfall = []
+        for k_, g_ in stab.items():
+            g_.sort(key=lambda x: float(x["half_life_h"]))
+            doses = [float(x["dose"]) for x in g_]
+            if any(b_ > a_ * (1.0 + 1e-9) for a_, b_ in zip(doses, doses[1:])):
+                notfall.append(k_)
+        check(not notfall, f"mimic target: the dose does not fall with the species' stability in {notfall[:2]}")
 
     # EN | The Tushev rows are read straight out of a 24,435-row table, so each one is
     #      looked up again here by gene symbol and compared field by field, and the
@@ -1308,11 +1540,12 @@ def main():
     #      ode_calibrated_results.json era justamente poder conferir uma frase que a cita,
     #      em vez de confiar nela.
     if ode is not None and "mimic_dose_vs_measured_knockdown" in ode:
-        lo, hi = ode["mimic_dose_vs_measured_knockdown"]["BACE1_knockdown_at_required_mimic"]
-        expect = f"{math.floor(lo * 100):.0f}\u2013{round(hi * 100):.0f}%"
-        anchor = {"docs/en/METHODS.md": "knockdown needed to offset",
-                  "docs/pt-BR/METODOS.md": "queda de BACE1 necess\u00e1ria"}
-        for name, needle in anchor.items():
+        kappa_doc = ode["mimic_dose_vs_measured_knockdown"]["required_BACE1_knockdown"]
+        # EN/PT: the Portuguese text writes the decimal with a comma, the English with a point
+        anchor = {"docs/en/METHODS.md": ("knockdown needed to offset", f"{100 * kappa_doc:.1f}%"),
+                  "docs/pt-BR/METODOS.md": ("queda de BACE1 necess\u00e1ria",
+                                            f"{100 * kappa_doc:.1f}%".replace(".", ","))}
+        for name, (needle, expect) in anchor.items():
             try:
                 text = open(name, encoding="utf-8").read()
             except FileNotFoundError:
@@ -1320,8 +1553,40 @@ def main():
             claim(needle in text, f"{name}: the sentence this check anchors to is gone; "
                                   "update the anchor before trusting its pass")
             claim(expect in text,
-                  f"{name}: does not quote the current BACE1-knockdown range {expect} "
+                  f"{name}: does not quote the current required BACE1 knockdown {expect} "
                   f"computed from {ODE_RESULTS}")
+
+    # --- 9b2. The prose about scripts/36 must quote what scripts/36 computed ---
+    # EN | Same rule as 9b: a number written into the methods about the repeated-dosing
+    #      analysis is looked up in its JSON, in the decimal form each language uses, so
+    #      a rerun that moves a value cannot leave the sentence behind.
+    # PT | Mesma regra do 9b: um numero escrito nos metodos sobre a analise de dosagem
+    #      repetida e conferido no JSON dela, na forma decimal de cada idioma, para que
+    #      uma nova rodada que mova um valor nao deixe a frase para tras.
+    if tgt is not None:
+        rs_, nuc_ = tgt["repression_strength"], tgt["nucleation_scaling"]
+        quotes = {
+            "docs/en/METHODS.md": (
+                f"\u03c1 = {rs_['PD']['rho_K065']:.2f}",
+                f"between {rs_['PD']['rho_scan_low']:.2f} and {round(rs_['PD']['rho_scan_high'])} in the PD arm",
+                f"between {rs_['AD']['rho_scan_low']:.1f} and {round(rs_['AD']['rho_scan_high'])} in the AD arm",
+                f"nucleation rate ratio of {nuc_['primary_nucleation_rate_ratio_AD_over_control']:.3f}",
+                f"{100 * nuc_['primary_nucleation_rate_reduction_after_offset']:.1f}% fall in the nucleation rate"),
+            "docs/pt-BR/METODOS.md": (
+                f"\u03c1 = {rs_['PD']['rho_K065']:.2f}".replace(".", ","),
+                f"entre {rs_['PD']['rho_scan_low']:.2f} e {round(rs_['PD']['rho_scan_high'])} no bra\u00e7o da DP".replace(".", ","),
+                f"entre {rs_['AD']['rho_scan_low']:.1f} e {round(rs_['AD']['rho_scan_high'])} no bra\u00e7o da DA".replace(".", ","),
+                f"raz\u00e3o de taxa de nuclea\u00e7\u00e3o de {nuc_['primary_nucleation_rate_ratio_AD_over_control']:.3f}".replace(".", ","),
+                f"{100 * nuc_['primary_nucleation_rate_reduction_after_offset']:.1f}% na taxa de nuclea\u00e7\u00e3o".replace(".", ",")),
+        }
+        for name, needles in quotes.items():
+            try:
+                text = open(name, encoding="utf-8").read()
+            except FileNotFoundError:
+                continue
+            for needle in needles:
+                claim(needle in text,
+                      f"{name}: does not quote '{needle}' from {TARGET_JSON}")
 
     # --- 9c. Arithmetic audit table matches independently recomputed counts -
     # EN | scripts/25_arithmetic_audit.py reconciles every core sample-size and

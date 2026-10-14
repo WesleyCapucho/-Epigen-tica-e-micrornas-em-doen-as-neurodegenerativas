@@ -86,6 +86,7 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 19_mechanism_animations.py                 # Animated GIFs of already-simulated mechanisms
 │   ├── 20_structure_story_panel.py                # Composites scripts/13's renders into one figure
 │   ├── 21_ to 33_ (see below)                     # Flow diagram, study characteristics, robustness, recall check, post-search sensitivity and their figures (see Reproducing the analysis)
+│   ├── 36_mimic_target_response.py                # What a repeated mimic dose does to the protein it targets (periodic steady state)
 │   ├── 35_manuscript_numbers.py                   # Every number the manuscript quotes, read from the result tables (numbers only)
 │   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR (and as a vector PDF)
 │   ├── _viz_style.py                              # Shared palette and type scale for the manuscript figures
@@ -142,6 +143,7 @@ python scripts/08_verify_consistency.py           # must pass before committing
 # Mechanistic layer, offline
 python scripts/12_ode_models_calibrated.py
 python scripts/17_mimic_dosing_feasibility.py
+python scripts/36_mimic_target_response.py        # needs 12 and 17; about 3 minutes
 python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # only needed for scripts/13
 python scripts/13_structure_figures.py
@@ -164,7 +166,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4309 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4361 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -213,6 +215,7 @@ Fourteen defects in this pipeline were found after results had already been prod
 - The comparison between the miR-29 dose the model asks for and the knockdown Hébert et al. measured crosses systems: a steady state in a model of human brain against a transient transfection of a neuroblastoma line. It answers whether the required intervention is larger or smaller than one already achieved in cells, and nothing more.
 - The structure figures are illustration. They test nothing. Resolutions come from different criteria (6CU7 FSC 0.5, 5OQV FSC 0.143) and are not directly comparable.
 - `scripts/17` assumes a delivered mimic is cleared at the same first-order rate as the endogenous species. A chemically stabilised mimic would not be, which is exactly why its output is a **required** fold stabilisation (20× for miR-7 to tolerate daily dosing) rather than a verdict on feasibility. The calculation has no free parameter — the dose cancels out of the peak-to-average ratio — but it is a statement about pharmacokinetics in the abstract, not about any particular delivery vehicle or tissue.
+- `scripts/36` carries that first-order assumption through the whole chain (miRNA, mRNA, protein, and in the AD arm the Aβ42 monomer) and adds two of its own: repression is mass action, linear in the miRNA and saturating only because the mRNA is used up, and a bolus enters the repressor pool at once. The repression strength is the one free quantity left, and the only loss-of-function observation in the table (K065, ρ = 0.44 for miR-7 and miR-153 together) lies below the declared scan, so the results are given at that value and across the scan. Its doses are bounds that a regimen has to reach if those assumptions hold, not predictions for any delivery vehicle. The mean protein over a cycle equals the mean mRNA, so the dose does not depend on the protein half-life; the half-life sets only how far the protein swings.
 - `scripts/19` animates three of the mechanisms above (Aβ42 reaching its new steady state, a single-dose washout, the repeated-dosing sawtooth) by reusing the exact functions from `scripts/12` and `scripts/17`, not by re-deriving them — each GIF's final frame is checked against the same JSON the static figures are checked against. It deliberately does **not** animate the α-synuclein pH-gate fibril growth, because that curve's acidic-pH rate constant is declared illustrative (K042, qualitative only): putting a specific speed on screen for a quantity this project reports only as a direction, not a magnitude, would be more misleading in motion than it already is standing still. These GIFs are illustration of simulations already in this repository, not a new experiment.
 
 ## Scientific integrity and use of AI

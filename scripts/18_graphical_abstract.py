@@ -156,8 +156,7 @@ def load_values():
         ("monomer_ratio", dict(
             value=clr["abeta_ratio_AD_over_control"], source="ad_clearance_vs_production")),
         ("required_knockdown_percent", dict(
-            low=100 * dose["BACE1_knockdown_at_required_mimic"][0],
-            high=100 * dose["BACE1_knockdown_at_required_mimic"][1],
+            value=100 * dose["required_BACE1_knockdown"],
             measured=100 * dose["measured_BACE1_knockdown_K047"],
             source=["mimic_dose_vs_measured_knockdown", "K047"], citation=cite(kin, "K047"))),
     ])
@@ -296,9 +295,9 @@ def plot(data, path, lang):
 
     k = ad["required_knockdown_percent"]
     add_box(ax, slot(3), y_extra_ad, xw, h_extra,
-            tr(lang, f"Required BACE1 knockdown\nto close the gap: {k['low']:.0f}–{k['high']:.0f}%\n"
+            tr(lang, f"Required BACE1 knockdown\nto close the gap: {k['value']:.0f}%\n"
                      f"(< {k['measured']:.0f}% measured, {k['citation']})",
-               f"Queda de BACE1 necessária\npara fechar o hiato: {k['low']:.0f}–{k['high']:.0f}%\n"
+               f"Queda de BACE1 necessária\npara fechar o hiato: {k['value']:.0f}%\n"
                      f"(< {k['measured']:.0f}% medido, {k['citation']})"),
             AD_HUE, fontsize=7.7)
     add_arrow(ax, (slot(3) + xw / 2, y_ad), (slot(3) + xw / 2, y_extra_ad + h_extra), AD_HUE, style="-")
@@ -329,9 +328,9 @@ def plot(data, path, lang):
     sr = pd_["saturation_regime_percent"]
     add_box(ax, slot(2), y_pd, xw, h_row,
             tr(lang, f"Elongation regime\n{sr['low']:.0f}–{sr['high']:.0f}% of V_max\n"
-                     f"below half-sat. (M* {sr['m_half_low']:.0f}–{sr['m_half_high']:.0f} µM)",
+                     f"below half-sat. (m½ {sr['m_half_low']:.0f}–{sr['m_half_high']:.0f} µM)",
                f"Regime de elongação\n{sr['low']:.0f}–{sr['high']:.0f}% da V_máx\n"
-                     f"abaixo da meia-sat. (M* {sr['m_half_low']:.0f}–{sr['m_half_high']:.0f} µM)"),
+                     f"abaixo da meia-sat. (m½ {sr['m_half_low']:.0f}–{sr['m_half_high']:.0f} µM)"),
             PD_HUE, fontsize=7.9)
     add_arrow(ax, (slot(2) + xw, y_pd + h_row / 2), (slot(3), y_pd + h_row / 2), PD_HUE)
 
@@ -395,7 +394,7 @@ def main():
 def ad_summary(data):
     r = data["ad_axis"]["monomer_ratio"]["value"]
     k = data["ad_axis"]["required_knockdown_percent"]
-    return f"AD/control ratio {r:.2f}x; required knockdown {k['low']:.0f}-{k['high']:.0f}%"
+    return f"AD/control ratio {r:.2f}x; required knockdown {k['value']:.0f}%"
 
 
 if __name__ == "__main__":

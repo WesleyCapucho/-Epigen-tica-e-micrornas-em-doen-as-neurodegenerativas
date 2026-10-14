@@ -86,6 +86,7 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 19_mechanism_animations.py                 # GIFs animados de mecanismos já simulados
 │   ├── 20_structure_story_panel.py                # Compõe os renders do scripts/13 numa figura só
 │   ├── 21_ a 33_ (ver abaixo)                     # Fluxograma, características dos estudos, robustez, verificação de recall, sensibilidade pós-busca e suas figuras (ver Reproduzindo a análise)
+│   ├── 36_mimic_target_response.py                # O que uma dose repetida de mimético faz com a proteína que ele mira (estado estacionário periódico)
 │   ├── 35_manuscript_numbers.py                   # Todo número que o manuscrito cita, lido das tabelas de resultado (só números)
 │   ├── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
 │   ├── _viz_style.py                              # Paleta e escala tipografica compartilhadas das figuras do manuscrito
@@ -142,6 +143,7 @@ python scripts/08_verify_consistency.py           # precisa passar antes de vers
 # Camada mecanística, offline
 python scripts/12_ode_models_calibrated.py
 python scripts/17_mimic_dosing_feasibility.py
+python scripts/36_mimic_target_response.py        # precisa do 12 e do 17; cerca de 3 minutos
 python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # só é necessário para o scripts/13
 python scripts/13_structure_figures.py
@@ -164,7 +166,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 4309 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 4361 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.
@@ -213,6 +215,7 @@ O `scripts/11_attention_finding_audit.py` quantifica o segundo destes: recalcula
 - A comparação entre a dose de miR-29 que o modelo pede e a queda que Hébert et al. mediram atravessa sistemas: um estado estacionário num modelo de cérebro humano contra uma transfecção transitória de linhagem de neuroblastoma. Ela responde se a intervenção exigida é maior ou menor que uma já alcançada em células, e nada além disso.
 - As figuras estruturais são ilustração. Não testam nada. As resoluções vêm de critérios diferentes (6CU7 FSC 0,5; 5OQV FSC 0,143) e não são diretamente comparáveis.
 - O `scripts/17` supõe que um mimético entregue seja eliminado na mesma taxa de primeira ordem da espécie endógena. Um mimético quimicamente estabilizado não seria, e é exatamente por isso que a saída dele é um fator de estabilização **necessário** (20× para o miR-7 tolerar dose diária) e não um veredito de viabilidade. O cálculo não tem parâmetro livre — a dose se cancela na razão entre pico e média — mas é uma afirmação sobre farmacocinética em abstrato, não sobre um veículo de entrega ou tecido em particular.
+- O `scripts/36` leva essa suposição de primeira ordem por toda a cadeia (miRNA, mRNA, proteína e, no braço da DA, o monômero de Aβ42) e acrescenta duas próprias: a repressão é ação de massas, linear no miRNA e saturando só porque o mRNA se esgota, e um bolus entra no pool do repressor de uma vez. A força de repressão é a única grandeza livre que resta, e a única observação de perda de função da tabela (K065, ρ = 0,44 para miR-7 e miR-153 juntos) fica abaixo da varredura declarada, então os resultados são dados nesse valor e ao longo da varredura. As doses dele são limites que um regime precisa alcançar se essas suposições valem, não predições para qualquer veículo de entrega. A proteína média num ciclo é igual ao mRNA médio, então a dose não depende da meia-vida da proteína; a meia-vida só define o quanto a proteína oscila.
 - O `scripts/19` anima três dos mecanismos acima (Aβ42 alcançando o novo estado estacionário, a eliminação de dose única, o dente de serra da dosagem repetida) reaproveitando exatamente as funções do `scripts/12` e do `scripts/17`, sem rederivá-las — o último quadro de cada GIF é conferido contra o mesmo JSON com que as figuras estáticas são conferidas. Ele deliberadamente **não** anima o crescimento de fibrila da comporta de pH da α-sinucleína, porque a constante de velocidade em pH ácido dessa curva é declarada ilustrativa (K042, só qualitativa): pôr uma velocidade específica na tela para uma grandeza que este projeto reporta só como direção, não magnitude, seria mais enganoso em movimento do que já é parado. Esses GIFs são ilustração de simulações que já estão neste repositório, não um experimento novo.
 
 ## Integridade científica e uso de IA
