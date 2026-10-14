@@ -1,7 +1,7 @@
 {
   "title": "Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results",
   "upload_type": "dataset",
-  "description": "Search exports, extraction tables with the verbatim source sentence for every value, audit log, analysis and figure scripts, and result tables for a systematic review and meta-analysis of circulating microRNAs as diagnostic biomarkers in Alzheimer's disease and Parkinson's disease. Registered retrospectively on OSF (10.17605/OSF.IO/NJ8A5).",
+  "description": "Search exports, extraction tables with the verbatim source sentence for every value, audit log, analysis and figure scripts, and result tables for a systematic review and meta-analysis of circulating microRNAs as diagnostic biomarkers in Alzheimer's disease and Parkinson's disease. Registered retrospectively on OSF (10.17605/OSF.IO/NJ8A5). From version 1.2.0 the archive also holds the parameter table of measured kinetic constants (each tied to its source sentence), the differential-equation models of the miR-29/BACE1/Aβ42 and miR-7/α-synuclein axes, the dosing analysis of microRNA mimics and the figures of that mechanistic study.",
   "creators": [
     {
       "name": "Capucho, Wesley Felipe",
@@ -14,7 +14,9 @@
     "Alzheimer's disease",
     "Parkinson's disease",
     "diagnostic accuracy",
-    "meta-analysis"
+    "meta-analysis",
+    "microRNA mimic",
+    "ordinary differential equations"
   ],
   "related_identifiers": [
     {
