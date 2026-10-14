@@ -56,6 +56,7 @@ DOS_J = f"{T}/mimic_dosing_feasibility.json"
 DOS_C = f"{T}/mimic_dosing_feasibility.csv"
 TGT_J = f"{T}/mimic_target_response.json"
 TGT_C = f"{T}/mimic_target_response.csv"
+SWP_C = f"{T}/mimic_target_rho_sweep.csv"
 OUT = f"{T}/manuscript2_numbers.json"
 
 N, SRC = {}, {}
@@ -438,6 +439,25 @@ for e in sweep["summary"]:
     put(f"{base}.low", peak(e["peak_at_lowest_rho"]), TGT_J)
     put(f"{base}.high", peak(e["peak_at_highest_rho"]), TGT_J)
     must(e["unreachable_points"] == 0, f"the sweep has unreachable points for {base}")
+# EN/PT: the smallest peak on the grid bounds the dose at any rho only if, in every series, the peak rises as rho falls below
+# its minimum (the closed form of Eq. 6 grows without bound there) and has converged at the top of the grid | o menor pico da grade
+# limita a dose para qualquer rho so se, em cada serie, o pico sobe quando rho cai abaixo do minimo e ja convergiu no topo da grade
+_series = {}
+for r_ in csv.DictReader(open(SWP_C, encoding="utf-8")):
+    _series.setdefault((r_["axis"], r_["species"], r_["target_knockdown"], r_["interval_h"]), []).append(r_)
+must(len(_series) == len(sweep["summary"]), "the sweep table and its summary hold a different number of series")
+_tail = []
+for k_, g_ in _series.items():
+    g_.sort(key=lambda x: float(x["rho"]))
+    p_ = [float(x["peak_pool_over_baseline"]) for x in g_]
+    i_ = p_.index(min(p_))
+    must(all(p_[j] >= p_[j + 1] * (1.0 - 1e-9) for j in range(i_)),
+         f"the peak does not rise as rho falls below its minimum in {k_}")
+    j_ = [j for j, x in enumerate(g_) if abs(float(x["rho"]) * 10.0 / sweep["rho_max"] - 1.0) < 1e-6]
+    must(len(j_) == 1, f"the grid has no point one decade below rho_max in {k_}")
+    _tail.append(abs(p_[-1] - p_[j_[0]]) / p_[-1])
+must(max(_tail) < 0.002, "the peak has not converged at the top of the grid")
+pct("sweep.tail_change", max(_tail), 1, SWP_C)
 num("sweep.rho_min", sweep["rho_min"], 2, TGT_J)
 integer("sweep.rho_max", sweep["rho_max"], TGT_J)
 # the sentences that quote one bound for the miR-29 mimics rest on the bound being the strong-repression limit
