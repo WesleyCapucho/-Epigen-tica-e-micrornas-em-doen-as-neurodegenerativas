@@ -36,4 +36,4 @@ Each item says where it is met in this repository, or says plainly that it is no
 | 24 | Discussion | Discuss limitations of the evidence and of the review process. | Met | README 'Known limitations' and README 'Corrections', which records the fourteen defects found after results had been produced and what each changed. |
 | 25 | Discussion | Discuss implications for practice and research. | In the manuscript | In the manuscript. |
 | 26 | Other | Declare sources of funding and the role of funders. | In the manuscript | In the manuscript. |
-| 27 | Other | Declare competing interests and state data availability. | Met | This repository, archived on Zenodo (10.5281/zenodo.23353780), is the data availability statement: raw data, scripts, tables and figures, with every extracted value traceable to a verbatim source sentence. |
+| 27 | Other | Declare competing interests and state data availability. | Met | This repository, archived on Zenodo (version 1.1.0, 10.5281/zenodo.23368166), is the data availability statement: raw data, scripts, tables and figures, with every extracted value traceable to a verbatim source sentence. |

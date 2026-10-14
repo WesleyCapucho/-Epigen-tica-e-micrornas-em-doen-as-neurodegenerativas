@@ -2,9 +2,11 @@
 
 🇧🇷 English version: [CHANGELOG.md](CHANGELOG.md)
 
-Cada versão é arquivada no Zenodo. O DOI de uma versão está no registro dela no Zenodo; o registro da primeira versão é [10.5281/zenodo.23353780](https://doi.org/10.5281/zenodo.23353780).
+Cada versão é arquivada no Zenodo e tem DOI próprio.
 
 ## 1.1.0 (2026-10-14)
+
+Arquivada no Zenodo como [10.5281/zenodo.23368166](https://doi.org/10.5281/zenodo.23368166) (tag git `v1.1.0`).
 
 ### Alterado
 
@@ -28,6 +30,8 @@ Cada versão é arquivada no Zenodo. O DOI de uma versão está no registro dela
 - Toda estimativa agregada, os julgamentos do QUADAS-2, as classificações GRADE e o resumo bivariado são os da 1.0.0.
 
 ## 1.0.0 (2026-10-13)
+
+Arquivada no Zenodo como [10.5281/zenodo.23353780](https://doi.org/10.5281/zenodo.23353780) (tag git `v1.0.0`).
 
 - Primeira versão arquivada: registros de busca (PubMed, Scopus, Web of Science), decisões de triagem e verificação de recall; tabelas de extração com a frase-fonte de cada valor e o registro de auditoria; análises de QUADAS-2, GRADE e robustez (47 estudos elegíveis, 37 nos pools primários); scripts de análise e de figuras (`scripts/01` a `33`) e o script de consistência (4300 conferências); tabelas de resultado e figuras em inglês e português.
 - Scripts sob MIT, dados, tabelas, figuras e documentação sob CC BY 4.0. Os arquivos de exportação da Scopus e da Web of Science não são distribuídos; `exports_manifest.csv` lista a contagem de registros e o SHA-256 de cada um.

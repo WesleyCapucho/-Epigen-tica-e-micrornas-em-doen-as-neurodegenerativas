@@ -2,9 +2,11 @@
 
 🇧🇷 Versão em português: [CHANGELOG.pt-BR.md](CHANGELOG.pt-BR.md)
 
-Each release is archived on Zenodo. The DOI of a version is on its Zenodo record; the record of the first version is [10.5281/zenodo.23353780](https://doi.org/10.5281/zenodo.23353780).
+Each release is archived on Zenodo and carries its own DOI.
 
 ## 1.1.0 (2026-10-14)
+
+Archived on Zenodo as [10.5281/zenodo.23368166](https://doi.org/10.5281/zenodo.23368166) (git tag `v1.1.0`).
 
 ### Changed
 
@@ -28,6 +30,8 @@ Each release is archived on Zenodo. The DOI of a version is on its Zenodo record
 - Every pooled estimate, the QUADAS-2 judgements, the GRADE ratings and the bivariate summary are as in 1.0.0.
 
 ## 1.0.0 (2026-10-13)
+
+Archived on Zenodo as [10.5281/zenodo.23353780](https://doi.org/10.5281/zenodo.23353780) (git tag `v1.0.0`).
 
 - First archived version: search records (PubMed, Scopus, Web of Science), screening decisions and the recall check; extraction tables with the source sentence for every value and the audit log; QUADAS-2, GRADE and robustness analyses (47 eligible studies, 37 in the primary pools); analysis and figure scripts (`scripts/01` to `33`) and the consistency script (4300 checks); result tables and figures in English and Portuguese.
 - Scripts under MIT, data, tables, figures and documentation under CC BY 4.0. The Scopus and Web of Science export files are not distributed; `exports_manifest.csv` lists their record counts and SHA-256 hashes.
