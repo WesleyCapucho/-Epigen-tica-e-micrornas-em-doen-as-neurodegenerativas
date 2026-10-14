@@ -1861,7 +1861,10 @@ def main():
     try:
         spec_rows = {r["file"]: r for r in csv.DictReader(open("results/tables/journal_figure_spec.csv", encoding="utf-8"))}
         for stem in ("prisma_flow_diagram", "design_profile", "quadas2_summary",
-                     "forest_plot_primary", "robustness_specification", "molecular_evidence_map"):
+                     "forest_plot_primary", "robustness_specification", "molecular_evidence_map",
+                     # Article 2 (mechanistic study), scripts/38_mechanistic_figures.py
+                     "mech_model_schematic", "mech_alzheimer", "mech_parkinson", "mech_turnover",
+                     "mech_target_response"):
             for lang_ in ("en", "pt-BR"):
                 f_ = f"results/figures/{stem}.{lang_}.png"
                 r_ = spec_rows.get(f_)
@@ -1876,7 +1879,7 @@ def main():
                       f"journal artwork: {f_} uses {r_['fonts']}")
                 check(os.path.exists(f_[:-4] + ".eps"), f"journal artwork: {f_[:-4]}.eps is missing")
     except FileNotFoundError:
-        claim(False, "results/tables/journal_figure_spec.csv missing; run the main-text figure scripts (14, 21, 27, 28, 32, 33)")
+        claim(False, "results/tables/journal_figure_spec.csv missing; run the main-text figure scripts (14, 21, 27, 28, 32, 33, 38)")
 
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections

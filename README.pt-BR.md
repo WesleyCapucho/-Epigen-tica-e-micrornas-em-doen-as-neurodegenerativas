@@ -88,6 +88,7 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   ├── 21_ a 33_ (ver abaixo)                     # Fluxograma, características dos estudos, robustez, verificação de recall, sensibilidade pós-busca e suas figuras (ver Reproduzindo a análise)
 │   ├── 36_mimic_target_response.py                # O que uma dose repetida de mimético faz com a proteína que ele mira (estado estacionário periódico)
 │   ├── 37_manuscript2_numbers.py                  # Todo número que o manuscrito do Artigo 2 cita, lido das tabelas de resultado (só números)
+│   ├── 38_mechanistic_figures.py                  # As cinco figuras do texto principal do estudo mecanístico (Artigo 2), ajustadas aos limites de arte do periódico
 │   ├── 35_manuscript_numbers.py                   # Todo número que o manuscrito cita, lido das tabelas de resultado (só números)
 │   ├── _bilingual.py                              # Auxiliar comum: toda figura emitida em EN e pt-BR
 │   ├── _viz_style.py                              # Paleta e escala tipografica compartilhadas das figuras do manuscrito
@@ -146,6 +147,7 @@ python scripts/12_ode_models_calibrated.py
 python scripts/17_mimic_dosing_feasibility.py
 python scripts/36_mimic_target_response.py        # precisa do 12 e do 17; cerca de 3 minutos
 python scripts/37_manuscript2_numbers.py           # todo numero que o manuscrito do Artigo 2 cita, lido das tabelas acima
+python scripts/38_mechanistic_figures.py           # as cinco figuras do texto principal do estudo mecanistico (EN e pt-BR, PNG, PDF e EPS)
 python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # só é necessário para o scripts/13
 python scripts/13_structure_figures.py
@@ -168,7 +170,7 @@ Para a camada bibliométrica, rode o `scripts/01` primeiro: ele produz a entrada
 - **A mineração automática de texto serviu para *encontrar* valores candidatos, nunca para registrá-los.** Expressões regulares trouxeram as frases à superfície; os valores foram então lidos e transcritos à mão, porque os padrões comprovadamente trocam sensibilidade por especificidade e confundem valores de p com métricas de acurácia.
 - **Publicação duplicada foi checada.** Os PMIDs 40661348 e 41836608 reportam a mesma coorte e as mesmas AUCs (versão preprint e versão de revista); são contados uma vez só.
 - **O método de erro-padrão foi validado contra uma fonte.** Para o PMID 33129241, a fórmula de Hanley–McNeil devolve EP = 0,0822 para AUC 0,75 com 18 vs 18 sujeitos; o artigo reporta independentemente EP = 0,08.
-- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 4375 verificações passam.
+- **O `scripts/08` faz cumprir tudo isso.** Ele recalcula cada número derivado a partir da fonte e falha se a tabela de extração, as contagens PRISMA e as tabelas de resultado discordarem. Atualmente 4435 verificações passam.
 
 - **Os parâmetros cinéticos seguem a mesma regra.** `data/extracted/kinetic_parameters.csv` tem 67 linhas de 15 fontes primárias. Todo valor medido traz a frase de onde foi lido, e o `scripts/08` confere se o número de fato aparece nessa frase. Um parâmetro procurado e não encontrado fica registrado como `declared_gap`, sem valor e sem citação emprestada, e o código das EDOs se recusa a carregá-lo. Duas linhas são `derived` (medianas genômicas calculadas a partir da tabela arquivada de Schwanhäusser); o `scripts/08` as recalcula a partir do arquivo.
 - **As figuras estruturais citam o próprio depósito.** O `scripts/13` lê título, método, resolução e citação primária de cada arquivo de coordenadas e para se o título não bater com a molécula que a figura diz mostrar. O leitor de citação ignora o DOI de depósito do próprio PDB, que é fácil de confundir com o DOI do artigo.

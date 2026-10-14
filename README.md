@@ -88,6 +88,7 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 21_ to 33_ (see below)                     # Flow diagram, study characteristics, robustness, recall check, post-search sensitivity and their figures (see Reproducing the analysis)
 │   ├── 36_mimic_target_response.py                # What a repeated mimic dose does to the protein it targets (periodic steady state)
 │   ├── 37_manuscript2_numbers.py                  # Every number the Article 2 manuscript quotes, read from the result tables (numbers only)
+│   ├── 38_mechanistic_figures.py                  # The five main-text figures of the mechanistic study (Article 2), fitted to the journal's artwork limits
 │   ├── 35_manuscript_numbers.py                   # Every number the manuscript quotes, read from the result tables (numbers only)
 │   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR (and as a vector PDF)
 │   ├── _viz_style.py                              # Shared palette and type scale for the manuscript figures
@@ -146,6 +147,7 @@ python scripts/12_ode_models_calibrated.py
 python scripts/17_mimic_dosing_feasibility.py
 python scripts/36_mimic_target_response.py        # needs 12 and 17; about 3 minutes
 python scripts/37_manuscript2_numbers.py           # every number the Article 2 manuscript quotes, read from the tables above
+python scripts/38_mechanistic_figures.py           # the five main-text figures of the mechanistic study (EN and pt-BR, PNG, PDF and EPS)
 python scripts/19_mechanism_animations.py
 pip install pymol-open-source                     # only needed for scripts/13
 python scripts/13_structure_figures.py
@@ -168,7 +170,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4375 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4435 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
