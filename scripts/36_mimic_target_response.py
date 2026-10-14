@@ -26,7 +26,7 @@ PT | A pergunta. O scripts/12 diz quanto um alvo precisa cair (BACE1 em 29,2% pa
 
 EN | The model. Every production term is divided by its baseline value, so the state is
      the level relative to the untreated steady state (1.0). With r0 the baseline decay of
-     the mRNA that the miRNA is responsible for, rho = r0 / d the share of that decay over
+     the mRNA that the miRNA is responsible for, rho = r0 / d the ratio of that decay to
      the mRNA's intrinsic decay d, E(t) the mimic excess in units of the baseline pool of
      the repressor, mu the mRNA and pi the protein:
 
@@ -48,7 +48,7 @@ EN | The model. Every production term is divided by its baseline value, so the s
 
 PT | O modelo. Todo termo de producao e dividido pelo seu valor basal, entao o estado e o
      nivel relativo ao estado estacionario sem tratamento (1,0). Com r0 o decaimento basal
-     do mRNA de que o miRNA e responsavel, rho = r0 / d a parcela desse decaimento sobre o
+     do mRNA de que o miRNA e responsavel, rho = r0 / d a razao entre esse decaimento e o
      decaimento intrinseco d do mRNA, E(t) o excesso de mimetico em unidades do pool basal
      do repressor, mu o mRNA e pi a proteina:
 
@@ -118,8 +118,8 @@ PT | O que nao e. Um bolus entra no pool do repressor instantaneamente, o que e 
 EN | Where the unmeasured repression strength sits. rho is the one free quantity, and
      the table holds one observation that bears on it, from below only. Blocking
      endogenous miR-7 and miR-153 with antisense oligonucleotides raised an SNCA 3'UTR
-     reporter by 44% in rat cortical neurons (K065). For a repressor that holds a share
-     rho of the mRNA's decay, removing all of it raises the level by a factor 1 + rho, and
+     reporter by 44% in rat cortical neurons (K065). For a repressor whose baseline decay
+     of the mRNA is rho times the intrinsic decay, removing all of it raises the level by a factor 1 + rho, and
      a blockade cannot be more than complete, so rho is at least 0.44 for that pair. It
      is a floor and not an estimate: the blockade was probably partial, the readout is a
      reporter, and two microRNAs are lumped, so it says nothing about miR-7 alone. The
@@ -135,8 +135,8 @@ EN | Where the unmeasured repression strength sits. rho is the one free quantity
 PT | Onde fica a forca de repressao nao medida. rho e a unica grandeza livre, e a tabela
      tem uma observacao que a toca, so por baixo. Bloquear o miR-7 e o miR-153 endogenos
      com oligonucleotideos antisense elevou em 44% um repórter da 3'UTR de SNCA em
-     neuronios corticais de rato (K065). Para um repressor que detem a parcela rho do
-     decaimento do mRNA, retirar tudo dele eleva o nivel por um fator 1 + rho, e um
+     neuronios corticais de rato (K065). Para um repressor cujo decaimento basal do mRNA
+     vale rho vezes o decaimento intrinseco, retirar tudo dele eleva o nivel por um fator 1 + rho, e um
      bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para esse par. E um
      piso e nao uma estimativa: o bloqueio provavelmente foi parcial, a leitura e um
      repórter, e dois microRNAs estao agrupados, entao nada diz sobre o miR-7 sozinho. A
@@ -397,7 +397,7 @@ def build_axes(ode, dos, measured, table):
         species=[("miR-7", "K020"), ("miR-7 upper bound", "K021"), ("median miRNA", "K016")],
         protein=[("alpha-synuclein, SH-SY5Y, 24 h [K026]", measured["d_aSyn"]),
                  ("brain proteome median in vivo, 8.1 d [K029]", measured["d_proteome_brain"])],
-        targets=[("miR-7 alone, 3'UTR reporter [K058]", measured["kd_SNCA_miR7_reporter"]),
+        targets=[("miR-7 alone, SNCA construct with 3'UTR [K058]", measured["kd_SNCA_miR7_construct"]),
                  ("miR-7 + miR-153, cortical neurons [K063]", measured["kd_SNCA_neurons"])])
     for ax in (ad, pd):
         ax["decay"] = {k: dec[k]["decay_per_hour"] for k, _ in ax["species"]}
@@ -656,15 +656,15 @@ def repression_strength(axes, k065):
     out["PD"]["floor_below_scan"] = bool(k065 < out["PD"]["rho_scan_low"])
     out["PD"]["note_en"] = (
         "K065: blocking endogenous miR-7 and miR-153 with antisense oligonucleotides raised an "
-        "SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor that holds a share "
-        "rho of the mRNA's decay, removing all of it raises the level by 1 + rho, and a blockade "
+        "SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor whose baseline decay "
+        "of the mRNA is rho times the intrinsic decay, removing all of it raises the level by 1 + rho, and a blockade "
         "cannot be more than complete, so rho is at least 0.44 for the pair: a floor, not an "
         "estimate. Reporter, not endogenous gene; two miRNAs lumped, so nothing is said about "
         "miR-7 alone; the only loss-of-function observation in the table.")
     out["PD"]["note_pt"] = (
         "K065: bloquear miR-7 e miR-153 endogenos com oligonucleotideos antisense elevou em 44% "
-        "um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor que "
-        "detem a parcela rho do decaimento do mRNA, retirar tudo dele eleva o nivel por 1 + rho, "
+        "um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor cujo "
+        "decaimento basal do mRNA vale rho vezes o decaimento intrinseco, retirar tudo dele eleva o nivel por 1 + rho, "
         "e um bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para o par: um "
         "piso, nao uma estimativa. Repórter, nao gene endogeno; dois miRNAs agrupados, entao nada "
         "se diz do miR-7 sozinho; a unica observacao de perda de funcao da tabela.")

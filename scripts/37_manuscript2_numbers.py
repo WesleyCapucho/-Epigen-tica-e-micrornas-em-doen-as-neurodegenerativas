@@ -67,6 +67,12 @@ def rnd(x, nd):
     return str(Decimal(repr(round(float(x), 10))).quantize(q, rounding=ROUND_HALF_UP))
 
 
+def hl_fmt(x):
+    """EN/PT: a half-life without a trailing zero: 7 h, 34 h, but 1.7 h and 10.6 h."""
+    x = float(x)
+    return str(int(round(x))) if abs(x - round(x)) < 1e-3 else rnd(x, 1)
+
+
 def put(key, value, src):
     if key in N:
         raise KeyError(f"duplicate key {key}")
@@ -92,6 +98,14 @@ def peak(x):
     if x < 10.0:
         return rnd(x, 1)
     return f"{int(Decimal(repr(round(x, 8))).quantize(Decimal(1), rounding=ROUND_HALF_UP)):,}"
+
+
+def lower_bound(x):
+    """EN/PT: round DOWN, to one decimal below 10 and to a whole number from 10 up, so that "at least X" stays true."""
+    x = float(x)
+    if x < 10.0:
+        return f"{int(Decimal(repr(round(x, 8))) * 10) / 10:.1f}"
+    return f"{int(Decimal(repr(round(x, 8)))):,}"
 
 
 def must(cond, msg):
@@ -236,11 +250,15 @@ pct("pd.pair_measured", ad_["pair_measured"], 0, src12)
 pct("pd.pair_independent", ad_["pair_if_independent"], 0, src12)
 pct("pd.mir7_alone_kd", ad_["miR7_alone"], 0, src12)
 pct("pd.mir153_alone_kd", ad_["miR153_alone"], 0, src12)
+pct("pd.mir7_mrna_kd", v("K061"), 0, KIN)
+pct("pd.pair_mrna_kd", v("K062"), 0, KIN)
 pct("pd.age_protein", v("K027"), 0, KIN)
 pct("pd.age_mrna", abs(v("K028")), 0, KIN)
 put("pd.mir7_copies", written("K022"), KIN)
 put("pd.cyrano_fold", written("K023"), KIN)
 put("pd.mrna_hl", written("K066"), KIN)
+put("pd.mrna_hl_1", rnd(float(written("K066")), 1), KIN)
+put("pd.mhalf_hi_1", written("K009"), KIN)
 put("pd.asyn_hl", written("K026"), KIN)
 put("pd.proteome_hl_d", written("K029"), KIN)
 num("pd.d_snca_mrna", v("K066"), 3, KIN)
@@ -250,7 +268,7 @@ integer("pd.rho_hi", rs["PD"]["rho_scan_high"], TGT_J)
 num("pd.rho_floor", rs["PD"]["rho_floor_K065"], 2, TGT_J)
 must(rs["PD"]["floor_below_scan"], "the K065 floor on the repression strength no longer lies below the declared scan")
 pct("pd.k065_increase", v("K065"), 0, KIN)
-for lab, key in (("a", "miR-7 alone, 3'UTR reporter [K058]"), ("b", "miR-7 + miR-153, cortical neurons [K063]")):
+for lab, key in (("a", "miR-7 alone, SNCA construct with 3'UTR [K058]"), ("b", "miR-7 + miR-153, cortical neurons [K063]")):
     t = rs["PD"]["targets"][key]
     num(f"pd.fold_{lab}_prop", t["proportional_limit_fold"], 2, TGT_J)
     num(f"pd.fold_{lab}_lo", t["fold_at_scan_high"], 2, TGT_J)
@@ -266,7 +284,7 @@ labels = {"miR-7 (1.7 h, K020)": "m7", "miR-7 upper bound (5 h, K021)": "m7ub", 
           "miR-29c (10.6 h, K018)": "c", "median miRNA (34 h, K016)": "med"}
 for lab, tag in labels.items():
     w = wash[lab]
-    num(f"turn.{tag}.hl", w["half_life_hours"], 1, src12)
+    put(f"turn.{tag}.hl", hl_fmt(w["half_life_hours"]), src12)
     num(f"turn.{tag}.washout_h", w["hours_to_return_to_baseline"], 1, src12)
     num(f"turn.{tag}.washout_d", w["days_to_return_to_baseline"], 1, src12)
 dd = dos["daily_dosing_comparison"]
@@ -414,6 +432,7 @@ for e in sweep["summary"]:
     lab = "ad" if e["axis"] == "AD" else ("a" if abs(e["target_knockdown"] - kap_a) < 1e-12 else "b")
     base = f"sweep.{e['axis']}.{SP_TAG[e['species']]}.{lab}"
     put(f"{base}.min", peak(e["min_peak_pool_over_baseline"]), TGT_J)
+    put(f"{base}.min_lb", lower_bound(e["min_peak_pool_over_baseline"]), TGT_J)
     r_ = e["rho_at_min"]
     put(f"{base}.rho_at_min", (f"10{str(int(round(math.log10(r_)))).translate(_sup)}" if r_ >= 1000 else f"{r_:.2g}"), TGT_J)
     put(f"{base}.low", peak(e["peak_at_lowest_rho"]), TGT_J)

@@ -814,7 +814,7 @@ def main():
               rs["PD"]["floor_below_scan"] == (pv("K065") < k_lo / d_pd),
               "mimic target: the rho floor from K065 does not match the row, or its position against the scan is wrong")
         for ax_, tmap in (("AD", {"required to restore control Abeta42 [K001-K004]": kappa_ad}),
-                          ("PD", {"miR-7 alone, 3'UTR reporter [K058]": pv("K058"),
+                          ("PD", {"miR-7 alone, SNCA construct with 3'UTR [K058]": pv("K058"),
                                   "miR-7 + miR-153, cortical neurons [K063]": pv("K063")})):
             for lab, kap in tmap.items():
                 t_ = rs[ax_]["targets"][lab]

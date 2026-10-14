@@ -224,7 +224,7 @@
   "alpha_synuclein_uM_in_bouton": 21.565,
   "cases": [
    {
-    "knockdown_source": "miR-7 alone, 3'UTR reporter [K058]",
+    "knockdown_source": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "knockdown": 0.3,
     "m_half_source": "K009: 49.8 uM",
     "m_half_uM": 49.8,
@@ -233,7 +233,7 @@
     "reduction_over_knockdown": 0.767387569245942
    },
    {
-    "knockdown_source": "miR-7 alone, 3'UTR reporter [K058]",
+    "knockdown_source": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "knockdown": 0.3,
     "m_half_source": "K010: 46 uM",
     "m_half_uM": 46.0,

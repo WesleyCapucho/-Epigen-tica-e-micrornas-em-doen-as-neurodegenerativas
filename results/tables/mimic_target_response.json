@@ -40,7 +40,7 @@
    "rho_scan_mid": 5.157929130177174,
    "rho_scan_high": 28.25114134611038,
    "targets": {
-    "miR-7 alone, 3'UTR reporter [K058]": {
+    "miR-7 alone, SNCA construct with 3'UTR [K058]": {
      "knockdown": 0.3,
      "proportional_limit_fold": 1.4285714285714286,
      "fold_at_scan_low": 1.883673142857143,
@@ -59,8 +59,8 @@
    },
    "rho_floor_K065": 0.44,
    "floor_below_scan": true,
-   "note_en": "K065: blocking endogenous miR-7 and miR-153 with antisense oligonucleotides raised an SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor that holds a share rho of the mRNA's decay, removing all of it raises the level by 1 + rho, and a blockade cannot be more than complete, so rho is at least 0.44 for the pair: a floor, not an estimate. Reporter, not endogenous gene; two miRNAs lumped, so nothing is said about miR-7 alone; the only loss-of-function observation in the table.",
-   "note_pt": "K065: bloquear miR-7 e miR-153 endogenos com oligonucleotideos antisense elevou em 44% um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor que detem a parcela rho do decaimento do mRNA, retirar tudo dele eleva o nivel por 1 + rho, e um bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para o par: um piso, nao uma estimativa. Repórter, nao gene endogeno; dois miRNAs agrupados, entao nada se diz do miR-7 sozinho; a unica observacao de perda de funcao da tabela."
+   "note_en": "K065: blocking endogenous miR-7 and miR-153 with antisense oligonucleotides raised an SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor whose baseline decay of the mRNA is rho times the intrinsic decay, removing all of it raises the level by 1 + rho, and a blockade cannot be more than complete, so rho is at least 0.44 for the pair: a floor, not an estimate. Reporter, not endogenous gene; two miRNAs lumped, so nothing is said about miR-7 alone; the only loss-of-function observation in the table.",
+   "note_pt": "K065: bloquear miR-7 e miR-153 endogenos com oligonucleotideos antisense elevou em 44% um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor cujo decaimento basal do mRNA vale rho vezes o decaimento intrinseco, retirar tudo dele eleva o nivel por 1 + rho, e um bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para o par: um piso, nao uma estimativa. Repórter, nao gene endogeno; dois miRNAs agrupados, entao nada se diz do miR-7 sozinho; a unica observacao de perda de funcao da tabela."
   }
  },
  "rho_sweep": {
@@ -108,7 +108,7 @@
    {
     "axis": "PD",
     "species": "miR-7",
-    "target": "miR-7 alone, 3'UTR reporter [K058]",
+    "target": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "target_knockdown": 0.3,
     "interval_h": 24.0,
     "min_peak_pool_over_baseline": 14.535304762922328,
@@ -132,7 +132,7 @@
    {
     "axis": "PD",
     "species": "miR-7 upper bound",
-    "target": "miR-7 alone, 3'UTR reporter [K058]",
+    "target": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "target_knockdown": 0.3,
     "interval_h": 24.0,
     "min_peak_pool_over_baseline": 2.8981811420819867,
@@ -156,7 +156,7 @@
    {
     "axis": "PD",
     "species": "median miRNA",
-    "target": "miR-7 alone, 3'UTR reporter [K058]",
+    "target": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "target_knockdown": 0.3,
     "interval_h": 24.0,
     "min_peak_pool_over_baseline": 1.5452320648133298,

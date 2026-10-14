@@ -189,9 +189,9 @@ def load_measured():
         "N_BACE1": val("K055"),
         "N_APP": val("K056"),
         # measured size of miR-7 repression of alpha-synuclein (Doxakis 2010)
-        "kd_SNCA_miR7_reporter": val("K058"),
-        "kd_SNCA_miR153_reporter": val("K059"),
-        "kd_SNCA_pair_reporter": val("K060"),
+        "kd_SNCA_miR7_construct": val("K058"),
+        "kd_SNCA_miR153_construct": val("K059"),
+        "kd_SNCA_pair_construct": val("K060"),
         "kd_SNCA_neurons": val("K063"),
         # measured size of miR-29 repression of BACE1 (Hebert 2008)
         "BACE1_knockdown_miR29": val("K047"),
@@ -502,13 +502,13 @@ def bace1_knockdown(d, k, m):
     EN | Fractional fall in steady-state BACE1 (mRNA and, because protein follows mRNA
          linearly, protein) when every miR-29 paralogue is held at m times baseline. The
          mRNA level is s / (d + 3 k m), so against the baseline s / (d + 3 k) the fall is
-         1 - (d + 3 k) / (d + 3 k m). Writing rho = 3 k / d, the baseline share of mRNA
-         decay that the miRNA is responsible for, this is 1 - (1 + rho) / (1 + rho m).
+         1 - (d + 3 k) / (d + 3 k m). Writing rho = 3 k / d, the decay that the miRNAs add to
+         the mRNA at baseline in units of its intrinsic decay, this is 1 - (1 + rho) / (1 + rho m).
     PT | Queda fracional da BACE1 no estado estacionario (mRNA e, como a proteina segue o
          mRNA linearmente, proteina) quando cada paralogo de miR-29 e mantido em m vezes o
          basal. O nivel de mRNA e s / (d + 3 k m), entao frente ao basal s / (d + 3 k) a
-         queda e 1 - (d + 3 k) / (d + 3 k m). Com rho = 3 k / d, a parcela basal do
-         decaimento do mRNA de que o miRNA e responsavel, vale 1 - (1 + rho) / (1 + rho m).
+         queda e 1 - (d + 3 k) / (d + 3 k m). Com rho = 3 k / d, o decaimento que os miRNAs
+         somam ao do mRNA no basal, em unidades do decaimento intrinseco, vale 1 - (1 + rho) / (1 + rho m).
     """
     n = N_PARALOGUES
     return 1.0 - (d + n * k) / (d + n * k * m)
@@ -518,12 +518,12 @@ def mimic_for_knockdown(d, k, target):
     """
     EN | The inverse of bace1_knockdown: the mimic factor that gives a fractional fall
          `target`. As rho grows the answer tends to 1 / (1 - target), the proportional
-         limit; as rho shrinks it grows without bound, because a miRNA that holds only a
-         small share of the mRNA's decay has little leverage.
+         limit; as rho shrinks it grows without bound, because a miRNA that adds only a
+         small decay to the mRNA's own has little leverage.
     PT | A inversa de bace1_knockdown: o fator de mimetico que da uma queda fracional
          `target`. Quando rho cresce a resposta tende a 1 / (1 - target), o limite
          proporcional; quando rho encolhe ela cresce sem limite, porque um miRNA que
-         detem so uma pequena parcela do decaimento do mRNA tem pouca alavanca.
+         soma so um pequeno decaimento ao proprio do mRNA tem pouca alavanca.
     """
     n = N_PARALOGUES
     return 1.0 + target / (1.0 - target) * (d + n * k) / (n * k)
@@ -796,7 +796,7 @@ def experiment_mir7_to_elongation(measured):
         return S / (m_half + S)
 
     out = dict(alpha_synuclein_uM_in_bouton=float(C0), cases=[])
-    for kd_label, kd in (("miR-7 alone, 3'UTR reporter [K058]", measured["kd_SNCA_miR7_reporter"]),
+    for kd_label, kd in (("miR-7 alone, SNCA construct with 3'UTR [K058]", measured["kd_SNCA_miR7_construct"]),
                          ("miR-7 + miR-153, cortical neurons [K063]", measured["kd_SNCA_neurons"])):
         for mh_label, m_half in (("K009: 49.8 uM", measured["m_half_uM"]),
                                  ("K010: 46 uM", measured["m_half_uM_b"])):
@@ -817,8 +817,8 @@ def experiment_mir7_to_elongation(measured):
     #      leaves would predict 1 - (1-a)(1-b); compare that with the measured pair.
     # PT | O artigo chama os dois miRNAs de aditivos. Acao independente sobre o que o
     #      outro deixa preveria 1 - (1-a)(1-b); compare com o par medido.
-    a, b = measured["kd_SNCA_miR7_reporter"], measured["kd_SNCA_miR153_reporter"]
-    pair = measured["kd_SNCA_pair_reporter"]
+    a, b = measured["kd_SNCA_miR7_construct"], measured["kd_SNCA_miR153_construct"]
+    pair = measured["kd_SNCA_pair_construct"]
     out["additivity"] = dict(
         miR7_alone=float(a), miR153_alone=float(b), pair_measured=float(pair),
         pair_if_independent=float(1.0 - (1.0 - a) * (1.0 - b)),
