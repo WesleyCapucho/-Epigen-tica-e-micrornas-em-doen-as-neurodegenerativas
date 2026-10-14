@@ -20,7 +20,7 @@ EN | Unit of analysis. Eight of the 20 studies with an estimable variance
      are independent and therefore understates the true uncertainty of the
      combined estimate; it does not resolve the dependence, only relabels it.
      The PRIMARY analysis instead selects exactly ONE estimate per study by a
-     rule fixed in advance and blind to the estimate's own AUC: (1) prefer a
+     fixed rule that is blind to the estimate's own AUC: (1) prefer a
      row evaluated in an independent validation cohort (cohort_stage ==
      "validation") over one derived and evaluated in the same sample; (2)
      within the surviving tier, prefer the study's own multi-microRNA panel
@@ -715,8 +715,8 @@ def main():
     primary_res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc_primary.csv", index=False)
 
     print("\n" + "=" * 78)
-    print("EN | PRIMARY: one pre-specified, AUC-blind estimate per study, Paule-Mandel tau2, modified HK (mHK) CI")
-    print("PT | PRIMARIA: uma estimativa pre-especificada e cega a AUC por estudo, tau2 de Paule-Mandel, IC mHK")
+    print("EN | PRIMARY: one AUC-blind estimate per study, chosen by a fixed rule, Paule-Mandel tau2, modified HK (mHK) CI")
+    print("PT | PRIMARIA: uma estimativa por estudo, escolhida por uma regra fixa e cega a AUC, tau2 de Paule-Mandel, IC mHK")
     print("=" * 78)
     print(primary_res.to_string(index=False))
 

@@ -172,7 +172,7 @@ A análise PRIMÁRIA, somente estudos circulantes (derivados de sangue): cada es
 
 ## `results/tables/one_estimate_per_study_selection_audit.csv`
 
-Uma linha por estudo circulante no pool primário: qual estimativa a regra de prioridade pré-especificada e cega à AUC selecionou, e o motivo exato da escolha (`selection_reason`), para que a escolha possa ser conferida contra a tabela de extração bruta e nunca tenha sido feita escolhendo a maior AUC.
+Uma linha por estudo circulante no pool primário: qual estimativa a regra de prioridade fixa e cega à AUC selecionou, e o motivo exato da escolha (`selection_reason`), para que a escolha possa ser conferida contra a tabela de extração bruta e nunca tenha sido feita escolhendo a maior AUC.
 
 ## `results/tables/csf_secondary_estimates.csv`
 

@@ -172,7 +172,7 @@ The PRIMARY analysis, circulating (blood-derived) studies only: every study redu
 
 ## `results/tables/one_estimate_per_study_selection_audit.csv`
 
-One row per circulating study in the primary pool: which estimate the pre-specified, AUC-blind priority rule selected, and the exact reason it won (`selection_reason`), so the choice can be checked against the raw extraction table and was never made by picking the highest AUC.
+One row per circulating study in the primary pool: which estimate the fixed, AUC-blind priority rule selected, and the exact reason it won (`selection_reason`), so the choice can be checked against the raw extraction table and was never made by picking the highest AUC.
 
 ## `results/tables/csf_secondary_estimates.csv`
 

@@ -250,7 +250,7 @@ def load_pairs():
               and r["n_cases"] and r["n_controls"]
               and r["biofluid"] not in _sel.CSF_BIOFLUIDS]
 
-    # EN | One estimate per study, by the SAME pre-specified, AUC-blind
+    # EN | One estimate per study, by the SAME fixed, AUC-blind
     #      priority rule scripts/05_meta_analysis.py uses for its primary AUC
     #      pool (see scripts/_study_selection.py): prefer an independent
     #      validation-cohort row, then the study's own panel over its
