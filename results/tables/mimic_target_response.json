@@ -46,7 +46,7 @@
      "fold_at_scan_low": 1.883673142857143,
      "fold_at_scan_mid": 1.5116612535292808,
      "fold_at_scan_high": 1.4437414857142858,
-     "fold_at_K065": 2.4025974025974026
+     "fold_at_floor": 2.4025974025974026
     },
     "miR-7 + miR-153, cortical neurons [K063]": {
      "knockdown": 0.43,
@@ -54,14 +54,130 @@
      "fold_at_scan_low": 2.5554714385964914,
      "fold_at_scan_mid": 1.900643493054465,
      "fold_at_scan_high": 1.7810888140350878,
-     "fold_at_K065": 3.4688995215311005
+     "fold_at_floor": 3.4688995215311005
     }
    },
-   "rho_K065": 0.44,
-   "rho_K065_below_scan": true,
-   "note_en": "K065: blocking endogenous miR-7 and miR-153 raised an SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor that holds a share rho of the mRNA's decay, removing it raises the level by 1 + rho, so rho = 0.44 for the pair. Reporter, not endogenous gene; two miRNAs lumped; the only loss-of-function observation in the table.",
-   "note_pt": "K065: bloquear miR-7 e miR-153 endogenos elevou em 44% um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor que detem a parcela rho do decaimento do mRNA, retira-lo eleva o nivel por 1 + rho, entao rho = 0,44 para o par. Repórter, nao gene endogeno; dois miRNAs agrupados; a unica observacao de perda de funcao da tabela."
+   "rho_floor_K065": 0.44,
+   "floor_below_scan": true,
+   "note_en": "K065: blocking endogenous miR-7 and miR-153 with antisense oligonucleotides raised an SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor that holds a share rho of the mRNA's decay, removing all of it raises the level by 1 + rho, and a blockade cannot be more than complete, so rho is at least 0.44 for the pair: a floor, not an estimate. Reporter, not endogenous gene; two miRNAs lumped, so nothing is said about miR-7 alone; the only loss-of-function observation in the table.",
+   "note_pt": "K065: bloquear miR-7 e miR-153 endogenos com oligonucleotideos antisense elevou em 44% um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor que detem a parcela rho do decaimento do mRNA, retirar tudo dele eleva o nivel por 1 + rho, e um bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para o par: um piso, nao uma estimativa. Repórter, nao gene endogeno; dois miRNAs agrupados, entao nada se diz do miR-7 sozinho; a unica observacao de perda de funcao da tabela."
   }
+ },
+ "rho_sweep": {
+  "interval_h": 24.0,
+  "rho_min": 0.01,
+  "rho_max": 10000.0,
+  "points": 31,
+  "summary": [
+   {
+    "axis": "AD",
+    "species": "miR-29b",
+    "target": "required to restore control Abeta42 [K001-K004]",
+    "target_knockdown": 0.29206539074960136,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 2.2307803849818066,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 110.67618580341149,
+    "peak_at_highest_rho": 2.2307803849818066,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "AD",
+    "species": "miR-29c",
+    "target": "required to restore control Abeta42 [K001-K004]",
+    "target_knockdown": 0.29206539074960136,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 1.8669477526910143,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 83.76645562930838,
+    "peak_at_highest_rho": 1.8669477526910143,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "AD",
+    "species": "median miRNA",
+    "target": "required to restore control Abeta42 [K001-K004]",
+    "target_knockdown": 0.29206539074960136,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 1.5247783756695545,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 53.70204034762224,
+    "peak_at_highest_rho": 1.5247783756695545,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "PD",
+    "species": "miR-7",
+    "target": "miR-7 alone, 3'UTR reporter [K058]",
+    "target_knockdown": 0.3,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 14.535304762922328,
+    "rho_at_min": 1.584893192461114,
+    "peak_at_lowest_rho": 498.51564069626653,
+    "peak_at_highest_rho": 18.851855744719067,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "PD",
+    "species": "miR-7",
+    "target": "miR-7 + miR-153, cortical neurons [K063]",
+    "target_knockdown": 0.43,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 45.9918342826437,
+    "rho_at_min": 1.0,
+    "peak_at_lowest_rho": 1099.9485867056144,
+    "peak_at_highest_rho": 67.45492183502377,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "PD",
+    "species": "miR-7 upper bound",
+    "target": "miR-7 alone, 3'UTR reporter [K058]",
+    "target_knockdown": 0.3,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 2.8981811420819867,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 156.39152981743297,
+    "peak_at_highest_rho": 2.8981811420819867,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "PD",
+    "species": "miR-7 upper bound",
+    "target": "miR-7 + miR-153, cortical neurons [K063]",
+    "target_knockdown": 0.43,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 4.743505588516507,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 285.6755460472917,
+    "peak_at_highest_rho": 4.743505588516507,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "PD",
+    "species": "median miRNA",
+    "target": "miR-7 alone, 3'UTR reporter [K058]",
+    "target_knockdown": 0.3,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 1.5452320648133298,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 55.791087943065286,
+    "peak_at_highest_rho": 1.5452320648133298,
+    "unreachable_points": 0
+   },
+   {
+    "axis": "PD",
+    "species": "median miRNA",
+    "target": "miR-7 + miR-153, cortical neurons [K063]",
+    "target_knockdown": 0.43,
+    "interval_h": 24.0,
+    "min_peak_pool_over_baseline": 1.9622250083755843,
+    "rho_at_min": 10000.0,
+    "peak_at_lowest_rho": 97.53683159392664,
+    "peak_at_highest_rho": 1.9622250083755843,
+    "unreachable_points": 0
+   }
+  ]
  },
  "nucleation_scaling": {
   "monomer_ratio_AD_over_control": 1.4125598422979444,

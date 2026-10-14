@@ -810,9 +810,9 @@ def main():
                 ("PD", "rho_scan_mid"): k_mid / d_pd, ("PD", "rho_scan_high"): k_hi / d_pd}
         for (ax_, key_), v in want.items():
             check(rel(rs[ax_][key_], v) < 1e-12, f"mimic target: {ax_} {key_} is not n k / d from the table")
-        check(abs(rs["PD"]["rho_K065"] - pv("K065")) < 1e-12 and
-              rs["PD"]["rho_K065_below_scan"] == (pv("K065") < k_lo / d_pd),
-              "mimic target: rho from K065 does not match the row, or its position against the scan is wrong")
+        check(abs(rs["PD"]["rho_floor_K065"] - pv("K065")) < 1e-12 and
+              rs["PD"]["floor_below_scan"] == (pv("K065") < k_lo / d_pd),
+              "mimic target: the rho floor from K065 does not match the row, or its position against the scan is wrong")
         for ax_, tmap in (("AD", {"required to restore control Abeta42 [K001-K004]": kappa_ad}),
                           ("PD", {"miR-7 alone, 3'UTR reporter [K058]": pv("K058"),
                                   "miR-7 + miR-153, cortical neurons [K063]": pv("K063")})):
@@ -827,8 +827,8 @@ def main():
                     check(rel(t_[key_], fold(kap, rho_)) < 1e-12,
                           f"mimic target: {ax_} '{lab}' {key_} is not the closed form")
         for lab, t_ in rs["PD"]["targets"].items():
-            check(rel(t_["fold_at_K065"], fold(t_["knockdown"], pv("K065"))) < 1e-12,
-                  f"mimic target: PD '{lab}' fold at K065 is not the closed form")
+            check(rel(t_["fold_at_floor"], fold(t_["knockdown"], pv("K065"))) < 1e-12,
+                  f"mimic target: PD '{lab}' fold at the K065 floor is not the closed form")
         # EN/PT: the AD closed form must also agree with scripts/12's range for the same fold
         lo_, hi_ = ode["mimic_dose_vs_measured_knockdown"]["mimic_fold_to_offset_clearance"]
         check(rel(lo_, fold(kappa_ad, rs["AD"]["rho_scan_high"])) < 1e-9 and
@@ -904,6 +904,63 @@ def main():
                          ("pool", "peak or trough pool is not 1 + excess"),
                          ("unreach", "an unreachable row carries a dose or reaches its target")):
             check(not bad[k_], f"mimic target: {what}; first: {bad[k_][:3]}")
+
+        # EN/PT: the K065 floor case is present for every PD scenario that the scan has
+        floor_rows = [r for r in tgt_rows if r["rho_case"] == "K065 lower bound"]
+        check(len(floor_rows) == 60 and all(r["axis"] == "PD" for r in floor_rows),
+              f"mimic target: {len(floor_rows)} rows at the K065 floor, expected 60 (3 species x 5 intervals x 2 protein cases x 2 targets, all PD)")
+
+        # EN | The rho sweep: the grid is geometric, every reachable row obeys the same
+        #      identities as the scenario table, and the per-scenario summary is the
+        #      minimum and the end points of the rows it summarises.
+        # PT | A varredura de rho: a grade e geometrica, toda linha alcancavel obedece as
+        #      mesmas identidades da tabela de cenarios, e o resumo por cenario e o minimo
+        #      e as pontas das linhas que resume.
+        try:
+            sw_rows = list(csv.DictReader(open("results/tables/mimic_target_rho_sweep.csv", encoding="utf-8")))
+        except FileNotFoundError:
+            sw_rows = []
+        sw = tgt.get("rho_sweep")
+        check(bool(sw_rows) and sw is not None, "mimic target: the rho sweep table or its JSON block is missing")
+        if sw_rows and sw is not None:
+            grid = sorted({float(r["rho"]) for r in sw_rows})
+            ratios_ = [b_ / a_ for a_, b_ in zip(grid, grid[1:])]
+            check(len(grid) == sw["points"] and max(ratios_) / min(ratios_) < 1.0 + 1e-9,
+                  "mimic target: the rho sweep grid is not geometric or its size disagrees with the JSON")
+            check(abs(grid[0] - sw["rho_min"]) < 1e-12 and abs(grid[-1] / sw["rho_max"] - 1.0) < 1e-9,
+                  "mimic target: the rho sweep ends do not match the JSON")
+            bad_sw = []
+            for r in sw_rows:
+                if r["reachable"] != "True":
+                    continue
+                ax_ = r["axis"]
+                dx = decay[r["param_id"]]
+                T = float(r["interval_h"])
+                kap = float(r["target_knockdown"])
+                rho_ = float(r["rho"])
+                dose_ = float(r["dose"])
+                x = dx * T
+                e_peak = dose_ / (1.0 - math.exp(-x))
+                tag = f"{ax_}/{r['species']}/rho {rho_:.3g}"
+                if rel(float(r["peak_pool_over_baseline"]), 1.0 + e_peak) > 1e-9:
+                    bad_sw.append(tag + " peak")
+                if rel(float(r["linear_dose"]), (fold(kap, rho_) - 1.0) * x) > 1e-9:
+                    bad_sw.append(tag + " linear")
+                eff_ = float(r["efficiency"])
+                if rel(eff_, float(r["linear_dose"]) / dose_) > 1e-9 or eff_ > 1.0 + 1e-9:
+                    bad_sw.append(tag + " efficiency")
+                if abs(float(r["knockdown_reached"]) - kap) > 1e-8:
+                    bad_sw.append(tag + " knockdown")
+            check(not bad_sw, f"mimic target: rho sweep rows break an identity; first: {bad_sw[:3]}")
+            for e_ in sw["summary"]:
+                pts_ = [r for r in sw_rows if r["axis"] == e_["axis"] and r["species"] == e_["species"]
+                        and r["target"] == e_["target"]]
+                pts_.sort(key=lambda r: float(r["rho"]))
+                ok_ = [float(r["peak_pool_over_baseline"]) for r in pts_ if r["reachable"] == "True"]
+                check(ok_ and abs(min(ok_) - e_["min_peak_pool_over_baseline"]) < 1e-9 * max(ok_)
+                      and abs(float(pts_[0]["peak_pool_over_baseline"] or "nan") - e_["peak_at_lowest_rho"]) < 1e-6 * e_["peak_at_lowest_rho"]
+                      and abs(float(pts_[-1]["peak_pool_over_baseline"] or "nan") - e_["peak_at_highest_rho"]) < 1e-6 * e_["peak_at_highest_rho"],
+                      f"mimic target: the sweep summary for {e_['axis']} {e_['species']} {e_['target'][:14]} does not match its rows")
 
         # EN/PT: dose independent of the protein half-life (mean protein = mean mRNA over a cycle)
         groups = {}
@@ -1567,13 +1624,13 @@ def main():
         rs_, nuc_ = tgt["repression_strength"], tgt["nucleation_scaling"]
         quotes = {
             "docs/en/METHODS.md": (
-                f"\u03c1 = {rs_['PD']['rho_K065']:.2f}",
+                f"\u03c1 = {rs_['PD']['rho_floor_K065']:.2f}",
                 f"between {rs_['PD']['rho_scan_low']:.2f} and {round(rs_['PD']['rho_scan_high'])} in the PD arm",
                 f"between {rs_['AD']['rho_scan_low']:.1f} and {round(rs_['AD']['rho_scan_high'])} in the AD arm",
                 f"nucleation rate ratio of {nuc_['primary_nucleation_rate_ratio_AD_over_control']:.3f}",
                 f"{100 * nuc_['primary_nucleation_rate_reduction_after_offset']:.1f}% fall in the nucleation rate"),
             "docs/pt-BR/METODOS.md": (
-                f"\u03c1 = {rs_['PD']['rho_K065']:.2f}".replace(".", ","),
+                f"\u03c1 = {rs_['PD']['rho_floor_K065']:.2f}".replace(".", ","),
                 f"entre {rs_['PD']['rho_scan_low']:.2f} e {round(rs_['PD']['rho_scan_high'])} no bra\u00e7o da DP".replace(".", ","),
                 f"entre {rs_['AD']['rho_scan_low']:.1f} e {round(rs_['AD']['rho_scan_high'])} no bra\u00e7o da DA".replace(".", ","),
                 f"raz\u00e3o de taxa de nuclea\u00e7\u00e3o de {nuc_['primary_nucleation_rate_ratio_AD_over_control']:.3f}".replace(".", ","),

@@ -116,30 +116,38 @@ PT | O que nao e. Um bolus entra no pool do repressor instantaneamente, o que e 
      limite de projeto: a dose que um regime precisa alcancar se as suposicoes valem.
 
 EN | Where the unmeasured repression strength sits. rho is the one free quantity, and
-     the table holds one observation that bears on it: blocking endogenous miR-7 and
-     miR-153 raised an SNCA 3'UTR reporter by 44% in rat cortical neurons (K065), and for
-     a repressor that holds a share rho of the mRNA's decay, removing it raises the level
-     by a factor 1 + rho, so rho = 0.44 for that pair. The declared scan of k_repress
-     (0.1 to 3) puts rho between 0.94 and 28 in the PD arm, so that observation lies
-     BELOW the scanned range: the scan covers repression stronger than the only
-     loss-of-function datum allows. The results are therefore given at the K065 value as
-     well as across the scan. For the AD arm no loss-of-function number is in the
-     table (K046 is qualitative), rho runs from 6.6 to 198 over the scan, and nothing
-     anchors it; the AD results are insensitive to it for the reason that, at that
-     strength, the response is already close to proportional.
+     the table holds one observation that bears on it, from below only. Blocking
+     endogenous miR-7 and miR-153 with antisense oligonucleotides raised an SNCA 3'UTR
+     reporter by 44% in rat cortical neurons (K065). For a repressor that holds a share
+     rho of the mRNA's decay, removing all of it raises the level by a factor 1 + rho, and
+     a blockade cannot be more than complete, so rho is at least 0.44 for that pair. It
+     is a floor and not an estimate: the blockade was probably partial, the readout is a
+     reporter, and two microRNAs are lumped, so it says nothing about miR-7 alone. The
+     declared scan of k_repress (0.1 to 3) puts rho between 0.94 and 28 in the PD arm,
+     above that floor but not down to it, so the PD scenarios are also run at rho = 0.44,
+     and a separate sweep runs every scenario at 24 h over rho from 0.01 to 10^4. Weaker
+     repression raises every dose roughly in proportion to 1 / rho and stronger
+     repression approaches a limit, so the sweep reports, for each scenario, the smallest
+     peak over all rho: a bound that holds whatever rho is. For the AD arm no
+     loss-of-function number is in the table (K046 is qualitative), and rho runs from 6.6
+     to 198 over the scan.
 
 PT | Onde fica a forca de repressao nao medida. rho e a unica grandeza livre, e a tabela
-     tem uma observacao que a toca: bloquear o miR-7 e o miR-153 endogenos elevou em 44%
-     um repórter da 3'UTR de SNCA em neuronios corticais de rato (K065), e para um
-     repressor que detem a parcela rho do decaimento do mRNA, retira-lo eleva o nivel por
-     um fator 1 + rho, entao rho = 0,44 para esse par. A varredura declarada de k_repress
-     (0,1 a 3) poe rho entre 0,94 e 28 no braco de DP, entao essa observacao fica ABAIXO
-     da faixa varrida: a varredura cobre repressao mais forte do que o unico dado de
-     perda de funcao permite. Os resultados sao por isso dados no valor do K065 e
-     tambem ao longo da varredura. Para o braco de AD nao ha numero de perda de funcao na
-     tabela (o K046 e qualitativo), rho vai de 6,6 a 198 na varredura, e nada o ancora; os
-     resultados de AD sao insensiveis a isso porque, nessa forca, a resposta ja e quase
-     proporcional.
+     tem uma observacao que a toca, so por baixo. Bloquear o miR-7 e o miR-153 endogenos
+     com oligonucleotideos antisense elevou em 44% um repórter da 3'UTR de SNCA em
+     neuronios corticais de rato (K065). Para um repressor que detem a parcela rho do
+     decaimento do mRNA, retirar tudo dele eleva o nivel por um fator 1 + rho, e um
+     bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para esse par. E um
+     piso e nao uma estimativa: o bloqueio provavelmente foi parcial, a leitura e um
+     repórter, e dois microRNAs estao agrupados, entao nada diz sobre o miR-7 sozinho. A
+     varredura declarada de k_repress (0,1 a 3) poe rho entre 0,94 e 28 no braco de DP,
+     acima desse piso mas sem chegar a ele, entao os cenarios de DP tambem rodam em rho =
+     0,44, e uma varredura a parte roda todo cenario em 24 h com rho de 0,01 a 10^4. Uma
+     repressao mais fraca eleva toda dose aproximadamente em proporcao a 1 / rho e uma
+     mais forte se aproxima de um limite, entao a varredura reporta, para cada cenario, o
+     menor pico sobre todo rho: um limite que vale seja qual for rho. Para o braco de AD
+     nao ha numero de perda de funcao na tabela (o K046 e qualitativo), e rho vai de 6,6 a
+     198 na varredura.
 
 EN | A second, smaller result. Abeta42 nucleation rates scale with the monomer level to
      the measured reaction orders (K013 primary, K012 secondary, both 2), and the ratio of
@@ -183,6 +191,7 @@ LN2 = math.log(2.0)
 
 DOSE_CAP = 1.0e4        # EN/PT: largest dose tried, in units of the baseline repressor pool
 RIPPLE_POINTS = 3000    # EN/PT: grid on which the swing of one cycle is read
+RHO_SWEEP = np.geomspace(0.01, 1.0e4, 31)       # EN/PT: five points per decade
 
 
 def load_module(name, filename):
@@ -382,7 +391,7 @@ def build_axes(ode, dos, measured, table):
         sys.exit("EN/PT: K065 is not a numeric row")
     pd = OrderedDict(
         name="PD", n_sp=1, d=d_pd, lags=(), v_maps=v_maps,
-        rho_cases=[("K065 loss of function", k065 * d_pd, k065)]
+        rho_cases=[("K065 lower bound", k065 * d_pd, k065)]
                   + [(lab, k, k / d_pd)
                      for lab, k in (("scan low", k_lo), ("scan midpoint", k_mid), ("scan high", k_hi))],
         species=[("miR-7", "K020"), ("miR-7 upper bound", "K021"), ("median miRNA", "K016")],
@@ -619,15 +628,15 @@ def repression_strength(axes, k065):
     """
     EN | rho over the declared scan for each axis, the proportional limit, the mimic
          factor the closed form asks for at the ends of the scan and, for PD, at the
-         K065 value.
+         K065 floor.
     PT | rho na varredura declarada para cada eixo, o limite proporcional, o fator de
          mimetico que a forma fechada pede nas pontas da varredura e, para DP, no valor
-         do K065.
+         piso do K065.
     """
     out = OrderedDict()
     for key, ax in axes.items():
         entry = OrderedDict(n_species=ax["n_sp"], d_mRNA_per_hour=ax["d"])
-        scan = [(lab, k, r) for lab, k, r in ax["rho_cases"] if lab != "K065 loss of function"]
+        scan = [(lab, k, r) for lab, k, r in ax["rho_cases"] if lab != "K065 lower bound"]
         entry["rho_scan_low"] = scan[0][2]
         entry["rho_scan_mid"] = scan[1][2]
         entry["rho_scan_high"] = scan[2][2]
@@ -640,23 +649,88 @@ def repression_strength(axes, k065):
                 fold_at_scan_mid=1.0 + required_excess(kappa, entry["rho_scan_mid"]),
                 fold_at_scan_high=1.0 + required_excess(kappa, entry["rho_scan_high"]))
             if key == "PD":
-                targets[lab]["fold_at_K065"] = 1.0 + required_excess(kappa, k065)
+                targets[lab]["fold_at_floor"] = 1.0 + required_excess(kappa, k065)
         entry["targets"] = targets
         out[key] = entry
-    out["PD"]["rho_K065"] = k065
-    out["PD"]["rho_K065_below_scan"] = bool(k065 < out["PD"]["rho_scan_low"])
+    out["PD"]["rho_floor_K065"] = k065
+    out["PD"]["floor_below_scan"] = bool(k065 < out["PD"]["rho_scan_low"])
     out["PD"]["note_en"] = (
-        "K065: blocking endogenous miR-7 and miR-153 raised an SNCA 3'UTR reporter by 44% in "
-        "rat cortical neurons. For a repressor that holds a share rho of the mRNA's decay, "
-        "removing it raises the level by 1 + rho, so rho = 0.44 for the pair. Reporter, not "
-        "endogenous gene; two miRNAs lumped; the only loss-of-function observation in the table.")
+        "K065: blocking endogenous miR-7 and miR-153 with antisense oligonucleotides raised an "
+        "SNCA 3'UTR reporter by 44% in rat cortical neurons. For a repressor that holds a share "
+        "rho of the mRNA's decay, removing all of it raises the level by 1 + rho, and a blockade "
+        "cannot be more than complete, so rho is at least 0.44 for the pair: a floor, not an "
+        "estimate. Reporter, not endogenous gene; two miRNAs lumped, so nothing is said about "
+        "miR-7 alone; the only loss-of-function observation in the table.")
     out["PD"]["note_pt"] = (
-        "K065: bloquear miR-7 e miR-153 endogenos elevou em 44% um repórter da 3'UTR de SNCA "
-        "em neuronios corticais de rato. Para um repressor que detem a parcela rho do "
-        "decaimento do mRNA, retira-lo eleva o nivel por 1 + rho, entao rho = 0,44 para o par. "
-        "Repórter, nao gene endogeno; dois miRNAs agrupados; a unica observacao de perda de "
-        "funcao da tabela.")
+        "K065: bloquear miR-7 e miR-153 endogenos com oligonucleotideos antisense elevou em 44% "
+        "um repórter da 3'UTR de SNCA em neuronios corticais de rato. Para um repressor que "
+        "detem a parcela rho do decaimento do mRNA, retirar tudo dele eleva o nivel por 1 + rho, "
+        "e um bloqueio nao pode passar de completo, entao rho e no minimo 0,44 para o par: um "
+        "piso, nao uma estimativa. Repórter, nao gene endogeno; dois miRNAs agrupados, entao nada "
+        "se diz do miR-7 sozinho; a unica observacao de perda de funcao da tabela.")
     return out
+
+
+def rho_sweep(axes, interval=24.0):
+    """
+    EN | Every scenario at one dosing interval over a wide range of the repression
+         strength, so that a statement about the dose does not have to rest on the
+         declared scan. For each axis, delivered species and target the sweep keeps the
+         smallest peak over rho, which is a bound that holds whatever rho is, the peak at
+         the weakest and at the strongest repression tried, and the full rows. Weak
+         repression makes the dose grow roughly as 1 / rho; strong repression approaches a
+         limit, because the mRNA then tracks 1 / (1 + E) and rho drops out.
+    PT | Todo cenario em um intervalo de dosagem sobre uma faixa ampla de forca de
+         repressao, para que uma afirmacao sobre a dose nao dependa da varredura
+         declarada. Para cada eixo, especie entregue e meta a varredura guarda o menor pico
+         sobre rho, que e um limite valido seja qual for rho, o pico na repressao mais
+         fraca e na mais forte testadas, e as linhas completas. A repressao fraca faz a
+         dose crescer aproximadamente como 1 / rho; a forte se aproxima de um limite,
+         porque o mRNA passa a seguir 1 / (1 + E) e rho some.
+    """
+    rows, summary = [], []
+    for key, ax in axes.items():
+        dp = ax["protein"][0][1]
+        for sp, pid in ax["species"]:
+            dx = ax["decay"][sp]
+            for tgt_label, kappa in ax["targets"]:
+                pts = []
+                for rho in RHO_SWEEP:
+                    rho = float(rho)
+                    cas = Cascade(ax["d"], rho, dp, dx, lags=ax["lags"])
+                    e_lin = required_excess(kappa, rho)
+                    dose, reached = cas.required_dose(kappa, interval, e_lin)
+                    r = OrderedDict(axis=key, species=sp, param_id=pid, half_life_h=ax["half_life"][sp],
+                                    interval_h=interval, target=tgt_label, target_knockdown=kappa,
+                                    rho=rho, reachable=dose is not None,
+                                    linear_dose=e_lin * dx * interval)
+                    if dose is None:
+                        r.update(dose=None, peak_pool_over_baseline=None, efficiency=None,
+                                 protein_ripple=None, knockdown_reached=reached)
+                    else:
+                        c = cas.cycle(dose, interval)
+                        r.update(dose=dose, peak_pool_over_baseline=1.0 + c["e_peak"],
+                                 efficiency=r["linear_dose"] / dose, protein_ripple=c["ripple_pi"],
+                                 knockdown_reached=1.0 - c["mean_pi"])
+                    pts.append(r)
+                rows.extend(pts)
+                ok = [r for r in pts if r["reachable"]]
+                best = min(ok, key=lambda r: r["peak_pool_over_baseline"])
+                summary.append(OrderedDict(
+                    axis=key, species=sp, target=tgt_label, target_knockdown=kappa,
+                    interval_h=interval,
+                    min_peak_pool_over_baseline=best["peak_pool_over_baseline"],
+                    rho_at_min=best["rho"],
+                    peak_at_lowest_rho=pts[0]["peak_pool_over_baseline"],
+                    peak_at_highest_rho=pts[-1]["peak_pool_over_baseline"],
+                    unreachable_points=sum(1 for r in pts if not r["reachable"])))
+        print(f"  {key}: rho sweep done ({len([r for r in rows if r['axis'] == key])} points)")
+    return rows, summary
+
+
+SWEEP_FIELDS = ["axis", "species", "param_id", "half_life_h", "interval_h", "target", "target_knockdown",
+                "rho", "reachable", "knockdown_reached", "dose", "peak_pool_over_baseline",
+                "linear_dose", "efficiency", "protein_ripple"]
 
 
 FIELDS = ["axis", "rho_case", "k_repress", "rho", "species", "param_id", "half_life_h",
@@ -689,18 +763,20 @@ def main():
 
     strength = repression_strength(axes, k065)
     nuc = nucleation_scaling(measured)
+    print("\nRepression-strength sweep at 24 h | Varredura da forca de repressao em 24 h")
+    sweep_rows, sweep_summary = rho_sweep(axes)
 
     print("\n--- Repression strength rho | Forca de repressao rho ---")
     for key in ("AD", "PD"):
         e = strength[key]
         print(f"  {key}: rho {e['rho_scan_low']:.2f} .. {e['rho_scan_high']:.1f} over the scan "
               f"(midpoint {e['rho_scan_mid']:.2f})")
-    print(f"  PD, K065 loss of function: rho = {k065:.2f}  (below the scan: "
-          f"{strength['PD']['rho_K065_below_scan']})")
+    print(f"  PD, K065 floor on the pair: rho >= {k065:.2f}  (floor below the scan: "
+          f"{strength['PD']['floor_below_scan']})")
     for lab, t in strength["PD"]["targets"].items():
         print(f"  PD {lab}: proportional limit {t['proportional_limit_fold']:.2f}x, "
               f"scan {t['fold_at_scan_high']:.2f}..{t['fold_at_scan_low']:.2f}x, "
-              f"at K065 {t['fold_at_K065']:.2f}x")
+              f"at the floor {t['fold_at_floor']:.2f}x")
 
     print("\n--- Abeta42 nucleation scaling | Escalonamento da nucleacao do Abeta42 ---")
     print(f"  monomer AD/control {nuc['monomer_ratio_AD_over_control']:.4f}; nucleation rate "
@@ -714,7 +790,7 @@ def main():
     for r in rows:
         if r["interval_h"] != 24.0 or not r["protein_case"].startswith(("BACE1 in", "alpha-syn")):
             continue
-        if r["axis"] == "PD" and r["rho_case"] not in ("K065 loss of function", "scan midpoint"):
+        if r["axis"] == "PD" and r["rho_case"] not in ("K065 lower bound", "scan midpoint"):
             continue
         if r["axis"] == "AD" and r["rho_case"] != "scan midpoint":
             continue
@@ -726,6 +802,16 @@ def main():
               f"  dose {r['dose']:8.3f}  peak pool {r['peak_pool_over_baseline']:7.2f}x"
               f"  efficiency {r['efficiency']:.3f}  protein swing {100 * r['protein_ripple']:5.1f}%")
 
+    print("\n--- Smallest daily peak over all rho (x baseline pool) | Menor pico diario sobre todo rho ---")
+    for e in sweep_summary:
+        print(f"  {e['axis']} {e['species']:18s} kappa {e['target_knockdown']:.3f}: "
+              f"min {e['min_peak_pool_over_baseline']:8.2f} at rho {e['rho_at_min']:9.3g}   "
+              f"weakest {e['peak_at_lowest_rho']:9.1f}   strongest {e['peak_at_highest_rho']:8.2f}")
+    with open(f"{TAB_DIR}/mimic_target_rho_sweep.csv", "w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=SWEEP_FIELDS)
+        w.writeheader()
+        for r in sweep_rows:
+            w.writerow({k: ("" if r.get(k) is None else r.get(k)) for k in SWEEP_FIELDS})
     with open(f"{TAB_DIR}/mimic_target_response.csv", "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=FIELDS)
         w.writeheader()
@@ -743,6 +829,8 @@ def main():
         ("scenarios", len(rows)),
         ("scenarios_unreachable", sum(1 for r in rows if not r["reachable"])),
         ("repression_strength", strength),
+        ("rho_sweep", OrderedDict(interval_h=24.0, rho_min=float(RHO_SWEEP[0]), rho_max=float(RHO_SWEEP[-1]),
+                                   points=len(RHO_SWEEP), summary=sweep_summary)),
         ("nucleation_scaling", nuc),
         ("verification", checks),
         ("assumptions_en",
@@ -763,7 +851,8 @@ def main():
     with open(f"{TAB_DIR}/mimic_target_response.json", "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=1)
 
-    print(f"\nEN/PT -> {TAB_DIR}/mimic_target_response.csv  ({len(rows)} rows)")
+    print(f"\nEN/PT -> {TAB_DIR}/mimic_target_rho_sweep.csv  ({len(sweep_rows)} rows)")
+    print(f"EN/PT -> {TAB_DIR}/mimic_target_response.csv  ({len(rows)} rows)")
     print(f"EN/PT -> {TAB_DIR}/mimic_target_response.json")
     return 0
 
