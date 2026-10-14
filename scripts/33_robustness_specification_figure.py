@@ -85,7 +85,7 @@ def load():
             both = [r for r in alt if r["analysis"].startswith(rule) and r["outcome"] == f"{dis} - all markers"][0]
             pv[(dis, tag)] = dict(single=(float(sg["pooled_auc"]), float(sg["ci_low_hk"]), float(sg["ci_high_hk"]), sg["n_studies"]),
                                   panel=(float(pn["pooled_auc"]), float(pn["ci_low_hk"]), float(pn["ci_high_hk"]), pn["n_studies"]),
-                                  p=float(both["panel_vs_single_p"]))
+                                  p=float(both["panel_vs_single_p_RE"]))
     return out, pv, rnd
 
 
@@ -174,7 +174,7 @@ def plot(data, pv, rnd, path, lang):
     axb.text(-0.005, 4.75, t(lang, "Parkinson's disease", "Doença de Parkinson"), transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.6, fontweight="bold", color=DISEASE["PD"])
     axb.text(-0.005, 1.85, t(lang, "Alzheimer's disease", "Doença de Alzheimer"), transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.6, fontweight="bold", color=DISEASE["AD"])
     axb.axhline(2.35, color=GRID, lw=0.8)
-    for xx, lab in ((1.03, t(lang, "single (n)", "isolado (n)")), (1.2, t(lang, "panel (n)", "painel (n)")), (1.4, t(lang, "panel vs single", "painel vs isolado"))):
+    for xx, lab in ((1.03, t(lang, "single (n)", "isolado (n)")), (1.2, t(lang, "panel (n)", "painel (n)")), (1.4, t(lang, "panel vs single, p", "painel vs isolado, p"))):
         axb.annotate(lab, xy=(xx, 4.75), xycoords=("axes fraction", "data"), va="center", fontsize=6.3, color=INK3, annotation_clip=False)
     axb.set_yticks([])
     axb.spines["left"].set_visible(False)

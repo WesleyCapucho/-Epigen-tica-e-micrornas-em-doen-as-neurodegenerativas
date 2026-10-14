@@ -505,9 +505,34 @@ def subgroup_difference_test(coll_a, coll_b, label):
     _, Q_b, _ = dl_tau2(coll_b["y"].values, coll_b["v"].values)
     q_between = Q_all - Q_a - Q_b
     p_value = 1 - stats.chi2.cdf(q_between, 1) if q_between >= 0 else np.nan
+
+    # EN | The Q-based test above weights each study by the inverse of its sampling variance
+    #      only, so it takes no account of the between-study variance (tau2) that the pools
+    #      themselves carry (I2 of 60-80%). With heterogeneity of that size it is
+    #      anti-conservative. The random-effects contrast below is the one the manuscript
+    #      reports: the difference of the two subgroups' pooled logit AUCs, each pooled with
+    #      its own Paule-Mandel tau2, with the Hartung-Knapp standard errors that the mHK
+    #      intervals use, and a t reference with Welch-Satterthwaite degrees of freedom.
+    #      The Q-based p value is kept in the table so the change is visible.
+    # PT | O teste baseado em Q acima pondera cada estudo apenas pelo inverso da variancia
+    #      amostral, e portanto ignora a variancia entre estudos (tau2) que os proprios pools
+    #      carregam (I2 de 60-80%). Com heterogeneidade desse tamanho ele e anticonservador.
+    #      O contraste de efeitos aleatorios abaixo e o que o manuscrito reporta: a diferenca
+    #      das AUCs logit agregadas dos dois subgrupos, cada uma agregada com seu proprio tau2
+    #      de Paule-Mandel, com os erros-padrao de Hartung-Knapp usados nos intervalos mHK e
+    #      referencia t com graus de liberdade de Welch-Satterthwaite. O p baseado em Q fica
+    #      na tabela para que a mudanca seja visivel.
+    ra = pool_re(coll_a["y"].values, coll_a["v"].values)
+    rb = pool_re(coll_b["y"].values, coll_b["v"].values)
+    d_re = rb["estimate"] - ra["estimate"]
+    se_re = float(np.sqrt(ra["se_hk"] ** 2 + rb["se_hk"] ** 2))
+    df_re = se_re ** 4 / (ra["se_hk"] ** 4 / (ra["k"] - 1) + rb["se_hk"] ** 4 / (rb["k"] - 1))
+    p_re = float(2 * (1 - stats.t.cdf(abs(d_re / se_re), df_re)))
     return dict(comparison=label, n_studies_a=len(coll_a), n_studies_b=len(coll_b),
                 Q_between=round(q_between, 3), df=1,
-                p_value=round(p_value, 4) if not np.isnan(p_value) else "")
+                p_value=round(p_value, 4) if not np.isnan(p_value) else "",
+                diff_logit_RE=round(d_re, 3), se_RE=round(se_re, 3), df_RE=round(df_re, 1),
+                p_value_RE=round(p_re, 4))
 
 
 def variance_source_comparison(label, sub):

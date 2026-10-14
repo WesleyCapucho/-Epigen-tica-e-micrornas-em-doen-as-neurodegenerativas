@@ -1,10 +1,10 @@
-disease,group,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent,Q_between,p_value
-AD,selected estimate from separate participants,5,0.8171,0.6707,0.9073,83.8,,
-AD,selected estimate from the derivation sample,13,0.8156,0.7634,0.8584,77.6,,
-AD,difference test,,,,,,0.636,0.4251
-PD,selected estimate from separate participants,3,0.8175,0.3007,0.979,75.9,,
-PD,selected estimate from the derivation sample,16,0.7972,0.7321,0.8497,82.4,,
-PD,difference test,,,,,,1.683,0.1945
-AD+PD,selected estimate from separate participants,8,0.8165,0.7166,0.8867,78.8,,
-AD+PD,selected estimate from the derivation sample,29,0.8049,0.7663,0.8384,81.4,,
-AD+PD,difference test,,,,,,0.623,0.4301
+disease,group,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent,Q_between,p_value,p_value_RE
+AD,selected estimate from separate participants,5,0.8171,0.6707,0.9073,83.8,,,
+AD,selected estimate from the derivation sample,13,0.8156,0.7634,0.8584,77.6,,,
+AD,difference test,,,,,,0.636,0.4251,0.9763
+PD,selected estimate from separate participants,3,0.8175,0.3007,0.979,75.9,,,
+PD,selected estimate from the derivation sample,16,0.7972,0.7321,0.8497,82.4,,,
+PD,difference test,,,,,,1.683,0.1945,0.8366
+AD+PD,selected estimate from separate participants,8,0.8165,0.7166,0.8867,78.8,,,
+AD+PD,selected estimate from the derivation sample,29,0.8049,0.7663,0.8384,81.4,,,
+AD+PD,difference test,,,,,,0.623,0.4301,0.7794

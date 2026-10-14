@@ -145,18 +145,21 @@ def outcome_rows(label, sel):
         t = panel_test(sel, d)
         out.append(OrderedDict([("analysis", label), ("outcome", f"{d} - all markers"), *p.items(),
                                 ("panel_vs_single_Q", t["Q_between"] if t else ""),
-                                ("panel_vs_single_p", t["p_value"] if t else "")]))
+                                ("panel_vs_single_p", t["p_value"] if t else ""),
+                                ("panel_vs_single_p_RE", t["p_value_RE"] if t else "")]))
     t = panel_test(sel)
     p = pooled(sel)
     out.append(OrderedDict([("analysis", label), ("outcome", "AD+PD combined (secondary)"), *p.items(),
                             ("panel_vs_single_Q", t["Q_between"] if t else ""),
-                            ("panel_vs_single_p", t["p_value"] if t else "")]))
+                            ("panel_vs_single_p", t["p_value"] if t else ""),
+                            ("panel_vs_single_p_RE", t["p_value_RE"] if t else "")]))
     for d in ["AD", "PD"]:
         for mt, lab in [("multi_miRNA_panel", "panels"), ("single_miRNA", "single markers")]:
             p = pooled(sel[(sel["disease"] == d) & (sel["marker_type"] == mt)])
             if p:
                 out.append(OrderedDict([("analysis", label), ("outcome", f"{d} - {lab}"), *p.items(),
-                                        ("panel_vs_single_Q", ""), ("panel_vs_single_p", "")]))
+                                        ("panel_vs_single_Q", ""), ("panel_vs_single_p", ""),
+                                        ("panel_vs_single_p_RE", "")]))
     return out
 
 
@@ -231,7 +234,8 @@ def main():
 
     # 2. random AUC-blind selection
     rng = np.random.default_rng(SEED)
-    draws = OrderedDict((k, []) for k in ["AD_auc", "PD_auc", "p_AD", "p_PD", "p_combined"])
+    draws = OrderedDict((k, []) for k in ["AD_auc", "PD_auc", "p_AD", "p_PD", "p_combined",
+                                                 "p_AD_RE", "p_PD_RE", "p_combined_RE"])
     for _ in range(N_RANDOM_DRAWS):
         s = random_selection(pool, rng)
         draws["AD_auc"].append(pooled(s[s["disease"] == "AD"])["pooled_auc"])
@@ -239,6 +243,7 @@ def main():
         for key, d in [("p_AD", "AD"), ("p_PD", "PD"), ("p_combined", None)]:
             t = panel_test(s, d)
             draws[key].append(float(t["p_value"]) if t and t["p_value"] != "" else np.nan)
+            draws[key + "_RE"].append(float(t["p_value_RE"]) if t else np.nan)
     rand_rows = []
     for key, vals in draws.items():
         a = np.array(vals, float)
@@ -337,7 +342,8 @@ def main():
             split.append(OrderedDict([("disease", d or "AD+PD"), ("group", "difference test"),
                                       ("n_studies", ""), ("pooled_auc", ""), ("ci_low_hk", ""),
                                       ("ci_high_hk", ""), ("I2_percent", ""),
-                                      ("Q_between", t["Q_between"]), ("p_value", t["p_value"])]))
+                                      ("Q_between", t["Q_between"]), ("p_value", t["p_value"]),
+                                      ("p_value_RE", t["p_value_RE"])]))
     pd.DataFrame(split).to_csv(f"{TAB_DIR}/robustness_validation_split_exploratory.csv", index=False)
 
     summary = OrderedDict([

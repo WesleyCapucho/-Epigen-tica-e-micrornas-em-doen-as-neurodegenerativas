@@ -188,7 +188,11 @@ Para cada desfecho primário de doença, a AUC agregada restrita a estudos com I
 
 ## `results/tables/subgroup_difference_test.csv`
 
-Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 gl), calculado sobre as linhas primárias uma-por-estudo, dentro de DA, dentro de DP e combinado. Válido apenas porque a seleção uma-estimativa-por-estudo atribui cada estudo a exatamente um tipo de marcador, então os dois grupos comparados são disjuntos por construção; ver a docstring de `subgroup_difference_test` em `scripts/05_meta_analysis.py`.
+Teste formal para diferença painel-versus-isolado (Borenstein et al., 2009, cap. 19: `Q_between = Q_all - Q_single - Q_panel`, 1 gl), calculado sobre as linhas primárias uma-por-estudo, dentro de DA, dentro de DP e combinado. Válido apenas porque a seleção uma-estimativa-por-estudo atribui cada estudo a exatamente um tipo de marcador, então os dois grupos comparados são disjuntos por construção; ver a docstring de `subgroup_difference_test` em `scripts/05_meta_analysis.py`. A tabela traz também o contraste de efeitos aleatórios que o manuscrito reporta: `diff_logit_RE` (painel menos isolado, diferença das AUCs logit agregadas, cada uma com seu próprio τ² de Paule-Mandel), `se_RE` (erros-padrão de Hartung-Knapp combinados), `df_RE` (graus de liberdade de Welch-Satterthwaite) e `p_value_RE`. O `p_value` baseado em Q ignora a variância entre estudos e é anticonservador com a heterogeneidade observada; ele fica para que a mudança seja visível. `robustness_alternative_analyses.csv` (`panel_vs_single_p_RE`), `robustness_random_selection.csv` (`p_AD_RE`, `p_PD_RE`, `p_combined_RE`) e `robustness_validation_split_exploratory.csv` (`p_value_RE`) trazem o mesmo contraste.
+
+## `results/tables/manuscript_numbers.json`
+
+Gravado por `scripts/35_manuscript_numbers.py`: todo número que o manuscrito do Artigo 1 cita, como mapa plano de chave para texto já arredondado e formatado para o texto, com o arquivo de origem de cada valor em `_sources`. O manuscrito em si fica fora deste repositório e remete a essas chaves; uma montagem que encontra uma chave ausente para. Ele seleciona, arredonda e conta a partir de arquivos gravados pelos scripts 03 a 33 e não calcula nada novo sobre os estudos.
 
 ## `results/tables/meta_analysis_input_estimates.csv`
 
