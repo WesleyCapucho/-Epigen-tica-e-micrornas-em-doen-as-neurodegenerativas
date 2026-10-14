@@ -26,5 +26,5 @@
   "license": "cc-by-4.0",
   "access_right": "open",
   "language": "eng",
-  "notes": "Scripts are under the MIT licence (LICENSE); data, tables, figures and documentation under CC BY 4.0 (LICENSE-DATA.md). Third-party material (two supplementary tables of published papers; titles and abstracts of the screened records) keeps its own terms. The Scopus and Web of Science export files are not distributed; exports_manifest.csv records their record counts and SHA-256 hashes."
+  "notes": "Scripts are under the MIT licence (LICENSE); data, tables, figures and documentation under CC BY 4.0 (LICENSE-DATA.md). Third-party material (two supplementary tables of published papers; titles and abstracts of the screened records) keeps its own terms. The Scopus and Web of Science export files are not distributed; exports_manifest.csv records their record counts and SHA-256 hashes. CHANGELOG.md lists what changed between versions."
 }

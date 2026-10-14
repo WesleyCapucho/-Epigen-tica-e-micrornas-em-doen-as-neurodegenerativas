@@ -85,6 +85,8 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── 18_graphical_abstract.py                   # Schematic figure: both axes, computed numbers
 │   ├── 19_mechanism_animations.py                 # Animated GIFs of already-simulated mechanisms
 │   ├── 20_structure_story_panel.py                # Composites scripts/13's renders into one figure
+│   ├── 21_ to 33_ (see below)                     # Flow diagram, study characteristics, robustness, recall check, post-search sensitivity and their figures (see Reproducing the analysis)
+│   ├── 35_manuscript_numbers.py                   # Every number the manuscript quotes, read from the result tables (numbers only)
 │   ├── _bilingual.py                              # Shared helper: every figure emitted in EN and pt-BR (and as a vector PDF)
 │   ├── _viz_style.py                              # Shared palette and type scale for the manuscript figures
 │   ├── _journal_fit.py                            # Fits main-text figures to 174 x 234 mm, 6.5 pt lettering floor, EPS twin; writes results/tables/journal_figure_spec.csv
@@ -97,6 +99,7 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   │                                  #   dosing and ODE overview — each twice, .en.png and .pt-BR.png;
 │   │                                  #   structures/ (PyMOL renders)
 │   └── tables/                        # Pooled estimates, inputs, sensitivity, correlations, audit
+├── CHANGELOG.md                       # What changed between versions (each version is archived on Zenodo)
 └── requirements.txt
 ```
 
@@ -222,7 +225,7 @@ Scripts: MIT (`LICENSE`). Data, tables, figures and documentation: CC BY 4.0 (`L
 
 ## Citation
 
-Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.0.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.23353780
+Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.1.0) [Data set]. Zenodo. The DOI of each version is on its Zenodo record; the first version is https://doi.org/10.5281/zenodo.23353780. See `CHANGELOG.md` for what changed between versions.
 
 Repository: https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas. Retrospective registration: OSF, https://doi.org/10.17605/OSF.IO/NJ8A5.
 
