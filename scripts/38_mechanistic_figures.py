@@ -232,7 +232,7 @@ def fig_alzheimer(d, lang):
                              (rs["rho_scan_low"], 1.2, "--", tr(lang, "ρ = {:.1f} (scan, weak)", "ρ = {:.1f} (varredura, fraca)")),
                              (1.0, 1.2, ":", tr(lang, "ρ = {:.0f}", "ρ = {:.0f}"))):
         ax.plot(f, 100 * knockdown_at(f, rho), color=vs.AD, lw=lw, ls=ls, label=lab.format(rho))
-    ax.fill_between(f, 100 * kappa, 100 * measured, color=vs.AD_SOFT, alpha=0.65, lw=0, zorder=0)
+    ax.fill_between(f, 100 * kappa, 100 * measured, color=vm.blend(vs.AD_SOFT, 0.65), lw=0, zorder=0.4)
     ax.axhline(100 * kappa, color=vs.TIER_RAMP[1], lw=1.0)
     ax.axhline(100 * measured, color=vs.INK2, lw=1.0, ls="--")
     ax.text(3.17, 100 * kappa + 1.3, tr(lang, f"required {100 * kappa:.1f}%", f"exigida {100 * kappa:.1f}%"),
@@ -292,7 +292,7 @@ def fig_parkinson(d, lang):
     cols = (vs.PD, "#c04a1c")
     for mh, c in zip(mhs, cols):
         ax.plot(S, S / (mh + S), color=c, lw=1.4, label=f"m½ {mh:.1f} µM")
-    ax.fill_between(S[S <= C0], 0, (S / (mhs[0] + S))[S <= C0], color=vs.PD_SOFT, alpha=0.8, lw=0, zorder=0)
+    ax.fill_between(S[S <= C0], 0, (S / (mhs[0] + S))[S <= C0], color=vm.blend(vs.PD_SOFT, 0.8), lw=0, zorder=0.4)
     for mh, c in zip(mhs, cols):
         for kd, mk in ((kd_a, "o"), (kd_b, "s")):
             s1 = C0 * (1 - kd)
@@ -344,7 +344,7 @@ def fig_parkinson(d, lang):
     ax.text(57, 59, tr(lang, "proportional", "proporcional"), ha="right", va="bottom", fontsize=6.8, color=vs.INK3)
     lo_curve = [1 - ((C0 * (1 - k)) / (mhs[0] + C0 * (1 - k))) / (C0 / (mhs[0] + C0)) for k in x]
     hi_curve = [1 - ((C0 * (1 - k)) / (mhs[-1] + C0 * (1 - k))) / (C0 / (mhs[-1] + C0)) for k in x]
-    ax.fill_between(100 * x, 100 * np.array(lo_curve), 100 * np.array(hi_curve), color=vs.PD, alpha=0.35, lw=0)
+    ax.fill_between(100 * x, 100 * np.array(lo_curve), 100 * np.array(hi_curve), color=vm.blend(vs.PD, 0.35), lw=0, zorder=0.4)
     ax.plot(100 * x, 100 * np.array(hi_curve), color=vs.PD, lw=1.3)
     for lab, kd in (("a", kd_a), ("b", kd_b)):
         cs = [c["elongation_rate_reduction"] for c in chain["cases"] if abs(c["knockdown"] - kd) < 1e-12]
@@ -366,8 +366,16 @@ def fig_parkinson(d, lang):
     pd_ = rs["PD"]
     ad_ = rs["AD"]
     kappa_ad = d["ode"]["mimic_dose_vs_measured_knockdown"]["required_BACE1_knockdown"]
-    ax.axvspan(pd_["rho_scan_low"], pd_["rho_scan_high"], color=vs.PD_SOFT, alpha=0.7, lw=0)
-    ax.axvspan(ad_["rho_scan_low"], ad_["rho_scan_high"], color=vs.AD_SOFT, alpha=0.7, lw=0)
+    # the two declared scans of rho as opaque bands; where they overlap, the colour that the two translucent bands would make
+    edges = sorted({pd_["rho_scan_low"], pd_["rho_scan_high"], ad_["rho_scan_low"], ad_["rho_scan_high"]})
+    pd_col, ad_col = vm.blend(vs.PD_SOFT, 0.7), vm.blend(vs.AD_SOFT, 0.7)
+    both_col = vm.blend(vs.AD_SOFT, 0.7, over=pd_col)
+    for lo_, hi_ in zip(edges[:-1], edges[1:]):
+        mid_ = math.sqrt(lo_ * hi_)
+        in_pd = pd_["rho_scan_low"] <= mid_ <= pd_["rho_scan_high"]
+        in_ad = ad_["rho_scan_low"] <= mid_ <= ad_["rho_scan_high"]
+        if in_pd or in_ad:
+            ax.axvspan(lo_, hi_, color=both_col if (in_pd and in_ad) else (pd_col if in_pd else ad_col), lw=0, zorder=0.4)
     ax.plot(rho, fold_for(kd_a, rho), color=vs.PD, lw=1.4, label=tr(lang, f"PD, {100 * kd_a:.0f}%", f"DP, {100 * kd_a:.0f}%"))
     ax.plot(rho, fold_for(kd_b, rho), color=vs.PD, lw=1.4, ls="--", label=tr(lang, f"PD, {100 * kd_b:.0f}%", f"DP, {100 * kd_b:.0f}%"))
     ax.plot(rho, fold_for(kappa_ad, rho), color=vs.AD, lw=1.4, label=tr(lang, f"AD, {100 * kappa_ad:.1f}%", f"DA, {100 * kappa_ad:.1f}%"))
@@ -519,7 +527,7 @@ def fig_turnover(d, lang):
     bars = ax.barh(y, vals, color=cols, height=0.6)
     for b, s in zip(bars, sps):
         if SP_COLOUR[s][1] == "--":
-            b.set_alpha(0.6)
+            b.set_facecolor(vm.blend(b.get_facecolor()[:3], 0.6))
     for yi, v in zip(y, vals):
         ax.text(v + 0.4, yi, f"{v:.1f}×", va="center", fontsize=7, color=vs.INK)
     ax.set_yticks(y)
@@ -595,7 +603,7 @@ def fig_target(d, lang, t36):
             y = 1 + yy[0] if k == 0 else yy[k]
             ax.plot(tt, y, color=c, ls="-", lw=1.3, label=tr(lang, en, pt))
             if k == 2 and sp == "miR-7":
-                ax.fill_between(tt, y, 1.0, color=c, alpha=0.14, lw=0)
+                ax.fill_between(tt, y, 1.0, color=vm.blend(c, 0.14), lw=0, zorder=0.4)
         if k == 0:
             ax.set_yscale("log")
             ax.set_ylim(1, 100)
@@ -633,7 +641,7 @@ def fig_target(d, lang, t36):
                 lo.append(f_(rl)); mid_.append(f_(rm)); hi.append(f_(rh))
             ok = [i for i in range(len(intervals)) if lo[i] is not None and hi[i] is not None]
             if ok:
-                ax.fill_between([intervals[i] for i in ok], [hi[i] for i in ok], [lo[i] for i in ok], color=colour, alpha=0.16, lw=0)
+                ax.fill_between([intervals[i] for i in ok], [hi[i] for i in ok], [lo[i] for i in ok], color=vm.blend(colour, 0.16), lw=0, zorder=0.4)
             okm = [i for i in range(len(intervals)) if mid_[i] is not None]
             ax.plot([intervals[i] for i in okm], [mid_[i] for i in okm], color=colour, ls=ls, lw=1.4, marker="o", ms=3.4,
                     mec="white", mew=0.4, zorder=3)
@@ -951,13 +959,17 @@ def fig_provenance(d, lang):
     GAP_FILL = "#e6e4df"
     plt.rcParams["hatch.linewidth"] = 0.4
     plt.rcParams["hatch.color"] = "#8a8883"
-    for (a, b, axk), ya, yb in lay(f1, src_order, sys_idx, pos_src, pos_sys):
+    def by_reach(items):
+        """EN/PT: shortest bands first, so that a long band crossing many is drawn over them and can be followed | bandas curtas primeiro."""
+        return sorted(items, key=lambda it: abs(sum(it[1]) / 2 - sum(it[2]) / 2))
+
+    for (a, b, axk), ya, yb in by_reach(lay(f1, src_order, sys_idx, pos_src, pos_sys)):
         gap_row = (a == ("", ""))
         p_ = vm.ribbon(ax, xs1, ya[0], ya[1], xm0, yb[0], yb[1], GAP_FILL if gap_row else colour[axk], alpha=0.9 if gap_row else alpha[axk], z=1, lw=0.35)
         if gap_row:
             p_.set_hatch("////")
             p_.set_edgecolor("#8a8883")
-    for (a, b, axk), ya, yb in lay(f2, sys_idx, blk_idx, pos_sys, pos_blk):
+    for (a, b, axk), ya, yb in by_reach(lay(f2, sys_idx, blk_idx, pos_sys, pos_blk)):
         gap_row = (a == "none")
         p_ = vm.ribbon(ax, xm1, ya[0], ya[1], xb0, yb[0], yb[1], GAP_FILL if gap_row else colour[axk], alpha=0.9 if gap_row else alpha[axk], z=1, lw=0.35)
         if gap_row:
@@ -1002,7 +1014,7 @@ def fig_provenance(d, lang):
     x = 3.0
     for lab_en, lab_pt, c, a in (("Alzheimer's disease", "Doença de Alzheimer", vs.AD, 0.7), ("Parkinson's disease", "Doença de Parkinson", vs.PD, 0.7),
                                  ("both diseases", "as duas doenças", "#9a9892", 0.6), ("declared gap", "lacuna declarada", GAP_FILL, 1.0)):
-        ax.add_patch(Rectangle((x, yk - 0.7), 3.2, 1.4, fc=c, alpha=a, ec="#8a8883" if c == GAP_FILL else "none", lw=0.4,
+        ax.add_patch(Rectangle((x, yk - 0.7), 3.2, 1.4, fc=vm.blend(c, a), ec="#8a8883" if c == GAP_FILL else "none", lw=0.4,
                                hatch="////" if c == GAP_FILL else None))
         t = ax.text(x + 4.2, yk, tr(lang, lab_en, lab_pt), ha="left", va="center", fontsize=6.8, color=vs.INK2)
         x += 4.2 + 1.15 * len(tr(lang, lab_en, lab_pt)) * 0.74 + 3.0
@@ -1094,18 +1106,18 @@ def fig_schematic(d, lang):
         if dashed:
             p.set_linestyle((0, (3, 2)))
         gy = y0 + H - 3.1
-        glyph(x0 + W / 2, gy, colour)
+        glyph(x0 + W / 2, gy, colour, soft)
         t1 = ax.text(x0 + W / 2, y0 + H - 6.3, title, ha="center", va="center", fontsize=7.2, color=vs.INK, fontweight="bold", zorder=3)
         t2 = ax.text(x0 + W / 2, y0 + H - 8.0, sub, ha="center", va="top", fontsize=6.3, color=vs.INK2, zorder=3, linespacing=1.2)
         drawn.append((p, t1, t2))
 
     # glyphs: all sized in axis units, centred on (x, y)
-    g_mirna = lambda x, y, c: vm.mirna_glyph(ax, x - 4.0, y, 8.0, c)
-    g_mrna = lambda x, y, c: vm.mrna_glyph(ax, x - 4.6, y, 9.2, c)
-    g_prot = lambda x, y, c: vm.protein_glyph(ax, x, y, 2.5, c)
-    g_coil = lambda x, y, c: vm.coil_glyph(ax, x, y, 5.6, c)
-    g_nuc = lambda x, y, c: vm.nucleus_glyph(ax, x, y, 1.7, c)
-    g_layers = lambda x, y, c: vm.layers_glyph(ax, x - 3.2, y + 0.6, 6.4, c, n=3, gap=0.19)
+    g_mirna = lambda x, y, c, bg: vm.mirna_glyph(ax, x - 4.0, y, 8.0, c)
+    g_mrna = lambda x, y, c, bg: vm.mrna_glyph(ax, x - 4.6, y, 9.2, c)
+    g_prot = lambda x, y, c, bg: vm.protein_glyph(ax, x, y, 2.5, c, over=bg)
+    g_coil = lambda x, y, c, bg: vm.coil_glyph(ax, x, y, 5.6, c)
+    g_nuc = lambda x, y, c, bg: vm.nucleus_glyph(ax, x, y, 1.7, c, over=bg)
+    g_layers = lambda x, y, c, bg: vm.layers_glyph(ax, x - 3.2, y + 0.6, 6.4, c, n=3, gap=0.19, over=bg)
 
     # ---- lane titles and a rule between the lanes
     for key, c, soft, name in (("A", vs.AD, vs.AD_SOFT, tr(lang, "ALZHEIMER", "ALZHEIMER")), ("P", vs.PD, vs.PD_SOFT, tr(lang, "PARKINSON", "PARKINSON"))):
@@ -1145,7 +1157,7 @@ def fig_schematic(d, lang):
     for yy, c in ((yA, vs.AD), (yP, vs.PD)):
         bx, bw, bh = 4.6, 9.0, 11.4
         vs.rounded(ax, bx, yy - bh / 2, bw, bh, fc="white", ec=c, r=1.2, lw=1.1, z=2)
-        vm.pulse_glyph(ax, bx + 1.5, yy + bh / 2 - 4.2, bw - 3.0, 2.6, c)
+        vm.pulse_glyph(ax, bx + 1.5, yy + bh / 2 - 4.2, bw - 3.0, 2.6, c, over="#ffffff")
         ax.text(bx + bw / 2, yy + 0.5, tr(lang, "Mimic", "Mimético"), ha="center", va="center", fontsize=7.0, fontweight="bold", color=vs.INK, zorder=3)
         ax.text(bx + bw / 2, yy - 1.1, tr(lang, "bolus D\nevery T h", "bolus D\na cada T h"), ha="center", va="top", fontsize=6.3, color=vs.INK2, linespacing=1.2, zorder=3)
         arrow(ax, (bx + bw + 0.2, yy), (xs(0) - 0.3, yy), c, lw=1.3)

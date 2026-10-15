@@ -46,6 +46,19 @@ AD_MAP = LinearSegmentedColormap.from_list("ad_map", ["#f3f7fd", "#cde2fb", "#86
 PD_MAP = LinearSegmentedColormap.from_list("pd_map", ["#fdf5f0", "#f9d3c1", "#f5ad8d", "#eb6834", "#a63d12", "#6e2509"])
 
 
+def blend(colour, alpha, over="#ffffff"):
+    """
+    EN | The opaque colour that `colour` at opacity `alpha` makes over `over`. Figures that go to a
+         journal as EPS use these instead of transparency, which PostScript cannot hold: cairo
+         would turn every translucent patch into a bitmap, and the line art would stop being line art.
+    PT | A cor opaca que `colour` com opacidade `alpha` forma sobre `over`. Figuras que vao ao
+         periodico em EPS usam isto no lugar de transparencia, que o PostScript nao guarda: o cairo
+         transformaria cada trecho translucido em bitmap, e o desenho de linhas deixaria de ser vetorial.
+    """
+    c, o = np.array(to_rgb(colour)), np.array(to_rgb(over))
+    return tuple(float(x) for x in alpha * c + (1.0 - alpha) * o)
+
+
 def halo(text, width=2.2, colour="white"):
     """EN/PT: white outline round lettering so that it reads over lines and fills | contorno branco no texto."""
     text.set_path_effects([pe.withStroke(linewidth=width, foreground=colour)])
@@ -57,10 +70,11 @@ def gradient_rect(ax, x0, x1, y0, y1, c_bottom, c_top, z=2, alpha=1.0, clip=None
     n = 64
     g = np.linspace(0.0, 1.0, n).reshape(n, 1)
     cb, ct = np.array(to_rgb(c_bottom)), np.array(to_rgb(c_top))
-    img = np.zeros((n, 1, 4))
+    img = np.zeros((n, 1, 3))
     for k in range(3):
         img[:, 0, k] = cb[k] + (ct[k] - cb[k]) * g[:, 0]
-    img[:, 0, 3] = alpha
+    if alpha != 1.0:
+        img = np.concatenate([img, np.full((n, 1, 1), alpha)], axis=2)
     im = ax.imshow(img, extent=(x0, x1, y0, y1), origin="lower", aspect="auto", zorder=z, interpolation="bilinear")
     if clip is not None:
         im.set_clip_path(clip)
@@ -81,7 +95,7 @@ def ribbon(ax, x0, y0a, y0b, x1, y1a, y1b, colour, alpha=0.55, z=1, lw=0.0, bend
              (x1, y1b), (x1 - dx, y1b), (x0 + dx, y0b), (x0, y0b), (x0, y0a)]
     codes = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
              Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.CLOSEPOLY]
-    p = PathPatch(Path(verts, codes), fc=colour, ec="white" if lw else "none", lw=lw, alpha=alpha, zorder=z)
+    p = PathPatch(Path(verts, codes), fc=blend(colour, alpha), ec="white" if lw else "none", lw=lw, zorder=z)
     ax.add_patch(p)
     return p
 
@@ -191,16 +205,16 @@ def coil_glyph(ax, x, y, w, colour, lw=1.3, seed=3):
     ax.plot(x + xs * w * 0.5, y + ys * w * 0.5, color=colour, lw=lw, solid_capstyle="round", zorder=4)
 
 
-def nucleus_glyph(ax, x, y, r, colour):
+def nucleus_glyph(ax, x, y, r, colour, over="#ffffff"):
     """EN/PT: a handful of molecules that gather: the sign for nucleation | poucas moleculas que se juntam: sinal de nucleacao."""
     pos = [(0.0, 0.0), (1.0, 0.25), (0.45, 0.95), (-0.5, 0.8), (-0.9, -0.1), (0.2, -0.95), (1.0, -0.6)]
     for i, (a, b) in enumerate(pos):
-        ax.add_patch(plt_circle((x + a * r, y + b * r), r * 0.42, colour, 0.25 + 0.75 * (i < 4)))
+        ax.add_patch(plt_circle((x + a * r, y + b * r), r * 0.42, blend(colour, 0.25 + 0.75 * (i < 4), over)))
 
 
-def plt_circle(xy, r, colour, alpha):
+def plt_circle(xy, r, colour):
     from matplotlib.patches import Circle
-    return Circle(xy, r, fc=colour, ec="white", lw=0.5, alpha=alpha, zorder=4)
+    return Circle(xy, r, fc=colour, ec="white", lw=0.5, zorder=4)
 
 
 
@@ -214,23 +228,23 @@ def mirna_glyph(ax, x, y, w, colour, seed_colour="#d62839", lw=1.5):
     ax.plot(xs[cut:], ys[cut:], color=colour, lw=lw, solid_capstyle="round", zorder=4)
 
 
-def protein_glyph(ax, x, y, r, colour):
+def protein_glyph(ax, x, y, r, colour, over="#ffffff"):
     """EN/PT: a folded protein drawn as a few overlapping discs | proteina enovelada, alguns discos sobrepostos."""
     from matplotlib.patches import Circle
     for dx, dy, k in ((-0.55, -0.15, 0.78), (0.35, 0.25, 0.9), (0.55, -0.35, 0.66), (-0.1, 0.45, 0.62)):
-        ax.add_patch(Circle((x + dx * r, y + dy * r), k * r * 0.62, fc=colour, ec="white", lw=0.5, alpha=0.88, zorder=4))
+        ax.add_patch(Circle((x + dx * r, y + dy * r), k * r * 0.62, fc=blend(colour, 0.88, over), ec="white", lw=0.5, zorder=4))
 
 
-def layers_glyph(ax, x, y, w, colour, n=4, gap=0.34, ghost=True):
+def layers_glyph(ax, x, y, w, colour, n=4, gap=0.34, ghost=True, over="#ffffff"):
     """EN/PT: layers of a fibril, the top one ghosted: where the next monomer lands | camadas de fibrila, a de cima translucida."""
     h = w * 0.10
     for i in range(n):
-        ax.add_patch(Rectangle((x, y - i * w * gap), w, h, fc=colour, ec="white", lw=0.4, alpha=0.95 - 0.1 * i, zorder=4))
+        ax.add_patch(Rectangle((x, y - i * w * gap), w, h, fc=blend(colour, 0.95 - 0.1 * i, over), ec="white", lw=0.4, zorder=4))
     if ghost:
-        ax.add_patch(Rectangle((x, y + w * gap), w, h, fc=colour, ec=colour, lw=0.6, alpha=0.22, ls=(0, (2, 1.4)), zorder=4))
+        ax.add_patch(Rectangle((x, y + w * gap), w, h, fc=blend(colour, 0.22, over), ec=colour, lw=0.6, ls=(0, (2, 1.4)), zorder=4))
 
 
-def pulse_glyph(ax, x, y, w, h, colour, lw=1.3):
+def pulse_glyph(ax, x, y, w, h, colour, lw=1.3, over="#ffffff"):
     """EN/PT: repeated boluses: sharp rise, slow decay | bolus repetidos: subida brusca e queda lenta."""
     xs, ys = [], []
     for k in range(3):
@@ -240,7 +254,7 @@ def pulse_glyph(ax, x, y, w, h, colour, lw=1.3):
         xs.append(x + (k + 1) * w / 3.0)
         ys.append(y)
     ax.plot(xs, ys, color=colour, lw=lw, zorder=4, solid_joinstyle="miter")
-    ax.plot([x, x + w], [y, y], color=colour, lw=0.6, alpha=0.5, zorder=3)
+    ax.plot([x, x + w], [y, y], color=blend(colour, 0.5, over), lw=0.6, zorder=3)
 
 
 def chip(ax, x, y, text, colour, soft, fontsize=6.5, pad=0.55):
