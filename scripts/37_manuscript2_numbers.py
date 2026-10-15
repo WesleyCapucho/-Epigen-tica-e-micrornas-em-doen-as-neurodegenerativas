@@ -46,7 +46,11 @@ import json
 import math
 import os
 import sys
+from collections import Counter
 from decimal import ROUND_HALF_UP, Decimal
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _provenance as pc
 
 T = "results/tables"
 KIN = "data/extracted/kinetic_parameters.csv"
@@ -57,6 +61,11 @@ DOS_C = f"{T}/mimic_dosing_feasibility.csv"
 TGT_J = f"{T}/mimic_target_response.json"
 TGT_C = f"{T}/mimic_target_response.csv"
 SWP_C = f"{T}/mimic_target_rho_sweep.csv"
+DS_J = f"{T}/mimic_design_space.json"
+DS_C = f"{T}/mimic_design_space.csv"
+REN_J = f"{T}/structure_renders_article2.json"
+PRV_J = f"{T}/structure_figure_provenance.json"
+CLS_C = "results/tables/parameter_provenance_classes.csv"
 OUT = f"{T}/manuscript2_numbers.json"
 
 N, SRC = {}, {}
@@ -480,6 +489,152 @@ integer("abs.baseline_copies", c40, KIN)
 integer("abs.cyrano_copies", c40 * v("K023"), "arithmetic on K022, K023")
 must(min(float(i["peak_pool_over_baseline"]) for i in cases("PD", "miR-7", 24.0, kap_b)) > v("K023"),
      "the daily peak for the 43% target no longer exceeds the Cyrano-knockout fold")
+
+# ----------------------------------------------------------------------------- where each number was measured (scripts/_provenance.py)
+kin_rows = list(csv.DictReader(open(KIN, encoding="utf-8")))
+sys_of, blk_of = pc.classes(kin_rows)
+pc.write_table(kin_rows, CLS_C)          # the same table that scripts/38 writes; scripts/08 checks it against the classification
+cnt = Counter(sys_of.values())
+for k_, *_ in pc.SYSTEMS:
+    integer(f"prov.{k_}", cnt.get(k_, 0), CLS_C)
+integer("prov.brainlike", cnt["people"] + cnt["human_pm"] + cnt["animal_brain"], CLS_C)
+by_block = {b_: [p_ for p_, x_ in blk_of.items() if x_ == b_] for b_, *_ in pc.BLOCKS}
+rep_ = by_block["repression"]
+integer("prov.rep_rows", len(rep_), CLS_C)
+integer("prov.rep_cells", sum(sys_of[p_] == "cells" for p_ in rep_), CLS_C)
+integer("prov.rep_neurons", sum(sys_of[p_] == "neurons" for p_ in rep_), CLS_C)
+must({sys_of[p_] for p_ in rep_} <= {"cells", "neurons"},
+     "a row that bears on the repression strength was measured outside cell lines and primary neurons; the sentence about it changes")
+agg_ = by_block["aggregation"]
+integer("prov.agg_rows", len(agg_), CLS_C)
+integer("prov.agg_cell_free", sum(sys_of[p_] == "cell_free" for p_ in agg_), CLS_C)
+integer("prov.agg_human_pm", sum(sys_of[p_] == "human_pm" for p_ in agg_), CLS_C)
+integer("prov.agg_gap", sum(sys_of[p_] == "none" for p_ in agg_), CLS_C)
+must({sys_of[p_] for p_ in agg_} == {"cell_free", "human_pm", "none"},
+     "the aggregation rows no longer come from the test tube, post-mortem brain and the declared gap alone")
+must(all(sys_of[p_] == "people" for p_ in by_block["flux"]), "a production or clearance row was measured outside living people")
+hl_rows_ = [f"K0{n_}" for n_ in range(15, 22)]
+must(all(sys_of[p_] == "cells" and blk_of[p_] == "mirna" for p_ in hl_rows_),
+     "the miRNA half-life rows K015 to K021 no longer all come from cell lines")
+integer("prov.mirna_hl_cells", len(hl_rows_), CLS_C)
+
+# ----------------------------------------------------------------------------- half-lives against the dosing interval (Fig. 5a)
+hl_m7 = float(wash["miR-7 (1.7 h, K020)"]["half_life_hours"])
+hl_b = float(wash["miR-29b (7 h, K017)"]["half_life_hours"])
+hl_snca = LN2 / v("K066")
+hl_bace1m = LN2 / v("K068")
+hl_asyn = LN2 / v("K026")
+for tag_, hl_ in (("m7", hl_m7), ("b", hl_b), ("snca", hl_snca), ("bace1m", hl_bace1m), ("asyn", hl_asyn)):
+    num(f"turn.{tag_}.n24", 24.0 / hl_, 1, "arithmetic: 24 h over the half-life")
+num("turn.ratio_mrna_m7", hl_snca / hl_m7, 1, "arithmetic on K066 and K020")
+must(hl_snca > hl_m7 and hl_bace1m > hl_b, "the repressor is no longer the faster step in both arms; the sentence on Fig. 5a changes")
+
+# ----------------------------------------------------------------------------- the design-space grid (scripts/40)
+ds = json.load(open(DS_J, encoding="utf-8"))
+ds_rows = list(csv.DictReader(open(DS_C, encoding="utf-8")))
+integer("ds.series", len(ds["series"]), DS_J)
+integer("ds.rho_n", len(ds["rho_grid"]), DS_J)
+integer("ds.t_n", len(ds["interval_grid_h"]), DS_J)
+integer("ds.points", len(ds_rows), DS_C)
+must(len(ds_rows) == len(ds["series"]) * len(ds["rho_grid"]) * len(ds["interval_grid_h"]), "the design-space table is not the full grid")
+integer("ds.unreached", ds["unreached_points"], DS_J)
+_dec = (len(ds["rho_grid"]) - 1) / math.log10(max(ds["rho_grid"]) / min(ds["rho_grid"]))
+must(abs(_dec - round(_dec)) < 1e-9, "the rho grid is no longer a whole number of points per decade")
+integer("ds.per_decade", _dec, DS_J)
+# where the unreached points lie: the first interval with any, and the first with every rho unreached, per series
+_un = {}
+for r_ in ds_rows:
+    if r_["reachable"] != "True":
+        _un.setdefault((r_["axis"], r_["species"], round(float(r_["target_knockdown"]), 3)), {}).setdefault(float(r_["interval_h"]), 0)
+        _un[(r_["axis"], r_["species"], round(float(r_["target_knockdown"]), 3))][float(r_["interval_h"])] += 1
+must(all(k_[0] == "PD" and k_[1] in ("miR-7", "miR-7 upper bound") for k_ in _un),
+     "a point is unreached outside the PD arm or for a mimic that is not cleared like miR-7; the sentence on the unreached region changes")
+n_rho_ = len(ds["rho_grid"])
+for sp_, tag_ in (("miR-7", "m7"), ("miR-7 upper bound", "m7ub")):
+    integer(f"ds.unreached_{tag_}", sum(sum(v_.values()) for k_, v_ in _un.items() if k_[1] == sp_), DS_C)
+    for kap_, lab_ in ((0.3, "a"), (0.43, "b")):
+        g_ = _un.get(("PD", sp_, kap_), {})
+        first_ = min(g_) if g_ else None
+        all_ = [t_ for t_, n_ in sorted(g_.items()) if n_ == n_rho_]
+        put(f"ds.un.{tag_}.{lab_}.first", str(int(first_)) if first_ else "none", DS_C)
+        put(f"ds.un.{tag_}.{lab_}.all", str(int(all_[0])) if all_ else "none", DS_C)
+integer("ds.t_min", min(ds["interval_grid_h"]), DS_J)
+integer("ds.t_max", max(ds["interval_grid_h"]), DS_J)
+v36_ = ds["verification"]["against_sweep_36_at_24h"]
+integer("ds.verif_points", v36_["points"], DS_J)
+put("ds.verif_err", sci(v36_["max_relative_error"]), DS_J)
+must(v36_["max_relative_error"] <= v36_["tolerance"], "the design-space grid no longer reproduces scripts/36 at 24 h")
+must(ds["verification"]["monotone_in_interval"]["max_relative_fall"] <= 1e-9, "the peak needed falls somewhere as the interval grows")
+integer("ds.thr_lo", min(ds["thresholds"]), DS_J)
+integer("ds.thr_mid", sorted(ds["thresholds"])[1], DS_J)
+integer("ds.thr_hi", max(ds["thresholds"]), DS_J)
+must(ds["thresholds"] == [3.0, 10.0, 30.0], "the reference ceilings of the design space are no longer 3, 10 and 30")
+iw = ds["interval_within_threshold"]
+
+
+def hours_floor(x):
+    """EN/PT: an interval rounded DOWN (one decimal below 10 h, whole hours from 10 h), so that 'up to X h' stays true."""
+    return lower_bound(x)
+
+
+for ax_, sp_, kap_, lab_ in (("PD", "miR-7", kap_a, "a"), ("PD", "miR-7 upper bound", kap_a, "a"), ("PD", "median miRNA", kap_a, "a"),
+                             ("PD", "miR-7", kap_b, "b"), ("PD", "miR-7 upper bound", kap_b, "b"), ("PD", "median miRNA", kap_b, "b"),
+                             ("AD", "miR-29b", kap_ad, "ad"), ("AD", "miR-29c", kap_ad, "ad"), ("AD", "median miRNA", kap_ad, "ad")):
+    for thr_ in (3, 10, 30):
+        ent = [iw[f"{ax_}|{sp_}|{kap_:.4f}|{c_}"] for c_ in ("scan low", "scan midpoint", "scan high")]
+        flags = {e_[f"interval_within_{thr_}x_flag"] for e_ in ent}
+        vals = [e_[f"interval_within_{thr_}x_h"] for e_ in ent]
+        base = f"ds.{ax_}.{SP_TAG[sp_]}.{lab_}.i{thr_}"
+        put(f"{base}_lo", hours_floor(min(vals)), DS_J)
+        put(f"{base}_hi", hours_floor(max(vals)), DS_J)
+        put(f"{base}_rng", N[f"{base}_lo"] if N[f"{base}_lo"] == N[f"{base}_hi"] else f"{N[f'{base}_lo']} to {N[f'{base}_hi']}", DS_J)
+        put(f"{base}_ceil", str(int(math.ceil(max(vals) - 1e-9))), DS_J)
+        put(f"{base}_flag", flags.pop() if len(flags) == 1 else "mixed", DS_J)
+# the sentences about the 10x ceiling rest on this pattern
+for key_ in ("PD.m7.a", "PD.m7ub.a", "PD.m7.b", "PD.m7ub.b", "AD.b.ad", "AD.c.ad"):
+    must(N[f"ds.{key_}.i10_flag"] == "interp", f"the 10-fold ceiling is no longer met at an interior interval for {key_}")
+for key_ in ("PD.med.a", "PD.med.b", "AD.med.ad"):
+    must(N[f"ds.{key_}.i10_flag"] in ("beyond", "interp"), f"unexpected flag for {key_}")
+must(N["ds.AD.med.ad.i10_flag"] == "beyond" and N["ds.PD.med.a.i10_flag"] == "beyond" and N["ds.PD.med.b.i10_flag"] == "beyond",
+     "a mimic of median stability no longer stays within a 10-fold peak up to the longest interval of the grid")
+must(float(N["ds.PD.m7.a.i10_ceil"]) < 24 and float(N["ds.PD.m7.b.i10_ceil"]) < 24,
+     "a miR-7-like mimic no longer needs more than a 10-fold peak at daily dosing")
+must(float(N["ds.AD.b.ad.i10_lo"].replace(",", "")) > 24, "the miR-29b mimic is no longer within a 10-fold peak at daily dosing")
+# the plateau in rho: at 24 h, from rho = 10 up, the peak stays close to its value at the top of the grid, in every series
+by24 = {}
+for r_ in ds_rows:
+    if float(r_["interval_h"]) == 24.0 and r_["reachable"] == "True":
+        by24.setdefault((r_["axis"], r_["species"], round(float(r_["target_knockdown"]), 4)), {})[float(r_["rho"])] = float(r_["peak_pool_over_baseline"])
+must(len(by24) == len(ds["series"]), "a series has no reachable point at 24 h")
+dev_ = 0.0
+for k_, g_ in by24.items():
+    top_ = g_[max(g_)]
+    above_ = [p_ for rho_, p_ in g_.items() if rho_ >= 10.0]
+    must(len(above_) == sum(1 for x_ in ds["rho_grid"] if x_ >= 10.0 - 1e-9), f"unreached points above rho = 10 at 24 h in {k_}")
+    dev_ = max(dev_, max(abs(p_ / top_ - 1.0) for p_ in above_))
+integer("ds.plateau_rho", 10, DS_C)
+put("ds.plateau_dev", str(int(math.ceil(100.0 * dev_ - 1e-9))), DS_C)
+
+# ----------------------------------------------------------------------------- the deposited structures behind the molecular images (scripts/13, 39)
+rn = json.load(open(REN_J, encoding="utf-8"))["renders"]
+pv = json.load(open(PRV_J, encoding="utf-8"))
+for pdb in ("6N4O", "4D8C", "5OQV", "6CU7"):
+    e_ = pv[pdb]
+    res_ = f"{float(e_['resolution_angstrom']):g}"
+    put(f"struct.{pdb.lower()}.res", res_ if "." in res_ else res_ + ".0", PRV_J)
+    put(f"struct.{pdb.lower()}.method", "X-ray diffraction" if "X-RAY" in e_["method"].upper() else "cryo-electron microscopy", PRV_J)
+for pdb, key_ in (("5OQV", "a2_abeta42_fibril_end"), ("6CU7", "a2_asyn_fibril_end")):
+    lts_ = rn[key_]["layer_transformation"]
+    must(len(lts_) == 2 and all(t_["rms_ca_angstrom"] < 0.05 and t_["ca_pairs"] >= 40 for t_ in lts_),
+         f"the constructed layer of {pdb} no longer rests on an exact superposition of two deposited chains")
+    rises_, rots_ = [t_["rise_angstrom"] for t_ in lts_], [t_["rotation_deg"] for t_ in lts_]
+    num(f"struct.{pdb.lower()}.rise_lo", min(rises_), 1, REN_J)
+    num(f"struct.{pdb.lower()}.rise_hi", max(rises_), 1, REN_J)
+    num(f"struct.{pdb.lower()}.rot", sum(rots_) / len(rots_), 1, REN_J)
+    integer(f"struct.{pdb.lower()}.chains", sum(len(t_["chains_along_axis"]) for t_ in lts_), REN_J)
+    must(len({t_["ca_pairs"] for t_ in lts_}) == 1, f"the two protofilaments of {pdb} are fitted over different numbers of Calpha pairs")
+    integer(f"struct.{pdb.lower()}.pairs", lts_[0]["ca_pairs"], REN_J)
+integer("struct.n", 4, PRV_J)
 
 # ----------------------------------------------------------------------------- write
 payload = dict(N)

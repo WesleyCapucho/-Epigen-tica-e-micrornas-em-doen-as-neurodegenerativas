@@ -331,7 +331,7 @@ Uma linha por cenário do `scripts/36`: `axis` (AD ou PD), `rho_case` (`scan low
 
 ## `results/tables/manuscript2_numbers.json`
 
-Gravado pelo `scripts/37_manuscript2_numbers.py`: todo número que o manuscrito do Artigo 2 cita, como mapa plano de chave para texto já arredondado e formatado para o texto, com o arquivo de origem de cada valor em `_sources`. O manuscrito fica fora deste repositório e se refere a estas chaves; uma montagem que não acha uma chave para. Ele seleciona, arredonda e conta a partir das saídas dos `scripts/12`, `17` e `36` e da tabela de parâmetros cinéticos, e calcula quantidades de aritmética simples (uma razão, uma porcentagem, um tempo até 90%) que rotula como tal. Um assert sustenta cada frase do manuscrito que depende de um padrão nos dados.
+Gravado pelo `scripts/37_manuscript2_numbers.py`: todo número que o manuscrito do Artigo 2 cita, como mapa plano de chave para texto já arredondado e formatado para o texto, com o arquivo de origem de cada valor em `_sources`. O manuscrito fica fora deste repositório e se refere a estas chaves; uma montagem que não acha uma chave para. Ele seleciona, arredonda e conta a partir das saídas dos `scripts/12`, `17`, `36`, `39` e `40`, do `scripts/_provenance.py` e da tabela de parâmetros cinéticos, e calcula quantidades de aritmética simples (uma razão, uma porcentagem, um tempo até 90%) que rotula como tal. Um assert sustenta cada frase do manuscrito que depende de um padrão nos dados.
 
 ## `results/tables/mimic_target_rho_sweep.csv`
 
@@ -340,6 +340,18 @@ O mesmo cálculo num intervalo de dosagem de 24 h sobre a força de repressão �
 ## `results/tables/mimic_target_response.json`
 
 O resto do `scripts/36`: as versões de software, os parâmetros de integração, a força de repressão ρ nas pontas e no ponto médio da varredura declarada para cada eixo e, para a DP, no piso do K065 (com o fator de mimético que a forma fechada pede em cada caso), o resumo da varredura de ρ (menor pico diário sobre ρ, e o pico na repressão mais fraca e na mais forte testadas), o escalonamento da taxa de nucleação a partir das ordens de reação medidas do Aβ42, os seis resultados de verificação com seus erros e tolerâncias, as suposições em inglês e português, e as contagens de cenários e de cenários inalcançáveis.
+
+## `results/tables/mimic_design_space.csv` e `mimic_design_space.json`
+
+Gravados pelo `scripts/40_mimic_design_space.py`. O CSV tem uma linha por ponto da grade, 8.379 ao todo (nove séries, 49 valores de ρ, 19 intervalos de dose): `axis` (DA ou DP), `species` com seu `param_id` e `half_life_h`, o `target` e o `target_knockdown`, `rho`, `interval_h`, se a meta é `reachable` com dose até o teto, o `peak_pool_over_baseline` que a alcança e, onde não é alcançável, o `knockdown_reached` no teto. O JSON traz a grade (`rho_grid`, `interval_grid_h`), os três tetos de referência (`thresholds`: 3, 10 e 30 vezes o pool basal), o maior intervalo dentro de cada teto para cada série nos extremos baixo, médio e alto da varredura declarada de ρ e, na DP, no piso do K065 (`interval_within_threshold`, com uma marca: `interp`, `beyond` quando o maior intervalo da grade ainda está dentro do teto, `none` quando nem o menor está), a contagem de `unreached_points` e o bloco `verification` (concordância com o `scripts/36` a 24 h, monotonicidade no intervalo e a conferência do menor intervalo sem alcance contra a forma fechada).
+
+## `results/tables/structure_renders_article2.json`
+
+Gravado pelo `scripts/39_structure_renders_article2.py`: para cada render de PyMOL desenhado para as figuras do estudo mecanístico (em `results/figures/structures/a2_*.png`), a entrada do PDB, o tamanho em pixels do recorte e o que foi selecionado (cadeias, nucleotídeos da semente, aspartatos catalíticos). Para as vistas laterais das duas fibrilas, `layer_transformation` lista, por protofilamento, a cadeia que foi movida, a cadeia a que foi ajustada, o número de pares de C-alfa, o rms do ajuste, a subida por camada (angstrom), o giro por camada (graus) e as cadeias ao longo do eixo. A camada translúcida depois da última cadeia é construída a partir dessa transformação; é ilustração, não resultado.
+
+## `results/tables/parameter_provenance_classes.csv`
+
+Gravado pelo `scripts/_provenance.py` (por meio dos `scripts/37` e `38`): uma linha por linha da tabela de parâmetros cinéticos, com `param_id`, `kind`, `axis` (AD, PD ou both), `source` (primeiro autor e ano, vazio para a lacuna declarada), `system` (onde foi medida: `people`, `human_pm`, `animal_brain`, `neurons`, `cells`, `cell_free` ou `none`) e `block` (o que alimenta: `mirna`, `mrna`, `repression`, `protein`, `flux` ou `aggregation`). As classes são declaradas no módulo e conferidas contra espécie, população, condição e método de cada linha; o `scripts/08` exige que a tabela gravada seja igual à classificação.
 
 ## `results/tables/graphical_abstract_values.json`
 

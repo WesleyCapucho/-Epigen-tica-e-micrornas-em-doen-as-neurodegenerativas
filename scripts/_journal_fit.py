@@ -59,7 +59,8 @@ MAIN_STEMS = (
     "prisma_flow_diagram", "design_profile", "quadas2_summary",
     "forest_plot_primary", "robustness_specification", "molecular_evidence_map",
     # Article 2 (mechanistic study)
-    "mech_model_schematic", "mech_alzheimer", "mech_parkinson", "mech_turnover", "mech_target_response",
+    "mech_model_schematic", "mech_provenance", "mech_alzheimer", "mech_parkinson", "mech_turnover",
+    "mech_target_response", "mech_design_space",
 )
 SPEC_CSV = "results/tables/journal_figure_spec.csv"
 FIELDS = ["file", "width_mm", "height_mm", "fits_174x234_mm", "fonts", "min_text_pt",

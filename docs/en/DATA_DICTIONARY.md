@@ -331,7 +331,7 @@ One row per scenario of `scripts/36`: `axis` (AD or PD), `rho_case` (`scan low`,
 
 ## `results/tables/manuscript2_numbers.json`
 
-Written by `scripts/37_manuscript2_numbers.py`: every number that the Article 2 manuscript quotes, as a flat key-to-string map already rounded and formatted for the text, with the source file of each value under `_sources`. The manuscript itself is kept outside this repository and refers to these keys; a build that finds a key missing stops. It selects, rounds and counts from the outputs of `scripts/12`, `17` and `36` and from the kinetic parameter table, and computes plainly arithmetic quantities (a ratio, a percentage, a time to 90%) that it labels as such. An assert stands behind each sentence of the manuscript that relies on a pattern in the data.
+Written by `scripts/37_manuscript2_numbers.py`: every number that the Article 2 manuscript quotes, as a flat key-to-string map already rounded and formatted for the text, with the source file of each value under `_sources`. The manuscript itself is kept outside this repository and refers to these keys; a build that finds a key missing stops. It selects, rounds and counts from the outputs of `scripts/12`, `17`, `36`, `39` and `40`, from `scripts/_provenance.py` and from the kinetic parameter table, and computes plainly arithmetic quantities (a ratio, a percentage, a time to 90%) that it labels as such. An assert stands behind each sentence of the manuscript that relies on a pattern in the data.
 
 ## `results/tables/mimic_target_rho_sweep.csv`
 
@@ -340,6 +340,18 @@ The same calculation at a dosing interval of 24 h over the repression strength �
 ## `results/tables/mimic_target_response.json`
 
 The rest of `scripts/36`: the software versions, the integration settings, the repression strength ρ at the ends and midpoint of the declared scan for each axis and, for PD, at the K065 floor (with the mimic factor the closed form asks for in each case), the summary of the ρ sweep (smallest daily peak over ρ, and the peak at the weakest and strongest repression tried), the nucleation-rate scaling from the measured Aβ42 reaction orders, the six verification results with their errors and tolerances, the assumptions in English and Portuguese, and the counts of scenarios and of unreachable scenarios.
+
+## `results/tables/mimic_design_space.csv` and `mimic_design_space.json`
+
+Written by `scripts/40_mimic_design_space.py`. The CSV has one row per grid point, 8,379 in all (nine series, 49 values of ρ, 19 dosing intervals): `axis` (AD or PD), `species` with its `param_id` and `half_life_h`, the `target` and `target_knockdown`, `rho`, `interval_h`, whether the target is `reachable` at a dose up to the cap, the `peak_pool_over_baseline` that reaches it and, where it is not reachable, the `knockdown_reached` at the cap. The JSON holds the grid (`rho_grid`, `interval_grid_h`), the three reference ceilings (`thresholds`: 3, 10 and 30 times the baseline pool), the longest interval within each ceiling for each series at the low, middle and high ends of the declared scan of ρ and, for PD, at the K065 floor (`interval_within_threshold`, with a flag: `interp`, `beyond` when the longest interval of the grid is still within the ceiling, `none` when even the shortest is not), the count of `unreached_points` and the `verification` block (agreement with `scripts/36` at 24 h, monotonicity in the interval, and the closed-form check of the shortest unreached interval).
+
+## `results/tables/structure_renders_article2.json`
+
+Written by `scripts/39_structure_renders_article2.py`: for each PyMOL render drawn for the figures of the mechanistic study (under `results/figures/structures/a2_*.png`), the PDB entry, the pixel size of the crop and what was selected (chains, seed nucleotides, catalytic aspartates). For the side views of the two fibrils, `layer_transformation` lists, per protofilament, the chain that was moved, the chain it was fitted to, the number of C-alpha pairs, the rms of the fit, the rise per layer (angstrom), the rotation per layer (degrees) and the chains along the axis. The translucent layer past the last chain is constructed from that transformation; it is illustration, not a result.
+
+## `results/tables/parameter_provenance_classes.csv`
+
+Written by `scripts/_provenance.py` (through `scripts/37` and `scripts/38`): one row per row of the kinetic parameter table, with `param_id`, `kind`, `axis` (AD, PD or both), `source` (first author and year, empty for the declared gap), `system` (where it was measured: `people`, `human_pm`, `animal_brain`, `neurons`, `cells`, `cell_free` or `none`) and `block` (what it feeds: `mirna`, `mrna`, `repression`, `protein`, `flux` or `aggregation`). The classes are declared in the module and checked against the species, population, condition and method of each row; `scripts/08` requires the saved table to equal the classification.
 
 ## `results/tables/graphical_abstract_values.json`
 

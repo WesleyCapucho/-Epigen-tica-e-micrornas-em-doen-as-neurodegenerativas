@@ -1645,6 +1645,63 @@ def main():
                 claim(needle in text,
                       f"{name}: does not quote '{needle}' from {TARGET_JSON}")
 
+    # --- 9b3. The design-space grid and the molecular renders keep to their sources ---
+    # EN | The design-space maps of Article 2 (scripts/40) are drawn from a grid of 8379 solved
+    #      points and the structure panels (scripts/39) from four deposited entries. The grid
+    #      has to be complete and free of duplicates, to reproduce scripts/36 where the two
+    #      overlap (daily dosing), to be monotone in the dosing interval, and to count the
+    #      points that no dose reaches as many times as the table lists them; every render has
+    #      to exist, point at an entry that has provenance, and, where a layer was constructed
+    #      for the picture, to have been built from an exact superposition of two deposited
+    #      chains.
+    # PT | Os mapas de espaco de projeto do Artigo 2 (scripts/40) saem de uma grade de 8379
+    #      pontos resolvidos e os paineis de estrutura (scripts/39) de quatro entradas
+    #      depositadas. A grade tem de estar completa e sem duplicatas, reproduzir o
+    #      scripts/36 onde os dois se sobrepoem (dose diaria), ser monotona no intervalo e
+    #      contar os pontos que nenhuma dose alcanca tantas vezes quanto a tabela os lista;
+    #      todo render tem de existir, apontar para uma entrada com proveniencia e, onde uma
+    #      camada foi construida para a figura, ter sido feita de uma superposicao exata de
+    #      duas cadeias depositadas.
+    try:
+        ds_ = json.load(open("results/tables/mimic_design_space.json", encoding="utf-8"))
+        ds_rows_ = list(csv.DictReader(open("results/tables/mimic_design_space.csv", encoding="utf-8")))
+        n_expect_ = len(ds_["series"]) * len(ds_["rho_grid"]) * len(ds_["interval_grid_h"])
+        check(len(ds_rows_) == n_expect_, f"design space: {len(ds_rows_)} rows in the table, grid says {n_expect_}")
+        keys_ = {(r["axis"], r["species"], r["target_knockdown"], r["rho"], r["interval_h"]) for r in ds_rows_}
+        check(len(keys_) == len(ds_rows_), "design space: a grid point is listed twice")
+        v36_ = ds_["verification"]["against_sweep_36_at_24h"]
+        check(v36_["points"] > 0 and v36_["max_relative_error"] <= v36_["tolerance"],
+              f"design space: differs from scripts/36 at daily dosing by {v36_['max_relative_error']:.2e} (tolerance {v36_['tolerance']:.0e})")
+        mono_ = ds_["verification"]["monotone_in_interval"]
+        check(mono_["max_relative_fall"] <= 1e-9 and mono_["reached_after_unreached"] == 0,
+              "design space: the peak needed falls with the dosing interval, or a target is reached after one that was not")
+        n_unreached_ = sum(1 for r in ds_rows_ if r["reachable"] != "True")
+        check(n_unreached_ == ds_["unreached_points"],
+              f"design space: table lists {n_unreached_} unreached points, JSON says {ds_['unreached_points']}")
+        if tgt is not None:
+            check(ds_["dose_cap_in_baseline_pools"] == tgt["dose_cap_in_baseline_pools"],
+                  "design space: dose cap differs from the cap of scripts/36")
+        # the classes of Fig. 2: the saved table is what scripts/_provenance.py computes from the kinetic table now
+        sys.path.insert(0, "scripts")
+        import _provenance as pc_
+        kin_rows_ = list(csv.DictReader(open(KINETICS, encoding="utf-8")))
+        saved_ = list(csv.DictReader(open(pc_.OUT, encoding="utf-8")))
+        check(saved_ == [{k_: str(v_) for k_, v_ in e_.items()} for e_ in pc_.table(kin_rows_)],
+              f"{pc_.OUT} differs from the classification that scripts/_provenance.py gives for the kinetic table; run scripts/38")
+        check(len(saved_) == len(kin_rows_) and all(r_["system"] != "none" for r_ in saved_ if r_["kind"] != "declared_gap"),
+              "provenance classes: a row that is not the declared gap has no system, or a row is missing")
+        rn_ = json.load(open("results/tables/structure_renders_article2.json", encoding="utf-8"))
+        pv_ = json.load(open("results/tables/structure_figure_provenance.json", encoding="utf-8"))
+        for name_, info_ in rn_["renders"].items():
+            check(os.path.exists(f"results/figures/structures/{name_}.png"), f"structure render {name_}.png is missing")
+            check(info_["pdb_id"] in pv_ and pv_[info_["pdb_id"]].get("method") and pv_[info_["pdb_id"]].get("resolution_angstrom"),
+                  f"structure render {name_}: entry {info_['pdb_id']} has no method and resolution in structure_figure_provenance.json")
+            for lt_ in info_.get("layer_transformation", []):
+                check(lt_["rms_ca_angstrom"] < 0.05 and lt_["ca_pairs"] >= 40,
+                      f"structure render {name_}: the constructed layer rests on a fit of {lt_['rms_ca_angstrom']} A over {lt_['ca_pairs']} pairs")
+    except FileNotFoundError as exc_:
+        claim(False, f"{exc_.filename} missing; run scripts/39_structure_renders_article2.py and scripts/40_mimic_design_space.py")
+
     # --- 9c. Arithmetic audit table matches independently recomputed counts -
     # EN | scripts/25_arithmetic_audit.py reconciles every core sample-size and
     #      study count in the review into one table, with its own internal
@@ -1863,8 +1920,8 @@ def main():
         for stem in ("prisma_flow_diagram", "design_profile", "quadas2_summary",
                      "forest_plot_primary", "robustness_specification", "molecular_evidence_map",
                      # Article 2 (mechanistic study), scripts/38_mechanistic_figures.py
-                     "mech_model_schematic", "mech_alzheimer", "mech_parkinson", "mech_turnover",
-                     "mech_target_response"):
+                     "mech_model_schematic", "mech_provenance", "mech_alzheimer", "mech_parkinson", "mech_turnover",
+                     "mech_target_response", "mech_design_space"):
             for lang_ in ("en", "pt-BR"):
                 f_ = f"results/figures/{stem}.{lang_}.png"
                 r_ = spec_rows.get(f_)
@@ -1879,7 +1936,7 @@ def main():
                       f"journal artwork: {f_} uses {r_['fonts']}")
                 check(os.path.exists(f_[:-4] + ".eps"), f"journal artwork: {f_[:-4]}.eps is missing")
     except FileNotFoundError:
-        claim(False, "results/tables/journal_figure_spec.csv missing; run the main-text figure scripts (14, 21, 27, 28, 32, 33, 38)")
+        claim(False, "results/tables/journal_figure_spec.csv missing; run the main-text figure scripts (14, 21, 27, 28, 32, 33, and 38 after 12, 13, 17, 36, 39 and 40)")
 
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections
