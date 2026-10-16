@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-EN | Single, shared, pre-specified, AUC-blind priority rule for picking one
+EN | Single, shared, fixed, AUC-blind priority rule for picking one
      estimate per study, used identically by every analysis in this review
      that needs a one-estimate-per-study reduction: the primary AUC
      meta-analysis (05_meta_analysis.py) and the bivariate sensitivity/
@@ -12,7 +12,7 @@ EN | Single, shared, pre-specified, AUC-blind priority rule for picking one
      silently drift apart (as they had before this module existed: 05 used a
      fixed-effect within-study combination and 15 picked the estimate closest
      to each study's median AUC, an AUC-dependent choice).
-PT | Regra de prioridade unica, compartilhada, pre-especificada e cega a AUC
+PT | Regra de prioridade unica, compartilhada, fixa e cega a AUC
      para escolher uma estimativa por estudo, usada identicamente por toda
      analise desta revisao que precisa de uma reducao uma-estimativa-por-
      estudo: a meta-analise primaria de AUC (05_meta_analysis.py) e a sintese

@@ -172,7 +172,7 @@ The PRIMARY analysis, circulating (blood-derived) studies only: every study redu
 
 ## `results/tables/one_estimate_per_study_selection_audit.csv`
 
-One row per circulating study in the primary pool: which estimate the pre-specified, AUC-blind priority rule selected, and the exact reason it won (`selection_reason`), so the choice can be checked against the raw extraction table and was never made by picking the highest AUC.
+One row per circulating study in the primary pool: which estimate the fixed, AUC-blind priority rule selected, and the exact reason it won (`selection_reason`), so the choice can be checked against the raw extraction table and was never made by picking the highest AUC.
 
 ## `results/tables/csf_secondary_estimates.csv`
 
@@ -265,7 +265,7 @@ Output of `scripts/12`: the free parameters, their ranges and the central value 
 
 ## `results/tables/ode_free_parameter_sensitivity.csv`
 
-One row per point of the free-parameter scan: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). A run that fails numerically is reported as `not_evaluable`, never counted as a reversal.
+One row per point of the free-parameter scan: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). A run that fails numerically is reported as `not_evaluable`, never counted as a reversal. The runs integrate the monomer cascade only (the illustrative aggregation block is left out, because it cannot change the monomer pool and diverged at two corners of the scan); all 18 are evaluable.
 
 ## `results/tables/structure_figure_provenance.json`
 
@@ -325,6 +325,34 @@ One row per species and dosing interval: `species`, `param_id` (the kinetic-tabl
 
 The same calculation with the comparisons that use it: each species' decay constant and its `param_id`, the daily-dosing comparison against the median-stability reference (penalty, equivalent interval, fold stabilisation required), and the stated assumption that the delivered mimic is cleared at the endogenous rate — which is why the output is a required fold stabilisation rather than a verdict on feasibility.
 
+## `results/tables/mimic_target_response.csv`
+
+One row per scenario of `scripts/36`: `axis` (AD or PD), `rho_case` (`scan low`, `scan midpoint`, `scan high`, and for PD `K065 lower bound`, the weakest repression that K065 allows for the pair), `k_repress`, `rho`, the delivered `species` with its `param_id` and `half_life_h`, `interval_h`, `protein_case` and `protein_half_life_h`, the `target` and `target_knockdown`, and whether it is `reachable` at a dose up to 10^4 times the baseline repressor pool. For a reachable scenario: the bolus `dose` and the resulting `peak_excess`, `peak_pool_over_baseline`, `trough_pool_over_baseline` and `mean_excess` (all in units of the baseline pool), the `linear_excess` and `linear_dose` that the steady-state closed form asks for, `efficiency` (`linear_dose` over `dose`, at most 1), `knockdown_reached` (the cycle-averaged protein knockdown, equal to the target), `protein_ripple` (peak-to-trough swing of the protein over its mean), `abeta_ripple` (AD only), `elongation_reduction_m49_8` and `elongation_reduction_m46_0` (PD only: the mean slowdown of fibril elongation on the saturation curve with K009 and K010, at the bouton concentration K054) and `residual` (how closely the periodic state closed). For an unreachable scenario the dose columns are empty and `knockdown_reached` is what the largest dose reaches. The dose does not depend on `protein_case`: over a periodic cycle the mean protein equals the mean mRNA.
+
+## `results/tables/manuscript2_numbers.json`
+
+Written by `scripts/37_manuscript2_numbers.py`: every number that the Article 2 manuscript quotes, as a flat key-to-string map already rounded and formatted for the text, with the source file of each value under `_sources`. The manuscript itself is kept outside this repository and refers to these keys; a build that finds a key missing stops. It selects, rounds and counts from the outputs of `scripts/12`, `17`, `36`, `39` and `40`, from `scripts/_provenance.py` and from the kinetic parameter table, and computes plainly arithmetic quantities (a ratio, a percentage, a time to 90%) that it labels as such. An assert stands behind each sentence of the manuscript that relies on a pattern in the data.
+
+## `results/tables/mimic_target_rho_sweep.csv`
+
+The same calculation at a dosing interval of 24 h over the repression strength ρ from 0.01 to 10⁴ (31 points, five per decade), for every axis, delivered species and target: `rho`, whether the target is `reachable`, the `dose`, `peak_pool_over_baseline`, `linear_dose`, `efficiency`, `protein_ripple` and `knockdown_reached`. It exists so that a statement about the dose does not have to rest on the declared scan of `k_repress`: weak repression raises the dose roughly as 1/ρ, strong repression approaches a limit, and the smallest peak over ρ is a bound that holds whatever ρ is.
+
+## `results/tables/mimic_target_response.json`
+
+The rest of `scripts/36`: the software versions, the integration settings, the repression strength ρ at the ends and midpoint of the declared scan for each axis and, for PD, at the K065 floor (with the mimic factor the closed form asks for in each case), the summary of the ρ sweep (smallest daily peak over ρ, and the peak at the weakest and strongest repression tried), the nucleation-rate scaling from the measured Aβ42 reaction orders, the six verification results with their errors and tolerances, the assumptions in English and Portuguese, and the counts of scenarios and of unreachable scenarios.
+
+## `results/tables/mimic_design_space.csv` and `mimic_design_space.json`
+
+Written by `scripts/40_mimic_design_space.py`. The CSV has one row per grid point, 8,379 in all (nine series, 49 values of ρ, 19 dosing intervals): `axis` (AD or PD), `species` with its `param_id` and `half_life_h`, the `target` and `target_knockdown`, `rho`, `interval_h`, whether the target is `reachable` at a dose up to the cap, the `peak_pool_over_baseline` that reaches it and, where it is not reachable, the `knockdown_reached` at the cap. The JSON holds the grid (`rho_grid`, `interval_grid_h`), the three reference ceilings (`thresholds`: 3, 10 and 30 times the baseline pool), the longest interval within each ceiling for each series at the low, middle and high ends of the declared scan of ρ and, for PD, at the K065 floor (`interval_within_threshold`, with a flag: `interp`, `beyond` when the longest interval of the grid is still within the ceiling, `none` when even the shortest is not), the count of `unreached_points` and the `verification` block (agreement with `scripts/36` at 24 h, monotonicity in the interval, and the closed-form check of the shortest unreached interval).
+
+## `results/tables/structure_renders_article2.json`
+
+Written by `scripts/39_structure_renders_article2.py`: for each PyMOL render drawn for the figures of the mechanistic study (under `results/figures/structures/a2_*.png`), the PDB entry, the pixel size of the crop and what was selected (chains, seed nucleotides, catalytic aspartates). For the side views of the two fibrils, `layer_transformation` lists, per protofilament, the chain that was moved, the chain it was fitted to, the number of C-alpha pairs, the rms of the fit, the rise per layer (angstrom), the rotation per layer (degrees) and the chains along the axis. The translucent layer past the last chain is constructed from that transformation; it is illustration, not a result.
+
+## `results/tables/parameter_provenance_classes.csv`
+
+Written by `scripts/_provenance.py` (through `scripts/37` and `scripts/38`): one row per row of the kinetic parameter table, with `param_id`, `kind`, `axis` (AD, PD or both), `source` (first author and year, empty for the declared gap), `system` (where it was measured: `people`, `human_pm`, `animal_brain`, `neurons`, `cells`, `cell_free` or `none`) and `block` (what it feeds: `mirna`, `mrna`, `repression`, `protein`, `flux` or `aggregation`). The classes are declared in the module and checked against the species, population, condition and method of each row; `scripts/08` requires the saved table to equal the classification.
+
 ## `results/tables/graphical_abstract_values.json`
 
 Every number drawn on `results/figures/graphical_abstract.*.png`, loaded from `ode_calibrated_results.json`, `mimic_dosing_feasibility.json` and `kinetic_parameters.csv` at draw time rather than typed as a separate string, plus the `param_id`s each figure grounds a claim in. Nothing here is a new computation; it is a record of which already-verified number went where.
@@ -360,6 +388,18 @@ A point-range ("summary forest") chart of the core pooled-AUC subgroups reported
 ## `results/figures/study_characteristics.*.png`
 
 Two donuts (by disease, by marker type) and one ranked bar (by biofluid) summarising the composition of the 58 estimates eligible for the primary pool, aggregated at draw time from `data/extracted/diagnostic_accuracy_extraction.csv` filtered to `eligible_primary_pool == "yes"`. Produced by `scripts/24_study_characteristics.py`; the same 58-estimate counts are tabulated in full, with two further breakdowns (quantification method, cohort stage), in Supplementary Table S1.
+
+## Files added at version 1.2.0 for the meta-analytic layer
+
+| File | Content |
+|---|---|
+| `results/tables/egger_test_audit.csv` | One row per Egger test of the two pooled tables: `pool`, `subgroup`, `k`, `intercept`, `intercept_se`, `t_intercept`, `df` (k − 2), `p_intercept` (the Egger p value reported), `slope`, `p_slope_reported_up_to_v1_1_0` (the slope p value that versions up to 1.1.0 reported in error) |
+| `results/tables/deeks_funnel_test.csv` | Deeks' test, one estimate per study, for AD+PD, AD and PD: `k`, `intercept`, `slope`, `slope_se`, `t_slope`, `df`, `p_value` (slope test) |
+| `results/tables/external_validation_metafor.csv` | `quantity`, `this_review`, `metafor`, `abs_difference`, `tolerance`, `agrees`, `metafor_version`, `r_version`; written by `scripts/41_validate_against_metafor.R` |
+| `data/extracted/citation_years.csv` | Articles whose volume year differs from the year of first online publication: `study_id`, `doi`, `first_author`, `year_first_online` (as in the extraction table), `citation_year` (volume year, used in labels), `journal`, `volume`, `issue`, `pages`, `epub_date_pubmed`, `basis` |
+| `data/extracted/shared_control_groups.csv` | Reports that compare AD and PD with one control group: `report_doi`, `first_author`, `year`, `ad_record_id`, `pd_record_id`, `shared_controls`, `verbatim_quote`, `source` |
+
+Columns added to existing tables: `rob_index_test_selected_estimate` in `results/tables/quadas2_assessment.csv` (the index-test rule applied to the estimate selected for the pool alone; empty for studies not pooled); `egger_intercept_one_per_study`, `egger_p_one_per_study`, `egger_intercept_every_estimate`, `egger_p_every_estimate` in `results/tables/robustness_alternative_analyses.csv`; `tp`, `fn`, `tn`, `fp` (reconstructed counts, 0.5 added to every cell of a table with an empty cell) in `results/tables/bivariate_input_estimates.csv`. From version 1.2.0 every `egger_p` column holds the p value of the intercept.
 
 ## Conventions
 

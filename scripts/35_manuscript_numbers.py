@@ -117,6 +117,91 @@ integer("flow.est_set_aside", elig["extracted_estimates_total"] - elig["estimate
 integer("flow.not_pooled", elig["estimates_eligible_for_primary_pool"] - incl["estimates_with_estimable_standard_error"], FL)
 integer("flow.no_se", elig["estimates_eligible_for_primary_pool"] - incl["estimates_with_estimable_standard_error"]
         - incl["csf_estimates_secondary_not_pooled"], FL)
+integer("flow.recall_unassessed", rc["no_open_fulltext"] + rc["fulltext_not_retrievable"], FL)
+
+# ----------------------------------------------------------------------------- the abstract-based arm, record by record
+# EN | The flow diagram sends 129 primary studies in and brings 48 full texts out. This block splits the
+#      129 by database, by whether an open full text existed and by whether any value was extracted from
+#      them, reading the screening table and the extraction table, and checks the split against the
+#      PRISMA counts. The asserts make the manuscript sentences that rely on it fail loudly if the data
+#      stop supporting them (for instance, that no PubMed record without an open full text was extracted).
+# PT | O diagrama de fluxo manda 129 estudos primarios para dentro e traz 48 textos completos para fora.
+#      Este bloco divide os 129 por base, por existencia de texto completo aberto e por ter ou nao
+#      valor extraido, lendo a tabela de triagem e a de extracao, e confere a divisao com as contagens
+#      PRISMA. Os asserts fazem as frases do manuscrito que dependem disso falharem de forma
+#      explicita se os dados deixarem de sustenta-las.
+SD = "data/raw/systematic_review_2026/screening_decisions.csv"
+EXA = "data/extracted/diagnostic_accuracy_extraction.csv"
+_sd = pd.read_csv(SD, dtype=str)
+_exa = pd.read_csv(EXA, dtype=str)
+
+
+def _pmid_key(v):
+    v = "" if v is None or str(v) in ("nan", "None") else str(v)
+    return v[:-2] if v.endswith(".0") else v
+
+
+def _doi_key(v):
+    return "" if v is None or str(v) in ("nan", "None") else str(v).lower()
+
+
+_ex_pmid = {_pmid_key(x) for x in _exa.pmid} - {""}
+_ex_doi = {_doi_key(x) for x in _exa.doi} - {""}
+_arm = _sd[(_sd.is_review_or_secondary == "no") & (_sd.carries_quantitative_accuracy == "yes")].copy()
+# an extracted study that has neither a PMID nor a DOI (one Web of Science record) is matched on year and journal
+_blank = _exa[(_exa.pmid.map(_pmid_key) == "") & (_exa.doi.map(_doi_key) == "")]
+_blank_keys = {(str(y), str(j).lower()) for y, j in zip(_blank.year, _blank.journal)}
+_arm["extracted"] = [(_pmid_key(p) in _ex_pmid) or (_doi_key(d) in _ex_doi) or ((str(y), str(j).lower()) in _blank_keys)
+                     for p, d, y, j in zip(_arm.pmid, _arm.doi, _arm.year, _arm.journal)]
+_pm = _arm[_arm.database == "PubMed"]
+assert len(_arm) == int(N["flow.acc_abstract"]), "abstract-arm count differs from the PRISMA file"
+integer("flow.acc_pubmed", len(_pm), SD)
+assert int(N["flow.acc_pubmed"]) == scr["pubmed_primary_reporting_auc_or_sens_spec"]
+integer("flow.acc_pubmed_oa", (_pm.pmc_fulltext_available == "yes").sum(), SD)
+assert int(N["flow.acc_pubmed_oa"]) == scr["pubmed_of_which_pmc_open_access_fulltext"]
+integer("flow.acc_pubmed_closed", (_pm.pmc_fulltext_available == "no").sum(), SD)
+assert int(N["flow.acc_pubmed_closed"]) == int(N["flow.acc_pubmed"]) - int(N["flow.acc_pubmed_oa"])
+integer("flow.acc_other", len(_arm) - len(_pm), SD)
+assert not (_pm.pmc_fulltext_available.eq("no") & _pm.extracted).any(), \
+    "a PubMed record without an open full text was extracted: the manuscript says none was"
+
+_exa["_abs"] = _exa.source.str.contains("abstract", case=False, na=False)
+_exa["_skey"] = [(_pmid_key(p) or _doi_key(d) or f"{a}|{y}")
+                 for p, d, a, y in zip(_exa.pmid, _exa.doi, _exa.first_author, _exa.year)]
+_ao = _exa.groupby("_skey")["_abs"].all()
+_abs_only = set(_ao[_ao].index)
+integer("flow.abs_only", len(_abs_only), EXA)
+integer("flow.acc_extracted", _arm.extracted.sum(), SD + " and " + EXA)
+_closed = _arm.database.eq("PubMed") & _arm.pmc_fulltext_available.eq("no")
+integer("flow.acc_no_value", (~_arm.extracted & ~_closed).sum(), SD + " and " + EXA)
+assert int(N["flow.acc_extracted"]) + int(N["flow.acc_pubmed_closed"]) + int(N["flow.acc_no_value"]) == int(N["flow.acc_abstract"])
+_pm_keys = ({_pmid_key(p) for p in _pm.pmid} | {_doi_key(d) for d in _pm.doi}) - {""}
+assert not (_abs_only & _pm_keys), "an abstract-only study belongs to the PubMed arm: the manuscript says Scopus and Web of Science"
+
+# the 17 eligible estimates that could not be weighted: how many gave no AUC at all
+_pool_ids = set(pd.read_csv(f"{T}/meta_analysis_input_estimates.csv", dtype=str).record_id)
+_el = _exa[(_exa.eligible_primary_pool == "yes") & ~_exa.record_id.isin(_pool_ids)]
+_has = lambda s: s.notna() & (s.astype(str) != "")
+_se_ok = _has(_el.auc) & (_has(_el.auc_ci_low) | (_has(_el.n_cases) & _has(_el.n_controls)))
+_csf_row = _el.biofluid.str.contains("CSF|cerebrospinal", case=False, na=False)
+_nose = _el[~_se_ok]
+assert len(_nose) == int(N["flow.no_se"]) and int((_csf_row & _se_ok).sum()) == int(N["flow.csf_est"]), \
+    "the split of non-pooled estimates disagrees with the PRISMA file"
+integer("flow.no_se_no_auc", (~_has(_nose.auc)).sum(), EXA)
+integer("flow.no_se_auc_only", _has(_nose.auc).sum(), EXA)
+# EN | Studies that gave no AUC at all but did give sensitivity, specificity and group sizes still enter the
+#      sensitivity-specificity analysis; count how many of them did, so the text can say so.
+# PT | Estudos que nao deram AUC alguma mas deram sensibilidade, especificidade e tamanhos de grupo ainda
+#      entram na analise de sensibilidade e especificidade; conta quantos entraram, para o texto dizer.
+_biv = pd.read_csv(f"{T}/bivariate_input_estimates.csv")
+_biv_primary = {(str(a).strip(), int(y)) for a, y, f in zip(_biv.first_author, _biv.year, _biv.in_primary_analysis)
+                if str(f).lower() in ("true", "yes", "1")}
+_noauc = _nose[~_has(_nose.auc)]
+_noauc_studies = {(str(a).strip(), int(float(y))) for a, y in zip(_noauc.first_author, _noauc.year)}
+integer("flow.no_se_no_auc_studies", len(_noauc_studies), EXA)
+integer("flow.no_se_in_biv", len(_noauc_studies & _biv_primary), EXA + " and " + f"{T}/bivariate_input_estimates.csv")
+assert int(N["flow.no_se_in_biv"]) == int(N["flow.no_se_no_auc_studies"]), \
+    "a study without an AUC is not in the bivariate analysis: the manuscript says all of them are"
 
 # ----------------------------------------------------------------------------- eligible studies (QUADAS-2 units)
 q2 = json.load(open(f"{T}/quadas2_summary.json"))
@@ -433,6 +518,14 @@ num("n.auc_max", sel.auc.max(), 2, ES)
 num("n.auc_med", sel.auc.median(), 2, ES)
 integer("n.auc_below70", (sel.auc < 0.70).sum(), ES)
 integer("n.auc_above90", (sel.auc >= 0.90).sum(), ES)
+assert int(N["n.auc_above90"]) == int((sel.auc > 0.90).sum()), "a selected AUC equals 0.90 exactly: 'above' and 'reached' differ"
+# EN | The forest plot labels AUCs to two decimals, so values just under 0.90 read as 0.90 there.
+# PT | O grafico em floresta rotula as AUCs com duas casas, entao valores logo abaixo de 0,90 aparecem como 0,90.
+_near90 = sorted(sel.auc[(sel.auc >= 0.895) & (sel.auc < 0.90)], reverse=True)
+integer("n.auc_round90", len(_near90), ES)
+put("n.auc_round90_vals", " and ".join(rnd(v, 3) for v in _near90), ES)
+_top = sorted(sel.auc[sel.auc >= 0.90], reverse=True)
+put("n.auc_above90_vals", ", ".join(rnd(v, 3) for v in _top[:-1]) + " and " + rnd(_top[-1], 3), ES)
 meth = ext[ext.eligible_primary_pool == "yes"].copy()
 rt = meth.method.str.contains("RT-qPCR|qPCR|ddPCR", regex=True)
 seq = meth.method.str.contains("small RNA-seq|microarray|chip|transcriptomics", regex=True, case=False)
@@ -518,6 +611,17 @@ integer("des.val.resampling", dpv("validation_design", "internal_resampling"), D
 integer("des.val.split", dpv("validation_design", "random_split_holdout"), DP)
 integer("des.val.independent", dpv("validation_design", "independent_cohort_locked_model"), DP)
 integer("des.thr.no", dpv("threshold_prespecified", "no"), DP)
+# EN | The pooled studies whose design fields could be assessed at all: the others are known from an
+#      abstract only. Every statement of the form "n of the 35 studies that could be assessed" divides
+#      by this number, and the asserts keep three such statements honest.
+# PT | Os estudos agrupados cujos campos de desenho puderam ser avaliados: os demais so se conhecem pelo
+#      resumo. Toda frase do tipo "n dos 35 estudos avaliaveis" divide por este numero, e os asserts
+#      mantem tres dessas frases honestas.
+_thr = pooled_scope[pooled_scope.field == "threshold_prespecified"]
+integer("des.assessable", _thr[_thr.value != "not_assessable_no_fulltext"].n_studies.sum(), DP)
+assert int(N["des.assessable"]) == int(N["des.thr.no"]), "a pooled study fixed its threshold in advance"
+assert int(N["des.hem.not_reported"]) + int(N["des.hem.procedural"]) + int(N["des.hem.excluded_ns"]) \
+    + int(N["des.hem.measured"]) == int(N["des.assessable"]), "haemolysis categories do not add up to the assessable studies"
 integer("des.norm.u6", dpv("normalization", "snRNA_U6"), DP)
 integer("des.norm.endog", dpv("normalization", "endogenous_miRNA") + dpv("normalization", "spike_in_plus_endogenous_miRNA"), DP)
 integer("des.norm.spike", dpv("normalization", "spike_in") + dpv("normalization", "spike_in_plus_endogenous_miRNA"), DP)
@@ -581,6 +685,17 @@ for pmid, tag in [("38460993", "zhang_ad"), ("39232595", "zhang_pd"), ("37770507
     num(f"prior.{tag}.auc", s["pooled_auc_sroc"], 2, PM)
     num(f"prior.{tag}.auc_lo", s["auc_ci"][0], 2, PM) if "auc_ci" in s else None
     num(f"prior.{tag}.auc_hi", s["auc_ci"][1], 2, PM) if "auc_ci" in s else None
+# EN | How many studies and articles three of the earlier reviews pooled, read from the "included" field
+#      of the same file (the manuscript contrasts reviews that count estimates with this one that counts studies).
+# PT | Quantos estudos e artigos tres das revisoes anteriores agruparam, lido do campo "included" do mesmo
+#      arquivo (o manuscrito contrasta revisoes que contam estimativas com esta que conta estudos).
+for pmid, tag in [("38460993", "zhang_ad"), ("39232595", "zhang_pd"), ("40783152", "liu")]:
+    inc = byp[pmid]["included"]
+    m1 = re.search(r"(\d+) studies from (\d+) articles", inc)
+    m2 = re.search(r"(\d+) articles \((\d+) studies\)", inc)
+    studies, articles = (m1.group(1), m1.group(2)) if m1 else (m2.group(2), m2.group(1))
+    put(f"prior.{tag}.studies", studies, PM)
+    put(f"prior.{tag}.articles", articles, PM)
 
 # ----------------------------------------------------------------------------- search window
 sj = json.load(open("data/raw/systematic_review_2026/search_strategy.json"))
@@ -603,7 +718,92 @@ from datetime import date as _date
 put("search.gap_days", (_date.fromisoformat(mf[mf.database == "Web of Science"].search_date.iloc[0])
                         - _date.fromisoformat(mf[mf.database == "Scopus"].search_date.iloc[0])).days, MF)
 put("search.date_recall", "28 September 2026", "data/processed/prisma_flow.json (recall_check note) and docs/en/METHODS.md")
-put("search.date_update", "24 September 2026", "data/extracted/post_search_candidates.csv (PubMed entry date of the update study)")
+put("search.date_update_entry", "24 September 2026", "data/extracted/post_search_candidates.csv (PubMed entry date of the update study)")
+put("search.date_update_run", "28 September 2026", "scripts/31_post_search_sensitivity.py docstring (update of the PubMed search, entry dates 10 to 28 September)")
+
+# ----------------------------------------------------------------------------- additions after the external review of 15 October 2026
+# EN | Full texts of the abstract-based arm: PubMed records read in full and full texts of Scopus records.
+# PT | Textos completos do braco do resumo: registros do PubMed lidos e textos completos de registros do Scopus.
+_sc = _arm[_arm.database != "PubMed"]
+_ft_src = _exa[~_exa._abs & ~_exa.source.str.contains("record", case=False, na=False)]
+_ft_keys = ({_doi_key(d) for d in _ft_src.doi} | {_pmid_key(x) for x in _ft_src.pmid}) - {""}
+_sc_ft = sum(1 for _, r in _sc.iterrows() if _doi_key(r.doi) in _ft_keys or (_pmid_key(r.pmid) in _ft_keys))
+integer("flow.ft_abs_other", _sc_ft, SD + " and " + EXA)
+integer("flow.ft_abs_pubmed", int(N["flow.ft_abstract_arm"]) - _sc_ft, FL)
+integer("flow.acc_pubmed_oa_unread", int(N["flow.acc_pubmed_oa"]) - int(N["flow.ft_abs_pubmed"]), FL)
+assert int(N["flow.acc_pubmed_oa_unread"]) >= 0 and int((_pm.pmc_fulltext_available.eq("yes") & _pm.extracted).sum()) <= int(N["flow.ft_abs_pubmed"])
+
+# EN | Participants counted once: the two reports that cover both diseases compare both with one control group.
+# PT | Participantes contados uma vez: os dois relatos que cobrem as duas doencas usam um so grupo controle.
+SH = "data/extracted/shared_control_groups.csv"
+_sh = pd.read_csv(SH, dtype=str)
+integer("n.shared_controls", _sh.shared_controls.astype(int).sum(), SH)
+integer("n.unique", int(N["n.total"]) - int(N["n.shared_controls"]), SH + " and " + ES)
+
+# EN | QUADAS-2 index test judged on the estimate selected for the pool alone (scripts/14).
+# PT | Teste indice do QUADAS-2 julgado so na estimativa selecionada (scripts/14).
+QA = f"{T}/quadas2_assessment.csv"
+_qa = pd.read_csv(QA, dtype=str).fillna("")
+_qp = _qa[_qa.rob_index_test_selected_estimate != ""]
+integer("quadas.it_sel_moved", ((_qp.rob_index_test == "high") & (_qp.rob_index_test_selected_estimate == "unclear")).sum(), QA)
+integer("quadas.it_sel_unclear", (_qp.rob_index_test_selected_estimate == "unclear").sum(), QA)
+integer("quadas.it_sel_high", (_qp.rob_index_test_selected_estimate == "high").sum(), QA)
+
+# EN | Egger test with the implausibly narrow interval used as published (scripts/26).
+# PT | Teste de Egger com o intervalo implausivelmente estreito usado como publicado (scripts/26).
+_as = ra[ra.analysis.str.contains("reported CIs as published", regex=False) & ra.outcome.str.startswith("PD - all markers")].iloc[0]
+num("rob.asis.PD.egger_int", _as.egger_intercept_one_per_study, 2, RA)
+put("rob.asis.PD.egger_p", p_text(_as.egger_p_one_per_study), RA)
+put("rob.asis.PD.egger_p_every", p_text(_as.egger_p_every_estimate), RA)
+num("rob.asis.PD.egger_int_every", _as.egger_intercept_every_estimate, 2, RA)
+_nt = ra[ra.analysis.str.contains("marker-type-neutral", regex=False)]
+for _t in ("AD", "PD"):
+    put(f"rob.neutral.{_t}.egger_p", p_text(_nt[_nt.outcome.str.startswith(f"{_t} - all markers")].iloc[0].egger_p_one_per_study), RA)
+
+# EN | Deeks test on the reconstructed two-by-two tables (scripts/15).
+# PT | Teste de Deeks nas tabelas dois-por-dois reconstruidas (scripts/15).
+DK = f"{T}/deeks_funnel_test.csv"
+_dk = pd.read_csv(DK)
+for _t, _sc_ in (("ALL", "AD+PD"), ("AD", "AD"), ("PD", "PD")):
+    _r = _dk[_dk.scope == _sc_].iloc[0]
+    integer(f"deeks.{_t}.k", _r.k, DK)
+    put(f"deeks.{_t}.p", p_text(_r.p_value), DK)
+
+# EN | Agreement with the R package metafor (scripts/41, optional).
+# PT | Concordancia com o pacote R metafor (scripts/41, opcional).
+MV = f"{T}/external_validation_metafor.csv"
+_mv = pd.read_csv(MV)
+assert _mv.agrees.all(), "a comparison with metafor failed"
+integer("val.n", len(_mv), MV)
+put("val.metafor", str(_mv.metafor_version.iloc[0]), MV)
+put("val.r", str(_mv.r_version.iloc[0]), MV)
+
+# EN | Versions of the interpreter and libraries that ran this pipeline.
+# PT | Versoes do interpretador e das bibliotecas que rodaram este pipeline.
+import platform as _pf, numpy as _np, scipy as _sp, matplotlib as _mpl
+put("env.python", _pf.python_version(), "the interpreter running scripts/35")
+put("env.numpy", _np.__version__, "the interpreter running scripts/35")
+put("env.scipy", _sp.__version__, "the interpreter running scripts/35")
+put("env.pandas", pd.__version__, "the interpreter running scripts/35")
+put("env.matplotlib", _mpl.__version__, "the interpreter running scripts/35")
+
+# EN | The span of the pooled AUC across every alternative analysis shown in Fig. 5a: marker-type-neutral
+#      selection, the median of the random selections, the extremes of leave-one-out, only studies with their
+#      own interval, intervals as published, every estimate treated as independent, and the post-search study.
+# PT | A faixa da AUC agregada ao longo de todas as analises alternativas da Fig. 5a: selecao neutra ao tipo
+#      de marcador, mediana das selecoes aleatorias, extremos do leave-one-out, so estudos com intervalo
+#      proprio, intervalos como publicados, toda estimativa como independente e o estudo pos-busca.
+_alts = []
+for _t in ("AD", "PD"):
+    for _k in (f"rob.neutral.{_t}.auc", f"rob.random.{_t}.med", f"rob.loo.{_t}.min", f"rob.loo.{_t}.max",
+               f"repo.{_t}.auc", f"rob.asis.{_t}.auc", f"every.{_t}.auc"):
+        _alts.append(float(N[_k]))
+_alts += [float(N["post.rtqpcr.auc"]), float(N["post.orca.auc"])]
+# the sentence "ranged from X to Y in both diseases" holds only while both diseases share the same extremes
+assert N["n.AD.auc_min"] == N["n.PD.auc_min"] == N["n.auc_min"] and N["n.AD.auc_max"] == N["n.PD.auc_max"] == N["n.auc_max"], \
+    "AUC extremes differ between AD and PD"
+put("rob.alt_min", rnd(min(_alts), 2), "the rob.*, repo.*, every.* and post.* values above")
+put("rob.alt_max", rnd(max(_alts), 2), "the rob.*, repo.*, every.* and post.* values above")
 
 put("_sources", json.dumps(SRC, indent=1), "this script")
 os.makedirs(T, exist_ok=True)

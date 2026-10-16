@@ -76,6 +76,7 @@ import sys
 
 import numpy as np
 from scipy.optimize import minimize
+from scipy import stats
 from scipy.stats import norm
 import matplotlib
 matplotlib.use("Agg")
@@ -250,7 +251,7 @@ def load_pairs():
               and r["n_cases"] and r["n_controls"]
               and r["biofluid"] not in _sel.CSF_BIOFLUIDS]
 
-    # EN | One estimate per study, by the SAME pre-specified, AUC-blind
+    # EN | One estimate per study, by the SAME fixed, AUC-blind
     #      priority rule scripts/05_meta_analysis.py uses for its primary AUC
     #      pool (see scripts/_study_selection.py): prefer an independent
     #      validation-cohort row, then the study's own panel over its
@@ -286,8 +287,46 @@ def prepare(rows):
                          specificity=float(r["specificity"]),
                          n_cases=int(float(r["n_cases"])),
                          n_controls=int(float(r["n_controls"])),
-                         continuity_corrected=corrected))
+                         continuity_corrected=corrected,
+                         tp=tp, fn=fn, tn=tn, fp=fp))
     return y, v, meta
+
+
+def deeks_test(meta):
+    """
+    EN | Deeks et al. (2005) funnel-plot asymmetry test for diagnostic accuracy: the log
+         diagnostic odds ratio of each study is regressed on 1 / sqrt(ESS), the inverse root of
+         the effective sample size ESS = 4 n1 n0 / (n1 + n0), by least squares weighted by ESS,
+         and the SLOPE is tested against zero with a t test on k - 2 degrees of freedom. It uses
+         the same reconstructed two-by-two tables as the bivariate model, with the same 0.5
+         correction. Added after an external review of the manuscript, as a test designed for
+         accuracy data beside the Egger test on the logit AUC, whose standard error depends on
+         the AUC itself.
+    PT | Teste de assimetria do funil de Deeks et al. (2005) para acuracia diagnostica: o log
+         da razao de chances diagnostica de cada estudo e regredido em 1 / raiz(ESS), o inverso
+         da raiz do tamanho amostral efetivo ESS = 4 n1 n0 / (n1 + n0), por minimos quadrados
+         ponderados por ESS, e a INCLINACAO e testada contra zero com teste t de k - 2 graus de
+         liberdade. Usa as mesmas tabelas dois-por-dois reconstruidas do modelo bivariado, com a
+         mesma correcao de 0,5. Acrescentado depois de uma revisao externa do manuscrito, como
+         teste desenhado para dados de acuracia ao lado do teste de Egger na AUC em logito,
+         cujo erro-padrao depende da propria AUC.
+    """
+    k = len(meta)
+    if k < 3:
+        return None
+    lndor = np.array([math.log((m["tp"] * m["tn"]) / (m["fp"] * m["fn"])) for m in meta])
+    ess = np.array([4.0 * m["n_cases"] * m["n_controls"] / (m["n_cases"] + m["n_controls"]) for m in meta])
+    X = np.column_stack([np.ones(k), 1.0 / np.sqrt(ess)])
+    W = np.diag(ess)
+    xtwx = X.T @ W @ X
+    beta = np.linalg.solve(xtwx, X.T @ W @ lndor)
+    resid = lndor - X @ beta
+    s2 = float(resid @ W @ resid) / (k - 2)
+    cov = s2 * np.linalg.inv(xtwx)
+    t_slope = beta[1] / math.sqrt(cov[1, 1])
+    p = float(2.0 * stats.t.sf(abs(t_slope), k - 2))
+    return dict(k=k, intercept=float(beta[0]), slope=float(beta[1]), slope_se=float(math.sqrt(cov[1, 1])),
+                t_slope=float(t_slope), df=k - 2, p_value=p)
 
 
 def summarise(fit, label, k, n_studies):
@@ -451,6 +490,22 @@ def main():
         primary_ids = {m["record_id"] for m in meta_one}
         for m in meta_all:
             w.writerow({**m, "in_primary_analysis": m["record_id"] in primary_ids})
+
+    deeks_rows = []
+    for scope, part in (("AD+PD", meta_one), ("AD", [m for m in meta_one if m["disease"] == "AD"]),
+                        ("PD", [m for m in meta_one if m["disease"] == "PD"])):
+        d = deeks_test(part)
+        if d:
+            deeks_rows.append(dict(scope=scope, analysis="one estimate per study", k=d["k"],
+                                   intercept=round(d["intercept"], 4), slope=round(d["slope"], 4),
+                                   slope_se=round(d["slope_se"], 4), t_slope=round(d["t_slope"], 4),
+                                   df=d["df"], p_value=round(d["p_value"], 4)))
+    with open(f"{TAB_DIR}/deeks_funnel_test.csv", "w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(deeks_rows[0].keys()))
+        w.writeheader(); w.writerows(deeks_rows)
+    print("\n  Deeks funnel-plot asymmetry test (one estimate per study):")
+    for r in deeks_rows:
+        print(f"    {r['scope']:6s} k={r['k']:3d}  slope {r['slope']:8.3f}  p = {r['p_value']:.4f}")
 
     for lang in LANGS:
         plot(fit_one, meta_one, primary, fig_path(FIG_DIR, "bivariate_sroc", lang), lang)

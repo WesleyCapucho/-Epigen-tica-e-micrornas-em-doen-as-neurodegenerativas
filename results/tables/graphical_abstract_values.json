@@ -38,12 +38,11 @@
    "source": "ad_clearance_vs_production"
   },
   "monomer_ratio": {
-   "value": 1.4125598422979426,
+   "value": 1.4125598412201161,
    "source": "ad_clearance_vs_production"
   },
   "required_knockdown_percent": {
-   "low": 30.00255070498702,
-   "high": 32.94157091324299,
+   "value": 29.206539074960137,
    "measured": 50.0,
    "source": [
     "mimic_dose_vs_measured_knockdown",

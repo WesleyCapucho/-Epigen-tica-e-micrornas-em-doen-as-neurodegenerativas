@@ -1,5 +1,5 @@
 {
- "generated_on": "2026-09-23",
+ "generated_on": "2026-10-14",
  "measured_parameter_source": "data/extracted/kinetic_parameters.csv",
  "free_parameters": {
   "k_repress": {
@@ -43,13 +43,18 @@
   }
  },
  "ad_clearance_vs_production": {
-  "abeta_control": 14.036770250753765,
-  "abeta_AD": 19.82777797177719,
-  "abeta_ratio_AD_over_control": 1.4125598422979426,
+  "abeta_control": 14.03677025074362,
+  "abeta_AD": 19.827777956633657,
+  "abeta_ratio_AD_over_control": 1.4125598412201161,
   "clearance_deficit_percent": 30.263157894736846,
   "production_difference_percent": 1.4925373134328401,
-  "mimic_fold_needed": 1.493723849372385,
-  "mimic_scan_max": 60.0
+  "required_bace1_knockdown": 0.29206539074960136,
+  "mimic_fold_needed": 1.4240000464913316,
+  "mimic_fold_needed_range": [
+   1.4146485282643388,
+   1.4752204212897777
+  ],
+  "mimic_fold_ode_check_max_relative_error": 3.1214630880072036e-10
  },
  "mimic_washout": {
   "miR-7 (1.7 h, K020)": {
@@ -161,21 +166,22 @@
   "AD_over_control_median_fold": 100.00000000000001
  },
  "mimic_dose_vs_measured_knockdown": {
-  "mimic_fold_needed_to_offset_clearance": 1.493723849372385,
+  "required_BACE1_knockdown": 0.29206539074960136,
   "d_mRNA_BACE1_measured": 0.04556472,
   "measured_BACE1_knockdown_K047": 0.5,
-  "grid_points": 81,
+  "required_over_measured_knockdown": 0.5841307814992027,
+  "required_knockdown_below_measured": true,
+  "k_repress_values": 81,
+  "mimic_fold_to_offset_clearance": [
+   1.4146485282643388,
+   1.4752204212897777
+  ],
   "mimic_fold_to_reproduce_measured_knockdown": [
    2.005062746666667,
    2.1518824
   ],
-  "BACE1_knockdown_at_required_mimic": [
-   0.3000255070498702,
-   0.3294157091324299
-  ],
-  "required_knockdown_below_measured_everywhere": true,
-  "reading_en": "The comparison is between a modelled dose and a measured effect in a cell line, not a prediction of what a mimic would do in a human brain. It says only whether the intervention the model asks for is larger or smaller than one already shown to be achievable.",
-  "reading_pt": "A comparacao e entre uma dose modelada e um efeito medido em linhagem celular, nao uma predicao do que um mimetico faria num cerebro humano. Ela diz apenas se a intervencao que o modelo pede e maior ou menor que uma ja demonstrada como alcancavel."
+  "reading_en": "The comparison is between a modelled dose and a measured effect in a cell line, not a prediction of what a mimic would do in a human brain. It says only whether the intervention the model asks for is larger or smaller than one already shown to be achievable. The transfected miRNA level in the cell experiment is not reported as a fold over baseline, so the 50% constrains the product of repression strength and dose, not either alone.",
+  "reading_pt": "A comparacao e entre uma dose modelada e um efeito medido em linhagem celular, nao uma predicao do que um mimetico faria num cerebro humano. Ela diz apenas se a intervencao que o modelo pede e maior ou menor que uma ja demonstrada como alcancavel. O nivel de miRNA transfectado no experimento celular nao e reportado como razao sobre o basal, entao os 50% restringem o produto da forca de repressao pela dose, e nenhum dos dois sozinho."
  },
  "alpha_synuclein_saturation": {
   "alpha_synuclein_uM_in_bouton": 21.565,
@@ -218,7 +224,7 @@
   "alpha_synuclein_uM_in_bouton": 21.565,
   "cases": [
    {
-    "knockdown_source": "miR-7 alone, 3'UTR reporter [K058]",
+    "knockdown_source": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "knockdown": 0.3,
     "m_half_source": "K009: 49.8 uM",
     "m_half_uM": 49.8,
@@ -227,7 +233,7 @@
     "reduction_over_knockdown": 0.767387569245942
    },
    {
-    "knockdown_source": "miR-7 alone, 3'UTR reporter [K058]",
+    "knockdown_source": "miR-7 alone, SNCA construct with 3'UTR [K058]",
     "knockdown": 0.3,
     "m_half_source": "K010: 46 uM",
     "m_half_uM": 46.0,
@@ -271,12 +277,13 @@
   "reading_en": "Three systems in one chain: a knockdown measured in a cell line and in rat cortical neurons, a concentration measured in rat synaptosomes, and a saturation curve measured on recombinant protein in vitro. The chain is arithmetic on measured numbers with no free parameter anywhere, but it is not a prediction for a human brain, and each step carries the system it came from.",
   "reading_pt": "Tres sistemas numa cadeia so: uma queda medida em linhagem celular e em neuronios corticais de rato, uma concentracao medida em sinaptossomos de rato e uma curva de saturacao medida em proteina recombinante in vitro. A cadeia e aritmetica sobre numeros medidos, sem nenhum parametro livre, mas nao e predicao para cerebro humano, e cada passo carrega o sistema de onde veio."
  },
+ "free_parameter_sensitivity_aggregation_block_excluded": true,
  "free_parameter_sensitivity_scans": 18,
- "free_parameter_sensitivity_ad_above_control": 16,
+ "free_parameter_sensitivity_ad_above_control": 18,
  "free_parameter_sensitivity_flips": 0,
- "free_parameter_sensitivity_not_evaluable": 2,
- "abeta_ratio_min": 1.4125598422975647,
- "abeta_ratio_max": 1.4125598434901554,
+ "free_parameter_sensitivity_not_evaluable": 0,
+ "abeta_ratio_min": 1.4125598412201161,
+ "abeta_ratio_max": 1.4125598436792488,
  "abeta_ratio_note_en": "The AD/control monomer ratio is analytically (k_prod_AD/k_clear_AD)/(k_prod_ctrl/k_clear_ctrl) and is therefore independent of every free parameter. The scan confirms this numerically rather than discovering it.",
  "abeta_ratio_note_pt": "O ratio de monomero AD/controle e analiticamente (k_prod_AD/k_clear_AD)/(k_prod_ctrl/k_clear_ctrl) e, portanto, independente de todo parametro livre. A varredura confirma isso numericamente, em vez de descobrir."
 }

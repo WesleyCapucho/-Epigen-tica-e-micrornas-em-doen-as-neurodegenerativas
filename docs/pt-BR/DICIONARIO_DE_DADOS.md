@@ -172,7 +172,7 @@ A análise PRIMÁRIA, somente estudos circulantes (derivados de sangue): cada es
 
 ## `results/tables/one_estimate_per_study_selection_audit.csv`
 
-Uma linha por estudo circulante no pool primário: qual estimativa a regra de prioridade pré-especificada e cega à AUC selecionou, e o motivo exato da escolha (`selection_reason`), para que a escolha possa ser conferida contra a tabela de extração bruta e nunca tenha sido feita escolhendo a maior AUC.
+Uma linha por estudo circulante no pool primário: qual estimativa a regra de prioridade fixa e cega à AUC selecionou, e o motivo exato da escolha (`selection_reason`), para que a escolha possa ser conferida contra a tabela de extração bruta e nunca tenha sido feita escolhendo a maior AUC.
 
 ## `results/tables/csf_secondary_estimates.csv`
 
@@ -265,7 +265,7 @@ Saída do `scripts/12`: os parâmetros livres, suas faixas e o valor central de 
 
 ## `results/tables/ode_free_parameter_sensitivity.csv`
 
-Uma linha por ponto da varredura dos parâmetros livres: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). Uma execução que falha numericamente é reportada como `not_evaluable`, nunca contada como inversão.
+Uma linha por ponto da varredura dos parâmetros livres: `free_parameter`, `value`, `abeta_AD_over_control`, `verdict` (`AD_above_control`, `AD_at_or_below_control`, `not_evaluable`). Uma execução que falha numericamente é reportada como `not_evaluable`, nunca contada como inversão. As execuções integram só a cascata do monômero (o bloco ilustrativo de agregação fica de fora, porque não pode mudar o pool de monômero e divergia em dois cantos da varredura); as 18 são avaliáveis.
 
 ## `results/tables/structure_figure_provenance.json`
 
@@ -325,6 +325,34 @@ Uma linha por espécie e intervalo de dose: `species`, `param_id` (a linha da ta
 
 O mesmo cálculo com as comparações que o usam: a constante de decaimento de cada espécie e seu `param_id`, a comparação de dosagem diária contra a referência de estabilidade mediana (penalidade, intervalo equivalente, fator de estabilização necessário) e a suposição declarada de que o mimético entregue é eliminado na taxa endógena — por isso a saída é um fator de estabilização necessário e não um veredito de viabilidade.
 
+## `results/tables/mimic_target_response.csv`
+
+Uma linha por cenário do `scripts/36`: `axis` (AD ou PD), `rho_case` (`scan low`, `scan midpoint`, `scan high`, e para a PD `K065 lower bound`, a repressão mais fraca que o K065 permite para o par), `k_repress`, `rho`, a `species` entregue com seu `param_id` e `half_life_h`, `interval_h`, `protein_case` e `protein_half_life_h`, o `target` e `target_knockdown`, e se é `reachable` com dose até 10^4 vezes o pool basal do repressor. Para um cenário alcançável: a `dose` em bolus e os resultantes `peak_excess`, `peak_pool_over_baseline`, `trough_pool_over_baseline` e `mean_excess` (todos em unidades do pool basal), o `linear_excess` e o `linear_dose` que a forma fechada do estado estacionário pede, `efficiency` (`linear_dose` sobre `dose`, no máximo 1), `knockdown_reached` (a queda média da proteína no ciclo, igual à meta), `protein_ripple` (oscilação pico a vale da proteína sobre sua média), `abeta_ripple` (só AD), `elongation_reduction_m49_8` e `elongation_reduction_m46_0` (só PD: o retardo médio da elongação da fibrila na curva de saturação com K009 e K010, na concentração do botão K054) e `residual` (quão bem o estado periódico fechou). Para um cenário inalcançável as colunas de dose ficam vazias e `knockdown_reached` é o que a maior dose alcança. A dose não depende de `protein_case`: num ciclo periódico a proteína média é igual ao mRNA médio.
+
+## `results/tables/manuscript2_numbers.json`
+
+Gravado pelo `scripts/37_manuscript2_numbers.py`: todo número que o manuscrito do Artigo 2 cita, como mapa plano de chave para texto já arredondado e formatado para o texto, com o arquivo de origem de cada valor em `_sources`. O manuscrito fica fora deste repositório e se refere a estas chaves; uma montagem que não acha uma chave para. Ele seleciona, arredonda e conta a partir das saídas dos `scripts/12`, `17`, `36`, `39` e `40`, do `scripts/_provenance.py` e da tabela de parâmetros cinéticos, e calcula quantidades de aritmética simples (uma razão, uma porcentagem, um tempo até 90%) que rotula como tal. Um assert sustenta cada frase do manuscrito que depende de um padrão nos dados.
+
+## `results/tables/mimic_target_rho_sweep.csv`
+
+O mesmo cálculo num intervalo de dosagem de 24 h sobre a força de repressão ρ de 0,01 a 10⁴ (31 pontos, cinco por década), para todo eixo, espécie entregue e meta: `rho`, se a meta é `reachable`, a `dose`, `peak_pool_over_baseline`, `linear_dose`, `efficiency`, `protein_ripple` e `knockdown_reached`. Existe para que uma afirmação sobre a dose não dependa da varredura declarada de `k_repress`: repressão fraca eleva a dose aproximadamente como 1/ρ, repressão forte se aproxima de um limite, e o menor pico sobre ρ é um limite que vale seja qual for ρ.
+
+## `results/tables/mimic_target_response.json`
+
+O resto do `scripts/36`: as versões de software, os parâmetros de integração, a força de repressão ρ nas pontas e no ponto médio da varredura declarada para cada eixo e, para a DP, no piso do K065 (com o fator de mimético que a forma fechada pede em cada caso), o resumo da varredura de ρ (menor pico diário sobre ρ, e o pico na repressão mais fraca e na mais forte testadas), o escalonamento da taxa de nucleação a partir das ordens de reação medidas do Aβ42, os seis resultados de verificação com seus erros e tolerâncias, as suposições em inglês e português, e as contagens de cenários e de cenários inalcançáveis.
+
+## `results/tables/mimic_design_space.csv` e `mimic_design_space.json`
+
+Gravados pelo `scripts/40_mimic_design_space.py`. O CSV tem uma linha por ponto da grade, 8.379 ao todo (nove séries, 49 valores de ρ, 19 intervalos de dose): `axis` (DA ou DP), `species` com seu `param_id` e `half_life_h`, o `target` e o `target_knockdown`, `rho`, `interval_h`, se a meta é `reachable` com dose até o teto, o `peak_pool_over_baseline` que a alcança e, onde não é alcançável, o `knockdown_reached` no teto. O JSON traz a grade (`rho_grid`, `interval_grid_h`), os três tetos de referência (`thresholds`: 3, 10 e 30 vezes o pool basal), o maior intervalo dentro de cada teto para cada série nos extremos baixo, médio e alto da varredura declarada de ρ e, na DP, no piso do K065 (`interval_within_threshold`, com uma marca: `interp`, `beyond` quando o maior intervalo da grade ainda está dentro do teto, `none` quando nem o menor está), a contagem de `unreached_points` e o bloco `verification` (concordância com o `scripts/36` a 24 h, monotonicidade no intervalo e a conferência do menor intervalo sem alcance contra a forma fechada).
+
+## `results/tables/structure_renders_article2.json`
+
+Gravado pelo `scripts/39_structure_renders_article2.py`: para cada render de PyMOL desenhado para as figuras do estudo mecanístico (em `results/figures/structures/a2_*.png`), a entrada do PDB, o tamanho em pixels do recorte e o que foi selecionado (cadeias, nucleotídeos da semente, aspartatos catalíticos). Para as vistas laterais das duas fibrilas, `layer_transformation` lista, por protofilamento, a cadeia que foi movida, a cadeia a que foi ajustada, o número de pares de C-alfa, o rms do ajuste, a subida por camada (angstrom), o giro por camada (graus) e as cadeias ao longo do eixo. A camada translúcida depois da última cadeia é construída a partir dessa transformação; é ilustração, não resultado.
+
+## `results/tables/parameter_provenance_classes.csv`
+
+Gravado pelo `scripts/_provenance.py` (por meio dos `scripts/37` e `38`): uma linha por linha da tabela de parâmetros cinéticos, com `param_id`, `kind`, `axis` (AD, PD ou both), `source` (primeiro autor e ano, vazio para a lacuna declarada), `system` (onde foi medida: `people`, `human_pm`, `animal_brain`, `neurons`, `cells`, `cell_free` ou `none`) e `block` (o que alimenta: `mirna`, `mrna`, `repression`, `protein`, `flux` ou `aggregation`). As classes são declaradas no módulo e conferidas contra espécie, população, condição e método de cada linha; o `scripts/08` exige que a tabela gravada seja igual à classificação.
+
 ## `results/tables/graphical_abstract_values.json`
 
 Todo número desenhado em `results/figures/graphical_abstract.*.png`, carregado do `ode_calibrated_results.json`, do `mimic_dosing_feasibility.json` e do `kinetic_parameters.csv` no momento do desenho, e não digitado como string separada, mais os `param_id`s em que cada afirmação da figura se apoia. Nada aqui é cálculo novo; é o registro de qual número já verificado foi parar onde.
@@ -360,6 +388,18 @@ Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de 
 ## `results/figures/study_characteristics.*.png`
 
 Dois donuts (por doença, por tipo de marcador) e uma barra ranqueada (por biofluido) resumindo a composição das 58 estimativas elegíveis para o pool primário, agregados no momento do desenho a partir de `data/extracted/diagnostic_accuracy_extraction.csv` filtrado por `eligible_primary_pool == "yes"`. Produzida pelo `scripts/24_study_characteristics.py`; as mesmas 58 estimativas são tabuladas por completo, com mais dois detalhamentos (método de quantificação, estágio de coorte), na Tabela Suplementar S1.
+
+## Arquivos acrescentados na versão 1.2.0 para a camada meta-analítica
+
+| Arquivo | Conteúdo |
+|---|---|
+| `results/tables/egger_test_audit.csv` | Uma linha por teste de Egger das duas tabelas agregadas: `pool`, `subgroup`, `k`, `intercept`, `intercept_se`, `t_intercept`, `df` (k − 2), `p_intercept` (o p de Egger reportado), `slope`, `p_slope_reported_up_to_v1_1_0` (o p da inclinação que as versões até 1.1.0 reportaram por engano) |
+| `results/tables/deeks_funnel_test.csv` | Teste de Deeks, uma estimativa por estudo, para DA+DP, DA e DP: `k`, `intercept`, `slope`, `slope_se`, `t_slope`, `df`, `p_value` (teste da inclinação) |
+| `results/tables/external_validation_metafor.csv` | `quantity`, `this_review`, `metafor`, `abs_difference`, `tolerance`, `agrees`, `metafor_version`, `r_version`; gravado pelo `scripts/41_validate_against_metafor.R` |
+| `data/extracted/citation_years.csv` | Artigos cujo ano do volume difere do ano da primeira publicação online: `study_id`, `doi`, `first_author`, `year_first_online` (como na tabela de extração), `citation_year` (ano do volume, usado nos rótulos), `journal`, `volume`, `issue`, `pages`, `epub_date_pubmed`, `basis` |
+| `data/extracted/shared_control_groups.csv` | Relatos que comparam DA e DP com um único grupo controle: `report_doi`, `first_author`, `year`, `ad_record_id`, `pd_record_id`, `shared_controls`, `verbatim_quote`, `source` |
+
+Colunas acrescentadas a tabelas existentes: `rob_index_test_selected_estimate` em `results/tables/quadas2_assessment.csv` (a regra do teste índice aplicada só à estimativa selecionada para o pool; vazia para estudos fora do pool); `egger_intercept_one_per_study`, `egger_p_one_per_study`, `egger_intercept_every_estimate`, `egger_p_every_estimate` em `results/tables/robustness_alternative_analyses.csv`; `tp`, `fn`, `tn`, `fp` (contagens reconstruídas, 0,5 somado a toda célula de tabela com célula vazia) em `results/tables/bivariate_input_estimates.csv`. A partir da versão 1.2.0 toda coluna `egger_p` traz o p do intercepto.
 
 ## Convenções
 

@@ -20,7 +20,7 @@ EN | Unit of analysis. Eight of the 20 studies with an estimable variance
      are independent and therefore understates the true uncertainty of the
      combined estimate; it does not resolve the dependence, only relabels it.
      The PRIMARY analysis instead selects exactly ONE estimate per study by a
-     rule fixed in advance and blind to the estimate's own AUC: (1) prefer a
+     fixed rule that is blind to the estimate's own AUC: (1) prefer a
      row evaluated in an independent validation cohort (cohort_stage ==
      "validation") over one derived and evaluated in the same sample; (2)
      within the surviving tier, prefer the study's own multi-microRNA panel
@@ -110,6 +110,8 @@ PT | Nenhum valor e simulado: toda AUC, tamanho amostral e intervalo de confianc
 
 import os
 import sys
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
 from scipy import stats, optimize
@@ -124,6 +126,7 @@ FIG_DIR = "results/figures"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
 import _study_selection as _sel
+import _citation_years as _cy
 
 # EN | Cerebrospinal-fluid biofluid codes (shared with 15_bivariate_srocc.py
 #      via _study_selection.py), held out of every pooled ("primary" or
@@ -326,15 +329,53 @@ def pool_re(y, v, tau2_method="PM"):
 
 
 def egger_test(y, se):
-    """EN/PT: Egger regression of the standard normal deviate on precision."""
+    """
+    EN | Egger et al. (1997) regression test for funnel-plot asymmetry. The standard normal
+         deviate (y / se) is regressed on precision (1 / se) by ordinary least squares, and
+         the INTERCEPT is tested against zero with a t test on k - 2 degrees of freedom: an
+         intercept away from zero means that the small studies sit off the line the large
+         ones define. The slope estimates the pooled effect, and its p value tests whether
+         that effect is zero, which says nothing about asymmetry. Up to version 1.1.0 this
+         function returned the slope's p value (linregress(...).pvalue) as the Egger p; an
+         external review of the manuscript found it, and every Egger p value, the GRADE
+         publication-bias step of both diseases and the text changed with the fix
+         (CHANGELOG, 1.2.0). The slope p value is still returned, as p_slope, and written to
+         results/tables/egger_test_audit.csv beside the intercept test, so the change can be
+         seen pool by pool.
+    PT | Teste de regressao de Egger et al. (1997) para assimetria do funil. O desvio normal
+         padronizado (y / ep) e regredido na precisao (1 / ep) por minimos quadrados
+         ordinarios, e o INTERCEPTO e testado contra zero com um teste t de k - 2 graus de
+         liberdade: um intercepto longe de zero quer dizer que os estudos pequenos ficam fora
+         da reta definida pelos grandes. A inclinacao estima o efeito combinado, e seu p testa
+         se esse efeito e zero, o que nada diz sobre assimetria. Ate a versao 1.1.0 esta
+         funcao devolvia o p da inclinacao (linregress(...).pvalue) como p de Egger; uma
+         revisao externa do manuscrito o encontrou, e todo p de Egger, o passo GRADE de vies
+         de publicacao das duas doencas e o texto mudaram com a correcao (CHANGELOG, 1.2.0).
+         O p da inclinacao continua sendo devolvido, como p_slope, e gravado em
+         results/tables/egger_test_audit.csv ao lado do teste do intercepto, para que a
+         mudanca seja vista pool a pool.
+    """
     y, se = np.asarray(y, float), np.asarray(se, float)
-    if len(y) < 3:
+    k = len(y)
+    if k < 3:
         return None
     snd = y / se
     precision = 1.0 / se
     res = stats.linregress(precision, snd)
-    return dict(intercept=res.intercept, p_value=res.pvalue,
-                slope=res.slope, n=len(y))
+    t_int = res.intercept / res.intercept_stderr
+    p_int = float(2.0 * stats.t.sf(abs(t_int), k - 2))
+    out = dict(intercept=float(res.intercept), intercept_se=float(res.intercept_stderr),
+               t_intercept=float(t_int), df=k - 2, p_value=p_int,
+               slope=float(res.slope), p_slope=float(res.pvalue), n=k)
+    EGGER_LOG.append(out)
+    return out
+
+
+# EN | Every Egger test run by this module, in order, so that main() can write the audit
+#      table; the label is attached by the caller that knows which pool it was.
+# PT | Todo teste de Egger rodado por este modulo, em ordem, para que main() grave a
+#      tabela de auditoria; o rotulo e posto por quem chama e sabe qual pool era.
+EGGER_LOG = []
 
 
 # --------------------------------------------------------------------------
@@ -410,6 +451,8 @@ def summarise_from_selection(label, coll):
         return None
     n_multi = int((coll["n_candidate_estimates"] > 1).sum())
     eg = egger_test(coll["y"].values, np.sqrt(coll["v"].values)) if len(coll) >= 3 else None
+    if eg:
+        eg.update(pool="one estimate per study", subgroup=label)
     return {
         "subgroup": label,
         "n_studies": r["k"],
@@ -453,6 +496,8 @@ def summarise_sensitivity_every_estimate(label, sub):
     if r is None:
         return None
     eg = egger_test(y, se_y)
+    if eg:
+        eg.update(pool="every estimate", subgroup=label)
     return {
         "subgroup": label,
         "k_estimates": r["k"],
@@ -692,6 +737,7 @@ def main():
     #      pooled AD+PD figure is reported as a secondary, exploratory summary.
     # PT | Analise PRIMARIA: AD e PD sao subgrupos primarios separados; a
     #      cifra agregada AD+PD e reportada como resumo secundario, exploratorio.
+    EGGER_LOG.clear()
     primary_rows = []
     primary_rows.append(summarise_from_selection(
         "AD - all markers | todos marcadores (PRIMARY 1)", sel_all[sel_all["disease"] == "AD"]))
@@ -715,8 +761,8 @@ def main():
     primary_res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc_primary.csv", index=False)
 
     print("\n" + "=" * 78)
-    print("EN | PRIMARY: one pre-specified, AUC-blind estimate per study, Paule-Mandel tau2, modified HK (mHK) CI")
-    print("PT | PRIMARIA: uma estimativa pre-especificada e cega a AUC por estudo, tau2 de Paule-Mandel, IC mHK")
+    print("EN | PRIMARY: one AUC-blind estimate per study, chosen by a fixed rule, Paule-Mandel tau2, modified HK (mHK) CI")
+    print("PT | PRIMARIA: uma estimativa por estudo, escolhida por uma regra fixa e cega a AUC, tau2 de Paule-Mandel, IC mHK")
     print("=" * 78)
     print(primary_res.to_string(index=False))
 
@@ -741,6 +787,25 @@ def main():
             sens_rows.append(summarise_sensitivity_every_estimate(f"Biofluid | Biofluido - {bf}", sub))
     sens_res = pd.DataFrame([r for r in sens_rows if r])
     sens_res.to_csv(f"{TAB_DIR}/meta_analysis_pooled_auc_sensitivity_every_estimate.csv", index=False)
+
+    # EN | Egger audit: for every pool of the two tables above, the intercept test that is
+    #      reported and the slope p value that versions up to 1.1.0 reported in its place
+    #      (see egger_test). Rows follow the order of the two tables.
+    # PT | Auditoria do Egger: para todo pool das duas tabelas acima, o teste do intercepto
+    #      que e reportado e o p da inclinacao que as versoes ate 1.1.0 reportaram no lugar
+    #      dele (ver egger_test). As linhas seguem a ordem das duas tabelas.
+    egger_audit = pd.DataFrame([OrderedDict([
+        ("pool", e["pool"]), ("subgroup", e["subgroup"]), ("k", e["n"]),
+        ("intercept", round(e["intercept"], 4)), ("intercept_se", round(e["intercept_se"], 4)),
+        ("t_intercept", round(e["t_intercept"], 4)), ("df", e["df"]),
+        ("p_intercept", round(e["p_value"], 4)), ("slope", round(e["slope"], 4)),
+        ("p_slope_reported_up_to_v1_1_0", round(e["p_slope"], 4))]) for e in EGGER_LOG])
+    egger_audit.to_csv(f"{TAB_DIR}/egger_test_audit.csv", index=False)
+    print("\n" + "=" * 78)
+    print("EN | Egger test: intercept p (reported) and slope p (reported in error up to 1.1.0)")
+    print("PT | Teste de Egger: p do intercepto (reportado) e p da inclinacao (reportado por engano ate 1.1.0)")
+    print("=" * 78)
+    print(egger_audit.to_string(index=False))
 
     # EN | Variance-source comparison for the two primary outcomes.
     # PT | Comparacao de origem de variancia para os dois desfechos primarios.
@@ -827,7 +892,7 @@ def sensitivity_analyses(sel_all):
             continue
         r = pool_re(sub["y"].values, sub["v"].values, tau2_method="PM")
         who = coll[coll["study_id"] == sid].iloc[0]
-        out.append(dict(analysis=f"leave out | sem {who['first_author']} {who['year']} ({sid})",
+        out.append(dict(analysis=f"leave out | sem {_cy.label(who['first_author'], who['year'], sid)} ({sid})",
                         k_estimates=r["k"], n_studies=r["k"],
                         pooled_auc=round(inv_logit(r["estimate"]), 4),
                         ci_low=round(inv_logit(r["ci_low_hk"]), 4) if not np.isnan(r["ci_low_hk"]) else "",
@@ -899,7 +964,7 @@ def forest_plot(pool, lang):
             n_txt = ""
             if not pd.isna(r["n_cases"]) and not pd.isna(r["n_controls"]):
                 n_txt = f"  n={int(r['n_cases'])}/{int(r['n_controls'])}"
-            label = (f"{r['first_author']} {int(r['year'])} | {r['marker']} "
+            label = (f"{_cy.label(r['first_author'], r['year'], r['study_id'])} | {r['marker']} "
                      f"({r['biofluid']}{stage}){n_txt}")
             ytick_pos.append(y)
             ytick_lab.append(label[:72])
