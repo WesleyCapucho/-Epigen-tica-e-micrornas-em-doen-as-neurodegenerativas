@@ -48,6 +48,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+import _citation_years as _cy
 
 MAP = "data/extracted/molecular_evidence_map.csv"
 SELECTION = "results/tables/one_estimate_per_study_selection_audit.csv"
@@ -165,7 +166,7 @@ def plot(rows, pooled, path, lang):
                     ax.axhline(i - 0.5, color=INK3, lw=0.8, zorder=1)
             prev = dis
         axl.text(0.0, i, dis, fontsize=6.0, va="center", color=DISEASE[dis], fontweight="bold")
-        axl.text(0.14, i, f"{r['first_author']} {int(float(r['year']))}", fontsize=6.4, va="center", color=INK)
+        axl.text(0.14, i, _cy.label(r['first_author'], r['year'], sid), fontsize=6.4, va="center", color=INK)
         auc = float(r["selected_auc"])
         axb.plot([0.5, auc], [i, i], color=DISEASE[dis], lw=1.4, solid_capstyle="butt", zorder=2)
         axb.scatter([auc], [i], s=11, color=DISEASE[dis], zorder=3)

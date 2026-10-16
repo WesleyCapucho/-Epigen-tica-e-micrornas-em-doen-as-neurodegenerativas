@@ -389,6 +389,18 @@ A point-range ("summary forest") chart of the core pooled-AUC subgroups reported
 
 Two donuts (by disease, by marker type) and one ranked bar (by biofluid) summarising the composition of the 58 estimates eligible for the primary pool, aggregated at draw time from `data/extracted/diagnostic_accuracy_extraction.csv` filtered to `eligible_primary_pool == "yes"`. Produced by `scripts/24_study_characteristics.py`; the same 58-estimate counts are tabulated in full, with two further breakdowns (quantification method, cohort stage), in Supplementary Table S1.
 
+## Files added at version 1.2.0 for the meta-analytic layer
+
+| File | Content |
+|---|---|
+| `results/tables/egger_test_audit.csv` | One row per Egger test of the two pooled tables: `pool`, `subgroup`, `k`, `intercept`, `intercept_se`, `t_intercept`, `df` (k − 2), `p_intercept` (the Egger p value reported), `slope`, `p_slope_reported_up_to_v1_1_0` (the slope p value that versions up to 1.1.0 reported in error) |
+| `results/tables/deeks_funnel_test.csv` | Deeks' test, one estimate per study, for AD+PD, AD and PD: `k`, `intercept`, `slope`, `slope_se`, `t_slope`, `df`, `p_value` (slope test) |
+| `results/tables/external_validation_metafor.csv` | `quantity`, `this_review`, `metafor`, `abs_difference`, `tolerance`, `agrees`, `metafor_version`, `r_version`; written by `scripts/41_validate_against_metafor.R` |
+| `data/extracted/citation_years.csv` | Articles whose volume year differs from the year of first online publication: `study_id`, `doi`, `first_author`, `year_first_online` (as in the extraction table), `citation_year` (volume year, used in labels), `journal`, `volume`, `issue`, `pages`, `epub_date_pubmed`, `basis` |
+| `data/extracted/shared_control_groups.csv` | Reports that compare AD and PD with one control group: `report_doi`, `first_author`, `year`, `ad_record_id`, `pd_record_id`, `shared_controls`, `verbatim_quote`, `source` |
+
+Columns added to existing tables: `rob_index_test_selected_estimate` in `results/tables/quadas2_assessment.csv` (the index-test rule applied to the estimate selected for the pool alone; empty for studies not pooled); `egger_intercept_one_per_study`, `egger_p_one_per_study`, `egger_intercept_every_estimate`, `egger_p_every_estimate` in `results/tables/robustness_alternative_analyses.csv`; `tp`, `fn`, `tn`, `fp` (reconstructed counts, 0.5 added to every cell of a table with an empty cell) in `results/tables/bivariate_input_estimates.csv`. From version 1.2.0 every `egger_p` column holds the p value of the intercept.
+
 ## Conventions
 
 - Proportions are stored as proportions (0.82), not percentages (82%).

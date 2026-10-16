@@ -65,6 +65,7 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
 import _viz_style  # noqa: F401  (applies the shared figure style)
+import _citation_years as _cy
 
 EXTRACTION = "data/extracted/diagnostic_accuracy_extraction.csv"
 STUDY_LEVEL = "data/extracted/quadas2_study_level.csv"
@@ -556,7 +557,7 @@ def plot(assessment, path, lang):
             if i % 2 == 0:
                 ax.add_patch(plt.Rectangle((-6.2, y - 0.5), nd + 6.3, 1.0, color=BAND, lw=0, zorder=0))
             pooled = r["study_id"].lower() in pooled_ids
-            ax.text(-0.15, y, f"{r['first_author']} {r['year']}" + ("" if pooled else " †"), ha="right", va="center",
+            ax.text(-0.15, y, _cy.label(r['first_author'], r['year'], r['study_id']) + ("" if pooled else " †"), ha="right", va="center",
                     fontsize=7.0, color=INK if pooled else INK3)
             for j, key in enumerate(keys):
                 x = j + (0.25 if j >= 4 else 0)
@@ -600,6 +601,37 @@ def main():
     if os.path.exists(DESIGN):
         design = {r["study_id"]: r for r in csv.DictReader(open(DESIGN, encoding="utf-8"))}
     assessment = assess(by_study, study_level, design)
+
+    # EN | Each study is judged over all of its eligible estimates, so a study that also reports
+    #      estimates from its derivation sample is at high risk for the index test even when the
+    #      estimate selected for the pool (scripts/05) came from separate participants. The same
+    #      two rules (rob_index_test, then index_test_leakage) are applied here to the selected
+    #      estimate alone, for the pooled studies, and written beside the study-level judgement so
+    #      that the difference is visible; the study-level judgement is the one reported.
+    # PT | Cada estudo e julgado sobre todas as suas estimativas elegiveis, entao um estudo que
+    #      tambem reporta estimativas da amostra de derivacao fica em alto risco no teste indice
+    #      mesmo quando a estimativa selecionada para o pool (scripts/05) veio de participantes
+    #      separados. As mesmas duas regras (rob_index_test, depois index_test_leakage) sao
+    #      aplicadas aqui so a estimativa selecionada, para os estudos agregados, e gravadas ao
+    #      lado do julgamento por estudo para que a diferenca fique visivel; o julgamento por
+    #      estudo e o reportado.
+    selection = "results/tables/one_estimate_per_study_selection_audit.csv"
+    if not os.path.exists(selection):
+        sys.exit(f"EN/PT: missing {selection}; run scripts/05 first")
+    sel = {r["study_id"].lower(): r for r in csv.DictReader(open(selection, encoding="utf-8"))}
+    for rec in assessment:
+        s = sel.get(rec["study_id"].lower())
+        if s is None:
+            rec["rob_index_test_selected_estimate"] = ""
+            continue
+        picked = [r for r in by_study[rec["study_id"]]
+                  if r["marker"] == s["selected_marker"] and r["cohort_stage"] == s["selected_cohort_stage"]
+                  and abs(float(r["auc"]) - float(s["selected_auc"])) < 1e-9]
+        if len(picked) != 1:
+            sys.exit(f"EN/PT: {rec['study_id']}: {len(picked)} extraction rows match the selected estimate")
+        verdict, reason = rob_index_test(picked)
+        verdict, _ = index_test_leakage(verdict, reason, design.get(rec["study_id"]))
+        rec["rob_index_test_selected_estimate"] = verdict
     fields = list(assessment[0].keys())
     with open(f"{TAB_DIR}/quadas2_assessment.csv", "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)

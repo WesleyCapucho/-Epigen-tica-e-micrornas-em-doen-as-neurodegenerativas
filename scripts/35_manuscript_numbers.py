@@ -718,7 +718,74 @@ from datetime import date as _date
 put("search.gap_days", (_date.fromisoformat(mf[mf.database == "Web of Science"].search_date.iloc[0])
                         - _date.fromisoformat(mf[mf.database == "Scopus"].search_date.iloc[0])).days, MF)
 put("search.date_recall", "28 September 2026", "data/processed/prisma_flow.json (recall_check note) and docs/en/METHODS.md")
-put("search.date_update", "24 September 2026", "data/extracted/post_search_candidates.csv (PubMed entry date of the update study)")
+put("search.date_update_entry", "24 September 2026", "data/extracted/post_search_candidates.csv (PubMed entry date of the update study)")
+put("search.date_update_run", "28 September 2026", "scripts/31_post_search_sensitivity.py docstring (update of the PubMed search, entry dates 10 to 28 September)")
+
+# ----------------------------------------------------------------------------- additions after the external review of 15 October 2026
+# EN | Full texts of the abstract-based arm: PubMed records read in full and full texts of Scopus records.
+# PT | Textos completos do braco do resumo: registros do PubMed lidos e textos completos de registros do Scopus.
+_sc = _arm[_arm.database != "PubMed"]
+_ft_src = _exa[~_exa._abs & ~_exa.source.str.contains("record", case=False, na=False)]
+_ft_keys = ({_doi_key(d) for d in _ft_src.doi} | {_pmid_key(x) for x in _ft_src.pmid}) - {""}
+_sc_ft = sum(1 for _, r in _sc.iterrows() if _doi_key(r.doi) in _ft_keys or (_pmid_key(r.pmid) in _ft_keys))
+integer("flow.ft_abs_other", _sc_ft, SD + " and " + EXA)
+integer("flow.ft_abs_pubmed", int(N["flow.ft_abstract_arm"]) - _sc_ft, FL)
+integer("flow.acc_pubmed_oa_unread", int(N["flow.acc_pubmed_oa"]) - int(N["flow.ft_abs_pubmed"]), FL)
+assert int(N["flow.acc_pubmed_oa_unread"]) >= 0 and int((_pm.pmc_fulltext_available.eq("yes") & _pm.extracted).sum()) <= int(N["flow.ft_abs_pubmed"])
+
+# EN | Participants counted once: the two reports that cover both diseases compare both with one control group.
+# PT | Participantes contados uma vez: os dois relatos que cobrem as duas doencas usam um so grupo controle.
+SH = "data/extracted/shared_control_groups.csv"
+_sh = pd.read_csv(SH, dtype=str)
+integer("n.shared_controls", _sh.shared_controls.astype(int).sum(), SH)
+integer("n.unique", int(N["n.total"]) - int(N["n.shared_controls"]), SH + " and " + ES)
+
+# EN | QUADAS-2 index test judged on the estimate selected for the pool alone (scripts/14).
+# PT | Teste indice do QUADAS-2 julgado so na estimativa selecionada (scripts/14).
+QA = f"{T}/quadas2_assessment.csv"
+_qa = pd.read_csv(QA, dtype=str).fillna("")
+_qp = _qa[_qa.rob_index_test_selected_estimate != ""]
+integer("quadas.it_sel_moved", ((_qp.rob_index_test == "high") & (_qp.rob_index_test_selected_estimate == "unclear")).sum(), QA)
+integer("quadas.it_sel_unclear", (_qp.rob_index_test_selected_estimate == "unclear").sum(), QA)
+integer("quadas.it_sel_high", (_qp.rob_index_test_selected_estimate == "high").sum(), QA)
+
+# EN | Egger test with the implausibly narrow interval used as published (scripts/26).
+# PT | Teste de Egger com o intervalo implausivelmente estreito usado como publicado (scripts/26).
+_as = ra[ra.analysis.str.contains("reported CIs as published", regex=False) & ra.outcome.str.startswith("PD - all markers")].iloc[0]
+num("rob.asis.PD.egger_int", _as.egger_intercept_one_per_study, 2, RA)
+put("rob.asis.PD.egger_p", p_text(_as.egger_p_one_per_study), RA)
+put("rob.asis.PD.egger_p_every", p_text(_as.egger_p_every_estimate), RA)
+num("rob.asis.PD.egger_int_every", _as.egger_intercept_every_estimate, 2, RA)
+_nt = ra[ra.analysis.str.contains("marker-type-neutral", regex=False)]
+for _t in ("AD", "PD"):
+    put(f"rob.neutral.{_t}.egger_p", p_text(_nt[_nt.outcome.str.startswith(f"{_t} - all markers")].iloc[0].egger_p_one_per_study), RA)
+
+# EN | Deeks test on the reconstructed two-by-two tables (scripts/15).
+# PT | Teste de Deeks nas tabelas dois-por-dois reconstruidas (scripts/15).
+DK = f"{T}/deeks_funnel_test.csv"
+_dk = pd.read_csv(DK)
+for _t, _sc_ in (("ALL", "AD+PD"), ("AD", "AD"), ("PD", "PD")):
+    _r = _dk[_dk.scope == _sc_].iloc[0]
+    integer(f"deeks.{_t}.k", _r.k, DK)
+    put(f"deeks.{_t}.p", p_text(_r.p_value), DK)
+
+# EN | Agreement with the R package metafor (scripts/41, optional).
+# PT | Concordancia com o pacote R metafor (scripts/41, opcional).
+MV = f"{T}/external_validation_metafor.csv"
+_mv = pd.read_csv(MV)
+assert _mv.agrees.all(), "a comparison with metafor failed"
+integer("val.n", len(_mv), MV)
+put("val.metafor", str(_mv.metafor_version.iloc[0]), MV)
+put("val.r", str(_mv.r_version.iloc[0]), MV)
+
+# EN | Versions of the interpreter and libraries that ran this pipeline.
+# PT | Versoes do interpretador e das bibliotecas que rodaram este pipeline.
+import platform as _pf, numpy as _np, scipy as _sp, matplotlib as _mpl
+put("env.python", _pf.python_version(), "the interpreter running scripts/35")
+put("env.numpy", _np.__version__, "the interpreter running scripts/35")
+put("env.scipy", _sp.__version__, "the interpreter running scripts/35")
+put("env.pandas", pd.__version__, "the interpreter running scripts/35")
+put("env.matplotlib", _mpl.__version__, "the interpreter running scripts/35")
 
 # EN | The span of the pooled AUC across every alternative analysis shown in Fig. 5a: marker-type-neutral
 #      selection, the median of the random selections, the extremes of leave-one-out, only studies with their

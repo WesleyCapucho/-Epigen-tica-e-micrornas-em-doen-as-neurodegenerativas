@@ -408,6 +408,175 @@ def main():
         check(float(r["se_RE"]) > 0 and float(r["df_RE"]) > 1,
               f"subgroup difference [{r['comparison']}]: random-effects SE or df not usable")
 
+    # --- 6d. The Egger p value is the p value of the intercept ---------------
+    # EN | Up to version 1.1.0 scripts/05 reported the p value of the Egger SLOPE, which tests
+    #      whether the pooled effect is zero, as the Egger p; the asymmetry test is the
+    #      intercept. Every Egger p in both pooled tables is therefore recomputed here by an
+    #      independent least-squares fit (normal equations, not scipy's linregress) from the
+    #      rows the tables were pooled from, and must equal the stored value; the audit table
+    #      must carry the same intercept test; and the GRADE publication-bias step must follow
+    #      from the two p values, the study count and the thresholds the GRADE file declares.
+    # PT | Ate a versao 1.1.0 o scripts/05 reportava como p de Egger o p da INCLINACAO, que
+    #      testa se o efeito combinado e zero; o teste de assimetria e o intercepto. Todo p de
+    #      Egger das duas tabelas agregadas e por isso recalculado aqui por um ajuste de minimos
+    #      quadrados independente (equacoes normais, nao o linregress do scipy) a partir das
+    #      linhas de que as tabelas foram agregadas, e tem de ser igual ao guardado; a tabela de
+    #      auditoria tem de trazer o mesmo teste do intercepto; e o passo GRADE de vies de
+    #      publicacao tem de decorrer dos dois p, do numero de estudos e dos limiares que o
+    #      arquivo do GRADE declara.
+    import numpy as np
+    from scipy import stats as _st
+
+    def _egger_intercept(y, se):
+        y, se = np.asarray(y, float), np.asarray(se, float)
+        X = np.column_stack([np.ones_like(se), 1.0 / se])
+        z = y / se
+        beta = np.linalg.solve(X.T @ X, X.T @ z)
+        resid = z - X @ beta
+        k = len(z)
+        cov = (resid @ resid / (k - 2)) * np.linalg.inv(X.T @ X)
+        t_ = beta[0] / math.sqrt(cov[0, 0])
+        return float(beta[0]), float(2.0 * _st.t.sf(abs(t_), k - 2))
+
+    def _filter(rows, label, type_key):
+        out = rows
+        for d in ("AD", "PD"):
+            if label.startswith(f"{d} -"):
+                out = [r for r in out if r["disease"] == d]
+        if "single miRNA" in label:
+            out = [r for r in out if r[type_key] == "single_miRNA"]
+        if "multi-miRNA panel" in label:
+            out = [r for r in out if r[type_key] == "multi_miRNA_panel"]
+        if label.startswith("Biofluid"):
+            out = [r for r in out if r["biofluid"] == label.rsplit("- ", 1)[1]]
+        return out
+
+    sel_rows = list(csv.DictReader(open("results/tables/one_estimate_per_study_selection_audit.csv", encoding="utf-8")))
+    egger_seen = {}
+    for r in pooled_primary:
+        if r["egger_p_one_per_study"] in ("", None):
+            check(int(r["n_studies"]) < 3, f"Egger [{r['subgroup']}]: no Egger p on a pool of {r['n_studies']} studies")
+            continue
+        part = _filter(sel_rows, r["subgroup"], "selected_marker_type")
+        check(len(part) == int(r["n_studies"]),
+              f"Egger [{r['subgroup']}]: {len(part)} selected rows for a pool of {r['n_studies']} studies")
+        b0, p_ = _egger_intercept([float(x["y"]) for x in part], [math.sqrt(float(x["v"])) for x in part])
+        check(abs(p_ - float(r["egger_p_one_per_study"])) < 6e-5 and abs(b0 - float(r["egger_intercept_one_per_study"])) < 6e-4,
+              f"Egger [{r['subgroup']}]: stored p {r['egger_p_one_per_study']} / intercept "
+              f"{r['egger_intercept_one_per_study']} is not the intercept test ({p_:.4f} / {b0:.3f})")
+        egger_seen[("one estimate per study", r["subgroup"])] = float(r["egger_p_one_per_study"])
+    for r in pooled:
+        if r["egger_p"] in ("", None):
+            continue
+        part = _filter(inputs, r["subgroup"], "marker_type")
+        check(len(part) == int(r["k_estimates"]),
+              f"Egger [{r['subgroup']}, every estimate]: {len(part)} input rows for k = {r['k_estimates']}")
+        auc_ = [float(x["auc"]) for x in part]
+        y_ = [math.log(a / (1 - a)) for a in auc_]
+        se_ = [float(x["se_auc"]) / (a * (1 - a)) for x, a in zip(part, auc_)]
+        b0, p_ = _egger_intercept(y_, se_)
+        check(abs(p_ - float(r["egger_p"])) < 6e-5 and abs(b0 - float(r["egger_intercept"])) < 6e-4,
+              f"Egger [{r['subgroup']}, every estimate]: stored p {r['egger_p']} / intercept "
+              f"{r['egger_intercept']} is not the intercept test ({p_:.4f} / {b0:.3f})")
+        egger_seen[("every estimate", r["subgroup"])] = float(r["egger_p"])
+    try:
+        audit_eg = list(csv.DictReader(open("results/tables/egger_test_audit.csv", encoding="utf-8")))
+    except FileNotFoundError:
+        audit_eg = []
+        check(False, "results/tables/egger_test_audit.csv missing; run scripts/05")
+    check(len(audit_eg) == len(egger_seen),
+          f"Egger audit: {len(audit_eg)} rows, the two pooled tables carry {len(egger_seen)} Egger tests")
+    for a in audit_eg:
+        key = (a["pool"], a["subgroup"])
+        check(key in egger_seen and abs(float(a["p_intercept"]) - egger_seen[key]) < 1e-9,
+              f"Egger audit [{a['pool']}, {a['subgroup']}]: p_intercept differs from the pooled table")
+        check(int(a["df"]) == int(a["k"]) - 2, f"Egger audit [{a['subgroup']}]: df is not k - 2")
+        tt = float(a["intercept"]) / float(a["intercept_se"])
+        check(abs(tt - float(a["t_intercept"])) < 2e-3,
+              f"Egger audit [{a['subgroup']}]: t is not intercept / its SE")
+    try:
+        gr_eg = json.load(open(GRADE_JSON, encoding="utf-8"))
+    except FileNotFoundError:
+        gr_eg = None
+    if gr_eg is not None:
+        th_eg = gr_eg["thresholds"]
+        for d in ("AD", "PD"):
+            prow = next(r for r in pooled_primary if r["subgroup"].startswith(f"{d} - all markers"))
+            erow = next(r for r in pooled if r["subgroup"] == f"{d} - all markers | todos marcadores")
+            k_ = int(prow["n_studies"])
+            both = (float(prow["egger_p_one_per_study"]) < th_eg["publication_bias_egger_p"]
+                    and float(erow["egger_p"]) < th_eg["publication_bias_egger_p"])
+            want = 1 if (k_ >= th_eg["publication_bias_min_studies_for_test"] and both) else 0
+            got = gr_eg["by_disease"][d]["domains"]["publication_bias"]["downgrade_steps"]
+            check(got == want, f"GRADE {d} publication bias: {got} steps, but the Egger p values "
+                               f"{prow['egger_p_one_per_study']} and {erow['egger_p']} with {k_} studies imply {want}")
+
+    # --- 6e. Additions after the external review of 15 October 2026 ---------
+    # EN | Citation years, shared control groups, the QUADAS-2 index test on the selected
+    #      estimate, Deeks' test and the comparison with metafor, each against its source.
+    # PT | Anos de citacao, grupos controle compartilhados, teste indice do QUADAS-2 na estimativa
+    #      selecionada, teste de Deeks e comparacao com o metafor, cada um contra sua fonte.
+    ext_year = {}
+    for r in ext:
+        for k_ in (str(r["pmid"]).replace(".0", "").strip(), str(r["doi"]).lower().split("#")[0].strip()):
+            if k_:
+                ext_year.setdefault(k_, set()).add(r["year"])
+    prior = {str(p_["pmid"]): str(p_["year"]) for p_ in
+             json.load(open("data/raw/systematic_review_2026/prior_meta_analyses.json", encoding="utf-8"))["studies"]}
+    for r in csv.DictReader(open("data/extracted/citation_years.csv", encoding="utf-8")):
+        years = ext_year.get(r["study_id"], set()) | ({prior[r["study_id"]]} if r["study_id"] in prior else set())
+        check(years == {r["year_first_online"]},
+              f"citation_years: {r['first_author']} first-online year {r['year_first_online']} but sources say {sorted(years)}")
+        check(int(r["citation_year"]) == int(r["year_first_online"]) + 1 and r["epub_date_pubmed"].startswith(r["year_first_online"]),
+              f"citation_years: {r['first_author']} volume year is not the year after first online publication")
+    by_rec = {r["record_id"]: r for r in ext}
+    sel_recs = {(r["first_author"], r["disease"], r["selected_marker"]) for r in sel_rows}
+    for r in csv.DictReader(open("data/extracted/shared_control_groups.csv", encoding="utf-8")):
+        a_, b_ = by_rec[r["ad_record_id"]], by_rec[r["pd_record_id"]]
+        check(a_["n_controls"] == b_["n_controls"] == r["shared_controls"] and a_["disease"] == "AD" and b_["disease"] == "PD",
+              f"shared controls: {r['first_author']} rows do not carry {r['shared_controls']} controls each")
+        check((a_["first_author"], "AD", a_["marker"]) in sel_recs and (b_["first_author"], "PD", b_["marker"]) in sel_recs,
+              f"shared controls: {r['first_author']} rows are not the estimates selected for the pool")
+        check(r["shared_controls"] in r["verbatim_quote"] or str(int(r["shared_controls"]) + 1) in r["verbatim_quote"],
+              f"shared controls: {r['first_author']} quote does not state the control group")
+    qa_rows = list(csv.DictReader(open(QUADAS, encoding="utf-8")))
+    pooled_sids = {r["study_id"].lower() for r in sel_rows}
+    for r in qa_rows:
+        v_ = r["rob_index_test_selected_estimate"]
+        check((v_ != "") == (r["study_id"].lower() in pooled_sids),
+              f"QUADAS-2 {r['study_id']}: selected-estimate index test present only for pooled studies")
+        check(not (v_ == "high" and r["rob_index_test"] != "high"),
+              f"QUADAS-2 {r['study_id']}: the selected estimate cannot be worse than the study")
+    bi_rows = [r for r in csv.DictReader(open("results/tables/bivariate_input_estimates.csv", encoding="utf-8"))
+               if r["in_primary_analysis"] == "True"]
+    for r in csv.DictReader(open("results/tables/deeks_funnel_test.csv", encoding="utf-8")):
+        part = bi_rows if r["scope"] == "AD+PD" else [x for x in bi_rows if x["disease"] == r["scope"]]
+        tp_, fn_, tn_, fp_ = (np.array([float(x[c]) for x in part]) for c in ("tp", "fn", "tn", "fp"))
+        n1, n0 = np.array([float(x["n_cases"]) for x in part]), np.array([float(x["n_controls"]) for x in part])
+        check(np.allclose(tp_ + fn_, n1 + np.where(tp_ % 1, 1.0, 0.0)) and np.allclose(tn_ + fp_, n0 + np.where(tn_ % 1, 1.0, 0.0)),
+              f"Deeks [{r['scope']}]: reconstructed cells do not add to the group sizes")
+        ess = 4 * n1 * n0 / (n1 + n0)
+        X = np.column_stack([np.ones(len(part)), 1 / np.sqrt(ess)])
+        Wm = np.diag(ess)
+        yv = np.log(tp_ * tn_ / (fp_ * fn_))
+        bb = np.linalg.solve(X.T @ Wm @ X, X.T @ Wm @ yv)
+        res_ = yv - X @ bb
+        cv = (res_ @ Wm @ res_ / (len(part) - 2)) * np.linalg.inv(X.T @ Wm @ X)
+        pp = 2 * _st.t.sf(abs(bb[1] / math.sqrt(cv[1, 1])), len(part) - 2)
+        check(int(r["k"]) == len(part) and abs(pp - float(r["p_value"])) < 6e-5,
+              f"Deeks [{r['scope']}]: stored p {r['p_value']} is not the weighted slope test ({pp:.4f})")
+    try:
+        mv = list(csv.DictReader(open("results/tables/external_validation_metafor.csv", encoding="utf-8")))
+    except FileNotFoundError:
+        mv = []
+        claim(False, "results/tables/external_validation_metafor.csv missing; run Rscript scripts/41_validate_against_metafor.R")
+    for r in mv:
+        check(r["agrees"] == "TRUE", f"metafor comparison failed: {r['quantity']}")
+        if r["quantity"].endswith("Egger p, one estimate per study"):
+            row_ = next((x for x in pooled_primary if (("Biofluid - " + x["subgroup"].rsplit("- ", 1)[1]) if x["subgroup"].startswith("Biofluid") else x["subgroup"].split(" |")[0]) == r["quantity"].split(":")[0]), None)
+            check(row_ is not None and abs(float(row_["egger_p_one_per_study"]) - float(r["this_review"])) < 1e-9,
+                  f"metafor comparison is stale for {r['quantity']}; rerun scripts/41")
+
     # --- 7. Mention counts cover the corpus the AUCs came from -------------
     fam_counts = {r["family"]: int(r["n_articles_mentioning_family"]) for r in counts}
     for r in cited:

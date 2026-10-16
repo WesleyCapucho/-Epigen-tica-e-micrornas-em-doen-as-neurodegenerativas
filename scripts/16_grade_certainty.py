@@ -237,15 +237,21 @@ def rate_publication_bias(sens_row, primary_row):
          also underpowered and unstable below about ten independent studies,
          and the every-estimate pool treats correlated rows from one study as
          independent. So the test result no longer triggers a downgrade by
-         itself. The rule, revised after the 2026-09-28 audit showed the
-         every-estimate Egger verdict flipping between diseases when one
-         study's implausible CI was corrected: with fewer than
+         itself. The rule was revised after the 2026-09-28 audit, when the
+         every-estimate verdict changed as soon as one study's implausible CI
+         was corrected: with fewer than
          publication_bias_min_studies_for_test independent studies in the
          primary pool the domain is judged "not assessable by statistical
          test" and not downgraded on the test; with at least that many, one
          step is taken only when the Egger test is significant on BOTH the
          one-estimate-per-study pool and the every-estimate pool. Both
          p-values are always reported so a reader can apply a stricter rule.
+         At the time, scripts/05 reported the p value of the Egger slope, and
+         the verdict appeared to move from PD to AD. With the intercept test
+         (scripts/05 from version 1.2.0) the same correction on the data of
+         that day took the every-estimate PD test from p < 0.0001 to p = 0.052
+         and left AD at p = 0.062, so the verdict still changed with one
+         interval, in PD alone. docs/en/METHODS.md records both.
     PT | Dominio 5 do GRADE. Um intercepto de Egger significativo e evidencia
          de efeitos de estudos pequenos (assimetria do funil), necessario mas
          nao suficiente para vies de publicacao/disseminacao: heterogeneidade,
@@ -254,15 +260,22 @@ def rate_publication_bias(sens_row, primary_row):
          sao instaveis abaixo de cerca de dez estudos independentes, e o pool
          de toda-estimativa trata linhas correlacionadas de um estudo como
          independentes. Por isso o resultado do teste nao dispara mais um
-         rebaixamento sozinho. A regra, revista depois que a auditoria de
-         2026-09-28 mostrou o veredito de Egger (toda-estimativa) trocando de
-         doenca quando o IC implausivel de um estudo foi corrigido: com menos
+         rebaixamento sozinho. A regra foi revista depois da auditoria de
+         2026-09-28, quando o veredito de toda-estimativa mudou assim que o IC
+         implausivel de um estudo foi corrigido: com menos
          de publication_bias_min_studies_for_test estudos independentes no pool
          primario, o dominio e julgado "nao avaliavel por teste estatistico" e
          nao rebaixado pelo teste; com pelo menos esse numero, um passo so e
          dado quando o Egger e significativo TANTO no pool uma-por-estudo
          QUANTO no pool toda-estimativa. Os dois valores de p sao sempre
          reportados para que o leitor aplique uma regra mais estrita.
+         Na epoca, o scripts/05 reportava o p da inclinacao de Egger, e o
+         veredito parecia passar da DP para a DA. Com o teste do intercepto
+         (scripts/05 a partir da versao 1.2.0) a mesma correcao, sobre os
+         dados daquele dia, levou o teste de toda-estimativa da DP de
+         p < 0,0001 a p = 0,052 e deixou a DA em p = 0,062: o veredito ainda
+         mudava com um intervalo, so na DP. O docs/pt-BR/METODOS.md registra
+         os dois.
     """
     k = int(primary_row["n_studies"])
     p_every = sens_row.get("egger_p", "")
@@ -272,11 +285,12 @@ def rate_publication_bias(sens_row, primary_row):
     if k < THRESHOLDS["publication_bias_min_studies_for_test"]:
         return 0, (f"{ps}; with {k} independent studies the test is underpowered and not used to "
                    f"downgrade, so publication bias is not assessable by test and cannot be excluded")
-    both = (p_one not in ("", None) and p_every not in ("", None)
-            and float(p_one) < THRESHOLDS["publication_bias_egger_p"]
-            and float(p_every) < THRESHOLDS["publication_bias_egger_p"])
-    verdict = ("small-study effects on both pools (not itself proof of publication bias)"
-               if both else "no consistent small-study effect across the two pools")
+    sig = [name for name, v in (("one-estimate-per-study", p_one), ("every-estimate", p_every))
+           if v not in ("", None) and float(v) < THRESHOLDS["publication_bias_egger_p"]]
+    both = len(sig) == 2
+    verdict = ("small-study effects on both pools (not itself proof of publication bias)" if both else
+               f"small-study effect on the {sig[0]} pool only, so no step" if sig else
+               "no small-study effect on either pool")
     return (1 if both else 0), f"{ps}; {verdict}"
 
 
@@ -453,17 +467,19 @@ def main():
         ])
 
     # EN | The bivariate sensitivity/specificity summary-of-findings table stays
-    #      a single, combined AD+PD exploratory analysis: only 9 independent
-    #      studies contribute a paired sensitivity and specificity, splitting
-    #      that by disease would leave too few studies per disease to fit or
-    #      interpret the bivariate model. It is reported as an exploratory
+    #      a single, combined AD+PD exploratory analysis: few independent
+    #      studies contribute a paired sensitivity and specificity (19 at
+    #      version 1.2.0, 8 AD and 11 PD), and splitting that by disease would
+    #      leave too few studies per disease to fit or interpret the bivariate
+    #      model. It is reported as an exploratory
     #      complement to the two disease-specific AUC-based GRADE ratings
     #      above, not as their source.
     # PT | A tabela de resumo de achados de sensibilidade/especificidade
     #      bivariada permanece uma unica analise exploratoria combinada AD+PD:
-    #      so 9 estudos independentes contribuem um par de sensibilidade e
-    #      especificidade, separar por doenca deixaria poucos estudos por
-    #      doenca para ajustar ou interpretar o modelo bivariado. E reportada
+    #      poucos estudos independentes contribuem um par de sensibilidade e
+    #      especificidade (19 na versao 1.2.0, 8 DA e 11 DP), e separar por
+    #      doenca deixaria poucos estudos por doenca para ajustar ou
+    #      interpretar o modelo bivariado. E reportada
     #      como complemento exploratorio as duas classificacoes GRADE
     #      especificas por doenca acima, nao como fonte delas.
     sof = [summary_of_findings(float(biv_primary["summary_sensitivity"]),
@@ -546,10 +562,11 @@ def main():
     ad_cert = results["AD"]["certainty_of_evidence"]
     pd_cert = results["PD"]["certainty_of_evidence"]
     for lang in LANGS:
+        n_biv = biv_primary["n_studies"]
         subtitle = t(lang,
-                     f"exploratory, AD+PD combined (9 studies) · AD AUC certainty: {ad_cert} · "
+                     f"exploratory, AD+PD combined ({n_biv} studies) · AD AUC certainty: {ad_cert} · "
                      f"PD AUC certainty: {pd_cert}",
-                     f"exploratório, DA+DP combinado (9 estudos) · certeza AUC DA: {ad_cert} · "
+                     f"exploratório, DA+DP combinado ({n_biv} estudos) · certeza AUC DA: {ad_cert} · "
                      f"certeza AUC DP: {pd_cert}")
         plot(sof, subtitle, fig_path(FIG_DIR, "grade_summary_of_findings", lang), lang)
 

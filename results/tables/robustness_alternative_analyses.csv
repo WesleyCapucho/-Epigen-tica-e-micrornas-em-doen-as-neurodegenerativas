@@ -1,22 +1,22 @@
-analysis,outcome,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent,panel_vs_single_Q,panel_vs_single_p,panel_vs_single_p_RE
-"primary rule (panel preferred), CI plausibility rule",AD - all markers,18,0.8156,0.7722,0.8523,78.5,0.206,0.6498,0.6869
-"primary rule (panel preferred), CI plausibility rule",PD - all markers,19,0.7998,0.7409,0.8481,81.1,33.798,0.0,0.0411
-"primary rule (panel preferred), CI plausibility rule",AD+PD combined (secondary),37,0.8073,0.7737,0.837,80.5,12.53,0.0004,0.0732
-"primary rule (panel preferred), CI plausibility rule",AD - panels,6,0.8281,0.7166,0.9018,82.2,,,
-"primary rule (panel preferred), CI plausibility rule",AD - single markers,12,0.8101,0.7546,0.8555,78.3,,,
-"primary rule (panel preferred), CI plausibility rule",PD - panels,7,0.8542,0.7833,0.9047,58.4,,,
-"primary rule (panel preferred), CI plausibility rule",PD - single markers,12,0.7585,0.6696,0.8295,76.5,,,
-marker-type-neutral rule (no panel preference),AD - all markers,18,0.8072,0.7633,0.8446,78.1,0.633,0.4264,0.9028
-marker-type-neutral rule (no panel preference),PD - all markers,19,0.7832,0.7271,0.8305,77.1,6.877,0.0087,0.3747
-marker-type-neutral rule (no panel preference),AD+PD combined (secondary),37,0.7953,0.7623,0.8247,78.7,2.181,0.1398,0.418
-marker-type-neutral rule (no panel preference),AD - panels,4,0.8142,0.577,0.9337,88.2,,,
-marker-type-neutral rule (no panel preference),AD - single markers,14,0.8064,0.7587,0.8466,74.9,,,
-marker-type-neutral rule (no panel preference),PD - panels,3,0.8399,0.5039,0.9644,61.4,,,
-marker-type-neutral rule (no panel preference),PD - single markers,16,0.7722,0.7085,0.8254,77.4,,,
-"primary rule, reported CIs as published (no plausibility rule)",AD - all markers,18,0.8156,0.7722,0.8523,78.5,0.206,0.6498,0.6869
-"primary rule, reported CIs as published (no plausibility rule)",PD - all markers,19,0.8056,0.7466,0.8535,94.9,265.105,0.0,0.0259
-"primary rule, reported CIs as published (no plausibility rule)",AD+PD combined (secondary),37,0.8104,0.7767,0.8401,93.3,272.373,0.0,0.048
-"primary rule, reported CIs as published (no plausibility rule)",AD - panels,6,0.8281,0.7166,0.9018,82.2,,,
-"primary rule, reported CIs as published (no plausibility rule)",AD - single markers,12,0.8101,0.7546,0.8555,78.3,,,
-"primary rule, reported CIs as published (no plausibility rule)",PD - panels,7,0.8637,0.7939,0.9125,85.0,,,
-"primary rule, reported CIs as published (no plausibility rule)",PD - single markers,12,0.7585,0.6696,0.8295,76.5,,,
+analysis,outcome,n_studies,pooled_auc,ci_low_hk,ci_high_hk,I2_percent,panel_vs_single_Q,panel_vs_single_p,panel_vs_single_p_RE,egger_intercept_one_per_study,egger_p_one_per_study,egger_intercept_every_estimate,egger_p_every_estimate
+"primary rule (panel preferred), CI plausibility rule",AD - all markers,18,0.8156,0.7722,0.8523,78.5,0.206,0.6498,0.6869,0.852,0.685,2.296,0.0199
+"primary rule (panel preferred), CI plausibility rule",PD - all markers,19,0.7998,0.7409,0.8481,81.1,33.798,0.0,0.0411,3.398,0.016,2.145,0.0018
+"primary rule (panel preferred), CI plausibility rule",AD+PD combined (secondary),37,0.8073,0.7737,0.837,80.5,12.53,0.0004,0.0732,2.222,0.0578,1.773,0.0011
+"primary rule (panel preferred), CI plausibility rule",AD - panels,6,0.8281,0.7166,0.9018,82.2,,,,5.621,0.1723,4.076,0.0328
+"primary rule (panel preferred), CI plausibility rule",AD - single markers,12,0.8101,0.7546,0.8555,78.3,,,,-1.344,0.6032,1.09,0.3529
+"primary rule (panel preferred), CI plausibility rule",PD - panels,7,0.8542,0.7833,0.9047,58.4,,,,1.058,0.7281,1.713,0.4727
+"primary rule (panel preferred), CI plausibility rule",PD - single markers,12,0.7585,0.6696,0.8295,76.5,,,,2.982,0.0342,1.912,0.0038
+marker-type-neutral rule (no panel preference),AD - all markers,18,0.8072,0.7633,0.8446,78.1,0.633,0.4264,0.9028,-0.087,0.9683,2.296,0.0199
+marker-type-neutral rule (no panel preference),PD - all markers,19,0.7832,0.7271,0.8305,77.1,6.877,0.0087,0.3747,2.992,0.0206,2.145,0.0018
+marker-type-neutral rule (no panel preference),AD+PD combined (secondary),37,0.7953,0.7623,0.8247,78.7,2.181,0.1398,0.418,1.776,0.1253,1.773,0.0011
+marker-type-neutral rule (no panel preference),AD - panels,4,0.8142,0.577,0.9337,88.2,,,,21.787,0.0144,4.076,0.0328
+marker-type-neutral rule (no panel preference),AD - single markers,14,0.8064,0.7587,0.8466,74.9,,,,-1.532,0.4822,1.09,0.3529
+marker-type-neutral rule (no panel preference),PD - panels,3,0.8399,0.5039,0.9644,61.4,,,,1.165,0.8394,1.713,0.4727
+marker-type-neutral rule (no panel preference),PD - single markers,16,0.7722,0.7085,0.8254,77.4,,,,2.93,0.0411,1.912,0.0038
+"primary rule, reported CIs as published (no plausibility rule)",AD - all markers,18,0.8156,0.7722,0.8523,78.5,0.206,0.6498,0.6869,0.852,0.685,2.296,0.0199
+"primary rule, reported CIs as published (no plausibility rule)",PD - all markers,19,0.8056,0.7466,0.8535,94.9,265.105,0.0,0.0259,-3.621,0.0017,-3.77,0.0
+"primary rule, reported CIs as published (no plausibility rule)",AD+PD combined (secondary),37,0.8104,0.7767,0.8401,93.3,272.373,0.0,0.048,-3.511,0.0,-3.879,0.0
+"primary rule, reported CIs as published (no plausibility rule)",AD - panels,6,0.8281,0.7166,0.9018,82.2,,,,5.621,0.1723,4.076,0.0328
+"primary rule, reported CIs as published (no plausibility rule)",AD - single markers,12,0.8101,0.7546,0.8555,78.3,,,,-1.344,0.6032,1.09,0.3529
+"primary rule, reported CIs as published (no plausibility rule)",PD - panels,7,0.8637,0.7939,0.9125,85.0,,,,-2.455,0.0238,-2.741,0.002
+"primary rule, reported CIs as published (no plausibility rule)",PD - single markers,12,0.7585,0.6696,0.8295,76.5,,,,2.982,0.0342,1.912,0.0038

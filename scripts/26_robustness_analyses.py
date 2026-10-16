@@ -76,6 +76,7 @@ import pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import _study_selection as _sel
+import _citation_years as _cy
 
 TAB_DIR = "results/tables"
 DESIGN = "data/extracted/study_design_preanalytics.csv"
@@ -138,7 +139,24 @@ def panel_test(sel, disease=None):
     return r
 
 
-def outcome_rows(label, sel):
+def egger_cols(sel_part, every_part):
+    """
+    EN | Egger intercept and its p value (scripts/05, egger_test) on the one-estimate-per-study
+         rows of an outcome and on every eligible estimate of the same outcome under the same
+         standard errors; blank when a pool has fewer than three rows.
+    PT | Intercepto de Egger e seu p (scripts/05, egger_test) nas linhas uma-por-estudo de um
+         desfecho e em toda estimativa elegivel do mesmo desfecho com os mesmos erros-padrao;
+         em branco quando o pool tem menos de tres linhas.
+    """
+    out = OrderedDict()
+    for tag, part in (("one_per_study", sel_part), ("every_estimate", every_part)):
+        eg = ma.egger_test(part["y"].values, np.sqrt(part["v"].values)) if len(part) >= 3 else None
+        out[f"egger_intercept_{tag}"] = round(eg["intercept"], 3) if eg else ""
+        out[f"egger_p_{tag}"] = round(eg["p_value"], 4) if eg else ""
+    return out
+
+
+def outcome_rows(label, sel, every):
     out = []
     for d in ["AD", "PD"]:
         p = pooled(sel[sel["disease"] == d])
@@ -146,20 +164,24 @@ def outcome_rows(label, sel):
         out.append(OrderedDict([("analysis", label), ("outcome", f"{d} - all markers"), *p.items(),
                                 ("panel_vs_single_Q", t["Q_between"] if t else ""),
                                 ("panel_vs_single_p", t["p_value"] if t else ""),
-                                ("panel_vs_single_p_RE", t["p_value_RE"] if t else "")]))
+                                ("panel_vs_single_p_RE", t["p_value_RE"] if t else ""),
+                                *egger_cols(sel[sel["disease"] == d], every[every["disease"] == d]).items()]))
     t = panel_test(sel)
     p = pooled(sel)
     out.append(OrderedDict([("analysis", label), ("outcome", "AD+PD combined (secondary)"), *p.items(),
                             ("panel_vs_single_Q", t["Q_between"] if t else ""),
                             ("panel_vs_single_p", t["p_value"] if t else ""),
-                            ("panel_vs_single_p_RE", t["p_value_RE"] if t else "")]))
+                            ("panel_vs_single_p_RE", t["p_value_RE"] if t else ""),
+                            *egger_cols(sel, every).items()]))
     for d in ["AD", "PD"]:
         for mt, lab in [("multi_miRNA_panel", "panels"), ("single_miRNA", "single markers")]:
             p = pooled(sel[(sel["disease"] == d) & (sel["marker_type"] == mt)])
             if p:
                 out.append(OrderedDict([("analysis", label), ("outcome", f"{d} - {lab}"), *p.items(),
                                         ("panel_vs_single_Q", ""), ("panel_vs_single_p", ""),
-                                        ("panel_vs_single_p_RE", "")]))
+                                        ("panel_vs_single_p_RE", ""),
+                                        *egger_cols(sel[(sel["disease"] == d) & (sel["marker_type"] == mt)],
+                                                    every[(every["disease"] == d) & (every["marker_type"] == mt)]).items()]))
     return out
 
 
@@ -224,12 +246,14 @@ def main():
     _df_r, _e_r, _p_r, _c_r, pool_as_reported = ma.load_estimates(ci_plausibility=False)
 
     rows = []
+    every, every_as_reported = with_yv(pool), with_yv(pool_as_reported)
     sel_primary = select(pool, panel_preference=True)
-    rows += outcome_rows("primary rule (panel preferred), CI plausibility rule", sel_primary)
+    rows += outcome_rows("primary rule (panel preferred), CI plausibility rule", sel_primary, every)
     sel_neutral = select(pool, panel_preference=False)
-    rows += outcome_rows("marker-type-neutral rule (no panel preference)", sel_neutral)
+    rows += outcome_rows("marker-type-neutral rule (no panel preference)", sel_neutral, every)
     sel_reported = select(pool_as_reported, panel_preference=True)
-    rows += outcome_rows("primary rule, reported CIs as published (no plausibility rule)", sel_reported)
+    rows += outcome_rows("primary rule, reported CIs as published (no plausibility rule)", sel_reported,
+                         every_as_reported)
     pd.DataFrame(rows).to_csv(f"{TAB_DIR}/robustness_alternative_analyses.csv", index=False)
 
     # 2. random AUC-blind selection
@@ -266,7 +290,7 @@ def main():
         for _, r in base.sort_values(["year", "first_author"]).iterrows():
             p = pooled(base[base["study_id"] != r["study_id"]])
             loo.append(OrderedDict([("disease", d),
-                                    ("left_out", f"{r['first_author']} {r['year']} ({r['marker']})"), *p.items()]))
+                                    ("left_out", f"{_cy.label(r['first_author'], r['year'], r['study_id'])} ({r['marker']})"), *p.items()]))
     pd.DataFrame(loo).to_csv(f"{TAB_DIR}/robustness_leave_one_out_by_disease.csv", index=False)
 
     # 5. panel-subgroup audit

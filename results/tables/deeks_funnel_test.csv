@@ -1,0 +1,4 @@
+scope,analysis,k,intercept,slope,slope_se,t_slope,df,p_value
+AD+PD,one estimate per study,19,2.1119,8.0049,8.4511,0.9472,17,0.3568
+AD,one estimate per study,8,2.4926,4.6161,11.2662,0.4097,6,0.6962
+PD,one estimate per study,11,1.7409,11.1617,12.9953,0.8589,9,0.4127

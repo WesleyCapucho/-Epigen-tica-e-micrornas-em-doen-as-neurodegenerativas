@@ -40,13 +40,13 @@
      "reason": "95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC (18 studies) spans 0.080 (0.772-0.852); 95% prediction interval 0.620-0.923"
     },
     "publication_bias": {
-     "downgrade_steps": 1,
-     "judgement_en": "serious",
-     "judgement_pt": "serio",
-     "reason": "Egger p = 0.0304 (one estimate per study) and 0.0038 (every estimate); small-study effects on both pools (not itself proof of publication bias)"
+     "downgrade_steps": 0,
+     "judgement_en": "not serious",
+     "judgement_pt": "nao serio",
+     "reason": "Egger p = 0.685 (one estimate per study) and 0.0199 (every estimate); small-study effect on the every-estimate pool only, so no step"
     }
    },
-   "total_downgrade_steps": 5,
+   "total_downgrade_steps": 4,
    "certainty_of_evidence": "very low",
    "primary_pooled_auc": 0.8156,
    "primary_auc_ci_hk": [
@@ -82,13 +82,13 @@
      "reason": "95% modified Hartung-Knapp (mHK) interval around the primary pooled AUC (19 studies) spans 0.107 (0.741-0.848); 95% prediction interval 0.524-0.936"
     },
     "publication_bias": {
-     "downgrade_steps": 0,
-     "judgement_en": "not serious",
-     "judgement_pt": "nao serio",
-     "reason": "Egger p = 0.55 (one estimate per study) and 0.0171 (every estimate); no consistent small-study effect across the two pools"
+     "downgrade_steps": 1,
+     "judgement_en": "serious",
+     "judgement_pt": "serio",
+     "reason": "Egger p = 0.016 (one estimate per study) and 0.0018 (every estimate); small-study effects on both pools (not itself proof of publication bias)"
     }
    },
-   "total_downgrade_steps": 4,
+   "total_downgrade_steps": 5,
    "certainty_of_evidence": "very low",
    "primary_pooled_auc": 0.7998,
    "primary_auc_ci_hk": [

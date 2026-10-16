@@ -389,6 +389,18 @@ Um gráfico de ponto-e-intervalo ("forest de resumo") dos subgrupos centrais de 
 
 Dois donuts (por doença, por tipo de marcador) e uma barra ranqueada (por biofluido) resumindo a composição das 58 estimativas elegíveis para o pool primário, agregados no momento do desenho a partir de `data/extracted/diagnostic_accuracy_extraction.csv` filtrado por `eligible_primary_pool == "yes"`. Produzida pelo `scripts/24_study_characteristics.py`; as mesmas 58 estimativas são tabuladas por completo, com mais dois detalhamentos (método de quantificação, estágio de coorte), na Tabela Suplementar S1.
 
+## Arquivos acrescentados na versão 1.2.0 para a camada meta-analítica
+
+| Arquivo | Conteúdo |
+|---|---|
+| `results/tables/egger_test_audit.csv` | Uma linha por teste de Egger das duas tabelas agregadas: `pool`, `subgroup`, `k`, `intercept`, `intercept_se`, `t_intercept`, `df` (k − 2), `p_intercept` (o p de Egger reportado), `slope`, `p_slope_reported_up_to_v1_1_0` (o p da inclinação que as versões até 1.1.0 reportaram por engano) |
+| `results/tables/deeks_funnel_test.csv` | Teste de Deeks, uma estimativa por estudo, para DA+DP, DA e DP: `k`, `intercept`, `slope`, `slope_se`, `t_slope`, `df`, `p_value` (teste da inclinação) |
+| `results/tables/external_validation_metafor.csv` | `quantity`, `this_review`, `metafor`, `abs_difference`, `tolerance`, `agrees`, `metafor_version`, `r_version`; gravado pelo `scripts/41_validate_against_metafor.R` |
+| `data/extracted/citation_years.csv` | Artigos cujo ano do volume difere do ano da primeira publicação online: `study_id`, `doi`, `first_author`, `year_first_online` (como na tabela de extração), `citation_year` (ano do volume, usado nos rótulos), `journal`, `volume`, `issue`, `pages`, `epub_date_pubmed`, `basis` |
+| `data/extracted/shared_control_groups.csv` | Relatos que comparam DA e DP com um único grupo controle: `report_doi`, `first_author`, `year`, `ad_record_id`, `pd_record_id`, `shared_controls`, `verbatim_quote`, `source` |
+
+Colunas acrescentadas a tabelas existentes: `rob_index_test_selected_estimate` em `results/tables/quadas2_assessment.csv` (a regra do teste índice aplicada só à estimativa selecionada para o pool; vazia para estudos fora do pool); `egger_intercept_one_per_study`, `egger_p_one_per_study`, `egger_intercept_every_estimate`, `egger_p_every_estimate` em `results/tables/robustness_alternative_analyses.csv`; `tp`, `fn`, `tn`, `fp` (contagens reconstruídas, 0,5 somado a toda célula de tabela com célula vazia) em `results/tables/bivariate_input_estimates.csv`. A partir da versão 1.2.0 toda coluna `egger_p` traz o p do intercepto.
+
 ## Convenções
 
 - Proporções são armazenadas como proporções (0,82), não como percentuais (82%).

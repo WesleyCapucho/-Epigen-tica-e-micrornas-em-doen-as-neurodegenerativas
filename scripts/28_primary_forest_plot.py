@@ -39,6 +39,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
+import _citation_years as _cy
 from _viz_style import *  # noqa: F401,F403  (palette, ROB_*, helpers; applies the shared style)
 
 SELECTION = "results/tables/one_estimate_per_study_selection_audit.csv"
@@ -78,7 +79,7 @@ def load():
                 sys.exit(f"EN/PT: cannot match input row for {s['first_author']} {s['selected_marker']}")
             m = match[0]
             y, v = float(s["y"]), float(s["v"])
-            studies.append(dict(author=s["first_author"], year=int(float(s["year"])),
+            studies.append(dict(author=s["first_author"], year=int(float(s["year"])), sid=s["study_id"],
                                 marker=s["selected_marker"], biofluid=s["biofluid"],
                                 n=(m["n_cases"], m["n_controls"]), se_source=m["se_source"],
                                 y=y, v=v, w=1.0 / (v + tau2)))
@@ -165,8 +166,8 @@ def plot(data, path, lang):
                 for ax in (axl, axv, axr):
                     ax.axhspan(yy - 0.5, yy + 0.5, color=BAND, lw=0, zorder=0)
                 axf.axhspan(yy - 0.5, yy + 0.5, color=BAND, alpha=0.5, lw=0, zorder=0.5)
-            axl.text(0.0, yy, f"{s['author']} {s['year']}", fontsize=7.2, va="center", color=INK)
-            axl.text(0.5, yy, textwrap.shorten(s["marker"], 26, placeholder="…"), fontsize=6.3, va="center", color=INK2, clip_on=True)
+            axl.text(0.0, yy, _cy.label(s['author'], s['year'], s['sid']), fontsize=7.2, va="center", color=INK)
+            axl.text(0.5, yy, textwrap.shorten(s["marker"], 26, placeholder="…"), fontsize=6.3, va="center", color=INK2, clip_on=False)
             nn = f"{int(float(s['n'][0]))}/{int(float(s['n'][1]))}" if s["n"][0] and s["n"][1] else "n/r"
             star = "*" if "implausibly" in sr else ""
             axv.text(0.0, yy, f"{auc:.2f} [{lo_i:.2f}, {hi_i:.2f}]{star}", fontsize=6.6, va="center")

@@ -71,9 +71,9 @@ def plot(path, lang):
 
     panel(axes[1, 1],
           tr(lang, "4. Egger's regression test", "4. Teste de regressão de Egger"),
-          [r"$\dfrac{y_i}{SE_i} = a + b\left(\dfrac{1}{SE_i}\right)$",
-           tr(lang, "$a \\neq 0$ read as small-study asymmetry",
-              "$a \\neq 0$ lido como assimetria de estudo pequeno")],
+          [r"$\dfrac{y_i}{SE_i} = a + b\left(\dfrac{1}{SE_i}\right),\ \ t=\dfrac{\hat a}{SE(\hat a)}\ \mathrm{on}\ k-2\ \mathrm{df}$",
+           tr(lang, "the intercept $a$ is tested; $a \\neq 0$ read as small-study asymmetry",
+              "testa-se o intercepto $a$; $a \\neq 0$ lido como assimetria de estudo pequeno")],
           tr(lang, "scripts/05_meta_analysis.py — egger_test(); Egger et al., 1997",
              "scripts/05_meta_analysis.py — egger_test(); Egger et al., 1997"))
 
