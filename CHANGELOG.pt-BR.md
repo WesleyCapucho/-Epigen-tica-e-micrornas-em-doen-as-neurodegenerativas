@@ -4,7 +4,7 @@
 
 Cada versão é arquivada no Zenodo e tem DOI próprio.
 
-## 1.2.0 (2026-10-14)
+## 1.2.0 (2026-10-16)
 
 ### Corrigido
 
