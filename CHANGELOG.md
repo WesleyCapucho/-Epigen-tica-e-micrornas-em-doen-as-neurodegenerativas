@@ -6,6 +6,8 @@ Each release is archived on Zenodo and carries its own DOI.
 
 ## 1.2.0 (2026-10-16)
 
+Archived on Zenodo as [10.5281/zenodo.23421847](https://doi.org/10.5281/zenodo.23421847) (git tag `v1.2.0`).
+
 ### Corrected
 
 - **Egger test.** `scripts/05` reported the p value of the regression slope, which tests whether the pooled effect is zero, as the Egger p value; it now reports the t test of the intercept on k − 2 degrees of freedom. Every Egger p value changed (AD one estimate per study 0.030 → 0.69, every estimate 0.004 → 0.020; PD 0.55 → 0.016 and 0.017 → 0.002), and the GRADE publication-bias step moved from AD to PD (AD 5 → 4 steps, PD 4 → 5, both still very low). Found by an external review of the manuscript. `results/tables/egger_test_audit.csv` lists both p values for every pool; `scripts/08` recomputes every Egger p by an independent least-squares fit and checks the GRADE step.

@@ -242,7 +242,7 @@ Scripts: MIT (`LICENSE`). Data, tables, figures and documentation: CC BY 4.0 (`L
 
 ## Citation
 
-Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.2.0) [Data set]. Zenodo. The DOI of each version is on its Zenodo record; the first version (1.0.0) is https://doi.org/10.5281/zenodo.23353780 and version 1.1.0 is https://doi.org/10.5281/zenodo.23368166. See `CHANGELOG.md` for what changed between versions.
+Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.2.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.23421847. Each version has its own DOI: the first version (1.0.0) is https://doi.org/10.5281/zenodo.23353780 and version 1.1.0 is https://doi.org/10.5281/zenodo.23368166. See `CHANGELOG.md` for what changed between versions.
 
 Repository: https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas. Retrospective registration: OSF, https://doi.org/10.17605/OSF.IO/NJ8A5.
 

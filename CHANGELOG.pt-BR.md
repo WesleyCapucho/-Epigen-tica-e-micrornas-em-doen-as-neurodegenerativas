@@ -6,6 +6,8 @@ Cada versão é arquivada no Zenodo e tem DOI próprio.
 
 ## 1.2.0 (2026-10-16)
 
+Arquivada no Zenodo como [10.5281/zenodo.23421847](https://doi.org/10.5281/zenodo.23421847) (tag git `v1.2.0`).
+
 ### Corrigido
 
 - **Teste de Egger.** O `scripts/05` reportava como p de Egger o p da inclinação da regressão, que testa se o efeito combinado é zero; agora reporta o teste t do intercepto com k − 2 graus de liberdade. Todo p de Egger mudou (DA uma estimativa por estudo 0,030 → 0,69, toda estimativa 0,004 → 0,020; DP 0,55 → 0,016 e 0,017 → 0,002), e o passo GRADE de viés de publicação passou da DA para a DP (DA 5 → 4 passos, DP 4 → 5, as duas ainda muito baixas). Achado por uma revisão externa do manuscrito. `results/tables/egger_test_audit.csv` traz os dois p de cada pool; o `scripts/08` recalcula todo p de Egger por um ajuste de mínimos quadrados independente e confere o passo do GRADE.

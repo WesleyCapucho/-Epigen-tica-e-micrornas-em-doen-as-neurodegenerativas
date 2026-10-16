@@ -36,4 +36,4 @@ Cada item diz onde é atendido neste repositório, ou diz com todas as letras qu
 | 24 | Discussion | Discutir limitações da evidência e do processo de revisão. | Atendido | Seções 'Limitações conhecidas' e 'Correções' do README, que registra os catorze defeitos encontrados depois de resultados produzidos e o que cada um mudou. |
 | 25 | Discussion | Discutir implicações para prática e pesquisa. | No manuscrito | No manuscrito. |
 | 26 | Other | Declarar fontes de financiamento e o papel dos financiadores. | No manuscrito | No manuscrito. |
-| 27 | Other | Declarar conflitos de interesse e disponibilidade de dados. | Atendido | Este repositório, arquivado no Zenodo (versão 1.1.0, 10.5281/zenodo.23368166), é a declaração de disponibilidade de dados: dados brutos, scripts, tabelas e figuras, com todo valor extraído rastreável a uma frase-fonte literal. |
+| 27 | Other | Declarar conflitos de interesse e disponibilidade de dados. | Atendido | Este repositório, arquivado no Zenodo (versão 1.2.0, 10.5281/zenodo.23421847), é a declaração de disponibilidade de dados: dados brutos, scripts, tabelas e figuras, com todo valor extraído rastreável a uma frase-fonte literal. |
