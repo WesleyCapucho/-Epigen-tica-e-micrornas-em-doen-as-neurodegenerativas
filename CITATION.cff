@@ -20,7 +20,7 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.23353780"
     description: "Zenodo archive, version 1.0.0 (first version)"
-date-released: "2026-10-14"
+date-released: "2026-10-16"
 keywords:
   - microRNA
   - Alzheimer's disease
