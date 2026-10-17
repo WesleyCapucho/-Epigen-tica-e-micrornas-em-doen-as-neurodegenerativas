@@ -109,14 +109,15 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   │                                  #   structures/ (PyMOL renders)
 │   └── tables/                        # Pooled estimates, inputs, sensitivity, correlations, audit
 ├── CHANGELOG.md                       # What changed between versions (each version is archived on Zenodo)
-└── requirements.txt
+├── requirements.txt                   # Minimum versions
+└── requirements-lock.txt              # Exact versions of the environment that produced the archived results
 ```
 
 ## Reproducing the analysis
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt        # minimum versions; use requirements-lock.txt for the exact ones
 
 export NCBI_EMAIL=you@example.org     # required by scripts that call NCBI
 

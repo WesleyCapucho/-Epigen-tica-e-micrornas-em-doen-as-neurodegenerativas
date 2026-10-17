@@ -4,6 +4,12 @@
 
 Cada versão é arquivada no Zenodo e tem DOI próprio.
 
+## Não lançada
+
+### Adicionado
+
+- `requirements-lock.txt`: as versões exatas dos pacotes Python do ambiente que produziu os resultados arquivados (Python 3.11.17, NumPy 2.4.6, SciPy 1.17.1, pandas 3.0.6, matplotlib 3.11.2); `requirements.txt` mantém as versões mínimas.
+
 ## 1.2.0 (2026-10-16)
 
 Arquivada no Zenodo como [10.5281/zenodo.23421847](https://doi.org/10.5281/zenodo.23421847) (tag git `v1.2.0`).

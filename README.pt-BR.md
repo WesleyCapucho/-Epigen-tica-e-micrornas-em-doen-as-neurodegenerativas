@@ -109,14 +109,15 @@ A interpretação pertence ao manuscrito, não a este repositório. Duas coisas,
 │   │                                  #   .pt-BR.png; structures/ (renderizações PyMOL)
 │   └── tables/                        # Estimativas agregadas, entradas, sensibilidade, correlações, auditoria
 ├── CHANGELOG.pt-BR.md                 # O que mudou entre versões (cada versão é arquivada no Zenodo)
-└── requirements.txt
+├── requirements.txt                   # Versões mínimas
+└── requirements-lock.txt              # Versões exatas do ambiente que produziu os resultados arquivados
 ```
 
 ## Reproduzindo a análise
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt        # versões mínimas; use requirements-lock.txt para as exatas
 
 export NCBI_EMAIL=voce@exemplo.org    # exigido pelos scripts que chamam o NCBI
 

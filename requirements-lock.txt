@@ -1,0 +1,21 @@
+# EN | Exact versions of the environment in which the archived results, tables and figures were produced
+# PT | Versoes exatas do ambiente em que os resultados, tabelas e figuras arquivados foram produzidos
+# EN | Install with: pip install -r requirements-lock.txt   (requirements.txt gives the minimum versions)
+# PT | Instalar com: pip install -r requirements-lock.txt   (requirements.txt traz as versoes minimas)
+# Python 3.11.17
+biopython==1.88
+scikit-learn==1.9.1
+seaborn==0.13.2
+networkx==3.6.1
+plotly==7.1.0
+tqdm==4.70.1
+openpyxl==3.1.5
+xlrd==2.0.2
+numpy==2.4.6
+scipy==1.17.1
+pandas==3.0.6
+matplotlib==3.11.2
+adjustText==1.4.0
+pillow==12.3.0
+# R 4.3.3 with metafor 4.4.0 (scripts/41_validate_against_metafor.R), installed outside pip
+# pymol-open-source (scripts/13, 20, 39) is installed separately; see requirements.txt
