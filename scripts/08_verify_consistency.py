@@ -2107,6 +2107,35 @@ def main():
     except FileNotFoundError:
         claim(False, "results/tables/journal_figure_spec.csv missing; run the main-text figure scripts (14, 21, 27, 28, 32, 33, and 38 after 12, 13, 17, 36, 39 and 40)")
 
+    # --- 9c. Lettering of Figs. 1-6 reaches 4.5:1 on the vector PDFs ---
+    # EN | scripts/45 measures every text span of a figure PDF against the colour under it. v1.2.0
+    #      had 150 spans below 4.5:1 in Figs. 1-6 (lowest 1.99:1); the check keeps them out. It
+    #      needs PyMuPDF, an optional dependency, and says so when it is missing.
+    # PT | O scripts/45 mede cada trecho de texto de um PDF de figura contra a cor sob ele. A v1.2.0
+    #      tinha 150 trechos abaixo de 4,5:1 nas Figs. 1-6 (o menor, 1,99:1); a conferencia os
+    #      mantem fora. Precisa do PyMuPDF, dependencia opcional, e avisa quando falta.
+    try:
+        import importlib.util
+        spec_ = importlib.util.spec_from_file_location("art45", os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                              "45_check_figure_artwork.py"))
+        art45 = importlib.util.module_from_spec(spec_)
+        spec_.loader.exec_module(art45)
+    except ImportError:
+        art45 = None
+        print("EN/PT: PyMuPDF is not installed; the lettering contrast of Figs. 1-6 was not measured (pip install pymupdf) | "
+              "o contraste do texto das Figs. 1-6 nao foi medido")
+    if art45 is not None:
+        for stem_, num_ in art45.FIGURES:
+            for lang_ in ("en", "pt-BR"):
+                f_ = f"results/figures/{stem_}.{lang_}.pdf"
+                if not os.path.exists(f_):
+                    claim(False, f"{f_} is missing; run the main-text figure scripts")
+                    continue
+                m_ = art45.measure(f_)
+                check(m_["n_bad"] == 0, f"Fig. {num_} ({lang_}): {m_['n_bad']} text spans below 4.5:1 (worst {m_['worst']:.2f}:1)")
+                check(m_["w_mm"] <= 174.05 and m_["h_mm"] <= 234.05, f"Fig. {num_} ({lang_}): page {m_['w_mm']:.1f} x {m_['h_mm']:.1f} mm")
+                check(m_["thinnest"] != m_["thinnest"] or m_["thinnest"] >= 0.3, f"Fig. {num_} ({lang_}): a line of {m_['thinnest']:.2f} pt")
+
     # --- 10. The README has to describe the repository it ships with ------
     # EN | Two numbers in the README are claims about this file and about the corrections
     #      table below them, and both were found stale once: the check count said 1374

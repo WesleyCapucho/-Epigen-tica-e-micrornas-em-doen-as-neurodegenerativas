@@ -97,6 +97,10 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   ├── _viz_mech.py                               # Drawing helpers for the figures of the mechanistic study (tanks, ribbons, glyphs, placed renders)
 │   ├── _provenance.py                             # Where each row of the parameter table was measured and which block of the models it feeds
 │   ├── _citation_years.py                         # The year of the reference list for study labels (volume year where it differs from first online publication)
+│   ├── 42_mirna_mechanism_renders.py              # PyMOL renders of four deposited structures for the mechanism schematic (Article 1, Fig. 7; illustration only)
+│   ├── 43_mirna_mechanism_crops.py                # Crops those renders to their content (numpy and Pillow, no PyMOL)
+│   ├── 44_mirna_mechanism_figure.py               # Draws the mechanism schematic, 174 x 156 mm, 600 dpi (Article 1, Fig. 7; its own environment, see Reproducing the analysis)
+│   ├── 45_check_figure_artwork.py                 # Measures lettering contrast (4.5:1), line width, page size and image resolution on the vector PDF of each figure
 │   ├── 41_validate_against_metafor.R              # Optional: checks scripts/05 and 15 and the Egger tests against the R package metafor
 │   ├── _journal_fit.py                            # Fits main-text figures to 174 x 234 mm, 6.5 pt lettering floor, EPS twin; writes results/tables/journal_figure_spec.csv
 │   └── tools/mirror_extraction_json.py            # Regenerates the JSON mirror of the extraction table
@@ -109,14 +113,15 @@ Interpretation belongs in the manuscript, not here. Two things do belong here, b
 │   │                                  #   structures/ (PyMOL renders)
 │   └── tables/                        # Pooled estimates, inputs, sensitivity, correlations, audit
 ├── CHANGELOG.md                       # What changed between versions (each version is archived on Zenodo)
-└── requirements.txt
+├── requirements.txt                   # Minimum versions
+└── requirements-lock.txt              # Exact versions of the environment that produced the archived results
 ```
 
 ## Reproducing the analysis
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt        # minimum versions; use requirements-lock.txt for the exact ones
 
 export NCBI_EMAIL=you@example.org     # required by scripts that call NCBI
 
@@ -146,6 +151,7 @@ python scripts/31_post_search_sensitivity.py       # needs 05
 python scripts/32_design_profile_figure.py         # unit chart of design and reporting features
 python scripts/33_robustness_specification_figure.py   # specification chart of the robustness analyses
 Rscript scripts/41_validate_against_metafor.R      # optional, needs R and metafor: checks 05, 15 and the Egger tests against metafor
+python scripts/45_check_figure_artwork.py $(ls results/figures/{prisma_flow_diagram,design_profile,quadas2_summary,forest_plot_primary,robustness_specification,molecular_evidence_map}.*.pdf)   # optional, needs PyMuPDF: lettering contrast of Figs. 1-6
 python scripts/35_manuscript_numbers.py            # every number the manuscript quotes, read from the tables above
 python scripts/08_verify_consistency.py           # must pass before committing
 
@@ -157,6 +163,11 @@ python scripts/40_mimic_design_space.py            # needs 12, 17 and 36; about 
 pip install pymol-open-source                     # only needed for scripts/13 and 39; it installs for the Python that pip belongs to, so run those two scripts with that Python
 python scripts/13_structure_figures.py
 python scripts/39_structure_renders_article2.py   # needs the provenance table of 13; several minutes of headless ray tracing
+# Fig. 7 of Article 1 (mechanism schematic) has its own environment: PyMOL 3.1.0 for 42, then 43 and 44 with Python 3.12, matplotlib 3.10.8, NumPy 1.26.4, Pillow 12.3.0 and Arial,
+# the combination that redraws the submitted TIFF pixel for pixel (44 --compare); it is not the pinned environment of the analysis scripts.
+python scripts/42_mirna_mechanism_renders.py       # needs 13; run with the interpreter that has PyMOL
+python scripts/43_mirna_mechanism_crops.py
+python scripts/44_mirna_mechanism_figure.py
 python scripts/37_manuscript2_numbers.py           # every number the Article 2 manuscript quotes, read from the tables above (needs 12, 17, 36, 39 and 40)
 python scripts/38_mechanistic_figures.py           # the seven main-text figures of the mechanistic study (EN and pt-BR, PNG, PDF and EPS); needs 12, 13, 17, 36, 39 and 40
 python scripts/19_mechanism_animations.py
@@ -179,7 +190,7 @@ For the bibliometric layer, run `scripts/01` first: it produces the input of `sc
 - **Automated text mining was used to *find* candidate values, never to record them.** Regular expressions surfaced sentences; values were then read and transcribed by hand, because the patterns demonstrably mis-pair sensitivity with specificity and mistake p-values for accuracy metrics.
 - **Duplicate publication was checked.** PMIDs 40661348 and 41836608 report the same cohort and the same AUCs (preprint and journal version); they are counted once.
 - **The standard-error method was validated against a source.** For PMID 33129241 the Hanley–McNeil formula returns SE = 0.0822 for AUC 0.75 with 18 vs 18 subjects; the article independently reports SE = 0.08.
-- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4809 checks currently pass.
+- **`scripts/08` enforces all of this.** It recomputes each derived number from its source and fails if the extraction table, the PRISMA counts and the result tables disagree. 4845 checks currently pass.
 
 - **The kinetic parameters follow the same rule.** `data/extracted/kinetic_parameters.csv` holds 67 rows from 15 primary sources. Every measured value carries the sentence it was read from, and `scripts/08` checks that the number actually appears in that sentence. A parameter that was looked for and not found is recorded as a `declared_gap` with no value and no borrowed citation, and the ODE code refuses to load it. Two rows are `derived` (genome-wide medians computed from the archived Schwanhäusser table); `scripts/08` recomputes them from the file.
 - **Structure figures quote their deposition.** `scripts/13` reads title, method, resolution and primary citation from each coordinate file and stops if the title does not match the molecule the figure claims to show. The citation parser skips the PDB's own deposition DOI, which is easy to mistake for the article's.
@@ -242,7 +253,7 @@ Scripts: MIT (`LICENSE`). Data, tables, figures and documentation: CC BY 4.0 (`L
 
 ## Citation
 
-Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.2.0) [Data set]. Zenodo. The DOI of each version is on its Zenodo record; the first version (1.0.0) is https://doi.org/10.5281/zenodo.23353780 and version 1.1.0 is https://doi.org/10.5281/zenodo.23368166. See `CHANGELOG.md` for what changed between versions.
+Capucho, W. F. (2026) *Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results* (version 1.2.1) [Data set]. Zenodo. The DOI of each version is on its Zenodo record; the first version (1.0.0) is https://doi.org/10.5281/zenodo.23353780, version 1.1.0 is https://doi.org/10.5281/zenodo.23368166 and version 1.2.0 is https://doi.org/10.5281/zenodo.23421847. See `CHANGELOG.md` for what changed between versions.
 
 Repository: https://github.com/WesleyCapucho/-Epigen-tica-e-micrornas-em-doen-as-neurodegenerativas. Retrospective registration: OSF, https://doi.org/10.17605/OSF.IO/NJ8A5.
 

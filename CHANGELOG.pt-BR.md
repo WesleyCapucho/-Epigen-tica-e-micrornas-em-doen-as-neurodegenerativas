@@ -4,7 +4,20 @@
 
 Cada versão é arquivada no Zenodo e tem DOI próprio.
 
+## 1.2.1 (2026-10-17)
+
+### Alterado
+
+- **Contraste do texto das Figs. 1–6.** A revista pede 4,5:1; medido nos PDFs vetoriais pelo novo `scripts/45`, a v1.2.0 tinha 150 trechos de texto abaixo disso nos seis PDFs em inglês (o menor, 1,99:1: os numerais azul-claros da Fig. 1; o laranja da DP, as notas cinza e o branco sobre o verde de baixo risco ficavam entre 2,8:1 e 3,5:1, e o azul da DA entre 3,9:1 e 4,2:1). O texto agora usa `AD_TEXT` (#1f63b8), `PD_TEXT` (#b8400f) e `NOTE` (#62615d), os numerais da Fig. 1 usam os três tons escuros da rampa, e o verde de baixo risco é #0b7a0b. Marcas, linhas e preenchimentos mantêm os matizes da v1.2.0. Pior contraste agora 4,88:1 nos 12 PDFs; nenhum número nem dado mudou.
+
+### Adicionado
+
+- `scripts/42` a `44`: o esquema de mecanismo do manuscrito do Artigo 1 (sua Fig. 7): renders do PyMOL de quatro estruturas depositadas, seus recortes e a figura. O `scripts/45` mede contraste do texto, espessura de linha, tamanho de página e resolução de imagem em PDFs de figura; a seção 9c do `scripts/08` o roda nas Figs. 1–6 quando o PyMuPDF está instalado (4845 verificações).
+- `requirements-lock.txt`: as versões exatas dos pacotes Python do ambiente que produziu os resultados arquivados (Python 3.11.17, NumPy 2.4.6, SciPy 1.17.1, pandas 3.0.6, matplotlib 3.11.2); `requirements.txt` mantém as versões mínimas.
+
 ## 1.2.0 (2026-10-16)
+
+Arquivada no Zenodo como [10.5281/zenodo.23421847](https://doi.org/10.5281/zenodo.23421847) (tag git `v1.2.0`).
 
 ### Corrigido
 

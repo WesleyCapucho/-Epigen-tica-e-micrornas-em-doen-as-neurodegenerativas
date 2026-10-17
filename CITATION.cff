@@ -3,7 +3,7 @@ message: "If you use this repository, please cite it as below."
 title: "Diagnostic accuracy of circulating microRNAs in Alzheimer's disease and Parkinson's disease: data, code and results"
 type: dataset
 license: CC-BY-4.0
-version: "1.2.0"
+version: "1.2.1"
 authors:
   - family-names: Capucho
     given-names: Wesley Felipe
@@ -15,12 +15,15 @@ identifiers:
     value: "10.17605/OSF.IO/NJ8A5"
     description: "OSF registration (retrospective)"
   - type: doi
+    value: "10.5281/zenodo.23421847"
+    description: "Zenodo archive, version 1.2.0 (previous version); the DOI of this version is on its Zenodo record"
+  - type: doi
     value: "10.5281/zenodo.23368166"
-    description: "Zenodo archive, version 1.1.0 (previous version); the DOI of this version is on its Zenodo record"
+    description: "Zenodo archive, version 1.1.0"
   - type: doi
     value: "10.5281/zenodo.23353780"
     description: "Zenodo archive, version 1.0.0 (first version)"
-date-released: "2026-10-16"
+date-released: "2026-10-17"
 keywords:
   - microRNA
   - Alzheimer's disease

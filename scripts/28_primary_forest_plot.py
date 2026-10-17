@@ -143,7 +143,7 @@ def plot(data, path, lang):
             axr.text(j + 0.5, yh, ab, fontsize=7.2, fontweight="bold", ha="center", va="center", color=INK2)
         axl.text(0.0, ytop - 0.15, t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
                                      "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"),
-                 fontsize=10, fontweight="bold", color=col, va="center")
+                 fontsize=10, fontweight="bold", color=DISEASE_TEXT[dis], va="center")
         # EN/PT: prediction band and pooled line behind the studies | faixa de predicao e linha agregada atras dos estudos
         est, lo, hi = float(prow["pooled_auc"]), float(prow["ci_low_hk"]), float(prow["ci_high_hk"])
         pil, pih = float(prow["pi_low"]), float(prow["pi_high"])

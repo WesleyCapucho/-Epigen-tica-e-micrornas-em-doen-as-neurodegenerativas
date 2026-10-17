@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
-from _viz_style import DISEASE, AD_SOFT, PD_SOFT, INK, INK2, INK3, RULE, GRID, BAND, PAGE, panel_letter
+from _viz_style import DISEASE, DISEASE_TEXT, NOTE, AD_SOFT, PD_SOFT, INK, INK2, INK3, RULE, GRID, BAND, PAGE, panel_letter
 
 T = "results/tables/"
 FIG_DIR = "results/figures"
@@ -148,7 +148,7 @@ def plot(data, pv, rnd, path, lang):
         ax.set_xticks([0.6, 0.7, 0.8, 0.9, 1.0])
         ax.spines["left"].set_visible(False)
         ax.set_title(t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
-                       "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"), loc="left", fontsize=9, fontweight="bold", color=col)
+                       "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson"), loc="left", fontsize=9, fontweight="bold", color=DISEASE_TEXT[dis])
         ax.set_xlabel(t(lang, "Pooled AUC", "AUC agregado"), fontsize=7.4)
         if c == 0:
             panel_letter(ax, "a", x=-0.62, y=1.06)
@@ -171,11 +171,11 @@ def plot(data, pv, rnd, path, lang):
                  transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.2, color=INK)
         axb.annotate(p_text(r["p"]), xy=(1.4, y), xycoords=("axes fraction", "data"), va="center", fontsize=6.8, color=INK2,
                      fontweight="bold" if r["p"] < 0.05 else "normal", annotation_clip=False)
-    axb.text(-0.005, 4.75, t(lang, "Parkinson's disease", "Doença de Parkinson"), transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.6, fontweight="bold", color=DISEASE["PD"])
-    axb.text(-0.005, 1.85, t(lang, "Alzheimer's disease", "Doença de Alzheimer"), transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.6, fontweight="bold", color=DISEASE["AD"])
+    axb.text(-0.005, 4.75, t(lang, "Parkinson's disease", "Doença de Parkinson"), transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.6, fontweight="bold", color=DISEASE_TEXT["PD"])
+    axb.text(-0.005, 1.85, t(lang, "Alzheimer's disease", "Doença de Alzheimer"), transform=axb.get_yaxis_transform(), ha="right", va="center", fontsize=7.6, fontweight="bold", color=DISEASE_TEXT["AD"])
     axb.axhline(2.35, color=GRID, lw=0.8)
     for xx, lab in ((1.03, t(lang, "single (n)", "isolado (n)")), (1.2, t(lang, "panel (n)", "painel (n)")), (1.4, t(lang, "panel vs single, p", "painel vs isolado, p"))):
-        axb.annotate(lab, xy=(xx, 4.75), xycoords=("axes fraction", "data"), va="center", fontsize=6.3, color=INK3, annotation_clip=False)
+        axb.annotate(lab, xy=(xx, 4.75), xycoords=("axes fraction", "data"), va="center", fontsize=6.3, color=NOTE, annotation_clip=False)
     axb.set_yticks([])
     axb.spines["left"].set_visible(False)
     axb.set_xticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])

@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _bilingual import LANGS, t, fig_path
-from _viz_style import INK, INK2, INK3, RULE, PAGE, BAND, rounded, panel_letter
+from _viz_style import INK, INK2, INK3, NOTE, RULE, PAGE, BAND, rounded, panel_letter
 
 DESIGN = "data/extracted/study_design_preanalytics.csv"
 QUADAS = "data/extracted/quadas2_study_level.csv"
@@ -174,7 +174,7 @@ def plot(counts, n, path, lang):
             ax.plot([-margin + 0.3, n + 0.8], [y0 + pitch - 0.3] * 2, color=BAND, lw=0.8)
     ax.text(-margin + 0.3, total_h - 0.5, t(lang, "One square = one pooled study (n = %d). Darker = more rigorous practice; grey = absent or not reported; outlined = abstract only, not assessable." % n,
                                          "Um quadrado = um estudo agregado (n = %d). Mais escuro = prática mais rigorosa; cinza = ausente ou não relatado; contorno = só resumo, não avaliável." % n),
-            fontsize=5.8, color=INK3, ha="left", va="center")
+            fontsize=5.8, color=NOTE, ha="left", va="center")
     fig.savefig(path, dpi=600)
     plt.close(fig)
 

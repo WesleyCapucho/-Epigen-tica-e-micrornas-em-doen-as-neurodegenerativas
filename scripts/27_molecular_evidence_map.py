@@ -122,7 +122,7 @@ def plot(rows, pooled, path, lang):
          marcador agregado aparecem na ultima coluna. A barra a esquerda e a AUC do estudo.
     """
     import matplotlib.gridspec as gridspec
-    from _viz_style import (TIER_RAMP, TIER_NONE, DISEASE, INK, INK2, INK3, BAND, RULE, PAGE, GRID, panel_letter)
+    from _viz_style import (TIER_RAMP, TIER_NONE, DISEASE, DISEASE_TEXT, INK, INK2, INK3, NOTE, BAND, RULE, PAGE, GRID, panel_letter)
     order_rows = sorted(pooled.values(), key=lambda r: (r["disease"], -float(r["selected_auc"])))
     n = len(order_rows)
     ng = len(GROUPS)
@@ -165,7 +165,7 @@ def plot(rows, pooled, path, lang):
                 for ax in (axl, axb, axm):
                     ax.axhline(i - 0.5, color=INK3, lw=0.8, zorder=1)
             prev = dis
-        axl.text(0.0, i, dis, fontsize=6.0, va="center", color=DISEASE[dis], fontweight="bold")
+        axl.text(0.0, i, dis, fontsize=6.0, va="center", color=DISEASE_TEXT[dis], fontweight="bold")
         axl.text(0.14, i, _cy.label(r['first_author'], r['year'], sid), fontsize=6.4, va="center", color=INK)
         auc = float(r["selected_auc"])
         axb.plot([0.5, auc], [i, i], color=DISEASE[dis], lw=1.4, solid_capstyle="butt", zorder=2)
@@ -198,7 +198,7 @@ def plot(rows, pooled, path, lang):
         axt.add_patch(plt.Rectangle((gi - 0.2, 0.0), 0.4, 0.3 * h, color=RULE if gi == ng else INK2, lw=0, alpha=0.9))
         if h:
             axt.text(gi, 0.3 * h + 0.15, str(h), ha="center", va="bottom", fontsize=5.8, color=INK2)
-    axt.text(-0.75, 0.15, t(lang, "Studies per pathway", "Estudos por via"), fontsize=5.8, color=INK3, va="bottom", ha="right")
+    axt.text(-0.75, 0.15, t(lang, "Studies per pathway", "Estudos por via"), fontsize=5.8, color=NOTE, va="bottom", ha="right")
     # legend: strength of support
     names = [(t(lang, "Experiment in the study", "Experimento no estudo")), t(lang, "Authors' earlier experiment", "Experimento anterior dos autores"),
              t(lang, "Cited from literature", "Citado da literatura"), t(lang, "Target prediction", "Predição de alvo"),
