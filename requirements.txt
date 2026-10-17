@@ -18,3 +18,7 @@ adjustText>=1.0   # EN/PT: label placement in scripts/06's attention-vs-accuracy
 
 # EN | Structure figures (scripts/13) | PT | Figuras estruturais (scripts/13)
 # pymol-open-source>=3.0  (install separately: pip install pymol-open-source)
+
+# EN | Optional: lettering-contrast check of the figure PDFs (scripts/45, and section 9c of scripts/08)
+# PT | Opcional: conferencia de contraste do texto dos PDFs de figura (scripts/45 e secao 9c do scripts/08)
+pymupdf>=1.24

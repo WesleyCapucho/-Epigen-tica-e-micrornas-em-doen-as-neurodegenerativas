@@ -17,5 +17,6 @@ pandas==3.0.6
 matplotlib==3.11.2
 adjustText==1.4.0
 pillow==12.3.0
+pymupdf==1.28.2
 # R 4.3.3 with metafor 4.4.0 (scripts/41_validate_against_metafor.R), installed outside pip
 # pymol-open-source (scripts/13, 20, 39) is installed separately; see requirements.txt

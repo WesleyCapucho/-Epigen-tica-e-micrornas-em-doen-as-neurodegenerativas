@@ -34,7 +34,8 @@ from matplotlib.patches import FancyBboxPatch
 PAGE = "#ffffff"
 INK = "#1b1b1a"
 INK2 = "#52514e"
-INK3 = "#8a8984"
+INK3 = "#8a8984"          # EN/PT: rules, arrows, markers | filetes, setas, marcadores
+NOTE = "#62615d"          # EN/PT: grey lettering, 5.4 to 6.2:1 on the page and on BAND | texto cinza
 GRID = "#e7e6e2"
 BAND = "#f4f3f0"
 RULE = "#cfcdc7"
@@ -43,6 +44,13 @@ RULE = "#cfcdc7"
 AD = "#2a78d6"
 PD = "#eb6834"
 DISEASE = {"AD": AD, "PD": PD}
+# EN | Lettering in the disease hues, darker so that it reaches 4.5:1 on the page and on BAND (the journal rule);
+#      marks, lines and fills keep AD and PD above. Measured on the vector PDFs by scripts/45.
+# PT | Texto nos matizes de doenca, mais escuro para chegar a 4,5:1 na pagina e na faixa; marcas, linhas e
+#      preenchimentos mantem AD e PD acima.
+AD_TEXT = "#1f63b8"
+PD_TEXT = "#b8400f"
+DISEASE_TEXT = {"AD": AD_TEXT, "PD": PD_TEXT}
 AD_SOFT = "#cde2fb"
 PD_SOFT = "#f9d3c1"
 
@@ -51,7 +59,7 @@ TIER_RAMP = ["#0d366b", "#124785", "#1c5cab", "#2a78d6", "#5598e7", "#86b6ef"]
 TIER_NONE = "#cfcdc7"
 
 # --- status (fixed palette): risk of bias ---------------------------------------------
-ROB_FILL = {"low": "#0ca30c", "unclear": "#fab219", "high": "#d03b3b"}
+ROB_FILL = {"low": "#0b7a0b", "unclear": "#fab219", "high": "#d03b3b"}
 ROB_LETTER = {"low": "L", "unclear": "U", "high": "H"}
 ROB_TEXT = {"low": "#ffffff", "unclear": "#1b1b1a", "high": "#ffffff"}
 

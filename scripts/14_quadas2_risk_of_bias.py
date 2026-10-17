@@ -481,7 +481,7 @@ def plot(assessment, path, lang):
          agregados primeiro.
     """
     import matplotlib.gridspec as gridspec
-    from _viz_style import (ROB_FILL, ROB_LETTER, ROB_TEXT, INK, INK2, INK3, BAND, DISEASE,
+    from _viz_style import (ROB_FILL, ROB_LETTER, ROB_TEXT, INK, INK2, INK3, NOTE, BAND, DISEASE, DISEASE_TEXT,
                             rounded, panel_letter)
     level = {HIGH: "high", UNCLEAR: "unclear", LOW: "low"}
     name = {"high": t(lang, "High", "Alto"), "unclear": t(lang, "Unclear", "Incerto"), "low": t(lang, "Low", "Baixo")}
@@ -543,7 +543,7 @@ def plot(assessment, path, lang):
         ax.axis("off")
         ax.text(-6.2, nmax + 1.55, t(lang, "Alzheimer's disease" if dis == "AD" else "Parkinson's disease",
                                       "Doença de Alzheimer" if dis == "AD" else "Doença de Parkinson")
-                + f"  (n = {len(rows)})", fontsize=8.6, fontweight="bold", color=DISEASE[dis], va="center")
+                + f"  (n = {len(rows)})", fontsize=8.6, fontweight="bold", color=DISEASE_TEXT[dis], va="center")
         ab = ["PS", "IT", "RS", "FT", "PS", "IT", "RS"]
         for j, key in enumerate(keys):
             x = j + (0.25 if j >= 4 else 0)
@@ -558,7 +558,7 @@ def plot(assessment, path, lang):
                 ax.add_patch(plt.Rectangle((-6.2, y - 0.5), nd + 6.3, 1.0, color=BAND, lw=0, zorder=0))
             pooled = r["study_id"].lower() in pooled_ids
             ax.text(-0.15, y, _cy.label(r['first_author'], r['year'], r['study_id']) + ("" if pooled else " †"), ha="right", va="center",
-                    fontsize=7.0, color=INK if pooled else INK3)
+                    fontsize=7.0, color=INK if pooled else NOTE)
             for j, key in enumerate(keys):
                 x = j + (0.25 if j >= 4 else 0)
                 v = level[r[key]]
@@ -571,7 +571,7 @@ def plot(assessment, path, lang):
                bbox_to_anchor=(0.02, 0.0), ncol=3, frameon=False, fontsize=7.2, handletextpad=0.3, columnspacing=1.4)
     fig.text(0.985, 0.012, t(lang, "† not in the pooled analysis (cerebrospinal fluid or no estimable standard error)",
                              "† fora da análise agregada (líquido cefalorraquidiano ou sem erro-padrão estimável)"),
-             fontsize=6.8, color=INK3, ha="right", va="bottom")
+             fontsize=6.8, color=NOTE, ha="right", va="bottom")
     fig.savefig(path, dpi=600, bbox_inches="tight")
     plt.close(fig)
 

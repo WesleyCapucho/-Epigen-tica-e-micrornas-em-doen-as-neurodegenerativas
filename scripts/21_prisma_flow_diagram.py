@@ -102,7 +102,10 @@ def plot(flow, path, lang):
     def card(x, y, w, h, big, text, accent, side=False):
         rounded(ax, x, y, w, h, BAND if side else PAGE, ec=RULE, lw=0.9, r=1.2, z=1)
         rounded(ax, x, y, 1.1, h, accent, r=0.5, z=2)
-        ax.text(x + 3.0, y + h / 2, big, fontsize=15 if not side else 12, fontweight="bold", color=accent if not side else INK2,
+        # EN/PT: the numeral is lettering, so it takes one of the three dark tones of the ramp (>= 4.5:1); the bar keeps the accent
+        #        | o numeral e texto, entao usa um dos tres tons escuros da rampa; a barra mantem o acento
+        numeral = accent if accent in TIER_RAMP[:3] else TIER_RAMP[2]
+        ax.text(x + 3.0, y + h / 2, big, fontsize=15 if not side else 12, fontweight="bold", color=numeral if not side else INK2,
                 va="center", ha="left", zorder=3)
         off = 3.0 + (10.5 if not side else 8.0)
         ax.text(x + off, y + h / 2, text, fontsize=6.3, color=INK, va="center", ha="left", linespacing=1.4, zorder=3)
