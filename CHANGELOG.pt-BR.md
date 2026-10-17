@@ -4,7 +4,7 @@
 
 Cada versão é arquivada no Zenodo e tem DOI próprio.
 
-## Não lançada
+## 1.2.1 (2026-10-17)
 
 ### Alterado
 

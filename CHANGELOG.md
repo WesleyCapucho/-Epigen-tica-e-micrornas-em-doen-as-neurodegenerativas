@@ -4,7 +4,7 @@
 
 Each release is archived on Zenodo and carries its own DOI.
 
-## Unreleased
+## 1.2.1 (2026-10-17)
 
 ### Changed
 
