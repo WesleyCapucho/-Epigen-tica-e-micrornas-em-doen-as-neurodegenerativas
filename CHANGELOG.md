@@ -6,6 +6,8 @@ Each release is archived on Zenodo and carries its own DOI.
 
 ## 1.2.1 (2026-10-17)
 
+Archived on Zenodo as [10.5281/zenodo.23438256](https://doi.org/10.5281/zenodo.23438256) (git tag `v1.2.1`).
+
 ### Changed
 
 - **Lettering contrast of Figs. 1–6.** The journal asks for 4.5:1; measured on the vector PDFs by the new `scripts/45`, v1.2.0 had 150 text spans below it in the six English PDFs (lowest 1.99:1: the light-blue numerals of Fig. 1; the orange of PD, the grey notes and the white on the green of low risk lay between 2.8:1 and 3.5:1, and the blue of AD between 3.9:1 and 4.2:1). Lettering now uses `AD_TEXT` (#1f63b8), `PD_TEXT` (#b8400f) and `NOTE` (#62615d), the numerals of Fig. 1 use the three dark tones of the ramp, and the green of low risk is #0b7a0b. Marks, lines and fills keep the hues of v1.2.0. Worst contrast now 4.88:1 over all 12 PDFs; no number or data changed.

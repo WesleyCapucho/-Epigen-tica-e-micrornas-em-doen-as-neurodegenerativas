@@ -6,6 +6,8 @@ Cada versão é arquivada no Zenodo e tem DOI próprio.
 
 ## 1.2.1 (2026-10-17)
 
+Arquivada no Zenodo como [10.5281/zenodo.23438256](https://doi.org/10.5281/zenodo.23438256) (tag git `v1.2.1`).
+
 ### Alterado
 
 - **Contraste do texto das Figs. 1–6.** A revista pede 4,5:1; medido nos PDFs vetoriais pelo novo `scripts/45`, a v1.2.0 tinha 150 trechos de texto abaixo disso nos seis PDFs em inglês (o menor, 1,99:1: os numerais azul-claros da Fig. 1; o laranja da DP, as notas cinza e o branco sobre o verde de baixo risco ficavam entre 2,8:1 e 3,5:1, e o azul da DA entre 3,9:1 e 4,2:1). O texto agora usa `AD_TEXT` (#1f63b8), `PD_TEXT` (#b8400f) e `NOTE` (#62615d), os numerais da Fig. 1 usam os três tons escuros da rampa, e o verde de baixo risco é #0b7a0b. Marcas, linhas e preenchimentos mantêm os matizes da v1.2.0. Pior contraste agora 4,88:1 nos 12 PDFs; nenhum número nem dado mudou.
